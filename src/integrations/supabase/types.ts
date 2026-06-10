@@ -139,6 +139,72 @@ export type Database = {
         }
         Relationships: []
       }
+      assinaturas: {
+        Row: {
+          bloqueio_motivo: string | null
+          ciclo: string
+          created_at: string
+          id: string
+          imobiliaria_id: string | null
+          inicio_em: string
+          observacao: string | null
+          plano_id: string
+          proximo_vencimento: string | null
+          status: string
+          ultimo_pagamento_em: string | null
+          updated_at: string
+          usuario_id: string | null
+          valor: number
+        }
+        Insert: {
+          bloqueio_motivo?: string | null
+          ciclo?: string
+          created_at?: string
+          id?: string
+          imobiliaria_id?: string | null
+          inicio_em?: string
+          observacao?: string | null
+          plano_id: string
+          proximo_vencimento?: string | null
+          status?: string
+          ultimo_pagamento_em?: string | null
+          updated_at?: string
+          usuario_id?: string | null
+          valor?: number
+        }
+        Update: {
+          bloqueio_motivo?: string | null
+          ciclo?: string
+          created_at?: string
+          id?: string
+          imobiliaria_id?: string | null
+          inicio_em?: string
+          observacao?: string | null
+          plano_id?: string
+          proximo_vencimento?: string | null
+          status?: string
+          ultimo_pagamento_em?: string | null
+          updated_at?: string
+          usuario_id?: string | null
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assinaturas_imobiliaria_id_fkey"
+            columns: ["imobiliaria_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinaturas_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           acao: string
@@ -1248,6 +1314,110 @@ export type Database = {
           },
         ]
       }
+      pagamentos: {
+        Row: {
+          assinatura_id: string
+          competencia: string | null
+          comprovante_url: string | null
+          created_at: string
+          id: string
+          metodo: string
+          observacao: string | null
+          pago_em: string | null
+          registrado_por: string | null
+          status: string
+          updated_at: string
+          valor: number
+          vencimento: string | null
+        }
+        Insert: {
+          assinatura_id: string
+          competencia?: string | null
+          comprovante_url?: string | null
+          created_at?: string
+          id?: string
+          metodo?: string
+          observacao?: string | null
+          pago_em?: string | null
+          registrado_por?: string | null
+          status?: string
+          updated_at?: string
+          valor: number
+          vencimento?: string | null
+        }
+        Update: {
+          assinatura_id?: string
+          competencia?: string | null
+          comprovante_url?: string | null
+          created_at?: string
+          id?: string
+          metodo?: string
+          observacao?: string | null
+          pago_em?: string | null
+          registrado_por?: string | null
+          status?: string
+          updated_at?: string
+          valor?: number
+          vencimento?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_assinatura_id_fkey"
+            columns: ["assinatura_id"]
+            isOneToOne: false
+            referencedRelation: "assinaturas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          id: string
+          limite_carteiras: number | null
+          limite_usuarios: number | null
+          nome: string
+          ordem: number
+          preco_anual: number | null
+          preco_mensal: number
+          recursos: Json
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          limite_carteiras?: number | null
+          limite_usuarios?: number | null
+          nome: string
+          ordem?: number
+          preco_anual?: number | null
+          preco_mensal?: number
+          recursos?: Json
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          limite_carteiras?: number | null
+          limite_usuarios?: number | null
+          nome?: string
+          ordem?: number
+          preco_anual?: number | null
+          preco_mensal?: number
+          recursos?: Json
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portais: {
         Row: {
           ativo: boolean
@@ -1450,6 +1620,20 @@ export type Database = {
           responsavel_whatsapp: string
           termo_exclusividade_path: string
           valor_comissao: number
+        }[]
+      }
+      get_minha_assinatura: {
+        Args: never
+        Returns: {
+          assinatura_id: string
+          bloqueio_motivo: string
+          ciclo: string
+          plano_id: string
+          plano_nome: string
+          proximo_vencimento: string
+          status: string
+          titular: string
+          valor: number
         }[]
       }
       has_role: {
