@@ -460,9 +460,9 @@ export default function Properties() {
   const setSelectedProperty = (p: Property | null) => {
     setSelectedPropertyState(p);
     if (p) {
-      setSearchParams(prev: any => { prev.set("property", p.id); return prev; }, { replace: true });
+      setSearchParams(prev: any) => { prev.set("property", p.id); return prev; }, { replace: true });
     } else {
-      setSearchParams(prev: any => { prev.delete("property"); return prev; }, { replace: true });
+      setSearchParams(prev: any) => { prev.delete("property"); return prev; }, { replace: true });
     }
   };
 
@@ -483,7 +483,7 @@ export default function Properties() {
   const handleCatDragOver = (e: React.DragEvent, idx: number) => {
     e.preventDefault();
     if (dragCatRef.current === null || dragCatRef.current === idx) return;
-    setCategories(prev: any => {
+    setCategories(prev: any) => {
       const updated = [...prev];
       const [moved] = updated.splice(dragCatRef.current!, 1);
       updated.splice(idx, 0, moved);
@@ -625,7 +625,7 @@ export default function Properties() {
   const toggleFavorite = async (id: string) => {
     const isFav = favoriteIds.includes(id);
     // Optimistic update
-    setFavoriteIds(prev: any => isFav ? prev.filter(x => x !== id) : [...prev, id]);
+    setFavoriteIds(prev: any) => isFav ? prev.filter(x => x !== id) : [...prev, id]);
     
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -807,7 +807,7 @@ export default function Properties() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setPropertyList(prev: any => [duplicate, ...prev]);
+    setPropertyList(prev: any) => [duplicate, ...prev]);
     toast.success("Imóvel duplicado com sucesso!");
   };
 
