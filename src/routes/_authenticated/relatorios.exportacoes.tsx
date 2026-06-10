@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { logRelatorioAccess } from "@/hooks/use-relatorios";
+import { useRelFilters } from "@/hooks/use-rel-filters";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   AreaChart, Area, Legend,
@@ -29,15 +30,22 @@ function RelExportacoes() {
   const [portais, setPortais] = useState<Portal[]>([]);
   const [logs, setLogs] = useState<FeedLog[]>([]);
 
+  const { filters } = useRelFilters();
+
   useEffect(() => {
-    logRelatorioAccess("exportacoes");
+    logRelatorioAccess("exportacoes", filters as any);
     (async () => {
+      const since = filters.periodoDias ? new Date(Date.now() - filters.periodoDias * 86400000).toISOString() : null;
+      let cpQ: any = supabase.from("carteira_portais").select("id, carteira_id, portal_id, ativo, ultima_leitura, total_leituras, status_sincronizacao");
+      if (filters.portalId) cpQ = cpQ.eq("portal_id", filters.portalId);
+      let flQ: any = supabase.from("feed_logs").select("created_at, ip, user_agent").order("created_at", { ascending: false }).limit(2000);
+      if (since) flQ = flQ.gte("created_at", since);
       const [c, ci, cp, p, fl] = await Promise.all([
         supabase.from("carteiras").select("id, nome, status, ultima_atualizacao, created_at"),
         supabase.from("carteira_imoveis").select("carteira_id, imovel_id"),
-        supabase.from("carteira_portais").select("id, carteira_id, portal_id, ativo, ultima_leitura, total_leituras, status_sincronizacao"),
+        cpQ,
         supabase.from("portais").select("id, nome, slug, cor"),
-        supabase.from("feed_logs").select("created_at, ip, user_agent").order("created_at", { ascending: false }).limit(500),
+        flQ,
       ]);
       setCarteiras((c.data ?? []) as Carteira[]);
       setItems((ci.data ?? []) as CarteiraItem[]);
@@ -45,7 +53,7 @@ function RelExportacoes() {
       setPortais((p.data ?? []) as Portal[]);
       setLogs((fl.data ?? []) as FeedLog[]);
     })();
-  }, []);
+  }, [filters]);
 
   const itemsByCart = new Map<string, number>();
   for (const i of items) itemsByCart.set(i.carteira_id, (itemsByCart.get(i.carteira_id) ?? 0) + 1);
@@ -68,10 +76,11 @@ function RelExportacoes() {
   }
   const portalRows = [...porPortal.values()];
 
-  // Atividade 30 dias
+  // Atividade no período
+  const periodoDias = filters.periodoDias || 30;
   const days = new Map<string, number>();
-  const cutoff = Date.now() - 1000 * 60 * 60 * 24 * 30;
-  for (let i = 29; i >= 0; i--) {
+  const cutoff = Date.now() - 1000 * 60 * 60 * 24 * periodoDias;
+  for (let i = periodoDias - 1; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
     days.set(d, 0);
   }

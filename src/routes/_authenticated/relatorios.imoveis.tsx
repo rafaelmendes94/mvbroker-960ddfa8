@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { logRelatorioAccess } from "@/hooks/use-relatorios";
+import { useRelFilters } from "@/hooks/use-rel-filters";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell, Legend,
@@ -46,22 +47,31 @@ function group<T>(rows: T[], key: (r: T) => string) {
 }
 
 function RelImoveis() {
+  const { filters } = useRelFilters();
   const [rows, setRows] = useState<Row[]>([]);
   const [fotosByImovel, setFotosByImovel] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    logRelatorioAccess("imoveis");
+    logRelatorioAccess("imoveis", filters as any);
     (async () => {
-      const { data } = await supabase
+      let q: any = supabase
         .from("imoveis")
         .select("id, tipo_imovel, status_imovel, cidade, bairro, preco, publicar_xml, descricao, updated_at")
         .limit(5000);
+      if (filters.cidade) q = q.eq("cidade", filters.cidade);
+      if (filters.tipo) q = q.eq("tipo_imovel", filters.tipo);
+      if (filters.status) q = q.eq("status_imovel", filters.status);
+      const since = filters.periodoDias ? new Date(Date.now() - filters.periodoDias * 86400000).toISOString() : null;
+      if (since) q = q.gte("updated_at", since);
+      const { data } = await q;
       setRows((data ?? []) as Row[]);
 
       const { data: imgs } = await supabase.from("imovel_imagens").select("imovel_id").limit(20000);
       setFotosByImovel(new Set((imgs ?? []).map((r: { imovel_id: string }) => r.imovel_id)));
     })();
-  }, []);
+  }, [filters]);
+
+
 
   const porStatus = useMemo(() => group(rows, (r) => r.status_imovel ?? ""), [rows]);
   const porTipo = useMemo(() => group(rows, (r) => r.tipo_imovel ?? ""), [rows]);

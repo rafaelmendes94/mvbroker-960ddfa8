@@ -4,6 +4,7 @@ import { Building2, CheckCircle2, Share2, FolderKanban, Rss, Globe, Download, Ey
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { logRelatorioAccess } from "@/hooks/use-relatorios";
+import { useRelFilters } from "@/hooks/use-rel-filters";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
   LineChart, Line, PieChart, Pie, Cell,
@@ -33,8 +34,10 @@ function VisaoGeral() {
   const [status, setStatus] = useState<{ name: string; value: number }[]>([]);
   const [evolucao, setEvolucao] = useState<{ mes: string; imoveis: number; exportacoes: number }[]>([]);
 
+  const { filters } = useRelFilters();
+
   useEffect(() => {
-    logRelatorioAccess("visao_geral");
+    logRelatorioAccess("visao_geral", filters as any);
     (async () => {
       const head = { count: "exact" as const, head: true };
       const [
@@ -91,7 +94,7 @@ function VisaoGeral() {
           .map(([mes, v]) => ({ mes, ...v }))
       );
     })();
-  }, []);
+  }, [filters]);
 
   return (
     <div className="space-y-6">

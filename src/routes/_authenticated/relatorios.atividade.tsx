@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { logRelatorioAccess } from "@/hooks/use-relatorios";
+import { useRelFilters } from "@/hooks/use-rel-filters";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -24,14 +25,17 @@ function RelAtividade() {
   const [audit, setAudit] = useState<Audit[]>([]);
   const [arquivos, setArquivos] = useState<Arquivo[]>([]);
 
+  const { filters } = useRelFilters();
+  const periodoDias = filters.periodoDias || 30;
+
   useEffect(() => {
-    logRelatorioAccess("atividade");
+    logRelatorioAccess("atividade", filters as any);
     (async () => {
-      const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * periodoDias).toISOString();
       const [il, al, au, ar] = await Promise.all([
-        supabase.from("imovel_logs").select("acao, created_at, imovel_id, user_id").gte("created_at", since).limit(5000),
-        supabase.from("arquivo_logs").select("acao, created_at, arquivo_id, usuario_id").gte("created_at", since).limit(5000),
-        supabase.from("auditoria_acessos").select("evento, descricao, created_at, user_id, ip").order("created_at", { ascending: false }).limit(100),
+        supabase.from("imovel_logs").select("acao, created_at, imovel_id, user_id").gte("created_at", since).limit(10000),
+        supabase.from("arquivo_logs").select("acao, created_at, arquivo_id, usuario_id").gte("created_at", since).limit(10000),
+        supabase.from("auditoria_acessos").select("evento, descricao, created_at, user_id, ip").gte("created_at", since).order("created_at", { ascending: false }).limit(200),
         supabase.from("arquivos").select("id, nome, categoria"),
       ]);
       setImLogs((il.data ?? []) as ImLog[]);
@@ -39,7 +43,7 @@ function RelAtividade() {
       setAudit((au.data ?? []) as Audit[]);
       setArquivos((ar.data ?? []) as Arquivo[]);
     })();
-  }, []);
+  }, [filters, periodoDias]);
 
   // KPIs
   const logins = audit.filter((a) => a.evento === "login").length;
@@ -47,9 +51,9 @@ function RelAtividade() {
   const downloads = arqLogs.filter((l) => l.acao === "download").length;
   const atualizacoes = imLogs.filter((l) => l.acao === "atualizacao").length;
 
-  // Atividade por dia (30d)
+  // Atividade por dia
   const days = new Map<string, { dia: string; vis: number; down: number }>();
-  for (let i = 29; i >= 0; i--) {
+  for (let i = periodoDias - 1; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
     days.set(d, { dia: d.slice(5), vis: 0, down: 0 });
   }
