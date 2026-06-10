@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Building2, User as UserIcon, Loader2, Repeat } from "lucide-react";
+import { Plus, Search, Building2, User as UserIcon, Loader2, Repeat, Copy, KeyRound, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { RoleGate } from "@/components/RoleGate";
@@ -14,6 +14,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { criarAcessoCliente } from "@/lib/clientes-auth.functions";
 
 export const Route = createFileRoute("/_authenticated/clientes")({
   head: () => ({ meta: [{ title: "Clientes — MV Broker" }] }),
@@ -54,6 +56,7 @@ const emptyForm = {
   cnpj: "", razao_social: "",
   creci: "",
   plano_id: "", ciclo: "mensal" as "mensal" | "anual",
+  modoAcesso: "senha" as "senha" | "convite",
 };
 
 const fmtBRL = (n: number | null | undefined) =>
@@ -74,6 +77,9 @@ function ClientesPage() {
   const [trocaRow, setTrocaRow] = useState<ClienteRow | null>(null);
   const [trocaPlanoId, setTrocaPlanoId] = useState("");
   const [trocaCiclo, setTrocaCiclo] = useState<"mensal" | "anual">("mensal");
+
+  const [credOpen, setCredOpen] = useState(false);
+  const [cred, setCred] = useState<{ email: string; senha: string } | null>(null);
 
   async function load() {
     setLoading(true);
@@ -138,6 +144,7 @@ function ClientesPage() {
 
   async function salvarNovo() {
     if (!form.nome.trim()) { toast.error("Informe o nome"); return; }
+    if (!form.email.trim()) { toast.error("Informe o e-mail (usado como login)"); return; }
     if (!form.plano_id) { toast.error("Selecione um plano"); return; }
     const plano = planos.find((p) => p.id === form.plano_id);
     if (!plano) return;
@@ -145,6 +152,18 @@ function ClientesPage() {
 
     setSaving(true);
     try {
+      // 1) Cria/recupera acesso (auth user + role)
+      const acesso = await criarAcessoCliente({
+        data: {
+          email: form.email.trim(),
+          modo: form.modoAcesso,
+          nome: form.nome.trim(),
+          tipo: form.tipo,
+          redirectTo: `${window.location.origin}/reset-password`,
+        },
+      });
+
+      // 2) Cria registro do cliente vinculando user_id
       if (form.tipo === "imobiliaria") {
         const { data: imob, error: e1 } = await supabase.from("imobiliarias").insert({
           nome_fantasia: form.nome,
@@ -152,6 +171,7 @@ function ClientesPage() {
           cnpj: form.cnpj || null,
           email: form.email || null,
           telefone: form.telefone || null,
+          owner_id: acesso.user_id,
         }).select("id").single();
         if (e1 || !imob) throw e1 ?? new Error("Falha ao criar imobiliária");
         const { error: e2 } = await supabase.from("assinaturas").insert({
@@ -162,13 +182,29 @@ function ClientesPage() {
         const { error: e1 } = await supabase.from("corretores").insert({
           nome: form.nome, email: form.email || null, telefone: form.telefone || null,
           creci: form.creci || null, status: "ativo", imobiliaria_id: null,
+          user_id: acesso.user_id,
         });
         if (e1) throw e1;
-        // Sem usuário vinculado ainda — a assinatura individual exige usuario_id; fica registrada após o convite.
-        toast.message("Corretor autônomo criado. A assinatura individual será ativada após o login (vinculação ao usuário).");
+        const { error: e2 } = await supabase.from("assinaturas").insert({
+          plano_id: plano.id, usuario_id: acesso.user_id, ciclo: form.ciclo, valor, status: "ativa",
+        });
+        if (e2) throw e2;
       }
-      toast.success("Cliente cadastrado");
+
+      if (acesso.jaExistia) {
+        toast.message("Conta de acesso já existia — vinculada ao novo cliente.");
+      } else if (form.modoAcesso === "convite") {
+        toast.success(`Convite enviado para ${form.email}`);
+      }
+
       setOpenNew(false);
+
+      if (acesso.senha) {
+        setCred({ email: form.email.trim(), senha: acesso.senha });
+        setCredOpen(true);
+      } else {
+        toast.success("Cliente cadastrado");
+      }
       load();
     } catch (err: any) {
       toast.error(err.message ?? "Erro ao cadastrar cliente");
@@ -385,7 +421,35 @@ function ClientesPage() {
                 </Select>
               </div>
             </div>
+
+            <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+              <Label className="flex items-center gap-2"><KeyRound className="h-4 w-4" /> Acesso ao sistema</Label>
+              <p className="text-xs text-muted-foreground">
+                O e-mail informado acima será o login do cliente.
+              </p>
+              <RadioGroup
+                value={form.modoAcesso}
+                onValueChange={(v) => setForm({ ...form, modoAcesso: v as "senha" | "convite" })}
+                className="grid gap-2 sm:grid-cols-2 pt-1"
+              >
+                <label className="flex items-start gap-2 rounded-md border bg-background p-2 cursor-pointer hover:bg-accent/40">
+                  <RadioGroupItem value="senha" className="mt-1" />
+                  <div>
+                    <div className="text-sm font-medium flex items-center gap-1"><KeyRound className="h-3.5 w-3.5" /> Gerar senha agora</div>
+                    <div className="text-xs text-muted-foreground">Senha exibida na tela para você passar ao cliente.</div>
+                  </div>
+                </label>
+                <label className="flex items-start gap-2 rounded-md border bg-background p-2 cursor-pointer hover:bg-accent/40">
+                  <RadioGroupItem value="convite" className="mt-1" />
+                  <div>
+                    <div className="text-sm font-medium flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> Enviar convite por e-mail</div>
+                    <div className="text-xs text-muted-foreground">Cliente recebe link para definir a própria senha.</div>
+                  </div>
+                </label>
+              </RadioGroup>
+            </div>
           </div>
+
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpenNew(false)}>Cancelar</Button>
@@ -442,6 +506,43 @@ function ClientesPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setTrocaOpen(false)}>Cancelar</Button>
             <Button onClick={salvarTroca}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo: Credenciais geradas */}
+      <Dialog open={credOpen} onOpenChange={setCredOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><KeyRound className="h-5 w-5" /> Credenciais de acesso</DialogTitle>
+          </DialogHeader>
+          {cred && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Anote ou copie agora — a senha não será exibida novamente.
+              </p>
+              <div className="space-y-2">
+                <Label>E-mail</Label>
+                <Input readOnly value={cred.email} />
+              </div>
+              <div className="space-y-2">
+                <Label>Senha</Label>
+                <Input readOnly value={cred.senha} className="font-mono" />
+              </div>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  navigator.clipboard.writeText(`E-mail: ${cred.email}\nSenha: ${cred.senha}`);
+                  toast.success("Credenciais copiadas");
+                }}
+              >
+                <Copy className="h-4 w-4" /> Copiar credenciais
+              </Button>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setCredOpen(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
