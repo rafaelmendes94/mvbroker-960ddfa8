@@ -1,101 +1,70 @@
-
 ## Objetivo
 
-Substituir a página **Clientes** (hoje com dados mock) por um cadastro real onde o admin/secretaria escolhe o **tipo de cliente** (Imobiliária ou Corretor), vincula um **plano** e, no caso de imobiliária, o plano impõe um **limite de corretores** que ela pode cadastrar.
+No cadastro de **Clientes** (imobiliárias e corretores autônomos), criar automaticamente uma conta de acesso para o cliente, com duas opções:
+1. **Gerar senha automática** — sistema cria uma senha forte e mostra na tela para copiar/enviar.
+2. **Enviar convite por email** — cliente recebe link para definir a própria senha.
 
-## O que muda
+E no **Perfil** do usuário logado, adicionar a opção de **alterar a própria senha**.
 
-### 1. Página `/clientes` (reescrita)
+---
 
-- Lista unificada com clientes dos dois tipos:
-  - **Imobiliárias** (vindas de `imobiliarias`) + plano atual (via `assinaturas`).
-  - **Corretores autônomos** (vindos de `corretores` sem `imobiliaria_id`) + plano atual.
-- Cada card/linha mostra: nome, tipo (badge "Imobiliária" / "Corretor"), plano vigente, status da assinatura, e — para imobiliária — `corretores ativos / limite do plano` (ex.: `4 / 10`).
-- Busca por nome/e-mail e filtro por tipo (Todos / Imobiliária / Corretor).
-- Ações por cliente: **Editar**, **Trocar plano**, **Bloquear/Reativar**.
+## 1. Cadastro de Clientes (`/clientes`)
 
-### 2. Diálogo "Novo cliente"
+No diálogo "Novo cliente", adicionar bloco **Acesso ao sistema**:
 
-Campos:
-- **Tipo de cliente** (radio): `Imobiliária` ou `Corretor autônomo`.
-- Campos comuns: nome, e-mail, telefone/WhatsApp.
-- Se Imobiliária: nome fantasia, razão social, CNPJ.
-- Se Corretor: CRECI.
-- **Plano**: select filtrando `planos.tipo = 'imobiliaria'` ou `'individual'` conforme o tipo escolhido (somente planos `ativo = true`).
-- **Ciclo**: mensal / anual (define o valor da assinatura a partir de `preco_mensal` / `preco_anual`).
+- Radio:
+  - `Gerar senha agora` (default) — gera senha aleatória de 12 caracteres.
+  - `Enviar convite por email` — dispara email de definição de senha.
+- Email é obrigatório para ambos os modos.
+- Após criar com sucesso:
+  - Modo "gerar senha": mostra dialog com email + senha, botão **Copiar credenciais** e aviso "Anote agora — não será exibida novamente".
+  - Modo "convite": toast "Convite enviado para `email`".
 
-Ao salvar:
-- Insere em `imobiliarias` **ou** em `corretores` (sem `imobiliaria_id`, autônomo).
-- Insere a assinatura em `assinaturas` vinculada via `imobiliaria_id` ou `usuario_id` conforme o caso, com `status = 'ativa'`.
+### Vínculo do usuário criado
+- Imobiliária → `imobiliarias.owner_id = novo user_id` + role `imobiliaria` em `user_roles`.
+- Corretor autônomo → `corretores.user_id = novo user_id` + role `corretor_autonomo`.
+- Se o email já existe em `auth.users`, reaproveitar o user_id existente em vez de duplicar; mostrar aviso "Conta já existia, vinculada ao cliente".
 
-### 3. Limite de corretores por plano de imobiliária
+---
 
-- O campo `planos.limite_usuarios` (já existente) passa a ser tratado como **"Limite de corretores"** para planos do tipo `imobiliaria`. Vazio = ilimitado.
-- No formulário de Planos (`/planos`), renomeio visualmente o label para "Limite de corretores" quando `tipo = imobiliaria` e mantenho "Limite de usuários" para `individual`.
-- **Enforcement**:
-  - Função no banco `public.imobiliaria_limite_corretores(imob_id uuid)` retorna `(usados int, limite int|null)` consultando `corretores` ativos da imobiliária e o `limite_usuarios` do plano da assinatura ativa.
-  - Trigger `BEFORE INSERT` em `public.corretores`: quando `imobiliaria_id` não é nulo, se `usados >= limite`, levanta exceção com mensagem clara ("Plano atingiu o limite de N corretores").
-  - Frontend: na página `/corretores` e na página `/clientes` (ao abrir uma imobiliária para gerenciar corretores), mostro um badge `usados / limite` e desabilito o botão "Novo corretor" quando o limite for atingido, com tooltip explicativo. O bloqueio do banco é a garantia final.
+## 2. Perfil (`/perfil`) — Alterar senha
 
-### 4. Trocar plano de um cliente existente
+Adicionar card **Segurança** com:
+- Campos: nova senha, confirmar nova senha.
+- Validação: mínimo 8 caracteres, igual no confirmar.
+- Botão **Atualizar senha** → `supabase.auth.updateUser({ password })`.
+- Toast de sucesso / erro.
 
-- Diálogo "Trocar plano" reaproveita a lógica de criação de assinatura, atualizando a linha em `assinaturas` (há um índice único por imobiliária / usuário, então é update).
-- Aviso visual quando o novo plano tem `limite_usuarios` menor que o número atual de corretores da imobiliária (não bloqueia a troca, apenas avisa que novos cadastros ficarão travados até regularizar).
-
-## Permissões
-
-- Página `/clientes` continua restrita a `super_admin` e `secretaria` (já é o padrão para gestão comercial; ajusto em `permissions.ts` se necessário).
-- Todas as operações (insert imobiliária, insert corretor, insert/update assinatura) respeitam as RLS já existentes — admin/secretaria têm acesso total via `has_role()`.
-
-## Fora de escopo (não faço agora)
-
-- Cobrança/integração de pagamento — segue manual via `/assinaturas`.
-- Convite de login para o cliente recém-criado (criação do usuário em `auth.users` por e-mail). Posso fazer numa etapa seguinte se desejar.
-- Histórico de trocas de plano.
+---
 
 ## Detalhes técnicos
 
-- **Migração SQL**:
-  ```sql
-  -- função utilitária
-  CREATE OR REPLACE FUNCTION public.imobiliaria_limite_corretores(p_imob uuid)
-  RETURNS TABLE(usados int, limite int)
-  LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
-    SELECT
-      (SELECT COUNT(*)::int FROM corretores
-        WHERE imobiliaria_id = p_imob AND status = 'ativo'),
-      (SELECT p.limite_usuarios FROM assinaturas a
-        JOIN planos p ON p.id = a.plano_id
-        WHERE a.imobiliaria_id = p_imob AND a.status = 'ativa'
-        LIMIT 1);
-  $$;
+**Server function** `src/lib/clientes-auth.functions.ts` com `requireSupabaseAuth`:
+- `criarAcessoCliente({ email, modo: 'senha' | 'convite', nome })`
+- Verifica caller via `has_role(super_admin)` OR `has_role(secretaria)`; caso contrário, 403.
+- Carrega `supabaseAdmin` dentro do handler (`await import('@/integrations/supabase/client.server')`).
+- Procura usuário existente: `supabaseAdmin.auth.admin.listUsers` filtrando por email.
+- Se não existe:
+  - Modo `senha`: `auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { full_name } })` — retorna `{ user_id, senha }`.
+  - Modo `convite`: `auth.admin.inviteUserByEmail(email, { redirectTo: <origin>/reset-password })` — retorna `{ user_id }`.
+- Insere role apropriada em `user_roles` (`imobiliaria` ou `corretor_autonomo`) — idempotente.
+- Retorna `{ user_id, senha?: string, jaExistia: boolean }`.
 
-  -- trigger de enforcement
-  CREATE OR REPLACE FUNCTION public.tg_corretores_check_limite()
-  RETURNS trigger LANGUAGE plpgsql AS $$
-  DECLARE v_used int; v_max int;
-  BEGIN
-    IF NEW.imobiliaria_id IS NULL THEN RETURN NEW; END IF;
-    SELECT usados, limite INTO v_used, v_max
-      FROM public.imobiliaria_limite_corretores(NEW.imobiliaria_id);
-    IF v_max IS NOT NULL AND v_used >= v_max THEN
-      RAISE EXCEPTION 'O plano da imobiliária atingiu o limite de % corretores.', v_max;
-    END IF;
-    RETURN NEW;
-  END $$;
+**Fluxo no formulário** (clientes.tsx):
+1. Chama `criarAcessoCliente` antes de inserir o cliente.
+2. Usa o `user_id` retornado para preencher `owner_id`/`user_id` no insert da tabela.
+3. Se modo `senha`, abre o segundo diálogo com as credenciais.
 
-  CREATE TRIGGER trg_corretores_check_limite
-    BEFORE INSERT ON public.corretores
-    FOR EACH ROW EXECUTE FUNCTION public.tg_corretores_check_limite();
-  ```
-- **Frontend**:
-  - Reescrever `src/routes/_authenticated/clientes.tsx` com lista real, filtros, diálogo de criação e diálogo de troca de plano.
-  - Ajustar `src/routes/_authenticated/planos.tsx` para renomear o label do limite conforme `tipo`.
-  - Adicionar badge `usados/limite` em `src/routes/_authenticated/corretores.tsx` e desabilitar o botão "Novo corretor" quando atingido.
+**Rota `/reset-password`** — verificar se já existe; se não, criar página pública que detecta `type=recovery|invite` no hash e chama `supabase.auth.updateUser({ password })`. Isso garante que o link do convite funciona.
 
-## Arquivos afetados
+**Perfil** — componente novo `<AlterarSenhaCard />` em `src/components/perfil/AlterarSenhaCard.tsx`, importado em `perfil.tsx`.
 
-- `src/routes/_authenticated/clientes.tsx` (reescrita).
-- `src/routes/_authenticated/planos.tsx` (label do limite por tipo).
-- `src/routes/_authenticated/corretores.tsx` (badge + bloqueio do botão).
-- Nova migração Supabase com a função e o trigger acima.
+**Sem migrações de banco** — apenas `user_roles` (já existe) recebe insert via service role.
+
+---
+
+## Fora de escopo
+
+- Reenviar convite a partir da lista de clientes (pode ser adicionado depois).
+- Desativar/excluir conta auth quando cliente é removido.
+- 2FA / política de complexidade adicional além do HIBP já existente.
