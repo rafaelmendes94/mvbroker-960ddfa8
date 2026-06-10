@@ -1,26 +1,36 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Building2, LayoutDashboard, FolderKanban, Users, UserSquare2,
-  BarChart3, Download, Settings, LifeBuoy,
+  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRoles } from "@/hooks/use-roles";
+import { canAccess, primaryRole, ROLE_LABEL, type AppRole } from "@/lib/permissions";
 
-const nav = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
+
+const ALL_NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/registros", label: "Cadastros", icon: FolderKanban },
+  { to: "/imobiliarias", label: "Imobiliárias", icon: Building },
+  { to: "/corretores", label: "Corretores", icon: Briefcase },
   { to: "/usuarios", label: "Usuários", icon: Users },
   { to: "/clientes", label: "Clientes", icon: UserSquare2 },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/exportacoes", label: "Exportações", icon: Download },
+  { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
-] as const;
+];
 
 export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
+  const { roles } = useRoles();
+  const effectiveRoles: AppRole[] = roles.length ? roles : ["corretor_autonomo"];
+  const role = primaryRole(effectiveRoles);
+  const items = ALL_NAV.filter((n) => canAccess(n.to, effectiveRoles));
 
   return (
     <div className="flex flex-col h-full">
-      {/* Logo */}
       <div className="px-5 py-5 border-b border-sidebar-border">
         <Link to="/dashboard" onClick={onNavigate} className="flex items-center gap-3 group">
           <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0 transition-transform group-hover:scale-105">
@@ -35,13 +45,15 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         </Link>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        <div className="px-2 mb-2 text-[11px] uppercase tracking-wider text-sidebar-foreground/40 font-semibold">
-          Menu
+        <div className="px-2 mb-2 flex items-center justify-between">
+          <span className="text-[11px] uppercase tracking-wider text-sidebar-foreground/40 font-semibold">Menu</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-sidebar-accent text-sidebar-accent-foreground/80">
+            {ROLE_LABEL[role]}
+          </span>
         </div>
         <ul className="space-y-0.5">
-          {nav.map(item => {
+          {items.map(item => {
             const active = pathname === item.to || pathname.startsWith(item.to + "/");
             const Icon = item.icon;
             return (
@@ -65,12 +77,8 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         </ul>
       </nav>
 
-      {/* Footer */}
       <div className="px-3 py-3 border-t border-sidebar-border">
-        <a
-          href="#"
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-        >
+        <a href="#" className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
           <LifeBuoy className="h-4 w-4" />
           Suporte
         </a>
