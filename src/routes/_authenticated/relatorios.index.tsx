@@ -33,8 +33,10 @@ function VisaoGeral() {
   const [status, setStatus] = useState<{ name: string; value: number }[]>([]);
   const [evolucao, setEvolucao] = useState<{ mes: string; imoveis: number; exportacoes: number }[]>([]);
 
+  const { filters } = useRelFilters();
+
   useEffect(() => {
-    logRelatorioAccess("visao_geral");
+    logRelatorioAccess("visao_geral", filters as any);
     (async () => {
       const head = { count: "exact" as const, head: true };
       const [
