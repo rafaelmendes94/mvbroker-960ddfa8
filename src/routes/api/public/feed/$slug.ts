@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { buildVRSyncXML } from "@/lib/feed-xml.server";
 
-export const Route = createFileRoute("/api/public/feed/$slug.xml")({
+export const Route = createFileRoute("/api/public/feed/$slug")({
   server: {
     handlers: {
       GET: async ({ params, request }) => {

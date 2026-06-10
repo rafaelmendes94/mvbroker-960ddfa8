@@ -37,7 +37,7 @@ import { Route as AuthenticatedRegistrosIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedImoveisNovoRouteImport } from './routes/_authenticated/imoveis.novo'
 import { Route as AuthenticatedConfiguracoesOpcoesRouteImport } from './routes/_authenticated/configuracoes.opcoes'
 import { Route as AuthenticatedCentralIdRouteImport } from './routes/_authenticated/central.$id'
-import { Route as ApiPublicFeedSlugDotxmlRouteImport } from './routes/api/public/feed/$slug[.]xml'
+import { Route as ApiPublicFeedSlugRouteImport } from './routes/api/public/feed/$slug'
 import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_authenticated/registros.$id.editar'
 import { Route as AuthenticatedImoveisIdEditarRouteImport } from './routes/_authenticated/imoveis.$id.editar'
 
@@ -191,9 +191,9 @@ const AuthenticatedCentralIdRoute = AuthenticatedCentralIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCentralRoute,
 } as any)
-const ApiPublicFeedSlugDotxmlRoute = ApiPublicFeedSlugDotxmlRouteImport.update({
-  id: '/api/public/feed/$slug.xml',
-  path: '/api/public/feed/$slug.xml',
+const ApiPublicFeedSlugRoute = ApiPublicFeedSlugRouteImport.update({
+  id: '/api/public/feed/$slug',
+  path: '/api/public/feed/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRegistrosIdEditarRoute =
@@ -239,7 +239,7 @@ export interface FileRoutesByFullPath {
   '/registros/': typeof AuthenticatedRegistrosIndexRoute
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
-  '/api/public/feed/$slug.xml': typeof ApiPublicFeedSlugDotxmlRoute
+  '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -269,7 +269,7 @@ export interface FileRoutesByTo {
   '/registros': typeof AuthenticatedRegistrosIndexRoute
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
-  '/api/public/feed/$slug.xml': typeof ApiPublicFeedSlugDotxmlRoute
+  '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -303,7 +303,7 @@ export interface FileRoutesById {
   '/_authenticated/registros/': typeof AuthenticatedRegistrosIndexRoute
   '/_authenticated/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/_authenticated/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
-  '/api/public/feed/$slug.xml': typeof ApiPublicFeedSlugDotxmlRoute
+  '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -337,7 +337,7 @@ export interface FileRouteTypes {
     | '/registros/'
     | '/imoveis/$id/editar'
     | '/registros/$id/editar'
-    | '/api/public/feed/$slug.xml'
+    | '/api/public/feed/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -367,7 +367,7 @@ export interface FileRouteTypes {
     | '/registros'
     | '/imoveis/$id/editar'
     | '/registros/$id/editar'
-    | '/api/public/feed/$slug.xml'
+    | '/api/public/feed/$slug'
   id:
     | '__root__'
     | '/'
@@ -400,14 +400,14 @@ export interface FileRouteTypes {
     | '/_authenticated/registros/'
     | '/_authenticated/imoveis/$id/editar'
     | '/_authenticated/registros/$id/editar'
-    | '/api/public/feed/$slug.xml'
+    | '/api/public/feed/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
-  ApiPublicFeedSlugDotxmlRoute: typeof ApiPublicFeedSlugDotxmlRoute
+  ApiPublicFeedSlugRoute: typeof ApiPublicFeedSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -608,11 +608,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCentralIdRouteImport
       parentRoute: typeof AuthenticatedCentralRoute
     }
-    '/api/public/feed/$slug.xml': {
-      id: '/api/public/feed/$slug.xml'
-      path: '/api/public/feed/$slug.xml'
-      fullPath: '/api/public/feed/$slug.xml'
-      preLoaderRoute: typeof ApiPublicFeedSlugDotxmlRouteImport
+    '/api/public/feed/$slug': {
+      id: '/api/public/feed/$slug'
+      path: '/api/public/feed/$slug'
+      fullPath: '/api/public/feed/$slug'
+      preLoaderRoute: typeof ApiPublicFeedSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/registros/$id/editar': {
@@ -755,8 +755,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
-  ApiPublicFeedSlugDotxmlRoute: ApiPublicFeedSlugDotxmlRoute,
+  ApiPublicFeedSlugRoute: ApiPublicFeedSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
