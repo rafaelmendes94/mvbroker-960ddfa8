@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
+
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/layout/PageHeader";

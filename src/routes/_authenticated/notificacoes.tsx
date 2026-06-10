@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { Bell, Check, CheckCheck, Trash2, ExternalLink } from "lucide-react";
+import { Check, CheckCheck, Trash2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
