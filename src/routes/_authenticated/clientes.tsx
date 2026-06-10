@@ -144,6 +144,7 @@ function ClientesPage() {
 
   async function salvarNovo() {
     if (!form.nome.trim()) { toast.error("Informe o nome"); return; }
+    if (!form.email.trim()) { toast.error("Informe o e-mail (usado como login)"); return; }
     if (!form.plano_id) { toast.error("Selecione um plano"); return; }
     const plano = planos.find((p) => p.id === form.plano_id);
     if (!plano) return;
@@ -151,6 +152,18 @@ function ClientesPage() {
 
     setSaving(true);
     try {
+      // 1) Cria/recupera acesso (auth user + role)
+      const acesso = await criarAcessoCliente({
+        data: {
+          email: form.email.trim(),
+          modo: form.modoAcesso,
+          nome: form.nome.trim(),
+          tipo: form.tipo,
+          redirectTo: `${window.location.origin}/reset-password`,
+        },
+      });
+
+      // 2) Cria registro do cliente vinculando user_id
       if (form.tipo === "imobiliaria") {
         const { data: imob, error: e1 } = await supabase.from("imobiliarias").insert({
           nome_fantasia: form.nome,
@@ -158,6 +171,7 @@ function ClientesPage() {
           cnpj: form.cnpj || null,
           email: form.email || null,
           telefone: form.telefone || null,
+          owner_id: acesso.user_id,
         }).select("id").single();
         if (e1 || !imob) throw e1 ?? new Error("Falha ao criar imobiliária");
         const { error: e2 } = await supabase.from("assinaturas").insert({
@@ -168,13 +182,29 @@ function ClientesPage() {
         const { error: e1 } = await supabase.from("corretores").insert({
           nome: form.nome, email: form.email || null, telefone: form.telefone || null,
           creci: form.creci || null, status: "ativo", imobiliaria_id: null,
+          user_id: acesso.user_id,
         });
         if (e1) throw e1;
-        // Sem usuário vinculado ainda — a assinatura individual exige usuario_id; fica registrada após o convite.
-        toast.message("Corretor autônomo criado. A assinatura individual será ativada após o login (vinculação ao usuário).");
+        const { error: e2 } = await supabase.from("assinaturas").insert({
+          plano_id: plano.id, usuario_id: acesso.user_id, ciclo: form.ciclo, valor, status: "ativa",
+        });
+        if (e2) throw e2;
       }
-      toast.success("Cliente cadastrado");
+
+      if (acesso.jaExistia) {
+        toast.message("Conta de acesso já existia — vinculada ao novo cliente.");
+      } else if (form.modoAcesso === "convite") {
+        toast.success(`Convite enviado para ${form.email}`);
+      }
+
       setOpenNew(false);
+
+      if (acesso.senha) {
+        setCred({ email: form.email.trim(), senha: acesso.senha });
+        setCredOpen(true);
+      } else {
+        toast.success("Cliente cadastrado");
+      }
       load();
     } catch (err: any) {
       toast.error(err.message ?? "Erro ao cadastrar cliente");
