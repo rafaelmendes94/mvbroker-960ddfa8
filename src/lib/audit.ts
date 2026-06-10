@@ -15,7 +15,7 @@ export async function logAudit(evento: AuditEvento, descricao?: string, metadata
       user_id: data.user.id,
       evento,
       descricao: descricao ?? null,
-      metadata: metadata ?? null,
+      metadata: (metadata ?? null) as never,
       user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
     });
   } catch {
