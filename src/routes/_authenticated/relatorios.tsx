@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { BarChart3, Building2, Download, Activity, Share2, Building, UserCheck } from "lucide-react";
+import { BarChart3, Building2, Activity, Share2, Building, UserCheck, Trophy } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { cn } from "@/lib/utils";
 import { RelatoriosFiltersProvider } from "@/hooks/use-rel-filters";
