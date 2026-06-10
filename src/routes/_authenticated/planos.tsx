@@ -190,7 +190,7 @@ function PlanosPage() {
               <Input type="number" step="0.01" value={form.preco_anual} onChange={(e) => setForm({ ...form, preco_anual: Number(e.target.value) })} />
             </div>
             <div className="space-y-2">
-              <Label>Limite de usuários</Label>
+              <Label>{form.tipo === "imobiliaria" ? "Limite de corretores" : "Limite de usuários"}</Label>
               <Input type="number" placeholder="vazio = ilimitado" value={form.limite_usuarios} onChange={(e) => setForm({ ...form, limite_usuarios: e.target.value })} />
             </div>
             <div className="space-y-2">

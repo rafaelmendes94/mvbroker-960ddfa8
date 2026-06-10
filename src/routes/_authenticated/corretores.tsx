@@ -44,6 +44,7 @@ const empty = { nome: "", creci: "", email: "", telefone: "", whatsapp: "", foto
 function CorretoresPage() {
   const [items, setItems] = useState<Corretor[]>([]);
   const [imobs, setImobs] = useState<Imob[]>([]);
+  const [limites, setLimites] = useState<Record<string, { usados: number; limite: number | null }>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -52,13 +53,29 @@ function CorretoresPage() {
 
   async function load() {
     setLoading(true);
-    const [{ data: c, error }, { data: i }] = await Promise.all([
+    const [{ data: c, error }, { data: i }, { data: ass }, { data: planos }] = await Promise.all([
       supabase.from("corretores").select(CORRETOR_PUBLIC_COLUMNS).order("created_at", { ascending: false }),
       supabase.from("imobiliarias").select("id, nome_fantasia").order("nome_fantasia"),
+      supabase.from("assinaturas").select("plano_id, imobiliaria_id, status").eq("status", "ativa").not("imobiliaria_id", "is", null),
+      supabase.from("planos").select("id, limite_usuarios"),
     ]);
     if (error) toast.error(error.message);
-    setItems((c ?? []) as unknown as Corretor[]);
+    const corrList = ((c ?? []) as unknown as Corretor[]);
+    setItems(corrList);
     setImobs((i ?? []) as unknown as Imob[]);
+
+    const planLimit = new Map<string, number | null>(((planos ?? []) as any[]).map((p) => [p.id, p.limite_usuarios]));
+    const limByImob: Record<string, { usados: number; limite: number | null }> = {};
+    (ass ?? []).forEach((a: any) => {
+      limByImob[a.imobiliaria_id] = { usados: 0, limite: planLimit.get(a.plano_id) ?? null };
+    });
+    corrList.forEach((cc) => {
+      if (cc.imobiliaria_id && cc.status === "ativo") {
+        if (!limByImob[cc.imobiliaria_id]) limByImob[cc.imobiliaria_id] = { usados: 0, limite: null };
+        limByImob[cc.imobiliaria_id].usados += 1;
+      }
+    });
+    setLimites(limByImob);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);
@@ -200,7 +217,22 @@ function CorretoresPage() {
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{c.creci ?? "—"}</TableCell>
-                    <TableCell className="text-muted-foreground">{imobName(c.imobiliaria_id)}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <span>{imobName(c.imobiliaria_id)}</span>
+                        {c.imobiliaria_id && limites[c.imobiliaria_id] && (
+                          (() => {
+                            const l = limites[c.imobiliaria_id!];
+                            const reached = l.limite != null && l.usados >= l.limite;
+                            return (
+                              <Badge variant={reached ? "destructive" : "outline"} className="text-[10px]">
+                                {l.usados}/{l.limite ?? "∞"}
+                              </Badge>
+                            );
+                          })()
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{c.email ?? c.telefone ?? "—"}</TableCell>
                     <TableCell>
                       <Badge variant={c.status === "ativo" ? "default" : "secondary"}>{c.status}</Badge>
