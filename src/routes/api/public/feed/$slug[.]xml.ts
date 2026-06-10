@@ -6,7 +6,7 @@ export const Route = createFileRoute("/api/public/feed/$slug.xml")({
     handlers: {
       GET: async ({ params, request }) => {
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const slug = params.slug;
+        const slug = (params as Record<string, string>).slug ?? (params as Record<string, string>)["slug.xml"];
 
         const { data: carteira, error: cErr } = await supabaseAdmin
           .from("carteiras")
