@@ -83,10 +83,6 @@ const IMOVEIS: Imovel[] = [
   { titulo: "Terreno em Condomínio Fechado", cidade: "Xangri-lá", bairro: "Remanso", valor: 520000, area: 420 },
   { titulo: "Apartamento Decorado Zona Nova", cidade: "Capão da Canoa", bairro: "Zona Nova", valor: 740000, dorm: 2, banh: 2, vagas: 1, area: 86 },
   { titulo: "Cobertura Duplex Beira-Mar", cidade: "Capão da Canoa", bairro: "Centro", valor: 2350000, dorm: 4, banh: 4, vagas: 3, area: 230 },
-  { titulo: "Casa Moderna em Noiva do Mar", cidade: "Xangri-lá", bairro: "Noiva do Mar", valor: 1280000, dorm: 3, banh: 3, vagas: 2, area: 190 },
-  { titulo: "Apartamento Compacto para Investimento", cidade: "Capão da Canoa", bairro: "Zona Nova", valor: 480000, dorm: 1, banh: 1, vagas: 1, area: 54 },
-  { titulo: "Mansão em Condomínio de Luxo", cidade: "Xangri-lá", bairro: "Atlântida", valor: 4900000, dorm: 5, banh: 6, vagas: 4, area: 420 },
-  { titulo: "Apartamento Frente Praça", cidade: "Capão da Canoa", bairro: "Centro", valor: 680000, dorm: 2, banh: 2, vagas: 1, area: 78 },
 ];
 
 const fmtBRL = (n: number) =>
@@ -277,7 +273,7 @@ function LandingPage() {
             Imóveis em Destaque
           </h2>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {IMOVEIS.map((im, idx) => (
               <div key={idx} className="group overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:shadow-lg">
                 <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
@@ -287,20 +283,17 @@ function LandingPage() {
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <span className="absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#006BFF] text-xs font-bold text-white shadow-md">
-                    {idx + 1}
-                  </span>
                   <span className="absolute right-3 top-3 rounded-md bg-[#006BFF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
                     Destaque
                   </span>
                 </div>
-                <div className="space-y-2 p-4">
-                  <h3 className="line-clamp-2 text-sm font-bold text-slate-900">{im.titulo}</h3>
+                <div className="space-y-2 p-5">
+                  <h3 className="line-clamp-2 text-base font-bold text-slate-900">{im.titulo}</h3>
                   <p className="flex items-center gap-1 text-xs text-slate-500">
                     <MapPin className="h-3 w-3" />
                     {im.cidade}, {im.bairro}
                   </p>
-                  <div className="flex flex-wrap gap-2 pt-1 text-[11px] text-slate-600">
+                  <div className="flex flex-wrap gap-3 pt-1 text-xs text-slate-600">
                     {im.dorm !== undefined && im.dorm > 0 ? (
                       <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" />{im.dorm}</span>
                     ) : null}
@@ -312,18 +305,10 @@ function LandingPage() {
                     ) : null}
                     <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{im.area}m²</span>
                   </div>
-                  <p className="pt-1 text-base font-bold text-[#006BFF]">{fmtBRL(im.valor)}</p>
+                  <p className="pt-1 text-lg font-bold text-[#006BFF]">{fmtBRL(im.valor)}</p>
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className="mt-10 flex justify-center">
-            <Link to="/auth">
-              <button className="rounded-md border border-[#006BFF] px-6 py-2.5 text-sm font-semibold text-[#006BFF] transition-colors hover:bg-[#006BFF] hover:text-white">
-                Ver mais imóveis
-              </button>
-            </Link>
           </div>
         </div>
       </section>
