@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Building2, LayoutDashboard, FolderKanban, Users, UserSquare2,
-  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Heart,
+  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Heart, Rss,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
@@ -24,6 +24,7 @@ const ALL_NAV: NavItem[] = [
   { to: "/clientes", label: "Clientes", icon: UserSquare2 },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/exportacoes", label: "Exportações", icon: Download },
+  { to: "/carteiras", label: "Carteiras XML", icon: Rss },
   { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
   { to: "/biblioteca", label: "Biblioteca de Arquivos", icon: FolderArchive },
   { to: "/configuracoes", label: "Configurações", icon: Settings },

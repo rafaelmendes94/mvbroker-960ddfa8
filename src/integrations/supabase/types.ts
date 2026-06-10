@@ -163,6 +163,81 @@ export type Database = {
         }
         Relationships: []
       }
+      carteira_imoveis: {
+        Row: {
+          carteira_id: string
+          created_at: string
+          id: string
+          imovel_id: string
+        }
+        Insert: {
+          carteira_id: string
+          created_at?: string
+          id?: string
+          imovel_id: string
+        }
+        Update: {
+          carteira_id?: string
+          created_at?: string
+          id?: string
+          imovel_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carteira_imoveis_carteira_id_fkey"
+            columns: ["carteira_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carteira_imoveis_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      carteiras: {
+        Row: {
+          atualizacao_intervalo: string
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          slug: string
+          status: string
+          ultima_atualizacao: string | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          atualizacao_intervalo?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          slug: string
+          status?: string
+          ultima_atualizacao?: string | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          atualizacao_intervalo?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          slug?: string
+          status?: string
+          ultima_atualizacao?: string | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       condominios: {
         Row: {
           area_total: number | null
@@ -514,6 +589,44 @@ export type Database = {
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_logs: {
+        Row: {
+          acao: string
+          carteira_id: string
+          created_at: string
+          detalhes: Json | null
+          id: string
+          ip: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          acao: string
+          carteira_id: string
+          created_at?: string
+          detalhes?: Json | null
+          id?: string
+          ip?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          acao?: string
+          carteira_id?: string
+          created_at?: string
+          detalhes?: Json | null
+          id?: string
+          ip?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_logs_carteira_id_fkey"
+            columns: ["carteira_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
             referencedColumns: ["id"]
           },
         ]
