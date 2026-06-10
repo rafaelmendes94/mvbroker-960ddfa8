@@ -509,6 +509,43 @@ function ClientesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo: Credenciais geradas */}
+      <Dialog open={credOpen} onOpenChange={setCredOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><KeyRound className="h-5 w-5" /> Credenciais de acesso</DialogTitle>
+          </DialogHeader>
+          {cred && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Anote ou copie agora — a senha não será exibida novamente.
+              </p>
+              <div className="space-y-2">
+                <Label>E-mail</Label>
+                <Input readOnly value={cred.email} />
+              </div>
+              <div className="space-y-2">
+                <Label>Senha</Label>
+                <Input readOnly value={cred.senha} className="font-mono" />
+              </div>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  navigator.clipboard.writeText(`E-mail: ${cred.email}\nSenha: ${cred.senha}`);
+                  toast.success("Credenciais copiadas");
+                }}
+              >
+                <Copy className="h-4 w-4" /> Copiar credenciais
+              </Button>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setCredOpen(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
