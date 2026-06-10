@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      arquivo_logs: {
+        Row: {
+          acao: Database["public"]["Enums"]["arquivo_acao"]
+          arquivo_id: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          usuario_id: string | null
+        }
+        Insert: {
+          acao: Database["public"]["Enums"]["arquivo_acao"]
+          arquivo_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          usuario_id?: string | null
+        }
+        Update: {
+          acao?: Database["public"]["Enums"]["arquivo_acao"]
+          arquivo_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "arquivo_logs_arquivo_id_fkey"
+            columns: ["arquivo_id"]
+            isOneToOne: false
+            referencedRelation: "arquivos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      arquivos: {
+        Row: {
+          bucket: string
+          categoria: Database["public"]["Enums"]["arquivo_categoria"]
+          created_at: string
+          id: string
+          medium_path: string | null
+          metadata: Json
+          mime_type: string | null
+          nome: string
+          publico: boolean
+          registro_id: string | null
+          registro_tipo: string | null
+          storage_path: string
+          tamanho: number
+          thumb_path: string | null
+          updated_at: string
+          usuario_id: string | null
+        }
+        Insert: {
+          bucket: string
+          categoria?: Database["public"]["Enums"]["arquivo_categoria"]
+          created_at?: string
+          id?: string
+          medium_path?: string | null
+          metadata?: Json
+          mime_type?: string | null
+          nome: string
+          publico?: boolean
+          registro_id?: string | null
+          registro_tipo?: string | null
+          storage_path: string
+          tamanho?: number
+          thumb_path?: string | null
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Update: {
+          bucket?: string
+          categoria?: Database["public"]["Enums"]["arquivo_categoria"]
+          created_at?: string
+          id?: string
+          medium_path?: string | null
+          metadata?: Json
+          mime_type?: string | null
+          nome?: string
+          publico?: boolean
+          registro_id?: string | null
+          registro_tipo?: string | null
+          storage_path?: string
+          tamanho?: number
+          thumb_path?: string | null
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
       auditoria_acessos: {
         Row: {
           created_at: string
@@ -517,6 +609,15 @@ export type Database = {
         | "imobiliaria"
         | "corretor_imobiliaria"
         | "corretor_autonomo"
+      arquivo_acao: "upload" | "download" | "exclusao" | "atualizacao"
+      arquivo_categoria:
+        | "fotos"
+        | "documentos"
+        | "contratos"
+        | "exclusividades"
+        | "materiais"
+        | "plantas"
+        | "outros"
       status_obra: "lancamento" | "em_obras" | "pronto" | "entregue"
     }
     CompositeTypes: {
@@ -654,6 +755,16 @@ export const Constants = {
         "imobiliaria",
         "corretor_imobiliaria",
         "corretor_autonomo",
+      ],
+      arquivo_acao: ["upload", "download", "exclusao", "atualizacao"],
+      arquivo_categoria: [
+        "fotos",
+        "documentos",
+        "contratos",
+        "exclusividades",
+        "materiais",
+        "plantas",
+        "outros",
       ],
       status_obra: ["lancamento", "em_obras", "pronto", "entregue"],
     },
