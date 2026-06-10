@@ -12,6 +12,9 @@ type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
 const ALL_NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/registros", label: "Cadastros", icon: FolderKanban },
+  { to: "/edificios", label: "Edifícios", icon: Building2 },
+  { to: "/condominios", label: "Condomínios", icon: Building },
+  { to: "/empreendimentos", label: "Empreendimentos", icon: Briefcase },
   { to: "/imobiliarias", label: "Imobiliárias", icon: Building },
   { to: "/corretores", label: "Corretores", icon: Briefcase },
   { to: "/usuarios", label: "Usuários", icon: Users },
