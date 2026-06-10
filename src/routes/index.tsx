@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
-  Building2,
   Search,
-  Briefcase,
-  Share2,
-  BarChart3,
+  SlidersHorizontal,
+  FolderOpen,
+  Send,
   Database,
   FileCode2,
   Globe2,
+  BarChart3,
+  Briefcase,
   Menu,
   X,
   BedDouble,
@@ -17,11 +18,18 @@ import {
   Maximize,
   MapPin,
   Check,
-  ArrowRight,
+  Play,
+  User,
+  Users,
+  Crown,
+  Facebook,
+  Instagram,
+  Linkedin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import bgDesktop from "@/assets/bg-mv.png.asset.json";
+import bgMobile from "@/assets/bg-mobilemv.png.asset.json";
+import logoMv from "@/assets/logo-mv.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,7 +38,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Plataforma de suporte imobiliário: base centralizada, carteira personalizada e distribuição via XML para portais.",
+          "Sistema de suporte imobiliário para corretores e imobiliárias: base centralizada, carteira personalizada e distribuição via XML.",
       },
       { property: "og:title", content: "MV BROKER — Sistema de Suporte Imobiliário" },
       {
@@ -38,6 +46,7 @@ export const Route = createFileRoute("/")({
         content:
           "Organize sua operação imobiliária. Pesquise, monte carteiras e distribua imóveis para os principais portais.",
       },
+      { property: "og:image", content: bgDesktop.url },
     ],
   }),
   component: LandingPage,
@@ -60,26 +69,24 @@ type Imovel = {
   titulo: string;
   cidade: string;
   bairro: string;
-  tipo: string;
   valor: number;
   dorm?: number;
   banh?: number;
   vagas?: number;
   area: number;
-  badge: string;
 };
 
 const IMOVEIS: Imovel[] = [
-  { titulo: "Apartamento Vista Mar no Centro", cidade: "Capão da Canoa", bairro: "Centro", tipo: "Apartamento", valor: 890000, dorm: 3, banh: 2, vagas: 1, area: 118, badge: "Vista Mar" },
-  { titulo: "Apartamento Alto Padrão Navegantes", cidade: "Capão da Canoa", bairro: "Navegantes", tipo: "Apartamento", valor: 1450000, dorm: 3, banh: 3, vagas: 2, area: 142, badge: "Alto Padrão" },
-  { titulo: "Casa em Condomínio Atlântida", cidade: "Xangri-lá", bairro: "Atlântida", tipo: "Casa em Condomínio", valor: 2800000, dorm: 4, banh: 4, vagas: 3, area: 280, badge: "Exclusivo" },
-  { titulo: "Terreno em Condomínio Fechado", cidade: "Xangri-lá", bairro: "Remanso", tipo: "Terreno", valor: 520000, area: 420, badge: "Oportunidade" },
-  { titulo: "Apartamento Decorado Zona Nova", cidade: "Capão da Canoa", bairro: "Zona Nova", tipo: "Apartamento", valor: 740000, dorm: 2, banh: 2, vagas: 1, area: 86, badge: "Decorado" },
-  { titulo: "Cobertura Duplex Beira-Mar", cidade: "Capão da Canoa", bairro: "Centro", tipo: "Cobertura", valor: 2350000, dorm: 4, banh: 4, vagas: 3, area: 230, badge: "Beira-Mar" },
-  { titulo: "Casa Moderna em Noiva do Mar", cidade: "Xangri-lá", bairro: "Noiva do Mar", tipo: "Casa", valor: 1280000, dorm: 3, banh: 3, vagas: 2, area: 190, badge: "Moderna" },
-  { titulo: "Apartamento Compacto para Investimento", cidade: "Capão da Canoa", bairro: "Zona Nova", tipo: "Apartamento", valor: 480000, dorm: 1, banh: 1, vagas: 1, area: 54, badge: "Investimento" },
-  { titulo: "Mansão em Condomínio de Luxo", cidade: "Xangri-lá", bairro: "Atlântida", tipo: "Casa em Condomínio", valor: 4900000, dorm: 5, banh: 6, vagas: 4, area: 420, badge: "Luxo" },
-  { titulo: "Apartamento Frente Praça", cidade: "Capão da Canoa", bairro: "Centro", tipo: "Apartamento", valor: 680000, dorm: 2, banh: 2, vagas: 1, area: 78, badge: "Localização" },
+  { titulo: "Apartamento Vista Mar no Centro", cidade: "Capão da Canoa", bairro: "Centro", valor: 890000, dorm: 3, banh: 2, vagas: 1, area: 118 },
+  { titulo: "Apartamento Alto Padrão Navegantes", cidade: "Capão da Canoa", bairro: "Navegantes", valor: 1450000, dorm: 3, banh: 3, vagas: 2, area: 142 },
+  { titulo: "Casa em Condomínio Atlântida", cidade: "Xangri-lá", bairro: "Atlântida", valor: 2800000, dorm: 4, banh: 4, vagas: 3, area: 280 },
+  { titulo: "Terreno em Condomínio Fechado", cidade: "Xangri-lá", bairro: "Remanso", valor: 520000, area: 420 },
+  { titulo: "Apartamento Decorado Zona Nova", cidade: "Capão da Canoa", bairro: "Zona Nova", valor: 740000, dorm: 2, banh: 2, vagas: 1, area: 86 },
+  { titulo: "Cobertura Duplex Beira-Mar", cidade: "Capão da Canoa", bairro: "Centro", valor: 2350000, dorm: 4, banh: 4, vagas: 3, area: 230 },
+  { titulo: "Casa Moderna em Noiva do Mar", cidade: "Xangri-lá", bairro: "Noiva do Mar", valor: 1280000, dorm: 3, banh: 3, vagas: 2, area: 190 },
+  { titulo: "Apartamento Compacto para Investimento", cidade: "Capão da Canoa", bairro: "Zona Nova", valor: 480000, dorm: 1, banh: 1, vagas: 1, area: 54 },
+  { titulo: "Mansão em Condomínio de Luxo", cidade: "Xangri-lá", bairro: "Atlântida", valor: 4900000, dorm: 5, banh: 6, vagas: 4, area: 420 },
+  { titulo: "Apartamento Frente Praça", cidade: "Capão da Canoa", bairro: "Centro", valor: 680000, dorm: 2, banh: 2, vagas: 1, area: 78 },
 ];
 
 const fmtBRL = (n: number) =>
@@ -92,36 +99,79 @@ const NAV = [
   { label: "Planos", href: "#planos" },
 ];
 
+const STEPS = [
+  { icon: Search, t: "Acesse a base de imóveis", d: "Consulte imóveis disponíveis em uma base centralizada e organizada." },
+  { icon: SlidersHorizontal, t: "Pesquise oportunidades disponíveis", d: "Use filtros avançados para encontrar imóveis alinhados ao seu perfil." },
+  { icon: FolderOpen, t: "Monte sua carteira personalizada", d: "Selecione os imóveis que deseja trabalhar e organize sua própria carteira." },
+  { icon: Send, t: "Gere seu XML e distribua nos portais", d: "Copie seu link XML e publique automaticamente nos principais portais imobiliários." },
+];
+
+const BENEFITS = [
+  { i: Database, t: "Base centralizada de imóveis", d: "Acesse uma base completa, organizada e sempre atualizada." },
+  { i: Search, t: "Pesquisa avançada", d: "Encontre imóveis com filtros inteligentes e rápidos." },
+  { i: FolderOpen, t: "Carteira personalizada", d: "Monte várias carteiras e organize como preferir." },
+  { i: FileCode2, t: "XML por corretor ou imobiliária", d: "Gere seu feed XML exclusivo com atualização automática." },
+  { i: Globe2, t: "Distribuição para portais", d: "Envie seus imóveis para os principais portais do Brasil." },
+  { i: BarChart3, t: "Relatórios de performance", d: "Acompanhe resultados, acessos, downloads e muito mais." },
+];
+
+const PLANS = [
+  {
+    icon: User,
+    name: "Corretor",
+    desc: "Ideal para corretores autônomos.",
+    items: ["1 usuário", "Carteiras ilimitadas", "XML exclusivo", "Distribuição para portais", "Relatórios básicos"],
+    cta: "Assinar Plano",
+    dark: false,
+  },
+  {
+    icon: Users,
+    name: "Imobiliária",
+    desc: "Ideal para imobiliárias com equipe.",
+    items: ["Usuários ilimitados", "Carteiras ilimitadas", "XMLs exclusivos", "Distribuição para portais", "Relatórios completos", "Suporte prioritário"],
+    cta: "Assinar Plano",
+    dark: false,
+  },
+  {
+    icon: Crown,
+    name: "Premium",
+    desc: "Para operações maiores e multiusuários.",
+    items: ["Tudo do plano Imobiliária", "Integrações avançadas", "Relatórios personalizados", "Suporte dedicado", "Consultoria especializada"],
+    cta: "Falar com Comercial",
+    dark: true,
+  },
+];
+
 function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* NAV */}
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-lg">
+    <div className="min-h-screen bg-white text-slate-900">
+      {/* HEADER */}
+      <header className="sticky top-0 z-50 bg-[#020617] text-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <a href="#inicio" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar text-sidebar-foreground">
-              <Building2 className="h-5 w-5 text-primary" />
-            </div>
-            <span className="text-lg font-bold tracking-tight">MV BROKER</span>
+          <a href="#inicio" className="flex items-center gap-2 shrink-0">
+            <img src={logoMv.url} alt="MV BROKER" className="h-8 w-auto" />
+            <span className="hidden text-[10px] uppercase tracking-widest text-white/50 sm:block">
+              Sistema de Suporte Imobiliário
+            </span>
           </a>
 
           <nav className="hidden items-center gap-8 md:flex">
             {NAV.map((i) => (
-              <a key={i.href} href={i.href} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+              <a key={i.href} href={i.href} className="text-sm font-medium text-white/80 transition-colors hover:text-white">
                 {i.label}
               </a>
             ))}
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden md:block">
             <Link to="/auth">
-              <Button variant="ghost" size="sm">Login</Button>
+              <button className="inline-flex items-center gap-2 rounded-md border border-[#006BFF] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#006BFF]">
+                <User className="h-4 w-4" />
+                Login
+              </button>
             </Link>
-            <a href="#planos">
-              <Button size="sm">Assinar Plano</Button>
-            </a>
           </div>
 
           <button className="md:hidden" onClick={() => setMenuOpen((v) => !v)} aria-label="Menu">
@@ -130,290 +180,297 @@ function LandingPage() {
         </div>
 
         {menuOpen && (
-          <div className="border-t border-border bg-background md:hidden">
+          <div className="border-t border-white/10 bg-[#020617] md:hidden">
             <nav className="mx-auto flex max-w-7xl flex-col px-4 py-4">
               {NAV.map((i) => (
-                <a key={i.href} href={i.href} onClick={() => setMenuOpen(false)} className="py-2 text-sm font-medium text-muted-foreground">
+                <a key={i.href} href={i.href} onClick={() => setMenuOpen(false)} className="py-2 text-sm font-medium text-white/80">
                   {i.label}
                 </a>
               ))}
-              <Link to="/auth" className="py-2 text-sm font-medium">Login</Link>
-              <a href="#planos" className="pt-2">
-                <Button size="sm" className="w-full">Assinar Plano</Button>
-              </a>
+              <Link to="/auth" onClick={() => setMenuOpen(false)} className="mt-2 inline-flex items-center justify-center gap-2 rounded-md border border-[#006BFF] px-4 py-2 text-sm font-semibold text-white">
+                <User className="h-4 w-4" />
+                Login
+              </Link>
             </nav>
           </div>
         )}
       </header>
 
       {/* HERO */}
-      <section id="inicio" className="relative overflow-hidden bg-sidebar text-sidebar-foreground">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/30 via-transparent to-transparent" />
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 md:py-28 lg:grid-cols-2 lg:px-8 lg:py-32">
-          <div className="flex flex-col justify-center">
-            <Badge className="mb-6 w-fit bg-primary/15 text-primary border-primary/20 hover:bg-primary/20">
-              Sistema de Suporte Imobiliário
-            </Badge>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              MV <span className="text-primary">BROKER</span>
+      <section id="inicio" className="relative isolate overflow-hidden bg-[#020617] text-white">
+        {/* Desktop bg */}
+        <div
+          className="absolute inset-0 hidden bg-cover bg-center md:block"
+          style={{ backgroundImage: `url(${bgDesktop.url})` }}
+          aria-hidden
+        />
+        {/* Mobile bg */}
+        <div
+          className="absolute inset-0 bg-cover bg-top md:hidden"
+          style={{ backgroundImage: `url(${bgMobile.url})` }}
+          aria-hidden
+        />
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020617]/95 via-[#020617]/70 to-transparent md:block hidden" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/60 to-[#020617] md:hidden" aria-hidden />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex min-h-[600px] flex-col justify-end pb-12 pt-16 md:min-h-[640px] md:justify-center md:py-28 md:max-w-2xl">
+            <h1 className="text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl">
+              <span className="text-[#006BFF]">MV</span> <span className="text-white">BROKER</span>
             </h1>
-            <p className="mt-4 text-xl font-medium text-sidebar-foreground/90">
+            <p className="mt-6 text-xl font-semibold text-white sm:text-2xl">
               Sistema de Suporte Imobiliário para corretores e imobiliárias.
             </p>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-sidebar-foreground/70">
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">
               Acesse uma base organizada de imóveis, selecione oportunidades, gere sua carteira personalizada e distribua seus imóveis para portais através de XML.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
               <a href="#planos">
-                <Button size="lg" className="gap-2">
-                  Assinar Plano <ArrowRight className="h-4 w-4" />
+                <Button size="lg" className="w-full bg-[#006BFF] px-8 text-base font-semibold text-white shadow-lg hover:bg-[#006BFF]/90 sm:w-auto">
+                  Assinar Plano
                 </Button>
               </a>
               <a href="#como-funciona">
-                <Button size="lg" variant="outline" className="border-sidebar-foreground/20 bg-transparent text-sidebar-foreground hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground">
+                <Button size="lg" variant="outline" className="w-full gap-2 border-white/30 bg-transparent px-8 text-base font-semibold text-white hover:bg-white/10 hover:text-white sm:w-auto">
+                  <Play className="h-4 w-4 fill-white" />
                   Ver Como Funciona
                 </Button>
               </a>
             </div>
           </div>
-          <div className="relative hidden lg:block">
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/20 to-transparent blur-3xl" />
-            <img
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80"
-              alt="Imóvel premium"
-              className="relative h-full max-h-[520px] w-full rounded-3xl object-cover shadow-2xl"
-            />
-          </div>
         </div>
       </section>
 
       {/* COMO FUNCIONA */}
-      <section id="como-funciona" className="py-20 md:py-28">
+      <section id="como-funciona" className="bg-white py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Como Funciona</h2>
-            <p className="mt-4 text-muted-foreground">Em quatro passos você organiza sua operação e amplia sua presença nos portais.</p>
+          <div className="text-center">
+            <p className="text-sm font-bold uppercase tracking-widest text-[#006BFF]">Como Funciona</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              Simples, rápido e eficiente
+            </h2>
           </div>
-          <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              { n: 1, t: "Acesse a base de imóveis", d: "Conecte-se a uma base unificada e atualizada de oportunidades." },
-              { n: 2, t: "Pesquise oportunidades", d: "Filtros avançados para encontrar o imóvel certo em segundos." },
-              { n: 3, t: "Monte sua carteira", d: "Selecione e organize sua carteira personalizada por cliente ou portal." },
-              { n: 4, t: "Gere XML e distribua", d: "Exporte XML por corretor ou imobiliária e distribua nos portais." },
-            ].map((s) => (
-              <Card key={s.n} className="border-border/60 transition-all hover:border-primary/40 hover:shadow-lg">
-                <CardContent className="p-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold">
-                    {s.n}
+          <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map((s, idx) => (
+              <div key={s.t} className="relative text-center">
+                <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-7xl font-black text-slate-100 select-none">
+                  {idx + 1}
+                </span>
+                <div className="relative">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#006BFF] text-white shadow-lg">
+                    <s.icon className="h-7 w-7" />
                   </div>
-                  <h3 className="mt-5 text-lg font-semibold">{s.t}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{s.d}</p>
-                </CardContent>
-              </Card>
+                  <h3 className="mt-5 text-base font-bold text-slate-900">{s.t}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">{s.d}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* IMÓVEIS */}
-      <section id="imoveis" className="bg-muted/40 py-20 md:py-28">
+      <section id="imoveis" className="bg-[#F8FAFC] py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Imóveis em Destaque</h2>
-              <p className="mt-2 text-muted-foreground">Seleção ilustrativa de oportunidades em Capão da Canoa e Xangri-lá.</p>
-            </div>
-            <Badge variant="secondary" className="bg-background">Exemplos demonstrativos</Badge>
-          </div>
+          <h2 className="text-center text-sm font-bold uppercase tracking-widest text-slate-900">
+            Imóveis em Destaque
+          </h2>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {IMOVEIS.map((im, idx) => (
-              <Card key={idx} className="group overflow-hidden border-border/60 p-0 transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+              <div key={idx} className="group overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:shadow-lg">
+                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
                   <img
                     src={MOCK_IMAGES[idx]}
                     alt={im.titulo}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <Badge className="absolute left-3 top-3 bg-primary text-primary-foreground shadow-md">{im.badge}</Badge>
+                  <span className="absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#006BFF] text-xs font-bold text-white shadow-md">
+                    {idx + 1}
+                  </span>
+                  <span className="absolute right-3 top-3 rounded-md bg-[#006BFF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                    Destaque
+                  </span>
                 </div>
-                <CardContent className="space-y-3 p-5">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {im.bairro}, {im.cidade}
+                <div className="space-y-2 p-4">
+                  <h3 className="line-clamp-2 text-sm font-bold text-slate-900">{im.titulo}</h3>
+                  <p className="flex items-center gap-1 text-xs text-slate-500">
+                    <MapPin className="h-3 w-3" />
+                    {im.cidade}, {im.bairro}
+                  </p>
+                  <div className="flex flex-wrap gap-2 pt-1 text-[11px] text-slate-600">
+                    {im.dorm !== undefined && im.dorm > 0 ? (
+                      <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" />{im.dorm}</span>
+                    ) : null}
+                    {im.banh !== undefined && im.banh > 0 ? (
+                      <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5" />{im.banh}</span>
+                    ) : null}
+                    {im.vagas !== undefined && im.vagas > 0 ? (
+                      <span className="flex items-center gap-1"><Car className="h-3.5 w-3.5" />{im.vagas}</span>
+                    ) : null}
+                    <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{im.area}m²</span>
                   </div>
-                  <h3 className="line-clamp-2 text-base font-semibold leading-snug">{im.titulo}</h3>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">{im.tipo}</p>
-                  <p className="text-xl font-bold text-primary">{fmtBRL(im.valor)}</p>
-                  <div className="flex flex-wrap gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
-                    {im.dorm !== undefined && (
-                      <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" /> {im.dorm}</span>
-                    )}
-                    {im.banh !== undefined && (
-                      <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5" /> {im.banh}</span>
-                    )}
-                    {im.vagas !== undefined && (
-                      <span className="flex items-center gap-1"><Car className="h-3.5 w-3.5" /> {im.vagas}</span>
-                    )}
-                    <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" /> {im.area}m²</span>
-                  </div>
-                </CardContent>
-              </Card>
+                  <p className="pt-1 text-base font-bold text-[#006BFF]">{fmtBRL(im.valor)}</p>
+                </div>
+              </div>
             ))}
+          </div>
+
+          <div className="mt-10 flex justify-center">
+            <Link to="/auth">
+              <button className="rounded-md border border-[#006BFF] px-6 py-2.5 text-sm font-semibold text-[#006BFF] transition-colors hover:bg-[#006BFF] hover:text-white">
+                Ver mais imóveis
+              </button>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* BENEFÍCIOS */}
-      <section className="py-20 md:py-28">
+      <section className="bg-white py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Tudo o que você precisa em um só lugar</h2>
-            <p className="mt-4 text-muted-foreground">Recursos profissionais para corretores e imobiliárias de todos os tamanhos.</p>
-          </div>
-          <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[
-              { i: Database, t: "Base centralizada de imóveis", d: "Toda a oferta organizada em um único repositório confiável." },
-              { i: Search, t: "Pesquisa avançada", d: "Filtros por cidade, bairro, tipo, valor e características." },
-              { i: Briefcase, t: "Carteira personalizada", d: "Monte e gerencie carteiras por cliente e por portal." },
-              { i: FileCode2, t: "XML por corretor ou imobiliária", d: "Gere XML padronizado pronto para envio aos portais." },
-              { i: Globe2, t: "Distribuição para portais", d: "Conecte-se aos principais portais imobiliários do mercado." },
-              { i: BarChart3, t: "Relatórios de performance", d: "Acompanhe acessos, exportações e desempenho real." },
-            ].map((b, i) => (
-              <Card key={i} className="border-border/60">
-                <CardContent className="p-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
-                    <b.i className="h-6 w-6" />
+          <h2 className="text-center text-sm font-bold uppercase tracking-widest text-slate-900">
+            Por que escolher o <span className="text-[#006BFF]">MV BROKER</span>?
+          </h2>
+          <div className="mt-10 rounded-2xl bg-[#F8FAFC] p-6 md:p-10">
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
+              {BENEFITS.map((b) => (
+                <div key={b.t} className="text-left">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md text-[#006BFF]">
+                    <b.i className="h-7 w-7" strokeWidth={1.5} />
                   </div>
-                  <h3 className="mt-5 text-lg font-semibold">{b.t}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{b.d}</p>
-                </CardContent>
-              </Card>
-            ))}
+                  <h3 className="mt-3 text-sm font-bold leading-snug text-slate-900">{b.t}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500">{b.d}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* PLANOS */}
-      <section id="planos" className="bg-muted/40 py-20 md:py-28">
+      <section id="planos" className="bg-[#020617] py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Planos</h2>
-            <p className="mt-4 text-muted-foreground">Escolha o plano ideal para sua operação.</p>
-          </div>
+          <h2 className="text-center text-sm font-bold uppercase tracking-widest text-white">
+            Planos que cabem no seu negócio
+          </h2>
 
-          <div className="mt-16 grid gap-8 md:grid-cols-3">
-            {[
-              {
-                name: "Corretor",
-                desc: "Ideal para corretores autônomos.",
-                features: ["Acesso à base de imóveis", "Carteira personalizada", "Exportação XML individual", "Suporte por e-mail"],
-                cta: "Assinar Plano",
-                highlight: false,
-              },
-              {
-                name: "Imobiliária",
-                desc: "Ideal para imobiliárias com equipe.",
-                features: ["Tudo do plano Corretor", "Gestão de corretores", "XML por imobiliária", "Relatórios da equipe", "Suporte prioritário"],
-                cta: "Assinar Plano",
-                highlight: true,
-              },
-              {
-                name: "Premium",
-                desc: "Para operações maiores e multiusuários.",
-                features: ["Tudo do plano Imobiliária", "Multiusuários ilimitados", "Integrações avançadas", "Gerente de conta dedicado", "SLA personalizado"],
-                cta: "Falar com Comercial",
-                highlight: false,
-              },
-            ].map((p) => (
-              <Card
-                key={p.name}
-                className={
-                  p.highlight
-                    ? "relative border-primary bg-sidebar text-sidebar-foreground shadow-2xl md:scale-105"
-                    : "border-border/60"
-                }
-              >
-                {p.highlight && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
-                    Mais escolhido
-                  </Badge>
-                )}
-                <CardContent className="flex h-full flex-col p-8">
-                  <h3 className="text-2xl font-bold">Plano {p.name}</h3>
-                  <p className={`mt-2 text-sm ${p.highlight ? "text-sidebar-foreground/70" : "text-muted-foreground"}`}>{p.desc}</p>
-                  <ul className="mt-8 flex-1 space-y-3">
-                    {p.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm">
-                        <Check className={`mt-0.5 h-4 w-4 shrink-0 ${p.highlight ? "text-primary" : "text-primary"}`} />
-                        <span className={p.highlight ? "text-sidebar-foreground/90" : ""}>{f}</span>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {PLANS.map((p) => (
+              <div key={p.name} className="flex flex-col overflow-hidden rounded-xl bg-white shadow-xl">
+                <div className="flex-1 p-7">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#006BFF] text-white">
+                    <p.icon className="h-7 w-7" />
+                  </div>
+                  <h3 className="mt-5 text-xl font-bold text-[#006BFF]">Plano {p.name}</h3>
+                  <p className="mt-1 text-sm text-slate-600">{p.desc}</p>
+                  <ul className="mt-6 space-y-2.5">
+                    {p.items.map((it) => (
+                      <li key={it} className="flex items-start gap-2 text-sm text-slate-700">
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#006BFF]" />
+                        <span>{it}</span>
                       </li>
                     ))}
                   </ul>
-                  <Link to="/auth" className="mt-8">
-                    <Button className="w-full" variant={p.highlight ? "default" : "outline"} size="lg">
-                      {p.cta}
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                </div>
+                <Link to="/auth">
+                  <button
+                    className={`w-full py-3.5 text-sm font-semibold transition-colors ${
+                      p.dark
+                        ? "bg-[#020617] text-white hover:bg-[#020617]/90"
+                        : "bg-[#006BFF] text-white hover:bg-[#006BFF]/90"
+                    }`}
+                  >
+                    {p.cta}
+                  </button>
+                </Link>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA FINAL */}
-      <section className="bg-sidebar py-20 text-sidebar-foreground md:py-28">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+      <section className="bg-gradient-to-r from-[#006BFF] to-[#0EA5E9] py-12">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 md:grid-cols-3 md:items-center lg:px-8">
+          <h2 className="text-2xl font-bold text-white md:text-3xl">
             Pronto para organizar sua operação imobiliária?
           </h2>
-          <p className="mt-6 text-lg text-sidebar-foreground/70">
+          <p className="text-sm leading-relaxed text-white/90">
             Assine o MV BROKER e transforme sua base de imóveis em uma central de distribuição profissional.
           </p>
-          <div className="mt-10">
+          <div className="md:text-right">
             <Link to="/auth">
-              <Button size="lg" className="gap-2">
-                Começar Agora <ArrowRight className="h-4 w-4" />
-              </Button>
+              <button className="rounded-md bg-white px-6 py-3 text-sm font-bold text-[#006BFF] shadow-md transition-colors hover:bg-white/95">
+                Começar Agora
+              </button>
             </Link>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-border bg-background py-12">
+      <footer className="bg-[#020617] py-14 text-white/70">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-8 md:grid-cols-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar text-sidebar-foreground">
-                  <Building2 className="h-5 w-5 text-primary" />
-                </div>
-                <span className="text-lg font-bold">MV BROKER</span>
+          <div className="grid gap-10 md:grid-cols-5">
+            <div className="md:col-span-2">
+              <img src={logoMv.url} alt="MV BROKER" className="h-8 w-auto" />
+              <p className="mt-4 max-w-sm text-sm leading-relaxed">
+                Sistema completo para corretores e imobiliárias organizarem, distribuírem e gerenciarem seus imóveis com eficiência.
+              </p>
+              <div className="mt-5 flex gap-3">
+                <a href="#" aria-label="Facebook" className="rounded-md p-2 text-white/70 transition hover:bg-white/10 hover:text-white">
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a href="#" aria-label="Instagram" className="rounded-md p-2 text-white/70 transition hover:bg-white/10 hover:text-white">
+                  <Instagram className="h-4 w-4" />
+                </a>
+                <a href="#" aria-label="LinkedIn" className="rounded-md p-2 text-white/70 transition hover:bg-white/10 hover:text-white">
+                  <Linkedin className="h-4 w-4" />
+                </a>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">Sistema de Suporte Imobiliário.</p>
             </div>
+
             <div>
-              <h4 className="text-sm font-semibold">Links rápidos</h4>
-              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                <li><a href="#como-funciona" className="hover:text-foreground">Como Funciona</a></li>
-                <li><a href="#imoveis" className="hover:text-foreground">Imóveis</a></li>
-                <li><a href="#planos" className="hover:text-foreground">Planos</a></li>
-                <li><Link to="/auth" className="hover:text-foreground">Login</Link></li>
+              <h4 className="mb-3 text-sm font-bold text-white">Links Rápidos</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#inicio" className="hover:text-white">Início</a></li>
+                <li><a href="#como-funciona" className="hover:text-white">Como Funciona</a></li>
+                <li><a href="#imoveis" className="hover:text-white">Imóveis em Destaque</a></li>
+                <li><a href="#planos" className="hover:text-white">Planos</a></li>
               </ul>
             </div>
+
             <div>
-              <h4 className="text-sm font-semibold">Legal</h4>
-              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">Termos de Uso</a></li>
-                <li><a href="#" className="hover:text-foreground">Política de Privacidade</a></li>
+              <h4 className="mb-3 text-sm font-bold text-white">Suporte</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white">Central de Ajuda</a></li>
+                <li><a href="#" className="hover:text-white">Fale Conosco</a></li>
+                <li><a href="#" className="hover:text-white">Status do Sistema</a></li>
               </ul>
+            </div>
+
+            <div>
+              <h4 className="mb-3 text-sm font-bold text-white">Institucional</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white">Sobre o MV BROKER</a></li>
+                <li><a href="#" className="hover:text-white">Termos de Uso</a></li>
+                <li><a href="#" className="hover:text-white">Política de Privacidade</a></li>
+              </ul>
+              <h4 className="mb-3 mt-6 text-sm font-bold text-white">Acesso</h4>
+              <Link to="/auth">
+                <button className="inline-flex items-center gap-2 rounded-md border border-[#006BFF] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#006BFF]">
+                  <User className="h-3.5 w-3.5" />
+                  Login
+                </button>
+              </Link>
             </div>
           </div>
-          <div className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-            © {new Date().getFullYear()} MV BROKER. Todos os direitos reservados.
+
+          <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/50">
+            © 2025 MV BROKER - Todos os direitos reservados.
           </div>
         </div>
       </footer>

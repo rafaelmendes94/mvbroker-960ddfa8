@@ -57,8 +57,8 @@ function CorretoresPage() {
       supabase.from("imobiliarias").select("id, nome_fantasia").order("nome_fantasia"),
     ]);
     if (error) toast.error(error.message);
-    setItems((c ?? []) as Corretor[]);
-    setImobs((i ?? []) as Imob[]);
+    setItems((c ?? []) as unknown as Corretor[]);
+    setImobs((i ?? []) as unknown as Imob[]);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);

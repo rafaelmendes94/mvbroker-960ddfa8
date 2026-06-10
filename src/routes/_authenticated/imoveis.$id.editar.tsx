@@ -23,7 +23,7 @@ function EditarImovel() {
         // Admin/secretaria pode ver campos internos via RPC SECURITY DEFINER
         const { data: internal } = await supabase.rpc("get_imovel_internal", { p_imovel_id: id });
         const internalRow = Array.isArray(internal) && internal.length > 0 ? internal[0] : {};
-        setItem({ ...data, ...internalRow });
+        setItem({ ...(data as any), ...(internalRow as any) });
       } else {
         setItem(null);
       }
