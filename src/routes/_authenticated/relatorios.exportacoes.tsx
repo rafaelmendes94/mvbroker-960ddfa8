@@ -29,15 +29,22 @@ function RelExportacoes() {
   const [portais, setPortais] = useState<Portal[]>([]);
   const [logs, setLogs] = useState<FeedLog[]>([]);
 
+  const { filters } = useRelFilters();
+
   useEffect(() => {
-    logRelatorioAccess("exportacoes");
+    logRelatorioAccess("exportacoes", filters as any);
     (async () => {
+      const since = filters.periodoDias ? new Date(Date.now() - filters.periodoDias * 86400000).toISOString() : null;
+      let cpQ: any = supabase.from("carteira_portais").select("id, carteira_id, portal_id, ativo, ultima_leitura, total_leituras, status_sincronizacao");
+      if (filters.portalId) cpQ = cpQ.eq("portal_id", filters.portalId);
+      let flQ: any = supabase.from("feed_logs").select("created_at, ip, user_agent").order("created_at", { ascending: false }).limit(2000);
+      if (since) flQ = flQ.gte("created_at", since);
       const [c, ci, cp, p, fl] = await Promise.all([
         supabase.from("carteiras").select("id, nome, status, ultima_atualizacao, created_at"),
         supabase.from("carteira_imoveis").select("carteira_id, imovel_id"),
-        supabase.from("carteira_portais").select("id, carteira_id, portal_id, ativo, ultima_leitura, total_leituras, status_sincronizacao"),
+        cpQ,
         supabase.from("portais").select("id, nome, slug, cor"),
-        supabase.from("feed_logs").select("created_at, ip, user_agent").order("created_at", { ascending: false }).limit(500),
+        flQ,
       ]);
       setCarteiras((c.data ?? []) as Carteira[]);
       setItems((ci.data ?? []) as CarteiraItem[]);
@@ -45,7 +52,7 @@ function RelExportacoes() {
       setPortais((p.data ?? []) as Portal[]);
       setLogs((fl.data ?? []) as FeedLog[]);
     })();
-  }, []);
+  }, [filters]);
 
   const itemsByCart = new Map<string, number>();
   for (const i of items) itemsByCart.set(i.carteira_id, (itemsByCart.get(i.carteira_id) ?? 0) + 1);
