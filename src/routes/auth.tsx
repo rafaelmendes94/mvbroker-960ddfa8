@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { logAudit } from "@/lib/audit";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — MV Broker" }] }),
@@ -26,6 +27,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) return toast.error(error.message);
+    await logAudit("login", `Login efetuado por ${email}`);
     toast.success("Bem-vindo!");
     navigate({ to: "/dashboard" });
   }
@@ -43,6 +45,7 @@ function AuthPage() {
     });
     setLoading(false);
     if (error) return toast.error(error.message);
+    await logAudit("usuario_criado", `Novo cadastro: ${email}`);
     toast.success("Conta criada. Redirecionando...");
     navigate({ to: "/dashboard" });
   }
