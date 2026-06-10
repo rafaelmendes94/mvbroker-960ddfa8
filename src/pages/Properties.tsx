@@ -807,7 +807,7 @@ export default function Properties() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setPropertyList(prev: any) => [duplicate, ...prev]);
+    setPropertyList((prev: any) => [duplicate, ...prev]);
     toast.success("Imóvel duplicado com sucesso!");
   };
 
