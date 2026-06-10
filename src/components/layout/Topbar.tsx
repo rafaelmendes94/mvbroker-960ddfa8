@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { logAudit } from "@/lib/audit";
 
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const initials = (user?.email ?? "U").slice(0, 2).toUpperCase();
 
   async function handleLogout() {
+    await logAudit("logout", `Logout: ${user?.email ?? ""}`);
     await supabase.auth.signOut();
     toast.success("Sessão encerrada.");
     navigate({ to: "/auth" });
