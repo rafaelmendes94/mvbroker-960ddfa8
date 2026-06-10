@@ -23,6 +23,7 @@ export const ROLE_LABEL: Record<AppRole, string> = {
 export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/dashboard": [],
   "/imoveis": [], // visualização para todos autenticados
+  "/central": [], // Central de Imóveis — todos autenticados
   "/registros": ["super_admin", "secretaria", "imobiliaria", "corretor_imobiliaria", "corretor_autonomo"],
   "/imobiliarias": ["super_admin"],
   "/edificios": ["super_admin", "secretaria"],
