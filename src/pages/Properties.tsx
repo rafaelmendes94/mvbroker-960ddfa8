@@ -639,7 +639,7 @@ export default function Properties() {
 
   const toggleRoute = (id: string) => {
     setRouteIds((prev: any) => {
-      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      const next = prev.includes(id) ? prev.filter((x: any) => x !== id) : [...prev, id];
       localStorage.setItem("mv-route-ids", JSON.stringify(next));
       return next;
     });
