@@ -63,7 +63,9 @@ export function useNotifications(limit = 50) {
   };
 
   const marcarTodasLidas = async (categoria?: NotifCategoria) => {
-    await supabase.rpc("marcar_todas_lidas", { p_categoria: categoria ?? null });
+    const args = categoria ? { p_categoria: categoria } : {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase.rpc as any)("marcar_todas_lidas", args);
     reload();
   };
 

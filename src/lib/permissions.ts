@@ -25,6 +25,7 @@ export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/imoveis": [], // visualização para todos autenticados
   "/central": [], // Central de Imóveis — todos autenticados
   "/favoritos": [], // Favoritos — todos autenticados
+  "/notificacoes": [], // Notificações — todos autenticados
   "/registros": ["super_admin", "secretaria", "imobiliaria", "corretor_imobiliaria", "corretor_autonomo"],
   "/imobiliarias": ["super_admin"],
   "/edificios": ["super_admin", "secretaria"],

@@ -59,8 +59,8 @@ function PreferenciasPage() {
       canal_push: current?.canal_push ?? false,
       [canal]: valor,
     };
-    const { error } = await supabase
-      .from("notification_preferences")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from("notification_preferences") as any)
       .upsert(payload, { onConflict: "usuario_id,tipo" });
     if (error) toast.error("Erro ao salvar preferência");
   }
@@ -70,7 +70,6 @@ function PreferenciasPage() {
       <PageHeader
         title="Preferências de Notificação"
         description="Escolha como você quer ser avisado para cada tipo de evento."
-        icon={Bell}
       />
 
       {loading ? (

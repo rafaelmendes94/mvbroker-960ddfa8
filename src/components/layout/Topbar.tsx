@@ -1,4 +1,4 @@
-import { Bell, Menu, Search, Plus, LogOut, User as UserIcon, Settings } from "lucide-react";
+import { Bell, Menu, Search, Plus, LogOut, User as UserIcon, Settings, CheckCheck } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { logAudit } from "@/lib/audit";
+import { useNotifications } from "@/hooks/use-notifications";
+import { cn } from "@/lib/utils";
 
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const initials = (user?.email ?? "U").slice(0, 2).toUpperCase();
+  const { items, unread, marcarLida, marcarTodasLidas } = useNotifications(10);
+  const recentes = items.slice(0, 8);
 
   async function handleLogout() {
     await logAudit("logout", `Logout: ${user?.email ?? ""}`);
@@ -48,18 +52,55 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 text-[10px] bg-primary">3</Badge>
+                {unread > 0 && (
+                  <Badge className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 text-[10px] bg-primary">
+                    {unread > 99 ? "99+" : unread}
+                  </Badge>
+                )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
-              <DropdownMenuLabel>Notificações</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-96">
+              <div className="flex items-center justify-between px-2 py-1.5">
+                <DropdownMenuLabel className="p-0">Notificações</DropdownMenuLabel>
+                {unread > 0 && (
+                  <button
+                    onClick={() => marcarTodasLidas()}
+                    className="text-xs text-primary hover:underline flex items-center gap-1"
+                  >
+                    <CheckCheck className="h-3 w-3" />
+                    Marcar todas
+                  </button>
+                )}
+              </div>
               <DropdownMenuSeparator />
-              {[1, 2, 3].map(i => (
-                <DropdownMenuItem key={i} className="flex flex-col items-start gap-1 py-3">
-                  <div className="text-sm font-medium">Novo cadastro recebido</div>
-                  <div className="text-xs text-muted-foreground">Há {i * 10} minutos</div>
-                </DropdownMenuItem>
-              ))}
+              {recentes.length === 0 ? (
+                <div className="px-3 py-8 text-center text-sm text-muted-foreground">
+                  Nenhuma notificação
+                </div>
+              ) : (
+                <div className="max-h-80 overflow-y-auto">
+                  {recentes.map((n) => (
+                    <DropdownMenuItem
+                      key={n.id}
+                      className={cn("flex flex-col items-start gap-1 py-3", !n.lida && "bg-primary/5")}
+                      onClick={() => {
+                        if (!n.lida) marcarLida(n.id);
+                        if (n.link) navigate({ to: n.link });
+                      }}
+                    >
+                      <div className="text-sm font-medium">{n.titulo}</div>
+                      <div className="text-xs text-muted-foreground line-clamp-2">{n.mensagem}</div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {new Date(n.created_at).toLocaleString("pt-BR")}
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate({ to: "/notificacoes" })} className="justify-center text-sm font-medium text-primary">
+                Ver todas
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 

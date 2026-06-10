@@ -37,7 +37,6 @@ function NotificacoesPage() {
       <PageHeader
         title="Notificações"
         description={`${unread} não lidas`}
-        icon={Bell}
         actions={
           <Button variant="outline" size="sm" onClick={() => marcarTodasLidas()}>
             <CheckCheck className="h-4 w-4" />
