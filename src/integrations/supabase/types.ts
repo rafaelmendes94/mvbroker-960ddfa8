@@ -507,6 +507,370 @@ export type Database = {
         }
         Relationships: []
       }
+      imoveis: {
+        Row: {
+          aceita_permuta: boolean
+          area_privativa: number | null
+          area_total: number | null
+          arquivado: boolean
+          ativo_site: boolean
+          bairro: string | null
+          banheiros: number | null
+          bonus: string | null
+          box: string | null
+          cep: string | null
+          cidade: string | null
+          codigo_interno: string | null
+          comissao_compartilhada: number | null
+          comissao_percentual: number | null
+          compartilhamento_permitido: boolean
+          complemento: string | null
+          condicao: string | null
+          condicoes_pagamento: string[]
+          condominio_id: string | null
+          corretor_id: string | null
+          created_at: string
+          created_by: string | null
+          data_captacao: string | null
+          data_vencimento_exclusividade: string | null
+          decorado: boolean
+          descricao: string | null
+          destaque_categoria: string | null
+          destaque_home: boolean
+          dormitorios: number | null
+          edificio_id: string | null
+          elevadores: number | null
+          empreendimento_id: string | null
+          estado: string | null
+          exclusividade: boolean
+          exclusivo: boolean
+          id: string
+          imobiliaria_id: string | null
+          infraestrutura: string[]
+          latitude: number | null
+          lavabo: number | null
+          link_drive_fotos: string | null
+          link_material: string | null
+          link_video: string | null
+          local_chaves: string | null
+          logradouro: string | null
+          longitude: number | null
+          lote: string | null
+          numero: string | null
+          observacoes_internas: string | null
+          outras_caracteristicas: string[]
+          padrao: string | null
+          pdf_comercial_path: string | null
+          portais_permitidos: string[]
+          posicao_predio: string | null
+          posicao_solar: string | null
+          preco: number | null
+          preco_parcelado: number | null
+          prioridade_xml: number
+          publicar_xml: boolean
+          quadra: string | null
+          responsavel_captacao: string | null
+          responsavel_email: string | null
+          responsavel_nome: string | null
+          responsavel_telefone: string | null
+          responsavel_whatsapp: string | null
+          status_exportacao: string | null
+          status_imovel: string
+          termo_exclusividade_path: string | null
+          tipo_imovel: string | null
+          tipo_proprietario: string | null
+          titulo: string
+          tour_360: string | null
+          ultima_exportacao: string | null
+          unidade: string | null
+          updated_at: string
+          vagas: number | null
+          validade_bonus: string | null
+          valor_comissao: number | null
+          vista: string | null
+          vista_mar: boolean
+        }
+        Insert: {
+          aceita_permuta?: boolean
+          area_privativa?: number | null
+          area_total?: number | null
+          arquivado?: boolean
+          ativo_site?: boolean
+          bairro?: string | null
+          banheiros?: number | null
+          bonus?: string | null
+          box?: string | null
+          cep?: string | null
+          cidade?: string | null
+          codigo_interno?: string | null
+          comissao_compartilhada?: number | null
+          comissao_percentual?: number | null
+          compartilhamento_permitido?: boolean
+          complemento?: string | null
+          condicao?: string | null
+          condicoes_pagamento?: string[]
+          condominio_id?: string | null
+          corretor_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_captacao?: string | null
+          data_vencimento_exclusividade?: string | null
+          decorado?: boolean
+          descricao?: string | null
+          destaque_categoria?: string | null
+          destaque_home?: boolean
+          dormitorios?: number | null
+          edificio_id?: string | null
+          elevadores?: number | null
+          empreendimento_id?: string | null
+          estado?: string | null
+          exclusividade?: boolean
+          exclusivo?: boolean
+          id?: string
+          imobiliaria_id?: string | null
+          infraestrutura?: string[]
+          latitude?: number | null
+          lavabo?: number | null
+          link_drive_fotos?: string | null
+          link_material?: string | null
+          link_video?: string | null
+          local_chaves?: string | null
+          logradouro?: string | null
+          longitude?: number | null
+          lote?: string | null
+          numero?: string | null
+          observacoes_internas?: string | null
+          outras_caracteristicas?: string[]
+          padrao?: string | null
+          pdf_comercial_path?: string | null
+          portais_permitidos?: string[]
+          posicao_predio?: string | null
+          posicao_solar?: string | null
+          preco?: number | null
+          preco_parcelado?: number | null
+          prioridade_xml?: number
+          publicar_xml?: boolean
+          quadra?: string | null
+          responsavel_captacao?: string | null
+          responsavel_email?: string | null
+          responsavel_nome?: string | null
+          responsavel_telefone?: string | null
+          responsavel_whatsapp?: string | null
+          status_exportacao?: string | null
+          status_imovel?: string
+          termo_exclusividade_path?: string | null
+          tipo_imovel?: string | null
+          tipo_proprietario?: string | null
+          titulo: string
+          tour_360?: string | null
+          ultima_exportacao?: string | null
+          unidade?: string | null
+          updated_at?: string
+          vagas?: number | null
+          validade_bonus?: string | null
+          valor_comissao?: number | null
+          vista?: string | null
+          vista_mar?: boolean
+        }
+        Update: {
+          aceita_permuta?: boolean
+          area_privativa?: number | null
+          area_total?: number | null
+          arquivado?: boolean
+          ativo_site?: boolean
+          bairro?: string | null
+          banheiros?: number | null
+          bonus?: string | null
+          box?: string | null
+          cep?: string | null
+          cidade?: string | null
+          codigo_interno?: string | null
+          comissao_compartilhada?: number | null
+          comissao_percentual?: number | null
+          compartilhamento_permitido?: boolean
+          complemento?: string | null
+          condicao?: string | null
+          condicoes_pagamento?: string[]
+          condominio_id?: string | null
+          corretor_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_captacao?: string | null
+          data_vencimento_exclusividade?: string | null
+          decorado?: boolean
+          descricao?: string | null
+          destaque_categoria?: string | null
+          destaque_home?: boolean
+          dormitorios?: number | null
+          edificio_id?: string | null
+          elevadores?: number | null
+          empreendimento_id?: string | null
+          estado?: string | null
+          exclusividade?: boolean
+          exclusivo?: boolean
+          id?: string
+          imobiliaria_id?: string | null
+          infraestrutura?: string[]
+          latitude?: number | null
+          lavabo?: number | null
+          link_drive_fotos?: string | null
+          link_material?: string | null
+          link_video?: string | null
+          local_chaves?: string | null
+          logradouro?: string | null
+          longitude?: number | null
+          lote?: string | null
+          numero?: string | null
+          observacoes_internas?: string | null
+          outras_caracteristicas?: string[]
+          padrao?: string | null
+          pdf_comercial_path?: string | null
+          portais_permitidos?: string[]
+          posicao_predio?: string | null
+          posicao_solar?: string | null
+          preco?: number | null
+          preco_parcelado?: number | null
+          prioridade_xml?: number
+          publicar_xml?: boolean
+          quadra?: string | null
+          responsavel_captacao?: string | null
+          responsavel_email?: string | null
+          responsavel_nome?: string | null
+          responsavel_telefone?: string | null
+          responsavel_whatsapp?: string | null
+          status_exportacao?: string | null
+          status_imovel?: string
+          termo_exclusividade_path?: string | null
+          tipo_imovel?: string | null
+          tipo_proprietario?: string | null
+          titulo?: string
+          tour_360?: string | null
+          ultima_exportacao?: string | null
+          unidade?: string | null
+          updated_at?: string
+          vagas?: number | null
+          validade_bonus?: string | null
+          valor_comissao?: number | null
+          vista?: string | null
+          vista_mar?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imoveis_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_corretor_id_fkey"
+            columns: ["corretor_id"]
+            isOneToOne: false
+            referencedRelation: "corretores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_edificio_id_fkey"
+            columns: ["edificio_id"]
+            isOneToOne: false
+            referencedRelation: "edificios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_imobiliaria_id_fkey"
+            columns: ["imobiliaria_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imovel_imagens: {
+        Row: {
+          capa: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          imovel_id: string
+          ordem: number
+          storage_path: string
+          url: string | null
+        }
+        Insert: {
+          capa?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          imovel_id: string
+          ordem?: number
+          storage_path: string
+          url?: string | null
+        }
+        Update: {
+          capa?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          imovel_id?: string
+          ordem?: number
+          storage_path?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imovel_imagens_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imovel_logs: {
+        Row: {
+          acao: string
+          created_at: string
+          descricao: string | null
+          id: string
+          imovel_id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          imovel_id: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          imovel_id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imovel_logs_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
