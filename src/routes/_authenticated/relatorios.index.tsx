@@ -4,6 +4,7 @@ import { Building2, CheckCircle2, Share2, FolderKanban, Rss, Globe, Download, Ey
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { logRelatorioAccess } from "@/hooks/use-relatorios";
+import { useRelFilters } from "@/hooks/use-rel-filters";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
   LineChart, Line, PieChart, Pie, Cell,
