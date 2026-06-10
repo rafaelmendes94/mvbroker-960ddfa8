@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedRegularizacaoRouteImport } from './routes/_authenticated/regularizacao'
 import { Route as AuthenticatedRegistrosRouteImport } from './routes/_authenticated/registros'
 import { Route as AuthenticatedPortaisRouteImport } from './routes/_authenticated/portais'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
@@ -95,6 +96,12 @@ const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedRegularizacaoRoute =
+  AuthenticatedRegularizacaoRouteImport.update({
+    id: '/regularizacao',
+    path: '/regularizacao',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRegistrosRoute = AuthenticatedRegistrosRouteImport.update({
   id: '/registros',
   path: '/registros',
@@ -368,6 +375,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/portais': typeof AuthenticatedPortaisRouteWithChildren
   '/registros': typeof AuthenticatedRegistrosRouteWithChildren
+  '/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/relatorios': typeof AuthenticatedRelatoriosRouteWithChildren
   '/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/usuarios': typeof AuthenticatedUsuariosRoute
@@ -416,6 +424,7 @@ export interface FileRoutesByTo {
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/perfil': typeof AuthenticatedPerfilRoute
+  '/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/central/$id': typeof AuthenticatedCentralIdRoute
@@ -468,6 +477,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/portais': typeof AuthenticatedPortaisRouteWithChildren
   '/_authenticated/registros': typeof AuthenticatedRegistrosRouteWithChildren
+  '/_authenticated/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRouteWithChildren
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
@@ -522,6 +532,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/portais'
     | '/registros'
+    | '/regularizacao'
     | '/relatorios'
     | '/seguranca'
     | '/usuarios'
@@ -570,6 +581,7 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/imobiliarias'
     | '/perfil'
+    | '/regularizacao'
     | '/usuarios'
     | '/carteiras/$id'
     | '/central/$id'
@@ -621,6 +633,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/portais'
     | '/_authenticated/registros'
+    | '/_authenticated/regularizacao'
     | '/_authenticated/relatorios'
     | '/_authenticated/seguranca'
     | '/_authenticated/usuarios'
@@ -709,6 +722,13 @@ declare module '@tanstack/react-router' {
       path: '/relatorios'
       fullPath: '/relatorios'
       preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/regularizacao': {
+      id: '/_authenticated/regularizacao'
+      path: '/regularizacao'
+      fullPath: '/regularizacao'
+      preLoaderRoute: typeof AuthenticatedRegularizacaoRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/registros': {
@@ -1193,6 +1213,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedPortaisRoute: typeof AuthenticatedPortaisRouteWithChildren
   AuthenticatedRegistrosRoute: typeof AuthenticatedRegistrosRouteWithChildren
+  AuthenticatedRegularizacaoRoute: typeof AuthenticatedRegularizacaoRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRouteWithChildren
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRouteWithChildren
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
@@ -1218,6 +1239,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedPortaisRoute: AuthenticatedPortaisRouteWithChildren,
   AuthenticatedRegistrosRoute: AuthenticatedRegistrosRouteWithChildren,
+  AuthenticatedRegularizacaoRoute: AuthenticatedRegularizacaoRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRouteWithChildren,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRouteWithChildren,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
