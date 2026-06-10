@@ -1724,6 +1724,20 @@ export type Database = {
           valor: number
         }[]
       }
+      get_oportunidades_resumo: {
+        Args: never
+        Returns: {
+          alto_padrao: number
+          atualizados_7d: number
+          com_bonus: number
+          destaque: number
+          exclusivos: number
+          novos_30d: number
+          novos_7d: number
+          novos_hoje: number
+          vista_mar: number
+        }[]
+      }
       get_preferencias_notificacao: {
         Args: never
         Returns: {

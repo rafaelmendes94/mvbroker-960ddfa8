@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Building2, LayoutDashboard, FolderKanban, Users, UserSquare2,
   BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Heart, Rss, Lock,
-  CreditCard, Tag, Wallet, Bell,
+  CreditCard, Tag, Wallet, Bell, Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
@@ -12,6 +12,7 @@ type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
 
 const ALL_NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/oportunidades", label: "Oportunidades", icon: Sparkles },
   { to: "/imoveis", label: "Imóveis", icon: Home },
   { to: "/central", label: "Central de Imóveis", icon: Search },
   { to: "/favoritos", label: "Favoritos", icon: Heart },
