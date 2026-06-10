@@ -52,7 +52,7 @@ function ImobiliariasPage() {
     const { data, error } = await supabase
       .from("imobiliarias").select(IMOBILIARIA_PUBLIC_COLUMNS).order("created_at", { ascending: false });
     if (error) toast.error(error.message);
-    setItems((data ?? []) as Imobiliaria[]);
+    setItems((data ?? []) as unknown as Imobiliaria[]);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);
