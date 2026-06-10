@@ -163,6 +163,38 @@ export type Database = {
         }
         Relationships: []
       }
+      carteira_compartilhamentos: {
+        Row: {
+          carteira_id: string
+          created_at: string
+          id: string
+          permissao: string
+          usuario_id: string
+        }
+        Insert: {
+          carteira_id: string
+          created_at?: string
+          id?: string
+          permissao?: string
+          usuario_id: string
+        }
+        Update: {
+          carteira_id?: string
+          created_at?: string
+          id?: string
+          permissao?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carteira_compartilhamentos_carteira_id_fkey"
+            columns: ["carteira_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carteira_imoveis: {
         Row: {
           carteira_id: string
@@ -199,42 +231,108 @@ export type Database = {
           },
         ]
       }
+      carteira_portais: {
+        Row: {
+          ativo: boolean
+          carteira_id: string
+          created_at: string
+          id: string
+          mensagem_erro: string | null
+          portal_id: string
+          status_sincronizacao: string
+          total_leituras: number
+          ultima_leitura: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          carteira_id: string
+          created_at?: string
+          id?: string
+          mensagem_erro?: string | null
+          portal_id: string
+          status_sincronizacao?: string
+          total_leituras?: number
+          ultima_leitura?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          carteira_id?: string
+          created_at?: string
+          id?: string
+          mensagem_erro?: string | null
+          portal_id?: string
+          status_sincronizacao?: string
+          total_leituras?: number
+          ultima_leitura?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carteira_portais_carteira_id_fkey"
+            columns: ["carteira_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carteira_portais_portal_id_fkey"
+            columns: ["portal_id"]
+            isOneToOne: false
+            referencedRelation: "portais"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carteiras: {
         Row: {
           atualizacao_intervalo: string
           created_at: string
           descricao: string | null
           id: string
+          limite_imoveis: number | null
+          marca_dagua: boolean
           nome: string
+          regra_filtros: Json
           slug: string
           status: string
           ultima_atualizacao: string | null
           updated_at: string
           usuario_id: string
+          visibilidade: string
         }
         Insert: {
           atualizacao_intervalo?: string
           created_at?: string
           descricao?: string | null
           id?: string
+          limite_imoveis?: number | null
+          marca_dagua?: boolean
           nome: string
+          regra_filtros?: Json
           slug: string
           status?: string
           ultima_atualizacao?: string | null
           updated_at?: string
           usuario_id: string
+          visibilidade?: string
         }
         Update: {
           atualizacao_intervalo?: string
           created_at?: string
           descricao?: string | null
           id?: string
+          limite_imoveis?: number | null
+          marca_dagua?: boolean
           nome?: string
+          regra_filtros?: Json
           slug?: string
           status?: string
           ultima_atualizacao?: string | null
           updated_at?: string
           usuario_id?: string
+          visibilidade?: string
         }
         Relationships: []
       }
@@ -1066,6 +1164,54 @@ export type Database = {
           },
         ]
       }
+      portais: {
+        Row: {
+          ativo: boolean
+          cor: string | null
+          created_at: string
+          descricao: string | null
+          formato_xml: string
+          id: string
+          instrucoes: string | null
+          logo_url: string | null
+          nome: string
+          ordem: number
+          site_url: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          cor?: string | null
+          created_at?: string
+          descricao?: string | null
+          formato_xml?: string
+          id?: string
+          instrucoes?: string | null
+          logo_url?: string | null
+          nome: string
+          ordem?: number
+          site_url?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          cor?: string | null
+          created_at?: string
+          descricao?: string | null
+          formato_xml?: string
+          id?: string
+          instrucoes?: string | null
+          logo_url?: string | null
+          nome?: string
+          ordem?: number
+          site_url?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1157,6 +1303,14 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      pode_editar_carteira: {
+        Args: { _carteira_id: string; _user_id: string }
+        Returns: boolean
+      }
+      pode_ler_carteira: {
+        Args: { _carteira_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
