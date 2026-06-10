@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Building2, LayoutDashboard, FolderKanban, Users, UserSquare2,
-  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Heart, Rss,
+  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Heart, Rss, Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
