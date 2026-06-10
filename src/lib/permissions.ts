@@ -15,7 +15,7 @@ export const ROLE_LABEL: Record<AppRole, string> = {
   corretor_imobiliaria: "Corretor da Imobiliária",
   corretor_autonomo: "Corretor Autônomo",
   admin: "Administrador",
-  manager: "Moderador",
+  manager: "Gerente",
   user: "Usuário",
 };
 
