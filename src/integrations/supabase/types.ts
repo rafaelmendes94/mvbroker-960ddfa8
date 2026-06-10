@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      active_sessions: {
+        Row: {
+          created_at: string
+          device: string | null
+          id: string
+          ip: string | null
+          last_seen: string
+          status: string
+          user_agent: string | null
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          device?: string | null
+          id?: string
+          ip?: string | null
+          last_seen?: string
+          status?: string
+          user_agent?: string | null
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          device?: string | null
+          id?: string
+          ip?: string | null
+          last_seen?: string
+          status?: string
+          user_agent?: string | null
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       arquivo_logs: {
         Row: {
           acao: Database["public"]["Enums"]["arquivo_acao"]
@@ -102,6 +135,57 @@ export type Database = {
           tamanho?: number
           thumb_path?: string | null
           updated_at?: string
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          acao: string
+          created_at: string
+          dados_anteriores: Json | null
+          dados_novos: Json | null
+          descricao: string | null
+          id: string
+          ip: string | null
+          modulo: string
+          perfil: string | null
+          registro_id: string | null
+          registro_tipo: string | null
+          status: string
+          user_agent: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          dados_anteriores?: Json | null
+          dados_novos?: Json | null
+          descricao?: string | null
+          id?: string
+          ip?: string | null
+          modulo: string
+          perfil?: string | null
+          registro_id?: string | null
+          registro_tipo?: string | null
+          status?: string
+          user_agent?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          dados_anteriores?: Json | null
+          dados_novos?: Json | null
+          descricao?: string | null
+          id?: string
+          ip?: string | null
+          modulo?: string
+          perfil?: string | null
+          registro_id?: string | null
+          registro_tipo?: string | null
+          status?: string
+          user_agent?: string | null
           usuario_id?: string | null
         }
         Relationships: []
@@ -1233,6 +1317,39 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      security_alerts: {
+        Row: {
+          created_at: string
+          descricao: string
+          id: string
+          metadata: Json | null
+          severidade: string
+          status: string
+          tipo: string
+          usuario_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          descricao: string
+          id?: string
+          metadata?: Json | null
+          severidade?: string
+          status?: string
+          tipo: string
+          usuario_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          descricao?: string
+          id?: string
+          metadata?: Json | null
+          severidade?: string
+          status?: string
+          tipo?: string
+          usuario_id?: string | null
         }
         Relationships: []
       }
