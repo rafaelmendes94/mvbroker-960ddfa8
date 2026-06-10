@@ -39,6 +39,7 @@ import { Route as AuthenticatedImoveisIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedCarteirasIndexRouteImport } from './routes/_authenticated/carteiras.index'
 import { Route as AuthenticatedRelatoriosImoveisRouteImport } from './routes/_authenticated/relatorios.imoveis'
 import { Route as AuthenticatedRelatoriosExportacoesRouteImport } from './routes/_authenticated/relatorios.exportacoes'
+import { Route as AuthenticatedRelatoriosCorretoresRouteImport } from './routes/_authenticated/relatorios.corretores'
 import { Route as AuthenticatedRelatoriosAtividadeRouteImport } from './routes/_authenticated/relatorios.atividade'
 import { Route as AuthenticatedRegistrosNovoRouteImport } from './routes/_authenticated/registros.novo'
 import { Route as AuthenticatedRegistrosIdRouteImport } from './routes/_authenticated/registros.$id'
@@ -212,6 +213,12 @@ const AuthenticatedRelatoriosExportacoesRoute =
     path: '/exportacoes',
     getParentRoute: () => AuthenticatedRelatoriosRoute,
   } as any)
+const AuthenticatedRelatoriosCorretoresRoute =
+  AuthenticatedRelatoriosCorretoresRouteImport.update({
+    id: '/corretores',
+    path: '/corretores',
+    getParentRoute: () => AuthenticatedRelatoriosRoute,
+  } as any)
 const AuthenticatedRelatoriosAtividadeRoute =
   AuthenticatedRelatoriosAtividadeRouteImport.update({
     id: '/atividade',
@@ -307,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/relatorios/atividade': typeof AuthenticatedRelatoriosAtividadeRoute
+  '/relatorios/corretores': typeof AuthenticatedRelatoriosCorretoresRoute
   '/relatorios/exportacoes': typeof AuthenticatedRelatoriosExportacoesRoute
   '/relatorios/imoveis': typeof AuthenticatedRelatoriosImoveisRoute
   '/carteiras/': typeof AuthenticatedCarteirasIndexRoute
@@ -344,6 +352,7 @@ export interface FileRoutesByTo {
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/relatorios/atividade': typeof AuthenticatedRelatoriosAtividadeRoute
+  '/relatorios/corretores': typeof AuthenticatedRelatoriosCorretoresRoute
   '/relatorios/exportacoes': typeof AuthenticatedRelatoriosExportacoesRoute
   '/relatorios/imoveis': typeof AuthenticatedRelatoriosImoveisRoute
   '/carteiras': typeof AuthenticatedCarteirasIndexRoute
@@ -388,6 +397,7 @@ export interface FileRoutesById {
   '/_authenticated/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/_authenticated/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/_authenticated/relatorios/atividade': typeof AuthenticatedRelatoriosAtividadeRoute
+  '/_authenticated/relatorios/corretores': typeof AuthenticatedRelatoriosCorretoresRoute
   '/_authenticated/relatorios/exportacoes': typeof AuthenticatedRelatoriosExportacoesRoute
   '/_authenticated/relatorios/imoveis': typeof AuthenticatedRelatoriosImoveisRoute
   '/_authenticated/carteiras/': typeof AuthenticatedCarteirasIndexRoute
@@ -432,6 +442,7 @@ export interface FileRouteTypes {
     | '/registros/$id'
     | '/registros/novo'
     | '/relatorios/atividade'
+    | '/relatorios/corretores'
     | '/relatorios/exportacoes'
     | '/relatorios/imoveis'
     | '/carteiras/'
@@ -469,6 +480,7 @@ export interface FileRouteTypes {
     | '/registros/$id'
     | '/registros/novo'
     | '/relatorios/atividade'
+    | '/relatorios/corretores'
     | '/relatorios/exportacoes'
     | '/relatorios/imoveis'
     | '/carteiras'
@@ -512,6 +524,7 @@ export interface FileRouteTypes {
     | '/_authenticated/registros/$id'
     | '/_authenticated/registros/novo'
     | '/_authenticated/relatorios/atividade'
+    | '/_authenticated/relatorios/corretores'
     | '/_authenticated/relatorios/exportacoes'
     | '/_authenticated/relatorios/imoveis'
     | '/_authenticated/carteiras/'
@@ -745,6 +758,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRelatoriosExportacoesRouteImport
       parentRoute: typeof AuthenticatedRelatoriosRoute
     }
+    '/_authenticated/relatorios/corretores': {
+      id: '/_authenticated/relatorios/corretores'
+      path: '/corretores'
+      fullPath: '/relatorios/corretores'
+      preLoaderRoute: typeof AuthenticatedRelatoriosCorretoresRouteImport
+      parentRoute: typeof AuthenticatedRelatoriosRoute
+    }
     '/_authenticated/relatorios/atividade': {
       id: '/_authenticated/relatorios/atividade'
       path: '/atividade'
@@ -927,6 +947,7 @@ const AuthenticatedRegistrosRouteWithChildren =
 
 interface AuthenticatedRelatoriosRouteChildren {
   AuthenticatedRelatoriosAtividadeRoute: typeof AuthenticatedRelatoriosAtividadeRoute
+  AuthenticatedRelatoriosCorretoresRoute: typeof AuthenticatedRelatoriosCorretoresRoute
   AuthenticatedRelatoriosExportacoesRoute: typeof AuthenticatedRelatoriosExportacoesRoute
   AuthenticatedRelatoriosImoveisRoute: typeof AuthenticatedRelatoriosImoveisRoute
   AuthenticatedRelatoriosIndexRoute: typeof AuthenticatedRelatoriosIndexRoute
@@ -936,6 +957,8 @@ const AuthenticatedRelatoriosRouteChildren: AuthenticatedRelatoriosRouteChildren
   {
     AuthenticatedRelatoriosAtividadeRoute:
       AuthenticatedRelatoriosAtividadeRoute,
+    AuthenticatedRelatoriosCorretoresRoute:
+      AuthenticatedRelatoriosCorretoresRoute,
     AuthenticatedRelatoriosExportacoesRoute:
       AuthenticatedRelatoriosExportacoesRoute,
     AuthenticatedRelatoriosImoveisRoute: AuthenticatedRelatoriosImoveisRoute,
@@ -1007,3 +1030,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
