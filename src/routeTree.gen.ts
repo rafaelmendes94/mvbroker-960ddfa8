@@ -61,6 +61,10 @@ import { Route as AuthenticatedRelatoriosCorretoresRouteImport } from './routes/
 import { Route as AuthenticatedRelatoriosAtividadeRouteImport } from './routes/_authenticated/relatorios.atividade'
 import { Route as AuthenticatedRegistrosNovoRouteImport } from './routes/_authenticated/registros.novo'
 import { Route as AuthenticatedRegistrosIdRouteImport } from './routes/_authenticated/registros.$id'
+import { Route as AuthenticatedImportacoesImoveisRouteImport } from './routes/_authenticated/importacoes.imoveis'
+import { Route as AuthenticatedImportacoesEmpreendimentosRouteImport } from './routes/_authenticated/importacoes.empreendimentos'
+import { Route as AuthenticatedImportacoesEdificiosRouteImport } from './routes/_authenticated/importacoes.edificios'
+import { Route as AuthenticatedImportacoesCondominiosRouteImport } from './routes/_authenticated/importacoes.condominios'
 import { Route as AuthenticatedImoveisNovoRouteImport } from './routes/_authenticated/imoveis.novo'
 import { Route as AuthenticatedConfiguracoesOpcoesRouteImport } from './routes/_authenticated/configuracoes.opcoes'
 import { Route as AuthenticatedConfiguracoesNotificacoesRouteImport } from './routes/_authenticated/configuracoes.notificacoes'
@@ -361,6 +365,30 @@ const AuthenticatedRegistrosIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedRegistrosRoute,
   } as any)
+const AuthenticatedImportacoesImoveisRoute =
+  AuthenticatedImportacoesImoveisRouteImport.update({
+    id: '/imoveis',
+    path: '/imoveis',
+    getParentRoute: () => AuthenticatedImportacoesRoute,
+  } as any)
+const AuthenticatedImportacoesEmpreendimentosRoute =
+  AuthenticatedImportacoesEmpreendimentosRouteImport.update({
+    id: '/empreendimentos',
+    path: '/empreendimentos',
+    getParentRoute: () => AuthenticatedImportacoesRoute,
+  } as any)
+const AuthenticatedImportacoesEdificiosRoute =
+  AuthenticatedImportacoesEdificiosRouteImport.update({
+    id: '/edificios',
+    path: '/edificios',
+    getParentRoute: () => AuthenticatedImportacoesRoute,
+  } as any)
+const AuthenticatedImportacoesCondominiosRoute =
+  AuthenticatedImportacoesCondominiosRouteImport.update({
+    id: '/condominios',
+    path: '/condominios',
+    getParentRoute: () => AuthenticatedImportacoesRoute,
+  } as any)
 const AuthenticatedImoveisNovoRoute =
   AuthenticatedImoveisNovoRouteImport.update({
     id: '/novo',
@@ -459,6 +487,10 @@ export interface FileRoutesByFullPath {
   '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
+  '/importacoes/condominios': typeof AuthenticatedImportacoesCondominiosRoute
+  '/importacoes/edificios': typeof AuthenticatedImportacoesEdificiosRoute
+  '/importacoes/empreendimentos': typeof AuthenticatedImportacoesEmpreendimentosRoute
+  '/importacoes/imoveis': typeof AuthenticatedImportacoesImoveisRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/relatorios/atividade': typeof AuthenticatedRelatoriosAtividadeRoute
@@ -515,6 +547,10 @@ export interface FileRoutesByTo {
   '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
+  '/importacoes/condominios': typeof AuthenticatedImportacoesCondominiosRoute
+  '/importacoes/edificios': typeof AuthenticatedImportacoesEdificiosRoute
+  '/importacoes/empreendimentos': typeof AuthenticatedImportacoesEmpreendimentosRoute
+  '/importacoes/imoveis': typeof AuthenticatedImportacoesImoveisRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/relatorios/atividade': typeof AuthenticatedRelatoriosAtividadeRoute
@@ -580,6 +616,10 @@ export interface FileRoutesById {
   '/_authenticated/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/_authenticated/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/_authenticated/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
+  '/_authenticated/importacoes/condominios': typeof AuthenticatedImportacoesCondominiosRoute
+  '/_authenticated/importacoes/edificios': typeof AuthenticatedImportacoesEdificiosRoute
+  '/_authenticated/importacoes/empreendimentos': typeof AuthenticatedImportacoesEmpreendimentosRoute
+  '/_authenticated/importacoes/imoveis': typeof AuthenticatedImportacoesImoveisRoute
   '/_authenticated/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/_authenticated/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/_authenticated/relatorios/atividade': typeof AuthenticatedRelatoriosAtividadeRoute
@@ -645,6 +685,10 @@ export interface FileRouteTypes {
     | '/configuracoes/notificacoes'
     | '/configuracoes/opcoes'
     | '/imoveis/novo'
+    | '/importacoes/condominios'
+    | '/importacoes/edificios'
+    | '/importacoes/empreendimentos'
+    | '/importacoes/imoveis'
     | '/registros/$id'
     | '/registros/novo'
     | '/relatorios/atividade'
@@ -701,6 +745,10 @@ export interface FileRouteTypes {
     | '/configuracoes/notificacoes'
     | '/configuracoes/opcoes'
     | '/imoveis/novo'
+    | '/importacoes/condominios'
+    | '/importacoes/edificios'
+    | '/importacoes/empreendimentos'
+    | '/importacoes/imoveis'
     | '/registros/$id'
     | '/registros/novo'
     | '/relatorios/atividade'
@@ -765,6 +813,10 @@ export interface FileRouteTypes {
     | '/_authenticated/configuracoes/notificacoes'
     | '/_authenticated/configuracoes/opcoes'
     | '/_authenticated/imoveis/novo'
+    | '/_authenticated/importacoes/condominios'
+    | '/_authenticated/importacoes/edificios'
+    | '/_authenticated/importacoes/empreendimentos'
+    | '/_authenticated/importacoes/imoveis'
     | '/_authenticated/registros/$id'
     | '/_authenticated/registros/novo'
     | '/_authenticated/relatorios/atividade'
@@ -1165,6 +1217,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRegistrosIdRouteImport
       parentRoute: typeof AuthenticatedRegistrosRoute
     }
+    '/_authenticated/importacoes/imoveis': {
+      id: '/_authenticated/importacoes/imoveis'
+      path: '/imoveis'
+      fullPath: '/importacoes/imoveis'
+      preLoaderRoute: typeof AuthenticatedImportacoesImoveisRouteImport
+      parentRoute: typeof AuthenticatedImportacoesRoute
+    }
+    '/_authenticated/importacoes/empreendimentos': {
+      id: '/_authenticated/importacoes/empreendimentos'
+      path: '/empreendimentos'
+      fullPath: '/importacoes/empreendimentos'
+      preLoaderRoute: typeof AuthenticatedImportacoesEmpreendimentosRouteImport
+      parentRoute: typeof AuthenticatedImportacoesRoute
+    }
+    '/_authenticated/importacoes/edificios': {
+      id: '/_authenticated/importacoes/edificios'
+      path: '/edificios'
+      fullPath: '/importacoes/edificios'
+      preLoaderRoute: typeof AuthenticatedImportacoesEdificiosRouteImport
+      parentRoute: typeof AuthenticatedImportacoesRoute
+    }
+    '/_authenticated/importacoes/condominios': {
+      id: '/_authenticated/importacoes/condominios'
+      path: '/condominios'
+      fullPath: '/importacoes/condominios'
+      preLoaderRoute: typeof AuthenticatedImportacoesCondominiosRouteImport
+      parentRoute: typeof AuthenticatedImportacoesRoute
+    }
     '/_authenticated/imoveis/novo': {
       id: '/_authenticated/imoveis/novo'
       path: '/novo'
@@ -1313,11 +1393,22 @@ const AuthenticatedImoveisRouteWithChildren =
   AuthenticatedImoveisRoute._addFileChildren(AuthenticatedImoveisRouteChildren)
 
 interface AuthenticatedImportacoesRouteChildren {
+  AuthenticatedImportacoesCondominiosRoute: typeof AuthenticatedImportacoesCondominiosRoute
+  AuthenticatedImportacoesEdificiosRoute: typeof AuthenticatedImportacoesEdificiosRoute
+  AuthenticatedImportacoesEmpreendimentosRoute: typeof AuthenticatedImportacoesEmpreendimentosRoute
+  AuthenticatedImportacoesImoveisRoute: typeof AuthenticatedImportacoesImoveisRoute
   AuthenticatedImportacoesIndexRoute: typeof AuthenticatedImportacoesIndexRoute
 }
 
 const AuthenticatedImportacoesRouteChildren: AuthenticatedImportacoesRouteChildren =
   {
+    AuthenticatedImportacoesCondominiosRoute:
+      AuthenticatedImportacoesCondominiosRoute,
+    AuthenticatedImportacoesEdificiosRoute:
+      AuthenticatedImportacoesEdificiosRoute,
+    AuthenticatedImportacoesEmpreendimentosRoute:
+      AuthenticatedImportacoesEmpreendimentosRoute,
+    AuthenticatedImportacoesImoveisRoute: AuthenticatedImportacoesImoveisRoute,
     AuthenticatedImportacoesIndexRoute: AuthenticatedImportacoesIndexRoute,
   }
 
