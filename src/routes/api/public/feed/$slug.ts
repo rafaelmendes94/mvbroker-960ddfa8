@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { buildFeedXML } from "@/lib/feed-xml.server";
+import { IMOVEL_PUBLIC_COLUMNS } from "@/lib/db-columns";
 import { applyRegrasToQuery } from "@/lib/feed-regras.server";
 
 export const Route = createFileRoute("/api/public/feed/$slug")({
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/api/public/feed/$slug")({
         let imoveis: any[] = [];
         let imagens: any[] = [];
         if (imovelIds.length) {
-          let q = supabaseAdmin.from("imoveis").select("*").in("id", imovelIds).eq("arquivado", false);
+          let q = supabaseAdmin.from("imoveis").select(IMOVEL_PUBLIC_COLUMNS).in("id", imovelIds).eq("arquivado", false);
           q = applyRegrasToQuery(q, (carteira.regra_filtros as any) ?? {});
           if (carteira.limite_imoveis) q = q.limit(carteira.limite_imoveis);
           const [{ data: imovData }, { data: imgData }] = await Promise.all([
