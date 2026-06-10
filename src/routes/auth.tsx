@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { logAudit } from "@/lib/audit";
 
 export const Route = createFileRoute("/auth")({
@@ -19,7 +18,6 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -32,23 +30,7 @@ function AuthPage() {
     navigate({ to: "/dashboard" });
   }
 
-  async function handleSignup(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
-        data: { full_name: fullName },
-      },
-    });
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    await logAudit("usuario_criado", `Novo cadastro: ${email}`);
-    toast.success("Conta criada. Redirecionando...");
-    navigate({ to: "/dashboard" });
-  }
+
 
   async function handleForgot() {
     if (!email) return toast.error("Informe o e-mail primeiro.");
@@ -97,58 +79,35 @@ function AuthPage() {
             </div>
           </div>
 
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid grid-cols-2 mb-6">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Criar conta</TabsTrigger>
-            </TabsList>
+          <h2 className="text-2xl font-bold tracking-tight">Bem-vindo de volta</h2>
+          <p className="text-sm text-muted-foreground mt-1">Acesse sua conta para continuar.</p>
+          <form onSubmit={handleLogin} className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
+              <Input id="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Senha</Label>
+                <button type="button" onClick={handleForgot} className="text-xs text-primary hover:underline">
+                  Esqueci minha senha
+                </button>
+              </div>
+              <Input id="password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full h-10">
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />} Entrar
+            </Button>
+          </form>
 
-            <TabsContent value="login">
-              <h2 className="text-2xl font-bold tracking-tight">Bem-vindo de volta</h2>
-              <p className="text-sm text-muted-foreground mt-1">Acesse sua conta para continuar.</p>
-              <form onSubmit={handleLogin} className="mt-6 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input id="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Senha</Label>
-                    <button type="button" onClick={handleForgot} className="text-xs text-primary hover:underline">
-                      Esqueci minha senha
-                    </button>
-                  </div>
-                  <Input id="password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} />
-                </div>
-                <Button type="submit" disabled={loading} className="w-full h-10">
-                  {loading && <Loader2 className="h-4 w-4 animate-spin" />} Entrar
-                </Button>
-              </form>
-            </TabsContent>
+          <p className="mt-6 rounded-md border border-border bg-muted/40 p-3 text-center text-xs text-muted-foreground">
+            Não tem conta? O acesso é liberado pelo nosso time comercial.{" "}
+            <a href="mailto:comercial@mvbroker.com.br" className="text-primary hover:underline">
+              Fale conosco
+            </a>
+            .
+          </p>
 
-            <TabsContent value="signup">
-              <h2 className="text-2xl font-bold tracking-tight">Criar nova conta</h2>
-              <p className="text-sm text-muted-foreground mt-1">Comece em poucos segundos.</p>
-              <form onSubmit={handleSignup} className="mt-6 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome completo</Label>
-                  <Input id="name" required value={fullName} onChange={e => setFullName(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">E-mail</Label>
-                  <Input id="signup-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Senha</Label>
-                  <Input id="signup-password" type="password" minLength={8} required value={password} onChange={e => setPassword(e.target.value)} />
-                  <p className="text-xs text-muted-foreground">Mínimo de 8 caracteres.</p>
-                </div>
-                <Button type="submit" disabled={loading} className="w-full h-10">
-                  {loading && <Loader2 className="h-4 w-4 animate-spin" />} Criar conta
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
             <Link to="/" className="hover:text-foreground">Voltar para o início</Link>
