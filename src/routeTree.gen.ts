@@ -19,7 +19,9 @@ import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authentic
 import { Route as AuthenticatedRegularizacaoRouteImport } from './routes/_authenticated/regularizacao'
 import { Route as AuthenticatedRegistrosRouteImport } from './routes/_authenticated/registros'
 import { Route as AuthenticatedPortaisRouteImport } from './routes/_authenticated/portais'
+import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedImoveisRouteImport } from './routes/_authenticated/imoveis'
 import { Route as AuthenticatedImobiliariasRouteImport } from './routes/_authenticated/imobiliarias'
 import { Route as AuthenticatedFavoritosRouteImport } from './routes/_authenticated/favoritos'
@@ -35,6 +37,7 @@ import { Route as AuthenticatedCentralRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCarteirasRouteImport } from './routes/_authenticated/carteiras'
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
+import { Route as AuthenticatedAssinaturasRouteImport } from './routes/_authenticated/assinaturas'
 import { Route as AuthenticatedAcessoNegadoRouteImport } from './routes/_authenticated/acesso-negado'
 import { Route as AuthenticatedSegurancaIndexRouteImport } from './routes/_authenticated/seguranca.index'
 import { Route as AuthenticatedRelatoriosIndexRouteImport } from './routes/_authenticated/relatorios.index'
@@ -57,6 +60,7 @@ import { Route as AuthenticatedImoveisNovoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedConfiguracoesOpcoesRouteImport } from './routes/_authenticated/configuracoes.opcoes'
 import { Route as AuthenticatedCentralIdRouteImport } from './routes/_authenticated/central.$id'
 import { Route as AuthenticatedCarteirasIdRouteImport } from './routes/_authenticated/carteiras.$id'
+import { Route as AuthenticatedAssinaturasIdRouteImport } from './routes/_authenticated/assinaturas.$id'
 import { Route as ApiPublicFeedSlugRouteImport } from './routes/api/public/feed/$slug'
 import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_authenticated/registros.$id.editar'
 import { Route as AuthenticatedImoveisIdEditarRouteImport } from './routes/_authenticated/imoveis.$id.editar'
@@ -112,9 +116,19 @@ const AuthenticatedPortaisRoute = AuthenticatedPortaisRouteImport.update({
   path: '/portais',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedPlanosRoute = AuthenticatedPlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPagamentosRoute = AuthenticatedPagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedImoveisRoute = AuthenticatedImoveisRouteImport.update({
@@ -197,6 +211,12 @@ const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
   path: '/auditoria',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAssinaturasRoute =
+  AuthenticatedAssinaturasRouteImport.update({
+    id: '/assinaturas',
+    path: '/assinaturas',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAcessoNegadoRoute =
   AuthenticatedAcessoNegadoRouteImport.update({
     id: '/acesso-negado',
@@ -328,6 +348,12 @@ const AuthenticatedCarteirasIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedCarteirasRoute,
   } as any)
+const AuthenticatedAssinaturasIdRoute =
+  AuthenticatedAssinaturasIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAssinaturasRoute,
+  } as any)
 const ApiPublicFeedSlugRoute = ApiPublicFeedSlugRouteImport.update({
   id: '/api/public/feed/$slug',
   path: '/api/public/feed/$slug',
@@ -357,6 +383,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/login': typeof LoginRoute
   '/acesso-negado': typeof AuthenticatedAcessoNegadoRoute
+  '/assinaturas': typeof AuthenticatedAssinaturasRouteWithChildren
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/carteiras': typeof AuthenticatedCarteirasRouteWithChildren
@@ -372,13 +399,16 @@ export interface FileRoutesByFullPath {
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/imoveis': typeof AuthenticatedImoveisRouteWithChildren
+  '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
+  '/planos': typeof AuthenticatedPlanosRoute
   '/portais': typeof AuthenticatedPortaisRouteWithChildren
   '/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/relatorios': typeof AuthenticatedRelatoriosRouteWithChildren
   '/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/central/$id': typeof AuthenticatedCentralIdRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
@@ -410,6 +440,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/login': typeof LoginRoute
   '/acesso-negado': typeof AuthenticatedAcessoNegadoRoute
+  '/assinaturas': typeof AuthenticatedAssinaturasRouteWithChildren
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/central': typeof AuthenticatedCentralRouteWithChildren
@@ -423,9 +454,12 @@ export interface FileRoutesByTo {
   '/exportacoes': typeof AuthenticatedExportacoesRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/imobiliarias': typeof AuthenticatedImobiliariasRoute
+  '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
+  '/planos': typeof AuthenticatedPlanosRoute
   '/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/central/$id': typeof AuthenticatedCentralIdRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
@@ -459,6 +493,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/login': typeof LoginRoute
   '/_authenticated/acesso-negado': typeof AuthenticatedAcessoNegadoRoute
+  '/_authenticated/assinaturas': typeof AuthenticatedAssinaturasRouteWithChildren
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/_authenticated/carteiras': typeof AuthenticatedCarteirasRouteWithChildren
@@ -474,13 +509,16 @@ export interface FileRoutesById {
   '/_authenticated/favoritos': typeof AuthenticatedFavoritosRoute
   '/_authenticated/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/_authenticated/imoveis': typeof AuthenticatedImoveisRouteWithChildren
+  '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
+  '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/portais': typeof AuthenticatedPortaisRouteWithChildren
   '/_authenticated/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/_authenticated/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRouteWithChildren
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/_authenticated/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/_authenticated/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/_authenticated/central/$id': typeof AuthenticatedCentralIdRoute
   '/_authenticated/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
@@ -514,6 +552,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/login'
     | '/acesso-negado'
+    | '/assinaturas'
     | '/auditoria'
     | '/biblioteca'
     | '/carteiras'
@@ -529,13 +568,16 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/imobiliarias'
     | '/imoveis'
+    | '/pagamentos'
     | '/perfil'
+    | '/planos'
     | '/portais'
     | '/registros'
     | '/regularizacao'
     | '/relatorios'
     | '/seguranca'
     | '/usuarios'
+    | '/assinaturas/$id'
     | '/carteiras/$id'
     | '/central/$id'
     | '/configuracoes/opcoes'
@@ -567,6 +609,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/login'
     | '/acesso-negado'
+    | '/assinaturas'
     | '/auditoria'
     | '/biblioteca'
     | '/central'
@@ -580,9 +623,12 @@ export interface FileRouteTypes {
     | '/exportacoes'
     | '/favoritos'
     | '/imobiliarias'
+    | '/pagamentos'
     | '/perfil'
+    | '/planos'
     | '/regularizacao'
     | '/usuarios'
+    | '/assinaturas/$id'
     | '/carteiras/$id'
     | '/central/$id'
     | '/configuracoes/opcoes'
@@ -615,6 +661,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/login'
     | '/_authenticated/acesso-negado'
+    | '/_authenticated/assinaturas'
     | '/_authenticated/auditoria'
     | '/_authenticated/biblioteca'
     | '/_authenticated/carteiras'
@@ -630,13 +677,16 @@ export interface FileRouteTypes {
     | '/_authenticated/favoritos'
     | '/_authenticated/imobiliarias'
     | '/_authenticated/imoveis'
+    | '/_authenticated/pagamentos'
     | '/_authenticated/perfil'
+    | '/_authenticated/planos'
     | '/_authenticated/portais'
     | '/_authenticated/registros'
     | '/_authenticated/regularizacao'
     | '/_authenticated/relatorios'
     | '/_authenticated/seguranca'
     | '/_authenticated/usuarios'
+    | '/_authenticated/assinaturas/$id'
     | '/_authenticated/carteiras/$id'
     | '/_authenticated/central/$id'
     | '/_authenticated/configuracoes/opcoes'
@@ -745,11 +795,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortaisRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/planos': {
+      id: '/_authenticated/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof AuthenticatedPlanosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/perfil': {
       id: '/_authenticated/perfil'
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/pagamentos': {
+      id: '/_authenticated/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/pagamentos'
+      preLoaderRoute: typeof AuthenticatedPagamentosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/imoveis': {
@@ -855,6 +919,13 @@ declare module '@tanstack/react-router' {
       path: '/auditoria'
       fullPath: '/auditoria'
       preLoaderRoute: typeof AuthenticatedAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/assinaturas': {
+      id: '/_authenticated/assinaturas'
+      path: '/assinaturas'
+      fullPath: '/assinaturas'
+      preLoaderRoute: typeof AuthenticatedAssinaturasRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/acesso-negado': {
@@ -1011,6 +1082,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCarteirasIdRouteImport
       parentRoute: typeof AuthenticatedCarteirasRoute
     }
+    '/_authenticated/assinaturas/$id': {
+      id: '/_authenticated/assinaturas/$id'
+      path: '/$id'
+      fullPath: '/assinaturas/$id'
+      preLoaderRoute: typeof AuthenticatedAssinaturasIdRouteImport
+      parentRoute: typeof AuthenticatedAssinaturasRoute
+    }
     '/api/public/feed/$slug': {
       id: '/api/public/feed/$slug'
       path: '/api/public/feed/$slug'
@@ -1041,6 +1119,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAssinaturasRouteChildren {
+  AuthenticatedAssinaturasIdRoute: typeof AuthenticatedAssinaturasIdRoute
+}
+
+const AuthenticatedAssinaturasRouteChildren: AuthenticatedAssinaturasRouteChildren =
+  {
+    AuthenticatedAssinaturasIdRoute: AuthenticatedAssinaturasIdRoute,
+  }
+
+const AuthenticatedAssinaturasRouteWithChildren =
+  AuthenticatedAssinaturasRoute._addFileChildren(
+    AuthenticatedAssinaturasRouteChildren,
+  )
 
 interface AuthenticatedCarteirasRouteChildren {
   AuthenticatedCarteirasIdRoute: typeof AuthenticatedCarteirasIdRoute
@@ -1195,6 +1287,7 @@ const AuthenticatedSegurancaRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAcessoNegadoRoute: typeof AuthenticatedAcessoNegadoRoute
+  AuthenticatedAssinaturasRoute: typeof AuthenticatedAssinaturasRouteWithChildren
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
   AuthenticatedCarteirasRoute: typeof AuthenticatedCarteirasRouteWithChildren
@@ -1210,7 +1303,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFavoritosRoute: typeof AuthenticatedFavoritosRoute
   AuthenticatedImobiliariasRoute: typeof AuthenticatedImobiliariasRoute
   AuthenticatedImoveisRoute: typeof AuthenticatedImoveisRouteWithChildren
+  AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
+  AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
   AuthenticatedPortaisRoute: typeof AuthenticatedPortaisRouteWithChildren
   AuthenticatedRegistrosRoute: typeof AuthenticatedRegistrosRouteWithChildren
   AuthenticatedRegularizacaoRoute: typeof AuthenticatedRegularizacaoRoute
@@ -1221,6 +1316,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAcessoNegadoRoute: AuthenticatedAcessoNegadoRoute,
+  AuthenticatedAssinaturasRoute: AuthenticatedAssinaturasRouteWithChildren,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
   AuthenticatedCarteirasRoute: AuthenticatedCarteirasRouteWithChildren,
@@ -1236,7 +1332,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFavoritosRoute: AuthenticatedFavoritosRoute,
   AuthenticatedImobiliariasRoute: AuthenticatedImobiliariasRoute,
   AuthenticatedImoveisRoute: AuthenticatedImoveisRouteWithChildren,
+  AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
+  AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
   AuthenticatedPortaisRoute: AuthenticatedPortaisRouteWithChildren,
   AuthenticatedRegistrosRoute: AuthenticatedRegistrosRouteWithChildren,
   AuthenticatedRegularizacaoRoute: AuthenticatedRegularizacaoRoute,

@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Building2, LayoutDashboard, FolderKanban, Users, UserSquare2,
   BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Heart, Rss, Lock,
+  CreditCard, Tag, Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
@@ -22,6 +23,9 @@ const ALL_NAV: NavItem[] = [
   { to: "/corretores", label: "Corretores", icon: Briefcase },
   { to: "/usuarios", label: "Usuários", icon: Users },
   { to: "/clientes", label: "Clientes", icon: UserSquare2 },
+  { to: "/planos", label: "Planos", icon: Tag },
+  { to: "/assinaturas", label: "Assinaturas", icon: CreditCard },
+  { to: "/pagamentos", label: "Pagamentos", icon: Wallet },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/exportacoes", label: "Exportações", icon: Download },
   { to: "/carteiras", label: "Carteiras XML", icon: Rss },
