@@ -22,6 +22,7 @@ const ALL_NAV: NavItem[] = [
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/exportacoes", label: "Exportações", icon: Download },
   { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
+  { to: "/biblioteca", label: "Biblioteca de Arquivos", icon: FolderArchive },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
