@@ -100,8 +100,8 @@ async function resolveFK(field: ImportField, value: string): Promise<string | nu
   if (!field.fkLookup || !value) return null;
   const v = String(value).trim();
   for (const col of field.fkLookup.matchColumns) {
-    const { data } = await supabase
-      .from(field.fkLookup.table as any)
+    const { data } = await (supabase as any)
+      .from(field.fkLookup.table)
       .select("id")
       .ilike(col, v)
       .limit(1)
