@@ -252,7 +252,7 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
       delete payload.updated_at;
 
       if (imovelId) {
-        const { error } = await supabase.from("imoveis").update(payload).eq("id", imovelId);
+        const { error } = await supabase.from("imoveis").update(payload as never).eq("id", imovelId);
         if (error) throw error;
         await logAudit("imovel_atualizado", `Imóvel ${form.titulo}`);
         await logImovel(imovelId, "atualizado", `Imóvel atualizado: ${form.titulo}`);
@@ -261,7 +261,7 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
       } else {
         const { data: u } = await supabase.auth.getUser();
         payload.created_by = u.user?.id ?? null;
-        const { data, error } = await supabase.from("imoveis").insert(payload).select().single();
+        const { data, error } = await supabase.from("imoveis").insert(payload as never).select().single();
         if (error) throw error;
         setImovelId(data.id);
         setForm((f) => ({ ...f, ...data }));
