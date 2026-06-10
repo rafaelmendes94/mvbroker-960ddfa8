@@ -22,6 +22,7 @@ import { Route as AuthenticatedPortaisRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
+import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedNotificacoesRouteImport } from './routes/_authenticated/notificacoes'
 import { Route as AuthenticatedImoveisRouteImport } from './routes/_authenticated/imoveis'
 import { Route as AuthenticatedImobiliariasRouteImport } from './routes/_authenticated/imobiliarias'
@@ -133,6 +134,12 @@ const AuthenticatedPagamentosRoute = AuthenticatedPagamentosRouteImport.update({
   path: '/pagamentos',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedOportunidadesRoute =
+  AuthenticatedOportunidadesRouteImport.update({
+    id: '/oportunidades',
+    path: '/oportunidades',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedNotificacoesRoute =
   AuthenticatedNotificacoesRouteImport.update({
     id: '/notificacoes',
@@ -414,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/imoveis': typeof AuthenticatedImoveisRouteWithChildren
   '/notificacoes': typeof AuthenticatedNotificacoesRoute
+  '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/planos': typeof AuthenticatedPlanosRoute
@@ -471,6 +479,7 @@ export interface FileRoutesByTo {
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/notificacoes': typeof AuthenticatedNotificacoesRoute
+  '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/planos': typeof AuthenticatedPlanosRoute
@@ -528,6 +537,7 @@ export interface FileRoutesById {
   '/_authenticated/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/_authenticated/imoveis': typeof AuthenticatedImoveisRouteWithChildren
   '/_authenticated/notificacoes': typeof AuthenticatedNotificacoesRoute
+  '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
@@ -589,6 +599,7 @@ export interface FileRouteTypes {
     | '/imobiliarias'
     | '/imoveis'
     | '/notificacoes'
+    | '/oportunidades'
     | '/pagamentos'
     | '/perfil'
     | '/planos'
@@ -646,6 +657,7 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/imobiliarias'
     | '/notificacoes'
+    | '/oportunidades'
     | '/pagamentos'
     | '/perfil'
     | '/planos'
@@ -702,6 +714,7 @@ export interface FileRouteTypes {
     | '/_authenticated/imobiliarias'
     | '/_authenticated/imoveis'
     | '/_authenticated/notificacoes'
+    | '/_authenticated/oportunidades'
     | '/_authenticated/pagamentos'
     | '/_authenticated/perfil'
     | '/_authenticated/planos'
@@ -840,6 +853,13 @@ declare module '@tanstack/react-router' {
       path: '/pagamentos'
       fullPath: '/pagamentos'
       preLoaderRoute: typeof AuthenticatedPagamentosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/oportunidades': {
+      id: '/_authenticated/oportunidades'
+      path: '/oportunidades'
+      fullPath: '/oportunidades'
+      preLoaderRoute: typeof AuthenticatedOportunidadesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/notificacoes': {
@@ -1347,6 +1367,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedImobiliariasRoute: typeof AuthenticatedImobiliariasRoute
   AuthenticatedImoveisRoute: typeof AuthenticatedImoveisRouteWithChildren
   AuthenticatedNotificacoesRoute: typeof AuthenticatedNotificacoesRoute
+  AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
@@ -1377,6 +1398,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedImobiliariasRoute: AuthenticatedImobiliariasRoute,
   AuthenticatedImoveisRoute: AuthenticatedImoveisRouteWithChildren,
   AuthenticatedNotificacoesRoute: AuthenticatedNotificacoesRoute,
+  AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
