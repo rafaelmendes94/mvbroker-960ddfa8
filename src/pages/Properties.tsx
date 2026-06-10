@@ -1,6 +1,6 @@
 import { PLACEHOLDER_IMAGE } from "@/lib/placeholderImage";
 import { useState, useRef, useEffect, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client-any";
 import { Link } from "@/lib/router-shim";
 import { AppLayout } from "@/components/AppLayout";
 import { BackButton } from "@/components/BackButton";
