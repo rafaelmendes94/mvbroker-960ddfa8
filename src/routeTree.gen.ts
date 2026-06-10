@@ -22,6 +22,7 @@ import { Route as AuthenticatedPortaisRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
+import { Route as AuthenticatedNotificacoesRouteImport } from './routes/_authenticated/notificacoes'
 import { Route as AuthenticatedImoveisRouteImport } from './routes/_authenticated/imoveis'
 import { Route as AuthenticatedImobiliariasRouteImport } from './routes/_authenticated/imobiliarias'
 import { Route as AuthenticatedFavoritosRouteImport } from './routes/_authenticated/favoritos'
@@ -58,6 +59,7 @@ import { Route as AuthenticatedRegistrosNovoRouteImport } from './routes/_authen
 import { Route as AuthenticatedRegistrosIdRouteImport } from './routes/_authenticated/registros.$id'
 import { Route as AuthenticatedImoveisNovoRouteImport } from './routes/_authenticated/imoveis.novo'
 import { Route as AuthenticatedConfiguracoesOpcoesRouteImport } from './routes/_authenticated/configuracoes.opcoes'
+import { Route as AuthenticatedConfiguracoesNotificacoesRouteImport } from './routes/_authenticated/configuracoes.notificacoes'
 import { Route as AuthenticatedCentralIdRouteImport } from './routes/_authenticated/central.$id'
 import { Route as AuthenticatedCarteirasIdRouteImport } from './routes/_authenticated/carteiras.$id'
 import { Route as AuthenticatedAssinaturasIdRouteImport } from './routes/_authenticated/assinaturas.$id'
@@ -131,6 +133,12 @@ const AuthenticatedPagamentosRoute = AuthenticatedPagamentosRouteImport.update({
   path: '/pagamentos',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedNotificacoesRoute =
+  AuthenticatedNotificacoesRouteImport.update({
+    id: '/notificacoes',
+    path: '/notificacoes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedImoveisRoute = AuthenticatedImoveisRouteImport.update({
   id: '/imoveis',
   path: '/imoveis',
@@ -337,6 +345,12 @@ const AuthenticatedConfiguracoesOpcoesRoute =
     path: '/opcoes',
     getParentRoute: () => AuthenticatedConfiguracoesRoute,
   } as any)
+const AuthenticatedConfiguracoesNotificacoesRoute =
+  AuthenticatedConfiguracoesNotificacoesRouteImport.update({
+    id: '/notificacoes',
+    path: '/notificacoes',
+    getParentRoute: () => AuthenticatedConfiguracoesRoute,
+  } as any)
 const AuthenticatedCentralIdRoute = AuthenticatedCentralIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -399,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/imoveis': typeof AuthenticatedImoveisRouteWithChildren
+  '/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/planos': typeof AuthenticatedPlanosRoute
@@ -411,6 +426,7 @@ export interface FileRoutesByFullPath {
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/central/$id': typeof AuthenticatedCentralIdRoute
+  '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
@@ -454,6 +470,7 @@ export interface FileRoutesByTo {
   '/exportacoes': typeof AuthenticatedExportacoesRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/imobiliarias': typeof AuthenticatedImobiliariasRoute
+  '/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/planos': typeof AuthenticatedPlanosRoute
@@ -462,6 +479,7 @@ export interface FileRoutesByTo {
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/central/$id': typeof AuthenticatedCentralIdRoute
+  '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
@@ -509,6 +527,7 @@ export interface FileRoutesById {
   '/_authenticated/favoritos': typeof AuthenticatedFavoritosRoute
   '/_authenticated/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/_authenticated/imoveis': typeof AuthenticatedImoveisRouteWithChildren
+  '/_authenticated/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/planos': typeof AuthenticatedPlanosRoute
@@ -521,6 +540,7 @@ export interface FileRoutesById {
   '/_authenticated/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/_authenticated/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/_authenticated/central/$id': typeof AuthenticatedCentralIdRoute
+  '/_authenticated/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/_authenticated/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/_authenticated/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/_authenticated/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
@@ -568,6 +588,7 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/imobiliarias'
     | '/imoveis'
+    | '/notificacoes'
     | '/pagamentos'
     | '/perfil'
     | '/planos'
@@ -580,6 +601,7 @@ export interface FileRouteTypes {
     | '/assinaturas/$id'
     | '/carteiras/$id'
     | '/central/$id'
+    | '/configuracoes/notificacoes'
     | '/configuracoes/opcoes'
     | '/imoveis/novo'
     | '/registros/$id'
@@ -623,6 +645,7 @@ export interface FileRouteTypes {
     | '/exportacoes'
     | '/favoritos'
     | '/imobiliarias'
+    | '/notificacoes'
     | '/pagamentos'
     | '/perfil'
     | '/planos'
@@ -631,6 +654,7 @@ export interface FileRouteTypes {
     | '/assinaturas/$id'
     | '/carteiras/$id'
     | '/central/$id'
+    | '/configuracoes/notificacoes'
     | '/configuracoes/opcoes'
     | '/imoveis/novo'
     | '/registros/$id'
@@ -677,6 +701,7 @@ export interface FileRouteTypes {
     | '/_authenticated/favoritos'
     | '/_authenticated/imobiliarias'
     | '/_authenticated/imoveis'
+    | '/_authenticated/notificacoes'
     | '/_authenticated/pagamentos'
     | '/_authenticated/perfil'
     | '/_authenticated/planos'
@@ -689,6 +714,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assinaturas/$id'
     | '/_authenticated/carteiras/$id'
     | '/_authenticated/central/$id'
+    | '/_authenticated/configuracoes/notificacoes'
     | '/_authenticated/configuracoes/opcoes'
     | '/_authenticated/imoveis/novo'
     | '/_authenticated/registros/$id'
@@ -814,6 +840,13 @@ declare module '@tanstack/react-router' {
       path: '/pagamentos'
       fullPath: '/pagamentos'
       preLoaderRoute: typeof AuthenticatedPagamentosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/notificacoes': {
+      id: '/_authenticated/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof AuthenticatedNotificacoesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/imoveis': {
@@ -1068,6 +1101,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesOpcoesRouteImport
       parentRoute: typeof AuthenticatedConfiguracoesRoute
     }
+    '/_authenticated/configuracoes/notificacoes': {
+      id: '/_authenticated/configuracoes/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/configuracoes/notificacoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesNotificacoesRouteImport
+      parentRoute: typeof AuthenticatedConfiguracoesRoute
+    }
     '/_authenticated/central/$id': {
       id: '/_authenticated/central/$id'
       path: '/$id'
@@ -1162,11 +1202,14 @@ const AuthenticatedCentralRouteWithChildren =
   AuthenticatedCentralRoute._addFileChildren(AuthenticatedCentralRouteChildren)
 
 interface AuthenticatedConfiguracoesRouteChildren {
+  AuthenticatedConfiguracoesNotificacoesRoute: typeof AuthenticatedConfiguracoesNotificacoesRoute
   AuthenticatedConfiguracoesOpcoesRoute: typeof AuthenticatedConfiguracoesOpcoesRoute
 }
 
 const AuthenticatedConfiguracoesRouteChildren: AuthenticatedConfiguracoesRouteChildren =
   {
+    AuthenticatedConfiguracoesNotificacoesRoute:
+      AuthenticatedConfiguracoesNotificacoesRoute,
     AuthenticatedConfiguracoesOpcoesRoute:
       AuthenticatedConfiguracoesOpcoesRoute,
   }
@@ -1303,6 +1346,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFavoritosRoute: typeof AuthenticatedFavoritosRoute
   AuthenticatedImobiliariasRoute: typeof AuthenticatedImobiliariasRoute
   AuthenticatedImoveisRoute: typeof AuthenticatedImoveisRouteWithChildren
+  AuthenticatedNotificacoesRoute: typeof AuthenticatedNotificacoesRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
@@ -1332,6 +1376,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFavoritosRoute: AuthenticatedFavoritosRoute,
   AuthenticatedImobiliariasRoute: AuthenticatedImobiliariasRoute,
   AuthenticatedImoveisRoute: AuthenticatedImoveisRouteWithChildren,
+  AuthenticatedNotificacoesRoute: AuthenticatedNotificacoesRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
