@@ -442,8 +442,8 @@ function RegrasBlock({
     limite_imoveis: form.limite_imoveis === "" ? null : Number(form.limite_imoveis),
     marca_dagua: form.marca_dagua,
     regra_filtros: {
-      cidades: form.cidades.split(",").map(s => s.trim()).filter(Boolean),
-      tipos: form.tipos.split(",").map(s => s.trim()).filter(Boolean),
+      cidades: form.cidades.split(",").map((s: string) => (s: string) => s.trim()).filter(Boolean),
+      tipos: form.tipos.split(",").map((s: string) => (s: string) => s.trim()).filter(Boolean),
       preco_min: form.preco_min === "" ? undefined : Number(form.preco_min),
       preco_max: form.preco_max === "" ? undefined : Number(form.preco_max),
       dormitorios_min: form.dormitorios_min === "" ? undefined : Number(form.dormitorios_min),
