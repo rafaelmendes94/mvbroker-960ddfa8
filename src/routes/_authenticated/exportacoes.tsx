@@ -1,69 +1,88 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Download, FileSpreadsheet, FileText, CheckCircle2, Clock } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Download, Trash2, X, ShoppingBag, MapPin } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useExportacao } from "@/hooks/use-exportacao";
 
 export const Route = createFileRoute("/_authenticated/exportacoes")({
   head: () => ({ meta: [{ title: "Exportações — MV Broker" }] }),
   component: Exportacoes,
 });
 
-const items = [
-  { nome: "registros-junho-2026.xlsx", tipo: "XLSX", quando: "Hoje, 14:32", status: "Concluído" },
-  { nome: "clientes-completos.csv", tipo: "CSV", quando: "Ontem, 18:11", status: "Concluído" },
-  { nome: "relatorio-financeiro.pdf", tipo: "PDF", quando: "08/06/2026", status: "Processando" },
-  { nome: "usuarios-ativos.xlsx", tipo: "XLSX", quando: "07/06/2026", status: "Concluído" },
-];
-
 function Exportacoes() {
+  const exp = useExportacao();
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (exp.ids.size === 0) { setItems([]); return; }
+      setLoading(true);
+      const { data } = await supabase.from("imoveis").select("*").in("id", Array.from(exp.ids));
+      setItems(data ?? []);
+      setLoading(false);
+    })();
+  }, [exp.ids]);
+
   return (
     <>
-      <PageHeader title="Exportações" description="Histórico de arquivos exportados da plataforma."
-        actions={<Button><Download className="h-4 w-4" /> Nova exportação</Button>} />
-      <Card>
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/40">
-              <TableHead>Arquivo</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Quando</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-32"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map(it => (
-              <TableRow key={it.nome}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-9 w-9 place-items-center rounded-md bg-muted">
-                      {it.tipo === "PDF"
-                        ? <FileText className="h-4 w-4 text-destructive" />
-                        : <FileSpreadsheet className="h-4 w-4 text-primary" />}
-                    </div>
-                    <span className="font-medium">{it.nome}</span>
+      <PageHeader
+        title="Minha exportação"
+        description={`${exp.count} imóvel(is) na sua lista de exportação.`}
+        actions={
+          <div className="flex gap-2">
+            <Button asChild variant="outline"><Link to="/central"><ShoppingBag className="h-4 w-4 mr-1.5" />Adicionar mais</Link></Button>
+            {exp.count > 0 && <Button variant="ghost" onClick={() => exp.clear()}><X className="h-4 w-4 mr-1.5" />Limpar tudo</Button>}
+          </div>
+        }
+      />
+
+      {exp.count === 0 ? (
+        <Card>
+          <CardContent className="py-16 text-center">
+            <ShoppingBag className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+            <p className="text-sm text-muted-foreground mb-3">Nenhum imóvel adicionado à exportação.</p>
+            <Button asChild><Link to="/central">Ir para Central de Imóveis</Link></Button>
+          </CardContent>
+        </Card>
+      ) : loading ? (
+        <p className="text-sm text-muted-foreground">Carregando...</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {items.map((i) => (
+            <Card key={i.id}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-mono text-[11px] text-muted-foreground">{i.codigo_interno}</p>
+                    <Link to="/central/$id" params={{ id: i.id }} className="font-semibold hover:underline truncate block">{i.titulo}</Link>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 truncate"><MapPin className="h-3 w-3" />{[i.bairro, i.cidade].filter(Boolean).join(", ") || "—"}</p>
                   </div>
-                </TableCell>
-                <TableCell><Badge variant="secondary">{it.tipo}</Badge></TableCell>
-                <TableCell className="text-muted-foreground">{it.quando}</TableCell>
-                <TableCell>
-                  {it.status === "Concluído"
-                    ? <span className="inline-flex items-center gap-1.5 text-sm text-[oklch(0.45_0.16_152)]"><CheckCircle2 className="h-4 w-4" /> {it.status}</span>
-                    : <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground"><Clock className="h-4 w-4" /> {it.status}</span>}
-                </TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="sm" disabled={it.status !== "Concluído"}>
-                    <Download className="h-4 w-4" /> Baixar
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
+                  <Badge variant="secondary">{i.status_imovel}</Badge>
+                </div>
+                <p className="text-lg font-bold mt-2">{i.preco ? `R$ ${Number(i.preco).toLocaleString("pt-BR")}` : "—"}</p>
+                <div className="flex gap-2 mt-3">
+                  <Button asChild variant="outline" size="sm" className="flex-1"><Link to="/central/$id" params={{ id: i.id }}>Detalhes</Link></Button>
+                  <Button variant="ghost" size="sm" onClick={() => exp.remove(i.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {exp.count > 0 && (
+        <Card className="mt-4">
+          <CardContent className="p-4 flex items-center justify-between flex-wrap gap-2">
+            <p className="text-sm text-muted-foreground">Geração de PDF/ZIP será disponibilizada em breve.</p>
+            <Button disabled><Download className="h-4 w-4 mr-1.5" />Gerar PDF / ZIP</Button>
+          </CardContent>
+        </Card>
+      )}
     </>
   );
 }

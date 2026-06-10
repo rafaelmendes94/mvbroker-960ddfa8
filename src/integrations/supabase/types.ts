@@ -465,6 +465,35 @@ export type Database = {
         }
         Relationships: []
       }
+      exportacao_itens: {
+        Row: {
+          created_at: string
+          id: string
+          imovel_id: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          imovel_id: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          imovel_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exportacao_itens_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       imobiliarias: {
         Row: {
           cnpj: string | null

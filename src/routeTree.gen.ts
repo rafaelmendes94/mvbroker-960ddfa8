@@ -26,6 +26,7 @@ import { Route as AuthenticatedCorretoresRouteImport } from './routes/_authentic
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedCondominiosRouteImport } from './routes/_authenticated/condominios'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
+import { Route as AuthenticatedCentralRouteImport } from './routes/_authenticated/central'
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedRegistrosIndexRouteImport } from './routes/_authenticated/registros.index'
@@ -34,6 +35,7 @@ import { Route as AuthenticatedRegistrosNovoRouteImport } from './routes/_authen
 import { Route as AuthenticatedRegistrosIdRouteImport } from './routes/_authenticated/registros.$id'
 import { Route as AuthenticatedImoveisNovoRouteImport } from './routes/_authenticated/imoveis.novo'
 import { Route as AuthenticatedConfiguracoesOpcoesRouteImport } from './routes/_authenticated/configuracoes.opcoes'
+import { Route as AuthenticatedCentralIdRouteImport } from './routes/_authenticated/central.$id'
 import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_authenticated/registros.$id.editar'
 import { Route as AuthenticatedImoveisIdEditarRouteImport } from './routes/_authenticated/imoveis.$id.editar'
 
@@ -126,6 +128,11 @@ const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCentralRoute = AuthenticatedCentralRouteImport.update({
+  id: '/central',
+  path: '/central',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedBibliotecaRoute = AuthenticatedBibliotecaRouteImport.update({
   id: '/biblioteca',
   path: '/biblioteca',
@@ -172,6 +179,11 @@ const AuthenticatedConfiguracoesOpcoesRoute =
     path: '/opcoes',
     getParentRoute: () => AuthenticatedConfiguracoesRoute,
   } as any)
+const AuthenticatedCentralIdRoute = AuthenticatedCentralIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedCentralRoute,
+} as any)
 const AuthenticatedRegistrosIdEditarRoute =
   AuthenticatedRegistrosIdEditarRouteImport.update({
     id: '/editar',
@@ -190,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/central': typeof AuthenticatedCentralRouteWithChildren
   '/clientes': typeof AuthenticatedClientesRoute
   '/condominios': typeof AuthenticatedCondominiosRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
@@ -204,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/central/$id': typeof AuthenticatedCentralIdRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
@@ -218,6 +232,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/central': typeof AuthenticatedCentralRouteWithChildren
   '/clientes': typeof AuthenticatedClientesRoute
   '/condominios': typeof AuthenticatedCondominiosRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
@@ -230,6 +245,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/central/$id': typeof AuthenticatedCentralIdRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
@@ -246,6 +262,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/_authenticated/central': typeof AuthenticatedCentralRouteWithChildren
   '/_authenticated/clientes': typeof AuthenticatedClientesRoute
   '/_authenticated/condominios': typeof AuthenticatedCondominiosRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
@@ -260,6 +277,7 @@ export interface FileRoutesById {
   '/_authenticated/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/_authenticated/central/$id': typeof AuthenticatedCentralIdRoute
   '/_authenticated/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/_authenticated/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/_authenticated/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
@@ -276,6 +294,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/auditoria'
     | '/biblioteca'
+    | '/central'
     | '/clientes'
     | '/condominios'
     | '/configuracoes'
@@ -290,6 +309,7 @@ export interface FileRouteTypes {
     | '/registros'
     | '/relatorios'
     | '/usuarios'
+    | '/central/$id'
     | '/configuracoes/opcoes'
     | '/imoveis/novo'
     | '/registros/$id'
@@ -304,6 +324,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/auditoria'
     | '/biblioteca'
+    | '/central'
     | '/clientes'
     | '/condominios'
     | '/configuracoes'
@@ -316,6 +337,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/relatorios'
     | '/usuarios'
+    | '/central/$id'
     | '/configuracoes/opcoes'
     | '/imoveis/novo'
     | '/registros/$id'
@@ -331,6 +353,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/auditoria'
     | '/_authenticated/biblioteca'
+    | '/_authenticated/central'
     | '/_authenticated/clientes'
     | '/_authenticated/condominios'
     | '/_authenticated/configuracoes'
@@ -345,6 +368,7 @@ export interface FileRouteTypes {
     | '/_authenticated/registros'
     | '/_authenticated/relatorios'
     | '/_authenticated/usuarios'
+    | '/_authenticated/central/$id'
     | '/_authenticated/configuracoes/opcoes'
     | '/_authenticated/imoveis/novo'
     | '/_authenticated/registros/$id'
@@ -482,6 +506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/central': {
+      id: '/_authenticated/central'
+      path: '/central'
+      fullPath: '/central'
+      preLoaderRoute: typeof AuthenticatedCentralRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/biblioteca': {
       id: '/_authenticated/biblioteca'
       path: '/biblioteca'
@@ -538,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesOpcoesRouteImport
       parentRoute: typeof AuthenticatedConfiguracoesRoute
     }
+    '/_authenticated/central/$id': {
+      id: '/_authenticated/central/$id'
+      path: '/$id'
+      fullPath: '/central/$id'
+      preLoaderRoute: typeof AuthenticatedCentralIdRouteImport
+      parentRoute: typeof AuthenticatedCentralRoute
+    }
     '/_authenticated/registros/$id/editar': {
       id: '/_authenticated/registros/$id/editar'
       path: '/editar'
@@ -554,6 +592,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedCentralRouteChildren {
+  AuthenticatedCentralIdRoute: typeof AuthenticatedCentralIdRoute
+}
+
+const AuthenticatedCentralRouteChildren: AuthenticatedCentralRouteChildren = {
+  AuthenticatedCentralIdRoute: AuthenticatedCentralIdRoute,
+}
+
+const AuthenticatedCentralRouteWithChildren =
+  AuthenticatedCentralRoute._addFileChildren(AuthenticatedCentralRouteChildren)
 
 interface AuthenticatedConfiguracoesRouteChildren {
   AuthenticatedConfiguracoesOpcoesRoute: typeof AuthenticatedConfiguracoesOpcoesRoute
@@ -620,6 +669,7 @@ const AuthenticatedRegistrosRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
+  AuthenticatedCentralRoute: typeof AuthenticatedCentralRouteWithChildren
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRoute
   AuthenticatedCondominiosRoute: typeof AuthenticatedCondominiosRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRouteWithChildren
@@ -639,6 +689,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
+  AuthenticatedCentralRoute: AuthenticatedCentralRouteWithChildren,
   AuthenticatedClientesRoute: AuthenticatedClientesRoute,
   AuthenticatedCondominiosRoute: AuthenticatedCondominiosRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRouteWithChildren,
