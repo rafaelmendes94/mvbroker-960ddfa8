@@ -166,6 +166,39 @@ export type Database = {
         }
         Relationships: []
       }
+      system_options: {
+        Row: {
+          ativo: boolean
+          categoria: string
+          created_at: string
+          id: string
+          nome: string
+          ordem: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          categoria: string
+          created_at?: string
+          id?: string
+          nome: string
+          ordem?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          categoria?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
