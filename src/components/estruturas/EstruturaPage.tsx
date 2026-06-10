@@ -76,7 +76,8 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
 };
 
 const TABLE: Record<EstruturaTipo, "edificios" | "condominios" | "empreendimentos"> = {
-  edificio: "edificios", condominio: "condominios", empreendimentos: "empreendimentos" as any,
+  edificio: "edificios",
+  condominio: "condominios",
   empreendimento: "empreendimentos",
 };
 
