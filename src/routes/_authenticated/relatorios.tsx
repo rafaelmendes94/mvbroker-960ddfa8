@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { BarChart3, Building2, Download, Activity, Share2, Building, UserCheck } from "lucide-react";
+import { BarChart3, Building2, Activity, Share2, Building, UserCheck, Trophy } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { cn } from "@/lib/utils";
 import { RelatoriosFiltersProvider } from "@/hooks/use-rel-filters";
@@ -15,6 +15,7 @@ const BASE_TABS = [
   { to: "/relatorios", label: "Visão Geral", icon: BarChart3, exact: true },
   { to: "/relatorios/imoveis", label: "Imóveis", icon: Building2 },
   { to: "/relatorios/exportacoes", label: "Exportações & Portais", icon: Share2 },
+  { to: "/relatorios/rankings", label: "Rankings", icon: Trophy },
   { to: "/relatorios/corretores", label: "Corretores", icon: UserCheck },
   { to: "/relatorios/atividade", label: "Atividade & Auditoria", icon: Activity },
 ];

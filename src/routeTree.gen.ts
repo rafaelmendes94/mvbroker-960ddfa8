@@ -51,6 +51,7 @@ import { Route as AuthenticatedSegurancaSessoesRouteImport } from './routes/_aut
 import { Route as AuthenticatedSegurancaPermissoesRouteImport } from './routes/_authenticated/seguranca.permissoes'
 import { Route as AuthenticatedSegurancaAlertasRouteImport } from './routes/_authenticated/seguranca.alertas'
 import { Route as AuthenticatedSegurancaAcessosRouteImport } from './routes/_authenticated/seguranca.acessos'
+import { Route as AuthenticatedRelatoriosRankingsRouteImport } from './routes/_authenticated/relatorios.rankings'
 import { Route as AuthenticatedRelatoriosImoveisRouteImport } from './routes/_authenticated/relatorios.imoveis'
 import { Route as AuthenticatedRelatoriosImobiliariasRouteImport } from './routes/_authenticated/relatorios.imobiliarias'
 import { Route as AuthenticatedRelatoriosExportacoesRouteImport } from './routes/_authenticated/relatorios.exportacoes'
@@ -298,6 +299,12 @@ const AuthenticatedSegurancaAcessosRoute =
     path: '/acessos',
     getParentRoute: () => AuthenticatedSegurancaRoute,
   } as any)
+const AuthenticatedRelatoriosRankingsRoute =
+  AuthenticatedRelatoriosRankingsRouteImport.update({
+    id: '/rankings',
+    path: '/rankings',
+    getParentRoute: () => AuthenticatedRelatoriosRoute,
+  } as any)
 const AuthenticatedRelatoriosImoveisRoute =
   AuthenticatedRelatoriosImoveisRouteImport.update({
     id: '/imoveis',
@@ -444,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/relatorios/exportacoes': typeof AuthenticatedRelatoriosExportacoesRoute
   '/relatorios/imobiliarias': typeof AuthenticatedRelatoriosImobiliariasRoute
   '/relatorios/imoveis': typeof AuthenticatedRelatoriosImoveisRoute
+  '/relatorios/rankings': typeof AuthenticatedRelatoriosRankingsRoute
   '/seguranca/acessos': typeof AuthenticatedSegurancaAcessosRoute
   '/seguranca/alertas': typeof AuthenticatedSegurancaAlertasRoute
   '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
@@ -498,6 +506,7 @@ export interface FileRoutesByTo {
   '/relatorios/exportacoes': typeof AuthenticatedRelatoriosExportacoesRoute
   '/relatorios/imobiliarias': typeof AuthenticatedRelatoriosImobiliariasRoute
   '/relatorios/imoveis': typeof AuthenticatedRelatoriosImoveisRoute
+  '/relatorios/rankings': typeof AuthenticatedRelatoriosRankingsRoute
   '/seguranca/acessos': typeof AuthenticatedSegurancaAcessosRoute
   '/seguranca/alertas': typeof AuthenticatedSegurancaAlertasRoute
   '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
@@ -560,6 +569,7 @@ export interface FileRoutesById {
   '/_authenticated/relatorios/exportacoes': typeof AuthenticatedRelatoriosExportacoesRoute
   '/_authenticated/relatorios/imobiliarias': typeof AuthenticatedRelatoriosImobiliariasRoute
   '/_authenticated/relatorios/imoveis': typeof AuthenticatedRelatoriosImoveisRoute
+  '/_authenticated/relatorios/rankings': typeof AuthenticatedRelatoriosRankingsRoute
   '/_authenticated/seguranca/acessos': typeof AuthenticatedSegurancaAcessosRoute
   '/_authenticated/seguranca/alertas': typeof AuthenticatedSegurancaAlertasRoute
   '/_authenticated/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
@@ -622,6 +632,7 @@ export interface FileRouteTypes {
     | '/relatorios/exportacoes'
     | '/relatorios/imobiliarias'
     | '/relatorios/imoveis'
+    | '/relatorios/rankings'
     | '/seguranca/acessos'
     | '/seguranca/alertas'
     | '/seguranca/permissoes'
@@ -676,6 +687,7 @@ export interface FileRouteTypes {
     | '/relatorios/exportacoes'
     | '/relatorios/imobiliarias'
     | '/relatorios/imoveis'
+    | '/relatorios/rankings'
     | '/seguranca/acessos'
     | '/seguranca/alertas'
     | '/seguranca/permissoes'
@@ -737,6 +749,7 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios/exportacoes'
     | '/_authenticated/relatorios/imobiliarias'
     | '/_authenticated/relatorios/imoveis'
+    | '/_authenticated/relatorios/rankings'
     | '/_authenticated/seguranca/acessos'
     | '/_authenticated/seguranca/alertas'
     | '/_authenticated/seguranca/permissoes'
@@ -1058,6 +1071,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSegurancaAcessosRouteImport
       parentRoute: typeof AuthenticatedSegurancaRoute
     }
+    '/_authenticated/relatorios/rankings': {
+      id: '/_authenticated/relatorios/rankings'
+      path: '/rankings'
+      fullPath: '/relatorios/rankings'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRankingsRouteImport
+      parentRoute: typeof AuthenticatedRelatoriosRoute
+    }
     '/_authenticated/relatorios/imoveis': {
       id: '/_authenticated/relatorios/imoveis'
       path: '/imoveis'
@@ -1303,6 +1323,7 @@ interface AuthenticatedRelatoriosRouteChildren {
   AuthenticatedRelatoriosExportacoesRoute: typeof AuthenticatedRelatoriosExportacoesRoute
   AuthenticatedRelatoriosImobiliariasRoute: typeof AuthenticatedRelatoriosImobiliariasRoute
   AuthenticatedRelatoriosImoveisRoute: typeof AuthenticatedRelatoriosImoveisRoute
+  AuthenticatedRelatoriosRankingsRoute: typeof AuthenticatedRelatoriosRankingsRoute
   AuthenticatedRelatoriosIndexRoute: typeof AuthenticatedRelatoriosIndexRoute
 }
 
@@ -1317,6 +1338,7 @@ const AuthenticatedRelatoriosRouteChildren: AuthenticatedRelatoriosRouteChildren
     AuthenticatedRelatoriosImobiliariasRoute:
       AuthenticatedRelatoriosImobiliariasRoute,
     AuthenticatedRelatoriosImoveisRoute: AuthenticatedRelatoriosImoveisRoute,
+    AuthenticatedRelatoriosRankingsRoute: AuthenticatedRelatoriosRankingsRoute,
     AuthenticatedRelatoriosIndexRoute: AuthenticatedRelatoriosIndexRoute,
   }
 

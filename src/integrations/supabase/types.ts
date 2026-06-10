@@ -1748,6 +1748,39 @@ export type Database = {
           tipo: Database["public"]["Enums"]["notification_tipo"]
         }[]
       }
+      get_ranking_corretores: {
+        Args: { p_limit?: number; p_metrica?: string; p_periodo?: string }
+        Returns: {
+          classificacao: string
+          corretor_user_id: string
+          downloads: number
+          exportacoes: number
+          favoritos: number
+          foto_url: string
+          imobiliaria_nome: string
+          logins: number
+          nome: string
+          score: number
+          visualizacoes: number
+        }[]
+      }
+      get_ranking_imoveis: {
+        Args: { p_limit?: number; p_metrica?: string; p_periodo?: string }
+        Returns: {
+          bairro: string
+          cidade: string
+          codigo_interno: string
+          cover_url: string
+          downloads: number
+          exportacoes: number
+          favoritos: number
+          imovel_id: string
+          preco: number
+          score: number
+          titulo: string
+          visualizacoes: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
