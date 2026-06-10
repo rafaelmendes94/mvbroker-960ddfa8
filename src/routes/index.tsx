@@ -111,13 +111,19 @@ const BENEFITS = [
   { i: BarChart3, t: "Relatórios de performance", d: "Acompanhe resultados, acessos, downloads e muito mais." },
 ];
 
+const WHATSAPP_COMERCIAL = "5551983282535"; // Patrique Lopes
+const waLink = (plano: string) =>
+  `https://wa.me/${WHATSAPP_COMERCIAL}?text=${encodeURIComponent(
+    `Olá Patrique! Tenho interesse no Plano ${plano} do MV BROKER e gostaria de mais informações para assinar.`
+  )}`;
+
 const PLANS = [
   {
     icon: User,
     name: "Corretor",
     desc: "Ideal para corretores autônomos.",
     items: ["1 usuário", "Carteiras ilimitadas", "XML exclusivo", "Distribuição para portais", "Relatórios básicos"],
-    cta: "Assinar Plano",
+    cta: "Assinar Plano Corretor",
     dark: false,
   },
   {
@@ -125,7 +131,7 @@ const PLANS = [
     name: "Imobiliária",
     desc: "Ideal para imobiliárias com equipe.",
     items: ["Usuários ilimitados", "Carteiras ilimitadas", "XMLs exclusivos", "Distribuição para portais", "Relatórios completos", "Suporte prioritário"],
-    cta: "Assinar Plano",
+    cta: "Assinar Plano Imobiliária",
     dark: false,
   },
   {
@@ -133,7 +139,7 @@ const PLANS = [
     name: "Premium",
     desc: "Para operações maiores e multiusuários.",
     items: ["Tudo do plano Imobiliária", "Integrações avançadas", "Relatórios personalizados", "Suporte dedicado", "Consultoria especializada"],
-    cta: "Falar com Comercial",
+    cta: "Falar sobre Plano Premium",
     dark: true,
   },
 ];
@@ -360,7 +366,7 @@ function LandingPage() {
                     ))}
                   </ul>
                 </div>
-                <Link to="/auth">
+                <a href={waLink(p.name)} target="_blank" rel="noreferrer">
                   <button
                     className={`w-full py-3.5 text-sm font-semibold transition-colors ${
                       p.dark
@@ -370,7 +376,7 @@ function LandingPage() {
                   >
                     {p.cta}
                   </button>
-                </Link>
+                </a>
               </div>
             ))}
           </div>

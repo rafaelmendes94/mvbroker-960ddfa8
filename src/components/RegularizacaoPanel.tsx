@@ -60,8 +60,16 @@ export function RegularizacaoPanel({ assinatura }: { assinatura: MinhaAssinatura
                 <a href="mailto:comercial@mvbroker.com.br">
                   <Button className="gap-2"><Mail className="h-4 w-4" /> Falar com comercial</Button>
                 </a>
-                <a href="https://wa.me/5551999999999" target="_blank" rel="noreferrer">
-                  <Button variant="outline" className="gap-2"><Phone className="h-4 w-4" /> WhatsApp</Button>
+                <a
+                  href={`https://wa.me/5551983282535?text=${encodeURIComponent(
+                    assinatura
+                      ? `Olá Patrique! Preciso regularizar minha assinatura do MV BROKER (Plano ${assinatura.plano_nome}).`
+                      : "Olá Patrique! Quero contratar um plano do MV BROKER."
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Button variant="outline" className="gap-2"><Phone className="h-4 w-4" /> WhatsApp (Patrique)</Button>
                 </a>
               </div>
             </div>
