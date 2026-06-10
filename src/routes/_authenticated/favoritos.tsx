@@ -1,3 +1,4 @@
+import { IMOVEL_PUBLIC_COLUMNS } from "@/lib/db-columns";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Heart, MapPin, Eye, ShoppingBag, Check } from "lucide-react";

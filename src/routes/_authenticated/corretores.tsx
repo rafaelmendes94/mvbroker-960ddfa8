@@ -1,3 +1,4 @@
+import { CORRETOR_PUBLIC_COLUMNS } from "@/lib/db-columns";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Plus, Briefcase, Search, Pencil, Power, PowerOff } from "lucide-react";

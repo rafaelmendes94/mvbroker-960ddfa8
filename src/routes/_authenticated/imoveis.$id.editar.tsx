@@ -1,3 +1,4 @@
+import { IMOVEL_PUBLIC_COLUMNS } from "@/lib/db-columns";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";

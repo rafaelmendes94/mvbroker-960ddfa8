@@ -1,3 +1,4 @@
+import { IMOBILIARIA_PUBLIC_COLUMNS } from "@/lib/db-columns";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Plus, Building, Search, Pencil, Trash2 } from "lucide-react";
