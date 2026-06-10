@@ -31,10 +31,10 @@ export const IMOVEL_PUBLIC_COLUMNS = [
 
 export const CORRETOR_PUBLIC_COLUMNS = [
   "id", "user_id", "imobiliaria_id", "nome", "foto_url", "creci",
-  "status", "cargo", "ativo", "created_at", "updated_at",
+  "status", "created_at", "updated_at",
 ].join(", ");
 
 export const IMOBILIARIA_PUBLIC_COLUMNS = [
   "id", "owner_id", "nome_fantasia", "razao_social", "site",
-  "logo_url", "status", "endereco", "created_at", "updated_at",
+  "status", "created_at", "updated_at",
 ].join(", ");
