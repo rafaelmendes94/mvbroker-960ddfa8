@@ -11,7 +11,8 @@ export type AuditEvento =
   | "empreendimento_criado" | "empreendimento_atualizado" | "empreendimento_excluido"
   | "imagem_upload"
   | "imovel_criado" | "imovel_atualizado" | "imovel_excluido" | "imovel_duplicado" | "imovel_arquivado"
-  | "imovel_upload" | "imovel_xml_publicado";
+  | "imovel_upload" | "imovel_xml_publicado"
+  | "acesso_negado" | "relatorio_visualizado";
 
 export async function logAudit(evento: AuditEvento, descricao?: string, metadata?: Record<string, unknown>) {
   try {
@@ -45,6 +46,88 @@ export async function logImovel(
       descricao: descricao ?? null,
       metadata: (metadata ?? null) as never,
     });
+  } catch {
+    // silencioso
+  }
+}
+
+// ============== Novo log central (audit_logs) ==============
+
+export type LogStatus = "sucesso" | "erro" | "negado" | "alerta";
+
+export async function logAction(opts: {
+  modulo: string;
+  acao: string;
+  registro_tipo?: string | null;
+  registro_id?: string | null;
+  status?: LogStatus;
+  descricao?: string;
+  dados_anteriores?: unknown;
+  dados_novos?: unknown;
+}) {
+  try {
+    const { data } = await supabase.auth.getUser();
+    await supabase.from("audit_logs").insert({
+      usuario_id: data.user?.id ?? null,
+      modulo: opts.modulo,
+      acao: opts.acao,
+      registro_tipo: opts.registro_tipo ?? null,
+      registro_id: (opts.registro_id ?? null) as never,
+      status: opts.status ?? "sucesso",
+      descricao: opts.descricao ?? null,
+      dados_anteriores: (opts.dados_anteriores ?? null) as never,
+      dados_novos: (opts.dados_novos ?? null) as never,
+      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+    });
+  } catch {
+    // silencioso
+  }
+}
+
+export async function createSecurityAlert(opts: {
+  tipo: string;
+  severidade?: "baixa" | "media" | "alta" | "critica";
+  descricao: string;
+  metadata?: Record<string, unknown>;
+}) {
+  try {
+    const { data } = await supabase.auth.getUser();
+    await supabase.from("security_alerts").insert({
+      tipo: opts.tipo,
+      severidade: opts.severidade ?? "media",
+      usuario_id: data.user?.id ?? null,
+      descricao: opts.descricao,
+      metadata: (opts.metadata ?? {}) as never,
+    });
+  } catch {
+    // silencioso
+  }
+}
+
+export async function registerSession() {
+  try {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) return;
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const device =
+      /Mobi|Android/i.test(ua) ? "Mobile" :
+      /Tablet|iPad/i.test(ua) ? "Tablet" : "Desktop";
+    await supabase.from("active_sessions").insert({
+      usuario_id: data.user.id,
+      user_agent: ua,
+      device,
+      last_seen: new Date().toISOString(),
+    });
+  } catch {
+    // silencioso
+  }
+}
+
+export async function heartbeatSession(sessionId: string) {
+  try {
+    await supabase.from("active_sessions")
+      .update({ last_seen: new Date().toISOString() })
+      .eq("id", sessionId);
   } catch {
     // silencioso
   }
