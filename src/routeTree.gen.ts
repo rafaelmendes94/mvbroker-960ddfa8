@@ -24,6 +24,7 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedNotificacoesRouteImport } from './routes/_authenticated/notificacoes'
+import { Route as AuthenticatedImportacoesRouteImport } from './routes/_authenticated/importacoes'
 import { Route as AuthenticatedImoveisRouteImport } from './routes/_authenticated/imoveis'
 import { Route as AuthenticatedImobiliariasRouteImport } from './routes/_authenticated/imobiliarias'
 import { Route as AuthenticatedFavoritosRouteImport } from './routes/_authenticated/favoritos'
@@ -45,6 +46,7 @@ import { Route as AuthenticatedSegurancaIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedRelatoriosIndexRouteImport } from './routes/_authenticated/relatorios.index'
 import { Route as AuthenticatedRegistrosIndexRouteImport } from './routes/_authenticated/registros.index'
 import { Route as AuthenticatedPortaisIndexRouteImport } from './routes/_authenticated/portais.index'
+import { Route as AuthenticatedImportacoesIndexRouteImport } from './routes/_authenticated/importacoes.index'
 import { Route as AuthenticatedImoveisIndexRouteImport } from './routes/_authenticated/imoveis.index'
 import { Route as AuthenticatedCarteirasIndexRouteImport } from './routes/_authenticated/carteiras.index'
 import { Route as AuthenticatedSegurancaSessoesRouteImport } from './routes/_authenticated/seguranca.sessoes'
@@ -145,6 +147,12 @@ const AuthenticatedNotificacoesRoute =
   AuthenticatedNotificacoesRouteImport.update({
     id: '/notificacoes',
     path: '/notificacoes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedImportacoesRoute =
+  AuthenticatedImportacoesRouteImport.update({
+    id: '/importacoes',
+    path: '/importacoes',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedImoveisRoute = AuthenticatedImoveisRouteImport.update({
@@ -262,6 +270,12 @@ const AuthenticatedPortaisIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedPortaisRoute,
+  } as any)
+const AuthenticatedImportacoesIndexRoute =
+  AuthenticatedImportacoesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedImportacoesRoute,
   } as any)
 const AuthenticatedImoveisIndexRoute =
   AuthenticatedImoveisIndexRouteImport.update({
@@ -427,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/imoveis': typeof AuthenticatedImoveisRouteWithChildren
+  '/importacoes': typeof AuthenticatedImportacoesRouteWithChildren
   '/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -458,6 +473,7 @@ export interface FileRoutesByFullPath {
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis/': typeof AuthenticatedImoveisIndexRoute
+  '/importacoes/': typeof AuthenticatedImportacoesIndexRoute
   '/portais/': typeof AuthenticatedPortaisIndexRoute
   '/registros/': typeof AuthenticatedRegistrosIndexRoute
   '/relatorios/': typeof AuthenticatedRelatoriosIndexRoute
@@ -513,6 +529,7 @@ export interface FileRoutesByTo {
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/carteiras': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis': typeof AuthenticatedImoveisIndexRoute
+  '/importacoes': typeof AuthenticatedImportacoesIndexRoute
   '/portais': typeof AuthenticatedPortaisIndexRoute
   '/registros': typeof AuthenticatedRegistrosIndexRoute
   '/relatorios': typeof AuthenticatedRelatoriosIndexRoute
@@ -545,6 +562,7 @@ export interface FileRoutesById {
   '/_authenticated/favoritos': typeof AuthenticatedFavoritosRoute
   '/_authenticated/imobiliarias': typeof AuthenticatedImobiliariasRoute
   '/_authenticated/imoveis': typeof AuthenticatedImoveisRouteWithChildren
+  '/_authenticated/importacoes': typeof AuthenticatedImportacoesRouteWithChildren
   '/_authenticated/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -576,6 +594,7 @@ export interface FileRoutesById {
   '/_authenticated/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/_authenticated/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/_authenticated/imoveis/': typeof AuthenticatedImoveisIndexRoute
+  '/_authenticated/importacoes/': typeof AuthenticatedImportacoesIndexRoute
   '/_authenticated/portais/': typeof AuthenticatedPortaisIndexRoute
   '/_authenticated/registros/': typeof AuthenticatedRegistrosIndexRoute
   '/_authenticated/relatorios/': typeof AuthenticatedRelatoriosIndexRoute
@@ -608,6 +627,7 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/imobiliarias'
     | '/imoveis'
+    | '/importacoes'
     | '/notificacoes'
     | '/oportunidades'
     | '/pagamentos'
@@ -639,6 +659,7 @@ export interface FileRouteTypes {
     | '/seguranca/sessoes'
     | '/carteiras/'
     | '/imoveis/'
+    | '/importacoes/'
     | '/portais/'
     | '/registros/'
     | '/relatorios/'
@@ -694,6 +715,7 @@ export interface FileRouteTypes {
     | '/seguranca/sessoes'
     | '/carteiras'
     | '/imoveis'
+    | '/importacoes'
     | '/portais'
     | '/registros'
     | '/relatorios'
@@ -725,6 +747,7 @@ export interface FileRouteTypes {
     | '/_authenticated/favoritos'
     | '/_authenticated/imobiliarias'
     | '/_authenticated/imoveis'
+    | '/_authenticated/importacoes'
     | '/_authenticated/notificacoes'
     | '/_authenticated/oportunidades'
     | '/_authenticated/pagamentos'
@@ -756,6 +779,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seguranca/sessoes'
     | '/_authenticated/carteiras/'
     | '/_authenticated/imoveis/'
+    | '/_authenticated/importacoes/'
     | '/_authenticated/portais/'
     | '/_authenticated/registros/'
     | '/_authenticated/relatorios/'
@@ -880,6 +904,13 @@ declare module '@tanstack/react-router' {
       path: '/notificacoes'
       fullPath: '/notificacoes'
       preLoaderRoute: typeof AuthenticatedNotificacoesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/importacoes': {
+      id: '/_authenticated/importacoes'
+      path: '/importacoes'
+      fullPath: '/importacoes'
+      preLoaderRoute: typeof AuthenticatedImportacoesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/imoveis': {
@@ -1028,6 +1059,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/portais/'
       preLoaderRoute: typeof AuthenticatedPortaisIndexRouteImport
       parentRoute: typeof AuthenticatedPortaisRoute
+    }
+    '/_authenticated/importacoes/': {
+      id: '/_authenticated/importacoes/'
+      path: '/'
+      fullPath: '/importacoes/'
+      preLoaderRoute: typeof AuthenticatedImportacoesIndexRouteImport
+      parentRoute: typeof AuthenticatedImportacoesRoute
     }
     '/_authenticated/imoveis/': {
       id: '/_authenticated/imoveis/'
@@ -1274,6 +1312,20 @@ const AuthenticatedImoveisRouteChildren: AuthenticatedImoveisRouteChildren = {
 const AuthenticatedImoveisRouteWithChildren =
   AuthenticatedImoveisRoute._addFileChildren(AuthenticatedImoveisRouteChildren)
 
+interface AuthenticatedImportacoesRouteChildren {
+  AuthenticatedImportacoesIndexRoute: typeof AuthenticatedImportacoesIndexRoute
+}
+
+const AuthenticatedImportacoesRouteChildren: AuthenticatedImportacoesRouteChildren =
+  {
+    AuthenticatedImportacoesIndexRoute: AuthenticatedImportacoesIndexRoute,
+  }
+
+const AuthenticatedImportacoesRouteWithChildren =
+  AuthenticatedImportacoesRoute._addFileChildren(
+    AuthenticatedImportacoesRouteChildren,
+  )
+
 interface AuthenticatedPortaisRouteChildren {
   AuthenticatedPortaisIndexRoute: typeof AuthenticatedPortaisIndexRoute
 }
@@ -1388,6 +1440,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFavoritosRoute: typeof AuthenticatedFavoritosRoute
   AuthenticatedImobiliariasRoute: typeof AuthenticatedImobiliariasRoute
   AuthenticatedImoveisRoute: typeof AuthenticatedImoveisRouteWithChildren
+  AuthenticatedImportacoesRoute: typeof AuthenticatedImportacoesRouteWithChildren
   AuthenticatedNotificacoesRoute: typeof AuthenticatedNotificacoesRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
@@ -1419,6 +1472,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFavoritosRoute: AuthenticatedFavoritosRoute,
   AuthenticatedImobiliariasRoute: AuthenticatedImobiliariasRoute,
   AuthenticatedImoveisRoute: AuthenticatedImoveisRouteWithChildren,
+  AuthenticatedImportacoesRoute: AuthenticatedImportacoesRouteWithChildren,
   AuthenticatedNotificacoesRoute: AuthenticatedNotificacoesRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
