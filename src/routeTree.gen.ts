@@ -41,6 +41,7 @@ import { Route as AuthenticatedPortaisIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedImoveisIndexRouteImport } from './routes/_authenticated/imoveis.index'
 import { Route as AuthenticatedCarteirasIndexRouteImport } from './routes/_authenticated/carteiras.index'
 import { Route as AuthenticatedSegurancaSessoesRouteImport } from './routes/_authenticated/seguranca.sessoes'
+import { Route as AuthenticatedSegurancaPermissoesRouteImport } from './routes/_authenticated/seguranca.permissoes'
 import { Route as AuthenticatedSegurancaAlertasRouteImport } from './routes/_authenticated/seguranca.alertas'
 import { Route as AuthenticatedSegurancaAcessosRouteImport } from './routes/_authenticated/seguranca.acessos'
 import { Route as AuthenticatedRelatoriosImoveisRouteImport } from './routes/_authenticated/relatorios.imoveis'
@@ -231,6 +232,12 @@ const AuthenticatedSegurancaSessoesRoute =
     path: '/sessoes',
     getParentRoute: () => AuthenticatedSegurancaRoute,
   } as any)
+const AuthenticatedSegurancaPermissoesRoute =
+  AuthenticatedSegurancaPermissoesRouteImport.update({
+    id: '/permissoes',
+    path: '/permissoes',
+    getParentRoute: () => AuthenticatedSegurancaRoute,
+  } as any)
 const AuthenticatedSegurancaAlertasRoute =
   AuthenticatedSegurancaAlertasRouteImport.update({
     id: '/alertas',
@@ -370,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/relatorios/imoveis': typeof AuthenticatedRelatoriosImoveisRoute
   '/seguranca/acessos': typeof AuthenticatedSegurancaAcessosRoute
   '/seguranca/alertas': typeof AuthenticatedSegurancaAlertasRoute
+  '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis/': typeof AuthenticatedImoveisIndexRoute
@@ -414,6 +422,7 @@ export interface FileRoutesByTo {
   '/relatorios/imoveis': typeof AuthenticatedRelatoriosImoveisRoute
   '/seguranca/acessos': typeof AuthenticatedSegurancaAcessosRoute
   '/seguranca/alertas': typeof AuthenticatedSegurancaAlertasRoute
+  '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/carteiras': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis': typeof AuthenticatedImoveisIndexRoute
@@ -466,6 +475,7 @@ export interface FileRoutesById {
   '/_authenticated/relatorios/imoveis': typeof AuthenticatedRelatoriosImoveisRoute
   '/_authenticated/seguranca/acessos': typeof AuthenticatedSegurancaAcessosRoute
   '/_authenticated/seguranca/alertas': typeof AuthenticatedSegurancaAlertasRoute
+  '/_authenticated/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/_authenticated/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/_authenticated/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/_authenticated/imoveis/': typeof AuthenticatedImoveisIndexRoute
@@ -518,6 +528,7 @@ export interface FileRouteTypes {
     | '/relatorios/imoveis'
     | '/seguranca/acessos'
     | '/seguranca/alertas'
+    | '/seguranca/permissoes'
     | '/seguranca/sessoes'
     | '/carteiras/'
     | '/imoveis/'
@@ -562,6 +573,7 @@ export interface FileRouteTypes {
     | '/relatorios/imoveis'
     | '/seguranca/acessos'
     | '/seguranca/alertas'
+    | '/seguranca/permissoes'
     | '/seguranca/sessoes'
     | '/carteiras'
     | '/imoveis'
@@ -613,6 +625,7 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios/imoveis'
     | '/_authenticated/seguranca/acessos'
     | '/_authenticated/seguranca/alertas'
+    | '/_authenticated/seguranca/permissoes'
     | '/_authenticated/seguranca/sessoes'
     | '/_authenticated/carteiras/'
     | '/_authenticated/imoveis/'
@@ -858,6 +871,13 @@ declare module '@tanstack/react-router' {
       path: '/sessoes'
       fullPath: '/seguranca/sessoes'
       preLoaderRoute: typeof AuthenticatedSegurancaSessoesRouteImport
+      parentRoute: typeof AuthenticatedSegurancaRoute
+    }
+    '/_authenticated/seguranca/permissoes': {
+      id: '/_authenticated/seguranca/permissoes'
+      path: '/permissoes'
+      fullPath: '/seguranca/permissoes'
+      preLoaderRoute: typeof AuthenticatedSegurancaPermissoesRouteImport
       parentRoute: typeof AuthenticatedSegurancaRoute
     }
     '/_authenticated/seguranca/alertas': {
@@ -1113,6 +1133,7 @@ const AuthenticatedRelatoriosRouteWithChildren =
 interface AuthenticatedSegurancaRouteChildren {
   AuthenticatedSegurancaAcessosRoute: typeof AuthenticatedSegurancaAcessosRoute
   AuthenticatedSegurancaAlertasRoute: typeof AuthenticatedSegurancaAlertasRoute
+  AuthenticatedSegurancaPermissoesRoute: typeof AuthenticatedSegurancaPermissoesRoute
   AuthenticatedSegurancaSessoesRoute: typeof AuthenticatedSegurancaSessoesRoute
   AuthenticatedSegurancaIndexRoute: typeof AuthenticatedSegurancaIndexRoute
 }
@@ -1121,6 +1142,8 @@ const AuthenticatedSegurancaRouteChildren: AuthenticatedSegurancaRouteChildren =
   {
     AuthenticatedSegurancaAcessosRoute: AuthenticatedSegurancaAcessosRoute,
     AuthenticatedSegurancaAlertasRoute: AuthenticatedSegurancaAlertasRoute,
+    AuthenticatedSegurancaPermissoesRoute:
+      AuthenticatedSegurancaPermissoesRoute,
     AuthenticatedSegurancaSessoesRoute: AuthenticatedSegurancaSessoesRoute,
     AuthenticatedSegurancaIndexRoute: AuthenticatedSegurancaIndexRoute,
   }
