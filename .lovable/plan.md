@@ -1,101 +1,101 @@
+
 ## Objetivo
 
-Criar um fluxo de importação em massa via **CSV ou Excel (.xlsx)** para:
-- **Empreendimentos**, **Condomínios**, **Edifícios** → importação direta com cabeçalhos padronizados.
-- **Imóveis** → importação completa com **mapeamento visual de colunas** (drag & match entre as colunas do arquivo enviado e os campos do sistema), por causa da grande quantidade de campos (80+).
+Substituir a página **Clientes** (hoje com dados mock) por um cadastro real onde o admin/secretaria escolhe o **tipo de cliente** (Imobiliária ou Corretor), vincula um **plano** e, no caso de imobiliária, o plano impõe um **limite de corretores** que ela pode cadastrar.
 
-Disponível somente para **Super Admin** e **Secretaria** (mesmas permissões de criação dessas tabelas).
+## O que muda
 
----
+### 1. Página `/clientes` (reescrita)
 
-## UX e Fluxo
+- Lista unificada com clientes dos dois tipos:
+  - **Imobiliárias** (vindas de `imobiliarias`) + plano atual (via `assinaturas`).
+  - **Corretores autônomos** (vindos de `corretores` sem `imobiliaria_id`) + plano atual.
+- Cada card/linha mostra: nome, tipo (badge "Imobiliária" / "Corretor"), plano vigente, status da assinatura, e — para imobiliária — `corretores ativos / limite do plano` (ex.: `4 / 10`).
+- Busca por nome/e-mail e filtro por tipo (Todos / Imobiliária / Corretor).
+- Ações por cliente: **Editar**, **Trocar plano**, **Bloquear/Reativar**.
 
-### Menu
-Nova entrada na sidebar: **Importações** (ícone Upload), agrupando 4 sub-páginas:
-- `/importacoes/empreendimentos`
-- `/importacoes/condominios`
-- `/importacoes/edificios`
-- `/importacoes/imoveis`
+### 2. Diálogo "Novo cliente"
 
-### Fluxo simples (Empreendimentos / Condomínios / Edifícios)
-1. Botão "Baixar modelo CSV" e "Baixar modelo Excel" — gera arquivo com cabeçalhos exatos das colunas.
-2. Upload do arquivo (drag & drop, aceita `.csv`, `.xlsx`, `.xls`).
-3. **Preview** das 10 primeiras linhas em tabela.
-4. Validação (campos obrigatórios, formatos de data, números).
-5. Botão **Importar** → insere em lote, mostra contador "X importados / Y falhas" e lista de erros por linha.
+Campos:
+- **Tipo de cliente** (radio): `Imobiliária` ou `Corretor autônomo`.
+- Campos comuns: nome, e-mail, telefone/WhatsApp.
+- Se Imobiliária: nome fantasia, razão social, CNPJ.
+- Se Corretor: CRECI.
+- **Plano**: select filtrando `planos.tipo = 'imobiliaria'` ou `'individual'` conforme o tipo escolhido (somente planos `ativo = true`).
+- **Ciclo**: mensal / anual (define o valor da assinatura a partir de `preco_mensal` / `preco_anual`).
 
-### Fluxo com mapeamento (Imóveis)
-1. Upload do arquivo.
-2. Sistema lê os cabeçalhos e mostra tela de **mapeamento de colunas**:
-   - Coluna esquerda: campos do sistema (agrupados por seção: Identificação, Localização, Valores, Características, etc.), marcando obrigatórios.
-   - Coluna direita: select para cada campo do sistema escolhendo qual coluna do arquivo corresponde (ou "ignorar").
-   - **Auto-match inteligente**: se o nome da coluna do arquivo bater (case-insensitive, normalizado sem acento) com o nome técnico ou rótulo do campo, já preenche.
-   - Botão "Salvar mapeamento como preset" (futuro — ficará só placeholder UI nesta fase).
-3. Preview com as 10 primeiras linhas já mapeadas no formato final.
-4. Validação por linha (tipos, FKs como `empreendimento_id` resolvidos por código_interno/nome).
-5. Importar em lote, com relatório de erros por linha (linha, campo, motivo).
+Ao salvar:
+- Insere em `imobiliarias` **ou** em `corretores` (sem `imobiliaria_id`, autônomo).
+- Insere a assinatura em `assinaturas` vinculada via `imobiliaria_id` ou `usuario_id` conforme o caso, com `status = 'ativa'`.
 
----
+### 3. Limite de corretores por plano de imobiliária
 
-## Implementação Técnica
+- O campo `planos.limite_usuarios` (já existente) passa a ser tratado como **"Limite de corretores"** para planos do tipo `imobiliaria`. Vazio = ilimitado.
+- No formulário de Planos (`/planos`), renomeio visualmente o label para "Limite de corretores" quando `tipo = imobiliaria` e mantenho "Limite de usuários" para `individual`.
+- **Enforcement**:
+  - Função no banco `public.imobiliaria_limite_corretores(imob_id uuid)` retorna `(usados int, limite int|null)` consultando `corretores` ativos da imobiliária e o `limite_usuarios` do plano da assinatura ativa.
+  - Trigger `BEFORE INSERT` em `public.corretores`: quando `imobiliaria_id` não é nulo, se `usados >= limite`, levanta exceção com mensagem clara ("Plano atingiu o limite de N corretores").
+  - Frontend: na página `/corretores` e na página `/clientes` (ao abrir uma imobiliária para gerenciar corretores), mostro um badge `usados / limite` e desabilito o botão "Novo corretor" quando o limite for atingido, com tooltip explicativo. O bloqueio do banco é a garantia final.
 
-### Frontend
-- Biblioteca: **`xlsx`** (SheetJS, já leve e funciona client-side para CSV+XLSX).
-- Novos componentes:
-  - `src/components/import/FileDropzone.tsx` — drag & drop + parse.
-  - `src/components/import/PreviewTable.tsx` — preview com 10 linhas.
-  - `src/components/import/ColumnMapper.tsx` — usado só para imóveis.
-  - `src/components/import/ImportReport.tsx` — resultado com sucessos/erros.
-- Novas rotas em `src/routes/_authenticated/importacoes.*.tsx`.
-- `src/lib/import-schemas.ts` — define para cada entidade: lista de campos, label, tipo (text/number/date/boolean/array), obrigatório, parser de valor.
-- AppSidebar atualizado com o grupo "Importações".
+### 4. Trocar plano de um cliente existente
 
-### Backend
-- Insert direto via supabase client (já há RLS de admin/secretaria nas tabelas).
-- Para imóveis, resolver FKs antes do insert:
-  - `empreendimento_id`/`condominio_id`/`edificio_id`: aceitar nome OU código_interno; lookup no banco.
-  - `imobiliaria_id`/`corretor_id`: aceitar nome.
-- Inserts em lotes de 50 linhas para evitar payload gigante; cada lote em try/catch isolado para reportar erros por linha.
-- Campos `text[]` (infraestrutura, condicoes_pagamento, etc.): aceitar string separada por `;` ou `|`.
-- Booleanos: aceitar `sim/não`, `true/false`, `1/0`.
-- Datas: aceitar `dd/mm/yyyy` e ISO.
+- Diálogo "Trocar plano" reaproveita a lógica de criação de assinatura, atualizando a linha em `assinaturas` (há um índice único por imobiliária / usuário, então é update).
+- Aviso visual quando o novo plano tem `limite_usuarios` menor que o número atual de corretores da imobiliária (não bloqueia a troca, apenas avisa que novos cadastros ficarão travados até regularizar).
 
-### Modelos (templates de download)
-Gerados em runtime via SheetJS — não precisa subir arquivo estático. Cada página tem botão que monta e baixa o template com cabeçalhos + uma linha de exemplo.
+## Permissões
 
-### Permissões
-- Adicionar rota em `src/lib/permissions.ts`: importações só para `super_admin` e `secretaria`. Outros roles veem "Acesso negado".
+- Página `/clientes` continua restrita a `super_admin` e `secretaria` (já é o padrão para gestão comercial; ajusto em `permissions.ts` se necessário).
+- Todas as operações (insert imobiliária, insert corretor, insert/update assinatura) respeitam as RLS já existentes — admin/secretaria têm acesso total via `has_role()`.
 
----
+## Fora de escopo (não faço agora)
 
-## Entregáveis (arquivos)
+- Cobrança/integração de pagamento — segue manual via `/assinaturas`.
+- Convite de login para o cliente recém-criado (criação do usuário em `auth.users` por e-mail). Posso fazer numa etapa seguinte se desejar.
+- Histórico de trocas de plano.
 
-**Criar:**
-- `src/routes/_authenticated/importacoes.tsx` (layout com Outlet + tabs)
-- `src/routes/_authenticated/importacoes.empreendimentos.tsx`
-- `src/routes/_authenticated/importacoes.condominios.tsx`
-- `src/routes/_authenticated/importacoes.edificios.tsx`
-- `src/routes/_authenticated/importacoes.imoveis.tsx`
-- `src/components/import/FileDropzone.tsx`
-- `src/components/import/PreviewTable.tsx`
-- `src/components/import/ColumnMapper.tsx`
-- `src/components/import/ImportReport.tsx`
-- `src/lib/import-schemas.ts`
-- `src/lib/import-runner.ts` (lógica de parse, normalização e insert em lote)
+## Detalhes técnicos
 
-**Editar:**
-- `src/components/layout/AppSidebar.tsx` (novo item "Importações")
-- `src/lib/permissions.ts` (rotas novas)
+- **Migração SQL**:
+  ```sql
+  -- função utilitária
+  CREATE OR REPLACE FUNCTION public.imobiliaria_limite_corretores(p_imob uuid)
+  RETURNS TABLE(usados int, limite int)
+  LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+    SELECT
+      (SELECT COUNT(*)::int FROM corretores
+        WHERE imobiliaria_id = p_imob AND status = 'ativo'),
+      (SELECT p.limite_usuarios FROM assinaturas a
+        JOIN planos p ON p.id = a.plano_id
+        WHERE a.imobiliaria_id = p_imob AND a.status = 'ativa'
+        LIMIT 1);
+  $$;
 
-**Dependência nova:**
-- `xlsx` (SheetJS) via `bun add xlsx`
+  -- trigger de enforcement
+  CREATE OR REPLACE FUNCTION public.tg_corretores_check_limite()
+  RETURNS trigger LANGUAGE plpgsql AS $$
+  DECLARE v_used int; v_max int;
+  BEGIN
+    IF NEW.imobiliaria_id IS NULL THEN RETURN NEW; END IF;
+    SELECT usados, limite INTO v_used, v_max
+      FROM public.imobiliaria_limite_corretores(NEW.imobiliaria_id);
+    IF v_max IS NOT NULL AND v_used >= v_max THEN
+      RAISE EXCEPTION 'O plano da imobiliária atingiu o limite de % corretores.', v_max;
+    END IF;
+    RETURN NEW;
+  END $$;
 
----
+  CREATE TRIGGER trg_corretores_check_limite
+    BEFORE INSERT ON public.corretores
+    FOR EACH ROW EXECUTE FUNCTION public.tg_corretores_check_limite();
+  ```
+- **Frontend**:
+  - Reescrever `src/routes/_authenticated/clientes.tsx` com lista real, filtros, diálogo de criação e diálogo de troca de plano.
+  - Ajustar `src/routes/_authenticated/planos.tsx` para renomear o label do limite conforme `tipo`.
+  - Adicionar badge `usados/limite` em `src/routes/_authenticated/corretores.tsx` e desabilitar o botão "Novo corretor" quando atingido.
 
-## Fora do escopo desta fase
-- Upload de fotos via importação (continua manual no cadastro do imóvel).
-- Salvar presets de mapeamento por usuário (só placeholder UI).
-- Importação de unidades em massa dentro de um empreendimento específico (pode vir em fase 2).
-- Update/upsert por código_interno — nesta fase só **insert**. Se o código já existir, a linha entra como erro "código duplicado".
+## Arquivos afetados
 
-Posso seguir com a implementação?
+- `src/routes/_authenticated/clientes.tsx` (reescrita).
+- `src/routes/_authenticated/planos.tsx` (label do limite por tipo).
+- `src/routes/_authenticated/corretores.tsx` (badge + bloqueio do botão).
+- Nova migração Supabase com a função e o trigger acima.
