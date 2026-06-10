@@ -22,6 +22,7 @@ export const ROLE_LABEL: Record<AppRole, string> = {
 // Each route → list of roles allowed (empty = open to all authenticated)
 export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/dashboard": [],
+  "/oportunidades": [],
   "/imoveis": [], // visualização para todos autenticados
   "/central": [], // Central de Imóveis — todos autenticados
   "/favoritos": [], // Favoritos — todos autenticados
