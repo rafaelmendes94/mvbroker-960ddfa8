@@ -56,6 +56,7 @@ const emptyForm = {
   cnpj: "", razao_social: "",
   creci: "",
   plano_id: "", ciclo: "mensal" as "mensal" | "anual",
+  modoAcesso: "senha" as "senha" | "convite",
 };
 
 const fmtBRL = (n: number | null | undefined) =>
