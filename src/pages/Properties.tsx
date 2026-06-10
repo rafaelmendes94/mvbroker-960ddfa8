@@ -625,7 +625,7 @@ export default function Properties() {
   const toggleFavorite = async (id: string) => {
     const isFav = favoriteIds.includes(id);
     // Optimistic update
-    setFavoriteIds((prev: any) => isFav ? prev.filter(x => x !== id) : [...prev, id]);
+    setFavoriteIds((prev: any) => isFav ? prev.filter((x: any) => x !== id) : [...prev, id]);
     
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -691,7 +691,7 @@ export default function Properties() {
     const ok = await persistStatus(propertyId, newStatus, extra);
     if (!ok) return;
     setPropertyList((prev: any) =>
-      prev.map((p) =>
+      prev.map((p: any) =>
         p.id === propertyId
           ? { ...p, status: newStatus, ...(extra.plataforma_venda !== undefined ? { plataformaVenda: "", dataVenda: "" } : {}) }
           : p
@@ -708,7 +708,7 @@ export default function Properties() {
     });
     if (!ok) return;
     setPropertyList((prev: any) =>
-      prev.map((p) =>
+      prev.map((p: any) =>
         p.id === propertyId
           ? { ...p, status: "Vendido", plataformaVenda: platform, dataVenda: saleDate, updatedAt: new Date().toISOString() }
           : p
@@ -726,18 +726,18 @@ export default function Properties() {
       const { error } = await supabase.from("imoveis").delete().eq("id", propertyId);
       if (error) { toast.error("Erro ao excluir imóvel"); return; }
     }
-    setPropertyList((prev: any) => prev.filter((p) => p.id !== propertyId));
+    setPropertyList((prev: any) => prev.filter((p: any) => p.id !== propertyId));
     setDeleteConfirmId(null);
     toast.success("Imóvel excluído com sucesso!");
   };
 
   const handlePriceChange = (propertyId: string, field: "price" | "priceInstallment", value: number) => {
-    setPropertyList((prev: any) => prev.map((p) => (p.id === propertyId ? { ...p, [field]: value } : p)));
+    setPropertyList((prev: any) => prev.map((p: any) => (p.id === propertyId ? { ...p, [field]: value } : p)));
     toast.success("Valor atualizado!");
   };
 
   const handleDealLabelChange = (propertyId: string, label: Property["dealLabel"]) => {
-    setPropertyList((prev: any) => prev.map((p) => (p.id === propertyId ? { ...p, dealLabel: label } : p)));
+    setPropertyList((prev: any) => prev.map((p: any) => (p.id === propertyId ? { ...p, dealLabel: label } : p)));
     toast.success(label ? `Classificado como "${label}"` : "Classificação removida");
   };
 
@@ -788,7 +788,7 @@ export default function Properties() {
 
   const handleQuickUpdate = (id: string) => {
     setPropertyList((prev: any) =>
-      prev.map((p) => (p.id === id ? { ...p, updatedAt: new Date().toISOString() } : p))
+      prev.map((p: any) => (p.id === id ? { ...p, updatedAt: new Date().toISOString() } : p))
     );
     toast.success("Data de atualização renovada!");
   };
@@ -1742,7 +1742,7 @@ export default function Properties() {
         brokerInfo={brokerInfo}
         onSelectSimilar={(p) => setSelectedProperty(p)}
         onUpdateProperty={(updated) => {
-          setPropertyList((prev: any) => prev.map((p) => (p.id === updated.id ? updated : p)));
+          setPropertyList((prev: any) => prev.map((p: any) => (p.id === updated.id ? updated : p)));
           setSelectedProperty(updated);
         }}
         onFilterByTitle={(title) => { setSelectedProperty(null); setSearch(title.split(" ").slice(0, 2).join(" ")); setActiveCategory("todos"); }}
