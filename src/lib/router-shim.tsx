@@ -25,15 +25,15 @@ export function useNavigate() {
   };
 }
 
-export function useSearchParams(): [URLSearchParams, (next: URLSearchParams | ((p: URLSearchParams) => URLSearchParams)) => void] {
+export function useSearchParams(): [URLSearchParams, (next: any, opts?: { replace?: boolean }) => void] {
   const router = useRouter();
   const search = (typeof window !== "undefined" ? window.location.search : "") || "";
   const params = new URLSearchParams(search);
-  const set = (next: any) => {
+  const set = (next: any, opts?: { replace?: boolean }) => {
     const value = typeof next === "function" ? next(new URLSearchParams(params)) : next;
     const qs = value.toString();
     const url = (typeof window !== "undefined" ? window.location.pathname : "/") + (qs ? `?${qs}` : "");
-    router.navigate({ to: url });
+    router.navigate({ to: url, replace: opts?.replace });
   };
   return [params, set];
 }
