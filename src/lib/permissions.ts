@@ -5,7 +5,7 @@ export type AppRole =
   | "corretor_imobiliaria"
   | "corretor_autonomo"
   | "admin"
-  | "moderator"
+  | "manager"
   | "user";
 
 export const ROLE_LABEL: Record<AppRole, string> = {
