@@ -16,6 +16,7 @@ import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedRegistrosRouteImport } from './routes/_authenticated/registros'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedImoveisRouteImport } from './routes/_authenticated/imoveis'
 import { Route as AuthenticatedImobiliariasRouteImport } from './routes/_authenticated/imobiliarias'
 import { Route as AuthenticatedExportacoesRouteImport } from './routes/_authenticated/exportacoes'
 import { Route as AuthenticatedEmpreendimentosRouteImport } from './routes/_authenticated/empreendimentos'
@@ -28,10 +29,13 @@ import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedRegistrosIndexRouteImport } from './routes/_authenticated/registros.index'
+import { Route as AuthenticatedImoveisIndexRouteImport } from './routes/_authenticated/imoveis.index'
 import { Route as AuthenticatedRegistrosNovoRouteImport } from './routes/_authenticated/registros.novo'
 import { Route as AuthenticatedRegistrosIdRouteImport } from './routes/_authenticated/registros.$id'
+import { Route as AuthenticatedImoveisNovoRouteImport } from './routes/_authenticated/imoveis.novo'
 import { Route as AuthenticatedConfiguracoesOpcoesRouteImport } from './routes/_authenticated/configuracoes.opcoes'
 import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_authenticated/registros.$id.editar'
+import { Route as AuthenticatedImoveisIdEditarRouteImport } from './routes/_authenticated/imoveis.$id.editar'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -65,6 +69,11 @@ const AuthenticatedRegistrosRoute = AuthenticatedRegistrosRouteImport.update({
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedImoveisRoute = AuthenticatedImoveisRouteImport.update({
+  id: '/imoveis',
+  path: '/imoveis',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedImobiliariasRoute =
@@ -133,6 +142,12 @@ const AuthenticatedRegistrosIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedRegistrosRoute,
   } as any)
+const AuthenticatedImoveisIndexRoute =
+  AuthenticatedImoveisIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedImoveisRoute,
+  } as any)
 const AuthenticatedRegistrosNovoRoute =
   AuthenticatedRegistrosNovoRouteImport.update({
     id: '/novo',
@@ -145,6 +160,12 @@ const AuthenticatedRegistrosIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedRegistrosRoute,
   } as any)
+const AuthenticatedImoveisNovoRoute =
+  AuthenticatedImoveisNovoRouteImport.update({
+    id: '/novo',
+    path: '/novo',
+    getParentRoute: () => AuthenticatedImoveisRoute,
+  } as any)
 const AuthenticatedConfiguracoesOpcoesRoute =
   AuthenticatedConfiguracoesOpcoesRouteImport.update({
     id: '/opcoes',
@@ -156,6 +177,12 @@ const AuthenticatedRegistrosIdEditarRoute =
     id: '/editar',
     path: '/editar',
     getParentRoute: () => AuthenticatedRegistrosIdRoute,
+  } as any)
+const AuthenticatedImoveisIdEditarRoute =
+  AuthenticatedImoveisIdEditarRouteImport.update({
+    id: '/$id/editar',
+    path: '/$id/editar',
+    getParentRoute: () => AuthenticatedImoveisRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -172,14 +199,18 @@ export interface FileRoutesByFullPath {
   '/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/exportacoes': typeof AuthenticatedExportacoesRoute
   '/imobiliarias': typeof AuthenticatedImobiliariasRoute
+  '/imoveis': typeof AuthenticatedImoveisRouteWithChildren
   '/perfil': typeof AuthenticatedPerfilRoute
   '/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
+  '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
+  '/imoveis/': typeof AuthenticatedImoveisIndexRoute
   '/registros/': typeof AuthenticatedRegistrosIndexRoute
+  '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
 }
 export interface FileRoutesByTo {
@@ -200,9 +231,12 @@ export interface FileRoutesByTo {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
+  '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
+  '/imoveis': typeof AuthenticatedImoveisIndexRoute
   '/registros': typeof AuthenticatedRegistrosIndexRoute
+  '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
 }
 export interface FileRoutesById {
@@ -221,14 +255,18 @@ export interface FileRoutesById {
   '/_authenticated/empreendimentos': typeof AuthenticatedEmpreendimentosRoute
   '/_authenticated/exportacoes': typeof AuthenticatedExportacoesRoute
   '/_authenticated/imobiliarias': typeof AuthenticatedImobiliariasRoute
+  '/_authenticated/imoveis': typeof AuthenticatedImoveisRouteWithChildren
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/_authenticated/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
+  '/_authenticated/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/_authenticated/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/_authenticated/registros/novo': typeof AuthenticatedRegistrosNovoRoute
+  '/_authenticated/imoveis/': typeof AuthenticatedImoveisIndexRoute
   '/_authenticated/registros/': typeof AuthenticatedRegistrosIndexRoute
+  '/_authenticated/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/_authenticated/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
 }
 export interface FileRouteTypes {
@@ -247,14 +285,18 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/exportacoes'
     | '/imobiliarias'
+    | '/imoveis'
     | '/perfil'
     | '/registros'
     | '/relatorios'
     | '/usuarios'
     | '/configuracoes/opcoes'
+    | '/imoveis/novo'
     | '/registros/$id'
     | '/registros/novo'
+    | '/imoveis/'
     | '/registros/'
+    | '/imoveis/$id/editar'
     | '/registros/$id/editar'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -275,9 +317,12 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/usuarios'
     | '/configuracoes/opcoes'
+    | '/imoveis/novo'
     | '/registros/$id'
     | '/registros/novo'
+    | '/imoveis'
     | '/registros'
+    | '/imoveis/$id/editar'
     | '/registros/$id/editar'
   id:
     | '__root__'
@@ -295,14 +340,18 @@ export interface FileRouteTypes {
     | '/_authenticated/empreendimentos'
     | '/_authenticated/exportacoes'
     | '/_authenticated/imobiliarias'
+    | '/_authenticated/imoveis'
     | '/_authenticated/perfil'
     | '/_authenticated/registros'
     | '/_authenticated/relatorios'
     | '/_authenticated/usuarios'
     | '/_authenticated/configuracoes/opcoes'
+    | '/_authenticated/imoveis/novo'
     | '/_authenticated/registros/$id'
     | '/_authenticated/registros/novo'
+    | '/_authenticated/imoveis/'
     | '/_authenticated/registros/'
+    | '/_authenticated/imoveis/$id/editar'
     | '/_authenticated/registros/$id/editar'
   fileRoutesById: FileRoutesById
 }
@@ -361,6 +410,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/imoveis': {
+      id: '/_authenticated/imoveis'
+      path: '/imoveis'
+      fullPath: '/imoveis'
+      preLoaderRoute: typeof AuthenticatedImoveisRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/imobiliarias': {
@@ -447,6 +503,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRegistrosIndexRouteImport
       parentRoute: typeof AuthenticatedRegistrosRoute
     }
+    '/_authenticated/imoveis/': {
+      id: '/_authenticated/imoveis/'
+      path: '/'
+      fullPath: '/imoveis/'
+      preLoaderRoute: typeof AuthenticatedImoveisIndexRouteImport
+      parentRoute: typeof AuthenticatedImoveisRoute
+    }
     '/_authenticated/registros/novo': {
       id: '/_authenticated/registros/novo'
       path: '/novo'
@@ -461,6 +524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRegistrosIdRouteImport
       parentRoute: typeof AuthenticatedRegistrosRoute
     }
+    '/_authenticated/imoveis/novo': {
+      id: '/_authenticated/imoveis/novo'
+      path: '/novo'
+      fullPath: '/imoveis/novo'
+      preLoaderRoute: typeof AuthenticatedImoveisNovoRouteImport
+      parentRoute: typeof AuthenticatedImoveisRoute
+    }
     '/_authenticated/configuracoes/opcoes': {
       id: '/_authenticated/configuracoes/opcoes'
       path: '/opcoes'
@@ -474,6 +544,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/registros/$id/editar'
       preLoaderRoute: typeof AuthenticatedRegistrosIdEditarRouteImport
       parentRoute: typeof AuthenticatedRegistrosIdRoute
+    }
+    '/_authenticated/imoveis/$id/editar': {
+      id: '/_authenticated/imoveis/$id/editar'
+      path: '/$id/editar'
+      fullPath: '/imoveis/$id/editar'
+      preLoaderRoute: typeof AuthenticatedImoveisIdEditarRouteImport
+      parentRoute: typeof AuthenticatedImoveisRoute
     }
   }
 }
@@ -492,6 +569,21 @@ const AuthenticatedConfiguracoesRouteWithChildren =
   AuthenticatedConfiguracoesRoute._addFileChildren(
     AuthenticatedConfiguracoesRouteChildren,
   )
+
+interface AuthenticatedImoveisRouteChildren {
+  AuthenticatedImoveisNovoRoute: typeof AuthenticatedImoveisNovoRoute
+  AuthenticatedImoveisIndexRoute: typeof AuthenticatedImoveisIndexRoute
+  AuthenticatedImoveisIdEditarRoute: typeof AuthenticatedImoveisIdEditarRoute
+}
+
+const AuthenticatedImoveisRouteChildren: AuthenticatedImoveisRouteChildren = {
+  AuthenticatedImoveisNovoRoute: AuthenticatedImoveisNovoRoute,
+  AuthenticatedImoveisIndexRoute: AuthenticatedImoveisIndexRoute,
+  AuthenticatedImoveisIdEditarRoute: AuthenticatedImoveisIdEditarRoute,
+}
+
+const AuthenticatedImoveisRouteWithChildren =
+  AuthenticatedImoveisRoute._addFileChildren(AuthenticatedImoveisRouteChildren)
 
 interface AuthenticatedRegistrosIdRouteChildren {
   AuthenticatedRegistrosIdEditarRoute: typeof AuthenticatedRegistrosIdEditarRoute
@@ -537,6 +629,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedEmpreendimentosRoute: typeof AuthenticatedEmpreendimentosRoute
   AuthenticatedExportacoesRoute: typeof AuthenticatedExportacoesRoute
   AuthenticatedImobiliariasRoute: typeof AuthenticatedImobiliariasRoute
+  AuthenticatedImoveisRoute: typeof AuthenticatedImoveisRouteWithChildren
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedRegistrosRoute: typeof AuthenticatedRegistrosRouteWithChildren
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
@@ -555,6 +648,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEmpreendimentosRoute: AuthenticatedEmpreendimentosRoute,
   AuthenticatedExportacoesRoute: AuthenticatedExportacoesRoute,
   AuthenticatedImobiliariasRoute: AuthenticatedImobiliariasRoute,
+  AuthenticatedImoveisRoute: AuthenticatedImoveisRouteWithChildren,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedRegistrosRoute: AuthenticatedRegistrosRouteWithChildren,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
