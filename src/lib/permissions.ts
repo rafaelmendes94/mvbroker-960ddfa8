@@ -37,6 +37,7 @@ export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/relatorios": ["super_admin", "imobiliaria", "corretor_imobiliaria", "corretor_autonomo"],
   "/exportacoes": ["super_admin", "secretaria", "imobiliaria", "corretor_imobiliaria", "corretor_autonomo"],
   "/carteiras": ["super_admin", "secretaria", "imobiliaria", "corretor_imobiliaria", "corretor_autonomo"],
+  "/portais": ["super_admin"],
   "/auditoria": ["super_admin"],
   "/configuracoes": ["super_admin"],
   "/perfil": [],
