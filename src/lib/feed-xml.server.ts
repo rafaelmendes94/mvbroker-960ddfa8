@@ -1,4 +1,4 @@
-// VRSync-compatible XML feed generator. Server-only.
+// XML feed generators. Server-only.
 
 function esc(s: unknown): string {
   if (s === null || s === undefined) return "";
@@ -41,12 +41,15 @@ function transactionType(condicao?: string | null): "For Sale" | "For Rent" {
   return "For Sale";
 }
 
-export function buildVRSyncXML(opts: {
+type BuildOpts = {
   carteira: { nome: string; slug: string; updated_at: string };
   imoveis: Array<ImovelRow & { imagens: ImagemRow[] }>;
   publisherEmail?: string;
-}): string {
-  const { carteira, imoveis, publisherEmail = "contato@mvbroker.com" } = opts;
+  portal?: { slug: string; nome: string; formato_xml: string } | null;
+};
+
+export function buildVRSyncXML(opts: BuildOpts): string {
+  const { carteira, imoveis, publisherEmail = "contato@mvbroker.com", portal } = opts;
   const now = new Date().toISOString();
 
   const listings = imoveis
@@ -119,7 +122,10 @@ export function buildVRSyncXML(opts: {
     })
     .join("\n");
 
+  const portalTag = portal ? `<!-- Portal: ${portal.nome} (${portal.slug}) -->` : "";
+
   return `<?xml version="1.0" encoding="UTF-8"?>
+${portalTag}
 <ListingDataFeed xmlns="http://www.vivareal.com/schemas/1.0/VRSync" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Header>
     <Provider>MV Broker</Provider>
@@ -131,4 +137,89 @@ export function buildVRSyncXML(opts: {
 ${listings}
   </Listings>
 </ListingDataFeed>`;
+}
+
+// OLX usa estrutura própria simplificada
+export function buildOLXXML(opts: BuildOpts): string {
+  const { carteira, imoveis } = opts;
+  const items = imoveis
+    .map((im) => {
+      const fotos = (im.imagens ?? []).slice().sort((a, b) => (b.capa ? 1 : 0) - (a.capa ? 1 : 0) || a.ordem - b.ordem)
+        .filter((f) => !!f.url).slice(0, 20);
+      const pics = fotos.map((f) => `<picture_url>${esc(f.url)}</picture_url>`).join("");
+      const tt = /alug|locac/i.test(im.condicao ?? "") ? "Locacao" : "Venda";
+      return `<ad>
+  <id>${esc(im.codigo_interno || im.id)}</id>
+  <subject>${cdata(im.titulo)}</subject>
+  <category_name>${esc(mapTipo(im.tipo))}</category_name>
+  <subcategory>${esc(tt)}</subcategory>
+  <body>${cdata(im.descricao)}</body>
+  <price>${im.preco ?? 0}</price>
+  <state>${esc(im.estado ?? "")}</state>
+  <city>${esc(im.cidade ?? "")}</city>
+  <neighborhood>${esc(im.bairro ?? "")}</neighborhood>
+  <zipcode>${esc(im.cep ?? "")}</zipcode>
+  <bedrooms>${im.dormitorios ?? ""}</bedrooms>
+  <bathrooms>${im.banheiros ?? ""}</bathrooms>
+  <garage_spaces>${im.vagas ?? ""}</garage_spaces>
+  <size>${im.area_privativa ?? im.area_total ?? ""}</size>
+  <condominium_fee>${im.valor_condominio ?? ""}</condominium_fee>
+  <iptu>${im.valor_iptu ?? ""}</iptu>
+  ${pics}
+</ad>`;
+    })
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<ads carteira="${esc(carteira.slug)}">
+${items}
+</ads>`;
+}
+
+// ImovelWeb usa estrutura adaptada
+export function buildImovelWebXML(opts: BuildOpts): string {
+  const { carteira, imoveis } = opts;
+  const items = imoveis.map((im) => {
+    const fotos = (im.imagens ?? []).slice().sort((a, b) => (b.capa ? 1 : 0) - (a.capa ? 1 : 0) || a.ordem - b.ordem)
+      .filter((f) => !!f.url).slice(0, 20);
+    const pics = fotos.map((f, i) => `<imagem ordem="${i + 1}">${esc(f.url)}</imagem>`).join("");
+    return `<imovel>
+  <codigo>${esc(im.codigo_interno || im.id)}</codigo>
+  <titulo>${cdata(im.titulo)}</titulo>
+  <descricao>${cdata(im.descricao)}</descricao>
+  <tipo>${esc(mapTipo(im.tipo))}</tipo>
+  <transacao>${/alug|locac/i.test(im.condicao ?? "") ? "Locacao" : "Venda"}</transacao>
+  <preco>${im.preco ?? 0}</preco>
+  <condominio>${im.valor_condominio ?? 0}</condominio>
+  <iptu>${im.valor_iptu ?? 0}</iptu>
+  <area_util>${im.area_privativa ?? ""}</area_util>
+  <area_total>${im.area_total ?? ""}</area_total>
+  <dormitorios>${im.dormitorios ?? 0}</dormitorios>
+  <suites>${im.suites ?? 0}</suites>
+  <banheiros>${im.banheiros ?? 0}</banheiros>
+  <vagas>${im.vagas ?? 0}</vagas>
+  <endereco>
+    <logradouro>${esc(im.logradouro ?? "")}</logradouro>
+    <numero>${esc(im.numero ?? "")}</numero>
+    <bairro>${esc(im.bairro ?? "")}</bairro>
+    <cidade>${esc(im.cidade ?? "")}</cidade>
+    <estado>${esc(im.estado ?? "")}</estado>
+    <cep>${esc(im.cep ?? "")}</cep>
+  </endereco>
+  <fotos>${pics}</fotos>
+</imovel>`;
+  }).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<carga carteira="${esc(carteira.slug)}" nome="${esc(carteira.nome)}">
+${items}
+</carga>`;
+}
+
+export function buildFeedXML(opts: BuildOpts): string {
+  const fmt = opts.portal?.formato_xml ?? "vrsync";
+  switch (fmt) {
+    case "olx": return buildOLXXML(opts);
+    case "imovelweb": return buildImovelWebXML(opts);
+    case "vrsync":
+    default: return buildVRSyncXML(opts);
+  }
 }
