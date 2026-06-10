@@ -1314,6 +1314,81 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          canal_email: boolean
+          canal_push: boolean
+          canal_sistema: boolean
+          canal_whatsapp: boolean
+          created_at: string
+          id: string
+          tipo: Database["public"]["Enums"]["notification_tipo"]
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          canal_email?: boolean
+          canal_push?: boolean
+          canal_sistema?: boolean
+          canal_whatsapp?: boolean
+          created_at?: string
+          id?: string
+          tipo: Database["public"]["Enums"]["notification_tipo"]
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          canal_email?: boolean
+          canal_push?: boolean
+          canal_sistema?: boolean
+          canal_whatsapp?: boolean
+          created_at?: string
+          id?: string
+          tipo?: Database["public"]["Enums"]["notification_tipo"]
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          categoria: Database["public"]["Enums"]["notification_categoria"]
+          created_at: string
+          id: string
+          lida: boolean
+          link: string | null
+          mensagem: string
+          metadata: Json
+          tipo: Database["public"]["Enums"]["notification_tipo"]
+          titulo: string
+          usuario_id: string
+        }
+        Insert: {
+          categoria?: Database["public"]["Enums"]["notification_categoria"]
+          created_at?: string
+          id?: string
+          lida?: boolean
+          link?: string | null
+          mensagem: string
+          metadata?: Json
+          tipo?: Database["public"]["Enums"]["notification_tipo"]
+          titulo: string
+          usuario_id: string
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["notification_categoria"]
+          created_at?: string
+          id?: string
+          lida?: boolean
+          link?: string | null
+          mensagem?: string
+          metadata?: Json
+          tipo?: Database["public"]["Enums"]["notification_tipo"]
+          titulo?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       pagamentos: {
         Row: {
           assinatura_id: string
@@ -1582,12 +1657,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      contar_nao_lidas: { Args: never; Returns: number }
       create_security_alert: {
         Args: {
           p_descricao?: string
           p_metadata?: Json
           p_severidade?: string
           p_tipo: string
+        }
+        Returns: string
+      }
+      criar_notificacao: {
+        Args: {
+          p_categoria?: Database["public"]["Enums"]["notification_categoria"]
+          p_link?: string
+          p_mensagem: string
+          p_metadata?: Json
+          p_tipo: Database["public"]["Enums"]["notification_tipo"]
+          p_titulo: string
+          p_usuario_id: string
         }
         Returns: string
       }
@@ -1636,6 +1724,16 @@ export type Database = {
           valor: number
         }[]
       }
+      get_preferencias_notificacao: {
+        Args: never
+        Returns: {
+          canal_email: boolean
+          canal_push: boolean
+          canal_sistema: boolean
+          canal_whatsapp: boolean
+          tipo: Database["public"]["Enums"]["notification_tipo"]
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1657,6 +1755,13 @@ export type Database = {
           p_user_agent?: string
         }
         Returns: string
+      }
+      marcar_notificacao_lida: { Args: { p_id: string }; Returns: boolean }
+      marcar_todas_lidas: {
+        Args: {
+          p_categoria?: Database["public"]["Enums"]["notification_categoria"]
+        }
+        Returns: number
       }
       pode_editar_carteira: {
         Args: { _carteira_id: string; _user_id: string }
@@ -1686,6 +1791,17 @@ export type Database = {
         | "materiais"
         | "plantas"
         | "outros"
+      notification_categoria: "imoveis" | "xml" | "portais" | "sistema"
+      notification_tipo:
+        | "novo_imovel"
+        | "imovel_atualizado"
+        | "novo_exclusivo"
+        | "novo_bonus"
+        | "xml_atualizado"
+        | "erro_xml"
+        | "publicacao_aprovada"
+        | "publicacao_rejeitada"
+        | "sistema"
       status_obra: "lancamento" | "em_obras" | "pronto" | "entregue"
     }
     CompositeTypes: {
@@ -1833,6 +1949,18 @@ export const Constants = {
         "materiais",
         "plantas",
         "outros",
+      ],
+      notification_categoria: ["imoveis", "xml", "portais", "sistema"],
+      notification_tipo: [
+        "novo_imovel",
+        "imovel_atualizado",
+        "novo_exclusivo",
+        "novo_bonus",
+        "xml_atualizado",
+        "erro_xml",
+        "publicacao_aprovada",
+        "publicacao_rejeitada",
+        "sistema",
       ],
       status_obra: ["lancamento", "em_obras", "pronto", "entregue"],
     },
