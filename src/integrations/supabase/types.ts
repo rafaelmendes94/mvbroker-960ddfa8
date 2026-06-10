@@ -14,6 +14,134 @@ export type Database = {
   }
   public: {
     Tables: {
+      auditoria_acessos: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          evento: string
+          id: string
+          ip: string | null
+          metadata: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          evento: string
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          evento?: string
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      corretores: {
+        Row: {
+          created_at: string
+          creci: string | null
+          email: string | null
+          foto_url: string | null
+          id: string
+          imobiliaria_id: string | null
+          nome: string
+          status: string
+          telefone: string | null
+          updated_at: string
+          user_id: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string
+          creci?: string | null
+          email?: string | null
+          foto_url?: string | null
+          id?: string
+          imobiliaria_id?: string | null
+          nome: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string
+          creci?: string | null
+          email?: string | null
+          foto_url?: string | null
+          id?: string
+          imobiliaria_id?: string | null
+          nome?: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corretores_imobiliaria_id_fkey"
+            columns: ["imobiliaria_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imobiliarias: {
+        Row: {
+          cnpj: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nome_fantasia: string
+          owner_id: string | null
+          razao_social: string | null
+          site: string | null
+          status: string
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome_fantasia: string
+          owner_id?: string | null
+          razao_social?: string | null
+          site?: string | null
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome_fantasia?: string
+          owner_id?: string | null
+          razao_social?: string | null
+          site?: string | null
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -71,6 +199,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role:
