@@ -425,7 +425,7 @@ export default function Properties() {
   useEffect(() => {
     if (!user) return;
     supabase.rpc("count_imoveis_in_subscription", { _user_id: user.id })
-      .then(({ data }) => setCurrentImoveis(Number(data) || 0));
+      .then(({ data }: any) => setCurrentImoveis(Number(data) || 0));
   }, [user, subscription?.id]);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -460,9 +460,9 @@ export default function Properties() {
   const setSelectedProperty = (p: Property | null) => {
     setSelectedPropertyState(p);
     if (p) {
-      setSearchParams(prev => { prev.set("property", p.id); return prev; }, { replace: true });
+      setSearchParams(prev: any => { prev.set("property", p.id); return prev; }, { replace: true });
     } else {
-      setSearchParams(prev => { prev.delete("property"); return prev; }, { replace: true });
+      setSearchParams(prev: any => { prev.delete("property"); return prev; }, { replace: true });
     }
   };
 
@@ -483,7 +483,7 @@ export default function Properties() {
   const handleCatDragOver = (e: React.DragEvent, idx: number) => {
     e.preventDefault();
     if (dragCatRef.current === null || dragCatRef.current === idx) return;
-    setCategories(prev => {
+    setCategories(prev: any => {
       const updated = [...prev];
       const [moved] = updated.splice(dragCatRef.current!, 1);
       updated.splice(idx, 0, moved);
@@ -523,7 +523,7 @@ export default function Properties() {
       }
       const normalizePhone = (v: string) => (v || "").replace(/\D/g, "");
 
-      const mapped: Property[] = (data || []).map((row, index) => {
+      const mapped: Property[] = (data || []).map((row: any, index: number) => {
         const owner = profilesById[(row as any).user_id];
         return {
         id: row.id,
@@ -603,7 +603,7 @@ export default function Properties() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const { data } = await supabase.from("favorites").select("imovel_id").eq("user_id", user.id);
-      if (data) setFavoriteIds(data.map(f => f.imovel_id));
+      if (data) setFavoriteIds(data.map((f: any) => f.imovel_id));
     };
     loadFavorites();
   }, []);
@@ -625,7 +625,7 @@ export default function Properties() {
   const toggleFavorite = async (id: string) => {
     const isFav = favoriteIds.includes(id);
     // Optimistic update
-    setFavoriteIds(prev => isFav ? prev.filter(x => x !== id) : [...prev, id]);
+    setFavoriteIds(prev: any => isFav ? prev.filter(x => x !== id) : [...prev, id]);
     
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -638,7 +638,7 @@ export default function Properties() {
   };
 
   const toggleRoute = (id: string) => {
-    setRouteIds((prev) => {
+    setRouteIds((prev: any) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
       localStorage.setItem("mv-route-ids", JSON.stringify(next));
       return next;
@@ -690,7 +690,7 @@ export default function Properties() {
         : {};
     const ok = await persistStatus(propertyId, newStatus, extra);
     if (!ok) return;
-    setPropertyList((prev) =>
+    setPropertyList((prev: any) =>
       prev.map((p) =>
         p.id === propertyId
           ? { ...p, status: newStatus, ...(extra.plataforma_venda !== undefined ? { plataformaVenda: "", dataVenda: "" } : {}) }
@@ -707,7 +707,7 @@ export default function Properties() {
       data_venda: saleDate,
     });
     if (!ok) return;
-    setPropertyList((prev) =>
+    setPropertyList((prev: any) =>
       prev.map((p) =>
         p.id === propertyId
           ? { ...p, status: "Vendido", plataformaVenda: platform, dataVenda: saleDate, updatedAt: new Date().toISOString() }
@@ -726,18 +726,18 @@ export default function Properties() {
       const { error } = await supabase.from("imoveis").delete().eq("id", propertyId);
       if (error) { toast.error("Erro ao excluir imóvel"); return; }
     }
-    setPropertyList((prev) => prev.filter((p) => p.id !== propertyId));
+    setPropertyList((prev: any) => prev.filter((p) => p.id !== propertyId));
     setDeleteConfirmId(null);
     toast.success("Imóvel excluído com sucesso!");
   };
 
   const handlePriceChange = (propertyId: string, field: "price" | "priceInstallment", value: number) => {
-    setPropertyList((prev) => prev.map((p) => (p.id === propertyId ? { ...p, [field]: value } : p)));
+    setPropertyList((prev: any) => prev.map((p) => (p.id === propertyId ? { ...p, [field]: value } : p)));
     toast.success("Valor atualizado!");
   };
 
   const handleDealLabelChange = (propertyId: string, label: Property["dealLabel"]) => {
-    setPropertyList((prev) => prev.map((p) => (p.id === propertyId ? { ...p, dealLabel: label } : p)));
+    setPropertyList((prev: any) => prev.map((p) => (p.id === propertyId ? { ...p, dealLabel: label } : p)));
     toast.success(label ? `Classificado como "${label}"` : "Classificação removida");
   };
 
@@ -787,7 +787,7 @@ export default function Properties() {
   };
 
   const handleQuickUpdate = (id: string) => {
-    setPropertyList((prev) =>
+    setPropertyList((prev: any) =>
       prev.map((p) => (p.id === id ? { ...p, updatedAt: new Date().toISOString() } : p))
     );
     toast.success("Data de atualização renovada!");
@@ -807,7 +807,7 @@ export default function Properties() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setPropertyList(prev => [duplicate, ...prev]);
+    setPropertyList(prev: any => [duplicate, ...prev]);
     toast.success("Imóvel duplicado com sucesso!");
   };
 
@@ -1523,7 +1523,7 @@ export default function Properties() {
       {/* Favorites Modal */}
       {showFavoritesModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1500] flex items-center justify-center p-4" onClick={() => setShowFavoritesModal(false)}>
-          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col" onClick={(e: any) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                 <Heart className="w-5 h-5 text-accent fill-current" /> Minha Lista ({favoriteIds.length})
@@ -1602,7 +1602,7 @@ export default function Properties() {
       {/* Mobile Filters Modal */}
       {showMobileFilters && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1500] flex items-end sm:hidden" onClick={() => setShowMobileFilters(false)}>
-          <div className="bg-card rounded-t-2xl w-full max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-t-2xl w-full max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300" onClick={(e: any) => e.stopPropagation()}>
             <div className="sticky top-0 bg-card border-b border-border px-4 py-3 flex items-center justify-between z-10">
               <h3 className="text-base font-bold text-foreground flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4" /> Filtros
@@ -1742,7 +1742,7 @@ export default function Properties() {
         brokerInfo={brokerInfo}
         onSelectSimilar={(p) => setSelectedProperty(p)}
         onUpdateProperty={(updated) => {
-          setPropertyList((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+          setPropertyList((prev: any) => prev.map((p) => (p.id === updated.id ? updated : p)));
           setSelectedProperty(updated);
         }}
         onFilterByTitle={(title) => { setSelectedProperty(null); setSearch(title.split(" ").slice(0, 2).join(" ")); setActiveCategory("todos"); }}
@@ -1752,7 +1752,7 @@ export default function Properties() {
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteConfirmId(null)}>
-          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4" onClick={(e: any) => e.stopPropagation()}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
                 <Trash2 className="w-5 h-5 text-destructive" />
@@ -1780,7 +1780,7 @@ export default function Properties() {
 
       {viewingTerm && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setViewingTerm(null)}>
-          <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden" onClick={(e: any) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
                 <FileCheck className="w-5 h-5 text-accent" />
@@ -2115,7 +2115,7 @@ function PropertyCard({
                     `/empreendimento/${property.empreendimento.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`
                   }
                   className="text-[12px] font-bold text-foreground uppercase tracking-wide bg-accent/10 px-1.5 py-0.5 rounded hover:bg-accent/20 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e: any) => e.stopPropagation()}
                   title="Abrir página do edifício/condomínio/loteamento"
                 >
                   {cleanEmpreendimentoName(property.empreendimento)}
@@ -2180,7 +2180,7 @@ function PropertyCard({
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-[11px] font-bold hover:bg-emerald-700 transition-colors shadow-sm"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: any) => e.stopPropagation()}
           >
             <Phone className="w-3 h-3" /> WhatsApp
           </a>
@@ -2192,7 +2192,7 @@ function PropertyCard({
             <>
               <Link
                 to={`/editar-imovel/${property.id}`}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e: any) => e.stopPropagation()}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 text-[11px] font-bold hover:bg-amber-500/20 transition-colors"
               >
                 <Pencil className="w-3 h-3" /> Editar
@@ -2275,7 +2275,7 @@ function InlinePrice({ value, onChange, className }: { value: number; onChange: 
         onBlur={commit}
         onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
         className={cn("bg-transparent border-b border-primary outline-none text-right w-[120px]", className)}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e: any) => e.stopPropagation()}
       />
     );
   }
@@ -2535,7 +2535,7 @@ function PropertyRow({
                     `/empreendimento/${property.empreendimento.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`
                   }
                   className="font-black text-foreground uppercase text-[13px] tracking-wide px-3 py-0.5 rounded-md border border-border bg-background hover:bg-muted transition-colors shadow-sm"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e: any) => e.stopPropagation()}
                   title="Abrir página do edifício/condomínio/loteamento"
                 >{cleanEmpreendimentoName(property.empreendimento)}</Link>
               )}
@@ -2628,7 +2628,7 @@ function PropertyRow({
         </div>
 
         {/* ── COL 3: Financeiro ── */}
-        <div className="w-full md:flex-1 md:min-w-[230px] md:max-w-[260px] flex-shrink-0 md:border-r border-border px-4 py-3 flex flex-col justify-center gap-1 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full md:flex-1 md:min-w-[230px] md:max-w-[260px] flex-shrink-0 md:border-r border-border px-4 py-3 flex flex-col justify-center gap-1 overflow-hidden" onClick={(e: any) => e.stopPropagation()}>
           {/* Main price */}
           <div className="flex items-center gap-1.5 mb-0.5">
             <Banknote className="w-3.5 h-3.5 text-primary" />
@@ -2699,7 +2699,7 @@ function PropertyRow({
         </div>
 
         {/* ── COL 3.5: Analytics ── */}
-        <div className="w-full md:flex-1 md:min-w-[200px] md:max-w-[220px] flex-shrink-0 md:border-r border-border px-4 py-3 flex flex-col justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full md:flex-1 md:min-w-[200px] md:max-w-[220px] flex-shrink-0 md:border-r border-border px-4 py-3 flex flex-col justify-center gap-2" onClick={(e: any) => e.stopPropagation()}>
           <div className="flex items-center gap-1.5 mb-0.5">
             <BarChart3 className="w-3.5 h-3.5 text-primary" />
             <span className="text-[11px] font-black text-primary uppercase tracking-wider">Analytics</span>
@@ -2726,7 +2726,7 @@ function PropertyRow({
         </div>
 
         {/* ── COL 4: Corretor + Chaves + Datas + Status ── */}
-        <div className="w-full md:flex-1 md:min-w-[220px] md:max-w-[240px] flex-shrink-0 md:border-r border-border px-4 py-3 flex flex-col justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full md:flex-1 md:min-w-[220px] md:max-w-[240px] flex-shrink-0 md:border-r border-border px-4 py-3 flex flex-col justify-center gap-1.5" onClick={(e: any) => e.stopPropagation()}>
           <div className="flex items-center gap-1.5 mb-0.5">
             <User className="w-3.5 h-3.5 text-primary" />
             <span className="text-[11px] font-black text-primary uppercase tracking-wider">Corretor</span>
@@ -2796,7 +2796,7 @@ function PropertyRow({
         </div>
 
         {/* ── COL 5: Ações (ícones) ── */}
-        <div className="w-full md:w-[52px] flex-shrink-0 flex flex-row md:flex-col items-center justify-start gap-1.5 py-2 px-3 md:px-0" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full md:w-[52px] flex-shrink-0 flex flex-row md:flex-col items-center justify-start gap-1.5 py-2 px-3 md:px-0" onClick={(e: any) => e.stopPropagation()}>
           {canManage && (
             <button
               onClick={() => window.location.href = `/editar-imovel/${property.id}`}
@@ -2884,7 +2884,7 @@ function SiteToggleButton({ propertyId, field, icon: Icon, activeColor, title, s
       setExistsInDb(false);
       return;
     }
-    supabase.from("imoveis").select(field).eq("id", propertyId).maybeSingle().then(({ data }) => {
+    supabase.from("imoveis").select(field).eq("id", propertyId).maybeSingle().then(({ data }: any) => {
       if (data) {
         setExistsInDb(true);
         setActive(!!(data as any)[field]);
@@ -2965,7 +2965,7 @@ function DestaqueSelector({ propertyId, compact }: { propertyId: string; compact
       setExistsInDb(false);
       return;
     }
-    supabase.from("imoveis").select("destaque_categoria").eq("id", propertyId).maybeSingle().then(({ data }) => {
+    supabase.from("imoveis").select("destaque_categoria").eq("id", propertyId).maybeSingle().then(({ data }: any) => {
       if (data) {
         setExistsInDb(true);
         setValue((data as any).destaque_categoria || "");
