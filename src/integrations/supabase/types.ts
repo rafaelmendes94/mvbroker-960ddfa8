@@ -1412,6 +1412,46 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_security_alert: {
+        Args: {
+          p_descricao?: string
+          p_metadata?: Json
+          p_severidade?: string
+          p_tipo: string
+        }
+        Returns: string
+      }
+      get_corretor_contato: {
+        Args: { p_corretor_id: string }
+        Returns: {
+          email: string
+          telefone: string
+          whatsapp: string
+        }[]
+      }
+      get_imobiliaria_contato: {
+        Args: { p_imobiliaria_id: string }
+        Returns: {
+          cnpj: string
+          email: string
+          telefone: string
+        }[]
+      }
+      get_imovel_internal: {
+        Args: { p_imovel_id: string }
+        Returns: {
+          comissao_percentual: number
+          local_chaves: string
+          observacoes_internas: string
+          pdf_comercial_path: string
+          responsavel_email: string
+          responsavel_nome: string
+          responsavel_telefone: string
+          responsavel_whatsapp: string
+          termo_exclusividade_path: string
+          valor_comissao: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1420,6 +1460,20 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      log_action: {
+        Args: {
+          p_acao: string
+          p_dados_anteriores?: Json
+          p_dados_novos?: Json
+          p_descricao?: string
+          p_modulo: string
+          p_registro_id?: string
+          p_registro_tipo?: string
+          p_status?: string
+          p_user_agent?: string
+        }
+        Returns: string
+      }
       pode_editar_carteira: {
         Args: { _carteira_id: string; _user_id: string }
         Returns: boolean
