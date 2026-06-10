@@ -139,6 +139,30 @@ export type Database = {
         }
         Relationships: []
       }
+      buscas_salvas: {
+        Row: {
+          created_at: string
+          filtros_json: Json
+          id: string
+          nome: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          filtros_json?: Json
+          id?: string
+          nome: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          filtros_json?: Json
+          id?: string
+          nome?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       condominios: {
         Row: {
           area_total: number | null
@@ -817,6 +841,35 @@ export type Database = {
             columns: ["imobiliaria_id"]
             isOneToOne: false
             referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imoveis_favoritos: {
+        Row: {
+          created_at: string
+          id: string
+          imovel_id: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          imovel_id: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          imovel_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imoveis_favoritos_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
             referencedColumns: ["id"]
           },
         ]
