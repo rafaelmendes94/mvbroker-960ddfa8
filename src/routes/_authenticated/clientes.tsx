@@ -78,6 +78,9 @@ function ClientesPage() {
   const [trocaPlanoId, setTrocaPlanoId] = useState("");
   const [trocaCiclo, setTrocaCiclo] = useState<"mensal" | "anual">("mensal");
 
+  const [credOpen, setCredOpen] = useState(false);
+  const [cred, setCred] = useState<{ email: string; senha: string } | null>(null);
+
   async function load() {
     setLoading(true);
     const [{ data: planData }, { data: imobs }, { data: corrs }, { data: ass }, { data: corrCount }] = await Promise.all([
