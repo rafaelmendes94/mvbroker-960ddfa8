@@ -1788,6 +1788,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      imobiliaria_limite_corretores: {
+        Args: { p_imob: string }
+        Returns: {
+          limite: number
+          usados: number
+        }[]
+      }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       log_action: {
         Args: {
