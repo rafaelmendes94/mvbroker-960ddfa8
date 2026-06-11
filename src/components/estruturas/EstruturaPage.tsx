@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { Plus, Search, Pencil, Trash2, Building2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import * as XLSX from "xlsx";
+import { Plus, Search, Pencil, Trash2, Building2, Download, Upload, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +22,22 @@ import { MapPicker } from "@/components/forms/MapPicker";
 import { InfraestruturaSelect } from "@/components/forms/InfraestruturaSelect";
 import { GaleriaUpload, type EstruturaTipo } from "@/components/forms/GaleriaUpload";
 import { logAudit } from "@/lib/audit";
+import { useAuth } from "@/hooks/use-auth";
+
+function parseLatLngFromUrl(url: string): { lat: number | null; lng: number | null } {
+  if (!url) return { lat: null, lng: null };
+  const patterns = [
+    /@(-?\d+\.\d+),(-?\d+\.\d+)/,
+    /[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/,
+    /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,
+    /(-?\d+\.\d+),\s*(-?\d+\.\d+)/,
+  ];
+  for (const re of patterns) {
+    const m = url.match(re);
+    if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  }
+  return { lat: null, lng: null };
+}
 
 export type BaseEstrutura = {
   id: string;
