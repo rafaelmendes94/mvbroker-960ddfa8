@@ -344,7 +344,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                   <TableHead>Código</TableHead>
                   <TableHead>Cidade</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-[100px]"></TableHead>
+                  <TableHead className="w-[220px] text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
