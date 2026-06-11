@@ -7,7 +7,7 @@ import { BackButton } from "@/components/BackButton";
 import { PropertyMap } from "@/components/PropertyMap";
 import { PropertyDetailModal } from "@/components/PropertyDetailModal";
 import { RoutePlanner } from "@/components/RoutePlanner";
-import { SharkAI } from "@/components/SharkAI";
+
 import { PartnersAdSlider } from "@/components/PartnersAdSlider";
 import { SoldConfirmDialog, SoldConfirmPayload } from "@/components/SoldConfirmDialog";
 import { properties as initialProperties, salesRecords, formatCurrency, Property } from "@/data/mockData";
@@ -648,18 +648,27 @@ export default function Properties() {
   }, []);
 
   const toggleFavorite = async (id: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Faça login para favoritar imóveis");
+      return;
+    }
+
     const isFav = favoriteIds.includes(id);
     // Optimistic update
     setFavoriteIds((prev: any) => isFav ? prev.filter((x: any) => x !== id) : [...prev, id]);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const { error } = isFav
+      ? await supabase.from("imoveis_favoritos").delete().eq("usuario_id", user.id).eq("imovel_id", id)
+      : await supabase.from("imoveis_favoritos").insert({ usuario_id: user.id, imovel_id: id });
 
-    if (isFav) {
-      await supabase.from("imoveis_favoritos").delete().eq("usuario_id", user.id).eq("imovel_id", id);
-    } else {
-      await supabase.from("imoveis_favoritos").insert({ usuario_id: user.id, imovel_id: id });
+    if (error) {
+      // Rollback
+      setFavoriteIds((prev: any) => isFav ? [...prev, id] : prev.filter((x: any) => x !== id));
+      toast.error(isFav ? "Erro ao remover favorito" : "Erro ao favoritar");
+      return;
     }
+    toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
   };
 
 
@@ -1744,7 +1753,7 @@ export default function Properties() {
 
       {/* Floating tools */}
       <RoutePlanner properties={routeProperties} />
-      <SharkAI properties={propertyList} onSelectProperty={setSelectedProperty} />
+      
 
       {/* Sold confirmation dialog */}
       <SoldConfirmDialog
