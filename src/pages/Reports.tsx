@@ -947,7 +947,12 @@ function RankingBarCard({ title, data, colors }: { title: string; data: { name: 
 
 function RankingListCard({ title, icon: Icon, data, colors, sales, field }: { title: string; icon: React.ElementType; data: { name: string; count: number; vgv: number }[]; colors?: Record<string, string>; sales?: RealSaleRecord[]; field?: "edificio" | "condominio" | "empreendimento" }) {
   const [openName, setOpenName] = useState<string | null>(null);
-  if (data.length === 0) return null;
+  if (data.length === 0) return (
+    <div className="elevated-card rounded-xl p-5">
+      <h3 className="text-sm font-semibold text-card-foreground mb-3 flex items-center gap-2"><Icon className="w-4 h-4 text-accent" /> {title}</h3>
+      <p className="text-sm text-muted-foreground text-center py-10">Sem dados no período</p>
+    </div>
+  );
   const matched = openName && sales && field ? sales.filter(s => (s[field] || "") === openName) : [];
   const totalVgv = matched.reduce((sum, s) => sum + s.price, 0);
   return (
