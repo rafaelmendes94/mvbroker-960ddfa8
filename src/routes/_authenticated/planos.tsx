@@ -35,6 +35,7 @@ type Plano = {
   recursos: string[];
   limite_usuarios: number | null;
   limite_carteiras: number | null;
+  permite_exportacao: boolean;
   ativo: boolean;
   ordem: number;
 };
@@ -42,7 +43,7 @@ type Plano = {
 const empty = {
   nome: "", descricao: "", tipo: "individual" as "individual" | "imobiliaria",
   preco_mensal: 0, preco_anual: 0, recursos: "", limite_usuarios: "",
-  limite_carteiras: "", ativo: true, ordem: 0,
+  limite_carteiras: "", permite_exportacao: true, ativo: true, ordem: 0,
 };
 
 const fmtBRL = (n: number | null) =>
@@ -75,6 +76,7 @@ function PlanosPage() {
       recursos: (p.recursos ?? []).join("\n"),
       limite_usuarios: p.limite_usuarios?.toString() ?? "",
       limite_carteiras: p.limite_carteiras?.toString() ?? "",
+      permite_exportacao: p.permite_exportacao !== false,
       ativo: p.ativo, ordem: p.ordem,
     });
     setOpen(true);
@@ -89,6 +91,7 @@ function PlanosPage() {
       recursos: form.recursos.split("\n").map((s) => s.trim()).filter(Boolean),
       limite_usuarios: form.limite_usuarios ? Number(form.limite_usuarios) : null,
       limite_carteiras: form.limite_carteiras ? Number(form.limite_carteiras) : null,
+      permite_exportacao: !!form.permite_exportacao,
       ativo: form.ativo, ordem: Number(form.ordem) || 0,
     };
     const { error } = editing
@@ -200,6 +203,10 @@ function PlanosPage() {
             <div className="sm:col-span-2 space-y-2">
               <Label>Recursos (um por linha)</Label>
               <Textarea rows={5} value={form.recursos} onChange={(e) => setForm({ ...form, recursos: e.target.value })} />
+            </div>
+            <div className="sm:col-span-2 flex items-center gap-3">
+              <Switch checked={!!form.permite_exportacao} onCheckedChange={(v) => setForm({ ...form, permite_exportacao: v })} />
+              <Label>Permite exportar imóveis</Label>
             </div>
             <div className="sm:col-span-2 flex items-center gap-3">
               <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} />
