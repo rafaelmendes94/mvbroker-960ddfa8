@@ -2,7 +2,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { formatCurrency } from "@/data/mockData";
 import type { RealSaleRecord } from "@/hooks/useReportData";
-import logoUrl from "@/assets/logo-mv.png";
+import logoAsset from "@/assets/logo-mv.png.asset.json";
+const logoUrl = logoAsset.url;
 
 async function loadImageAsDataUrl(url: string): Promise<string | null> {
   try {
