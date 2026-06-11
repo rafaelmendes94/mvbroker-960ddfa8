@@ -25,7 +25,7 @@ export const IMOVEL_PUBLIC_COLUMNS = [
   "data_captacao", "responsavel_captacao",
   "exclusivo", "compartilhamento_permitido", "comissao_compartilhada",
   "data_vencimento_exclusividade", "portais_permitidos", "prioridade_xml",
-  "ultima_exportacao", "status_exportacao", "arquivado",
+  "ultima_exportacao", "status_exportacao", "exportacao_liberada", "arquivado",
   "created_by", "created_at", "updated_at",
 ].join(", ");
 
