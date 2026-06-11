@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
+import { Route as AuthenticatedTabelaRouteImport } from './routes/_authenticated/tabela'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedRegularizacaoRouteImport } from './routes/_authenticated/regularizacao'
@@ -102,6 +103,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedTabelaRoute = AuthenticatedTabelaRouteImport.update({
+  id: '/tabela',
+  path: '/tabela',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSegurancaRoute = AuthenticatedSegurancaRouteImport.update({
@@ -471,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/relatorios': typeof AuthenticatedRelatoriosRouteWithChildren
   '/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
+  '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
@@ -530,6 +537,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/regularizacao': typeof AuthenticatedRegularizacaoRoute
+  '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
@@ -598,6 +606,7 @@ export interface FileRoutesById {
   '/_authenticated/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRouteWithChildren
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
+  '/_authenticated/tabela': typeof AuthenticatedTabelaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/_authenticated/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/_authenticated/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
@@ -666,6 +675,7 @@ export interface FileRouteTypes {
     | '/regularizacao'
     | '/relatorios'
     | '/seguranca'
+    | '/tabela'
     | '/usuarios'
     | '/assinaturas/$id'
     | '/carteiras/$id'
@@ -725,6 +735,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/planos'
     | '/regularizacao'
+    | '/tabela'
     | '/usuarios'
     | '/assinaturas/$id'
     | '/carteiras/$id'
@@ -792,6 +803,7 @@ export interface FileRouteTypes {
     | '/_authenticated/regularizacao'
     | '/_authenticated/relatorios'
     | '/_authenticated/seguranca'
+    | '/_authenticated/tabela'
     | '/_authenticated/usuarios'
     | '/_authenticated/assinaturas/$id'
     | '/_authenticated/carteiras/$id'
@@ -881,6 +893,13 @@ declare module '@tanstack/react-router' {
       path: '/usuarios'
       fullPath: '/usuarios'
       preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tabela': {
+      id: '/_authenticated/tabela'
+      path: '/tabela'
+      fullPath: '/tabela'
+      preLoaderRoute: typeof AuthenticatedTabelaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/seguranca': {
@@ -1519,6 +1538,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRegularizacaoRoute: typeof AuthenticatedRegularizacaoRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRouteWithChildren
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRouteWithChildren
+  AuthenticatedTabelaRoute: typeof AuthenticatedTabelaRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
   AuthenticatedEmpreendimentosTipoIdRoute: typeof AuthenticatedEmpreendimentosTipoIdRoute
 }
@@ -1549,6 +1569,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRegularizacaoRoute: AuthenticatedRegularizacaoRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRouteWithChildren,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRouteWithChildren,
+  AuthenticatedTabelaRoute: AuthenticatedTabelaRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
   AuthenticatedEmpreendimentosTipoIdRoute:
     AuthenticatedEmpreendimentosTipoIdRoute,

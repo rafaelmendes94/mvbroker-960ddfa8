@@ -16,6 +16,7 @@ import { primaryRole, ROLE_LABEL } from "@/lib/permissions";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "@tanstack/react-router";
+import { BaixarTabelaButton } from "@/components/dashboard/BaixarTabelaButton";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — MV Broker" }] }),
@@ -85,7 +86,12 @@ function Dashboard() {
       <PageHeader
         title={title}
         description={desc}
-        actions={<Badge variant="secondary" className="text-xs">Perfil: {ROLE_LABEL[role]}</Badge>}
+        actions={
+          <div className="flex items-center gap-2">
+            <BaixarTabelaButton />
+            <Badge variant="secondary" className="text-xs">Perfil: {ROLE_LABEL[role]}</Badge>
+          </div>
+        }
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
@@ -296,7 +302,12 @@ function ComercialDashboard({ roleLabel }: { roleLabel: string }) {
       <PageHeader
         title="Meu Dashboard"
         description="Resumo da sua atividade na plataforma."
-        actions={<Badge variant="secondary" className="text-xs">Perfil: {roleLabel}</Badge>}
+        actions={
+          <div className="flex items-center gap-2">
+            <BaixarTabelaButton />
+            <Badge variant="secondary" className="text-xs">Perfil: {roleLabel}</Badge>
+          </div>
+        }
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
