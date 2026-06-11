@@ -242,7 +242,7 @@ function LandingPage() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
               <a href="#planos">
-                <Button size="lg" className="w-full bg-[#ffffff] px-8 text-base font-semibold text-white shadow-lg hover:bg-[#ffffff]/90 sm:w-auto">
+                <Button size="lg" className="w-full bg-white px-8 text-base font-semibold text-[#020617] shadow-lg hover:bg-white/90 sm:w-auto">
                   Assinar Plano
                 </Button>
               </a>
