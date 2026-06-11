@@ -121,6 +121,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <HostRedirect />
         <Outlet />
         <Toaster richColors position="top-right" />
       </TooltipProvider>
