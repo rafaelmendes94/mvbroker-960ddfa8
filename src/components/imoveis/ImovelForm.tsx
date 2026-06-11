@@ -375,46 +375,46 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
           <p className="text-xs text-muted-foreground">Ao selecionar uma estrutura, os dados de endereço e infraestrutura serão herdados automaticamente.</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Field label="Edifício">
-              <Select value={form.edificio_id ?? ""} onValueChange={(v) => selectVinculo("edificio", v)}>
+              <Select value={form.edificio_id ?? "__none__"} onValueChange={(v) => selectVinculo("edificio", v)}>
                 <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">—</SelectItem>
+                  <SelectItem value="__none__">—</SelectItem>
                   {edificios.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Field>
             <Field label="Condomínio">
-              <Select value={form.condominio_id ?? ""} onValueChange={(v) => selectVinculo("condominio", v)}>
+              <Select value={form.condominio_id ?? "__none__"} onValueChange={(v) => selectVinculo("condominio", v)}>
                 <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">—</SelectItem>
+                  <SelectItem value="__none__">—</SelectItem>
                   {condominios.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Field>
             <Field label="Loteamento">
-              <Select value={form.loteamento_id ?? ""} onValueChange={(v) => selectVinculo("loteamento", v)}>
+              <Select value={form.loteamento_id ?? "__none__"} onValueChange={(v) => selectVinculo("loteamento", v)}>
                 <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">—</SelectItem>
+                  <SelectItem value="__none__">—</SelectItem>
                   {loteamentos.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Field>
             <Field label="Imobiliária">
-              <Select value={form.imobiliaria_id ?? ""} onValueChange={(v) => set("imobiliaria_id", v || null)}>
+              <Select value={form.imobiliaria_id ?? "__none__"} onValueChange={(v) => set("imobiliaria_id", v && v !== "__none__" ? v : null)}>
                 <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">—</SelectItem>
+                  <SelectItem value="__none__">—</SelectItem>
                   {imobiliarias.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Field>
             <Field label="Corretor">
-              <Select value={form.corretor_id ?? ""} onValueChange={(v) => set("corretor_id", v || null)}>
+              <Select value={form.corretor_id ?? "__none__"} onValueChange={(v) => set("corretor_id", v && v !== "__none__" ? v : null)}>
                 <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">—</SelectItem>
+                  <SelectItem value="__none__">—</SelectItem>
                   {corretores.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
