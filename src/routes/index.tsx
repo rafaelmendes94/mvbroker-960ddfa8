@@ -365,15 +365,15 @@ function LandingPage() {
             {PLANS.map((p) => (
               <div key={p.name} className="flex flex-col overflow-hidden rounded-xl bg-white shadow-xl">
                 <div className="flex-1 p-7">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ffffff] text-white">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#020617] text-white">
                     <p.icon className="h-7 w-7" />
                   </div>
-                  <h3 className="mt-5 text-xl font-bold text-[#ffffff]">Plano {p.name}</h3>
+                  <h3 className="mt-5 text-xl font-bold text-[#020617]">Plano {p.name}</h3>
                   <p className="mt-1 text-sm text-slate-600">{p.desc}</p>
                   <ul className="mt-6 space-y-2.5">
                     {p.items.map((it) => (
                       <li key={it} className="flex items-start gap-2 text-sm text-slate-700">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#ffffff]" />
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#020617]" />
                         <span>{it}</span>
                       </li>
                     ))}
@@ -384,7 +384,7 @@ function LandingPage() {
                     className={`w-full py-3.5 text-sm font-semibold transition-colors ${
                       p.dark
                         ? "bg-[#020617] text-white hover:bg-[#020617]/90"
-                        : "bg-[#ffffff] text-white hover:bg-[#ffffff]/90"
+                        : "bg-[#020617] text-white hover:bg-[#020617]/90"
                     }`}
                   >
                     {p.cta}
