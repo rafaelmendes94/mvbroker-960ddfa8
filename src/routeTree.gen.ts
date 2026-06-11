@@ -42,7 +42,6 @@ import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAssinaturasRouteImport } from './routes/_authenticated/assinaturas'
 import { Route as AuthenticatedAcessoNegadoRouteImport } from './routes/_authenticated/acesso-negado'
 import { Route as AuthenticatedSegurancaIndexRouteImport } from './routes/_authenticated/seguranca.index'
-import { Route as AuthenticatedRelatoriosIndexRouteImport } from './routes/_authenticated/relatorios.index'
 import { Route as AuthenticatedRegistrosIndexRouteImport } from './routes/_authenticated/registros.index'
 import { Route as AuthenticatedPortaisIndexRouteImport } from './routes/_authenticated/portais.index'
 import { Route as AuthenticatedImportacoesIndexRouteImport } from './routes/_authenticated/importacoes.index'
@@ -249,12 +248,6 @@ const AuthenticatedSegurancaIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedSegurancaRoute,
-  } as any)
-const AuthenticatedRelatoriosIndexRoute =
-  AuthenticatedRelatoriosIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedRelatoriosRoute,
   } as any)
 const AuthenticatedRegistrosIndexRoute =
   AuthenticatedRegistrosIndexRouteImport.update({
@@ -475,7 +468,7 @@ export interface FileRoutesByFullPath {
   '/portais': typeof AuthenticatedPortaisRouteWithChildren
   '/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/regularizacao': typeof AuthenticatedRegularizacaoRoute
-  '/relatorios': typeof AuthenticatedRelatoriosRouteWithChildren
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
@@ -506,7 +499,6 @@ export interface FileRoutesByFullPath {
   '/importacoes/': typeof AuthenticatedImportacoesIndexRoute
   '/portais/': typeof AuthenticatedPortaisIndexRoute
   '/registros/': typeof AuthenticatedRegistrosIndexRoute
-  '/relatorios/': typeof AuthenticatedRelatoriosIndexRoute
   '/seguranca/': typeof AuthenticatedSegurancaIndexRoute
   '/empreendimentos/$tipo/$id': typeof AuthenticatedEmpreendimentosTipoIdRoute
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
@@ -537,6 +529,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/planos': typeof AuthenticatedPlanosRoute
   '/regularizacao': typeof AuthenticatedRegularizacaoRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
@@ -566,7 +559,6 @@ export interface FileRoutesByTo {
   '/importacoes': typeof AuthenticatedImportacoesIndexRoute
   '/portais': typeof AuthenticatedPortaisIndexRoute
   '/registros': typeof AuthenticatedRegistrosIndexRoute
-  '/relatorios': typeof AuthenticatedRelatoriosIndexRoute
   '/seguranca': typeof AuthenticatedSegurancaIndexRoute
   '/empreendimentos/$tipo/$id': typeof AuthenticatedEmpreendimentosTipoIdRoute
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
@@ -604,7 +596,7 @@ export interface FileRoutesById {
   '/_authenticated/portais': typeof AuthenticatedPortaisRouteWithChildren
   '/_authenticated/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/_authenticated/regularizacao': typeof AuthenticatedRegularizacaoRoute
-  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRouteWithChildren
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/_authenticated/tabela': typeof AuthenticatedTabelaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
@@ -635,7 +627,6 @@ export interface FileRoutesById {
   '/_authenticated/importacoes/': typeof AuthenticatedImportacoesIndexRoute
   '/_authenticated/portais/': typeof AuthenticatedPortaisIndexRoute
   '/_authenticated/registros/': typeof AuthenticatedRegistrosIndexRoute
-  '/_authenticated/relatorios/': typeof AuthenticatedRelatoriosIndexRoute
   '/_authenticated/seguranca/': typeof AuthenticatedSegurancaIndexRoute
   '/_authenticated/empreendimentos/$tipo/$id': typeof AuthenticatedEmpreendimentosTipoIdRoute
   '/_authenticated/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
@@ -704,7 +695,6 @@ export interface FileRouteTypes {
     | '/importacoes/'
     | '/portais/'
     | '/registros/'
-    | '/relatorios/'
     | '/seguranca/'
     | '/empreendimentos/$tipo/$id'
     | '/imoveis/$id/editar'
@@ -735,6 +725,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/planos'
     | '/regularizacao'
+    | '/relatorios'
     | '/tabela'
     | '/usuarios'
     | '/assinaturas/$id'
@@ -764,7 +755,6 @@ export interface FileRouteTypes {
     | '/importacoes'
     | '/portais'
     | '/registros'
-    | '/relatorios'
     | '/seguranca'
     | '/empreendimentos/$tipo/$id'
     | '/imoveis/$id/editar'
@@ -832,7 +822,6 @@ export interface FileRouteTypes {
     | '/_authenticated/importacoes/'
     | '/_authenticated/portais/'
     | '/_authenticated/registros/'
-    | '/_authenticated/relatorios/'
     | '/_authenticated/seguranca/'
     | '/_authenticated/empreendimentos/$tipo/$id'
     | '/_authenticated/imoveis/$id/editar'
@@ -1083,13 +1072,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/seguranca/'
       preLoaderRoute: typeof AuthenticatedSegurancaIndexRouteImport
       parentRoute: typeof AuthenticatedSegurancaRoute
-    }
-    '/_authenticated/relatorios/': {
-      id: '/_authenticated/relatorios/'
-      path: '/'
-      fullPath: '/relatorios/'
-      preLoaderRoute: typeof AuthenticatedRelatoriosIndexRouteImport
-      parentRoute: typeof AuthenticatedRelatoriosRoute
     }
     '/_authenticated/registros/': {
       id: '/_authenticated/registros/'
@@ -1459,20 +1441,6 @@ const AuthenticatedRegistrosRouteWithChildren =
     AuthenticatedRegistrosRouteChildren,
   )
 
-interface AuthenticatedRelatoriosRouteChildren {
-  AuthenticatedRelatoriosIndexRoute: typeof AuthenticatedRelatoriosIndexRoute
-}
-
-const AuthenticatedRelatoriosRouteChildren: AuthenticatedRelatoriosRouteChildren =
-  {
-    AuthenticatedRelatoriosIndexRoute: AuthenticatedRelatoriosIndexRoute,
-  }
-
-const AuthenticatedRelatoriosRouteWithChildren =
-  AuthenticatedRelatoriosRoute._addFileChildren(
-    AuthenticatedRelatoriosRouteChildren,
-  )
-
 interface AuthenticatedSegurancaRouteChildren {
   AuthenticatedSegurancaAcessosRoute: typeof AuthenticatedSegurancaAcessosRoute
   AuthenticatedSegurancaAlertasRoute: typeof AuthenticatedSegurancaAlertasRoute
@@ -1520,7 +1488,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPortaisRoute: typeof AuthenticatedPortaisRouteWithChildren
   AuthenticatedRegistrosRoute: typeof AuthenticatedRegistrosRouteWithChildren
   AuthenticatedRegularizacaoRoute: typeof AuthenticatedRegularizacaoRoute
-  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRouteWithChildren
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRouteWithChildren
   AuthenticatedTabelaRoute: typeof AuthenticatedTabelaRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
@@ -1557,7 +1525,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPortaisRoute: AuthenticatedPortaisRouteWithChildren,
   AuthenticatedRegistrosRoute: AuthenticatedRegistrosRouteWithChildren,
   AuthenticatedRegularizacaoRoute: AuthenticatedRegularizacaoRoute,
-  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRouteWithChildren,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRouteWithChildren,
   AuthenticatedTabelaRoute: AuthenticatedTabelaRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
@@ -1593,3 +1561,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
