@@ -43,10 +43,6 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         </div>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2 shrink-0">
-          <Button variant="default" size="sm" className="hidden sm:inline-flex">
-            <Plus className="h-4 w-4" />
-            Novo
-          </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
