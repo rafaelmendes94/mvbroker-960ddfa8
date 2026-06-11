@@ -23,7 +23,6 @@ const SECTIONS: Section[] = [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/oportunidades", label: "Oportunidades", icon: Sparkles },
       { to: "/imoveis", label: "Imóveis", icon: Home },
-      { to: "/central", label: "Central de Imóveis", icon: Search },
       {
         label: "Empreendimentos",
         icon: Layers,

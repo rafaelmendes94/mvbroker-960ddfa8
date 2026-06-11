@@ -36,7 +36,6 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedCondominiosRouteImport } from './routes/_authenticated/condominios'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
-import { Route as AuthenticatedCentralRouteImport } from './routes/_authenticated/central'
 import { Route as AuthenticatedCarteirasRouteImport } from './routes/_authenticated/carteiras'
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
@@ -68,7 +67,6 @@ import { Route as AuthenticatedImoveisNovoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedImoveisExportacaoRouteImport } from './routes/_authenticated/imoveis.exportacao'
 import { Route as AuthenticatedConfiguracoesOpcoesRouteImport } from './routes/_authenticated/configuracoes.opcoes'
 import { Route as AuthenticatedConfiguracoesNotificacoesRouteImport } from './routes/_authenticated/configuracoes.notificacoes'
-import { Route as AuthenticatedCentralIdRouteImport } from './routes/_authenticated/central.$id'
 import { Route as AuthenticatedCarteirasIdRouteImport } from './routes/_authenticated/carteiras.$id'
 import { Route as AuthenticatedAssinaturasIdRouteImport } from './routes/_authenticated/assinaturas.$id'
 import { Route as ApiPublicFeedSlugRouteImport } from './routes/api/public/feed/$slug'
@@ -217,11 +215,6 @@ const AuthenticatedCondominiosRoute =
 const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedCentralRoute = AuthenticatedCentralRouteImport.update({
-  id: '/central',
-  path: '/central',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCarteirasRoute = AuthenticatedCarteirasRouteImport.update({
@@ -407,11 +400,6 @@ const AuthenticatedConfiguracoesNotificacoesRoute =
     path: '/notificacoes',
     getParentRoute: () => AuthenticatedConfiguracoesRoute,
   } as any)
-const AuthenticatedCentralIdRoute = AuthenticatedCentralIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthenticatedCentralRoute,
-} as any)
 const AuthenticatedCarteirasIdRoute =
   AuthenticatedCarteirasIdRouteImport.update({
     id: '/$id',
@@ -464,7 +452,6 @@ export interface FileRoutesByFullPath {
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/carteiras': typeof AuthenticatedCarteirasRouteWithChildren
-  '/central': typeof AuthenticatedCentralRouteWithChildren
   '/clientes': typeof AuthenticatedClientesRoute
   '/condominios': typeof AuthenticatedCondominiosRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
@@ -489,7 +476,6 @@ export interface FileRoutesByFullPath {
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
-  '/central/$id': typeof AuthenticatedCentralIdRoute
   '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/imoveis/exportacao': typeof AuthenticatedImoveisExportacaoRoute
@@ -531,7 +517,6 @@ export interface FileRoutesByTo {
   '/assinaturas': typeof AuthenticatedAssinaturasRouteWithChildren
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
-  '/central': typeof AuthenticatedCentralRouteWithChildren
   '/clientes': typeof AuthenticatedClientesRoute
   '/condominios': typeof AuthenticatedCondominiosRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
@@ -550,7 +535,6 @@ export interface FileRoutesByTo {
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
-  '/central/$id': typeof AuthenticatedCentralIdRoute
   '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/imoveis/exportacao': typeof AuthenticatedImoveisExportacaoRoute
@@ -595,7 +579,6 @@ export interface FileRoutesById {
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/_authenticated/carteiras': typeof AuthenticatedCarteirasRouteWithChildren
-  '/_authenticated/central': typeof AuthenticatedCentralRouteWithChildren
   '/_authenticated/clientes': typeof AuthenticatedClientesRoute
   '/_authenticated/condominios': typeof AuthenticatedCondominiosRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
@@ -620,7 +603,6 @@ export interface FileRoutesById {
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/_authenticated/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/_authenticated/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
-  '/_authenticated/central/$id': typeof AuthenticatedCentralIdRoute
   '/_authenticated/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/_authenticated/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
   '/_authenticated/imoveis/exportacao': typeof AuthenticatedImoveisExportacaoRoute
@@ -665,7 +647,6 @@ export interface FileRouteTypes {
     | '/auditoria'
     | '/biblioteca'
     | '/carteiras'
-    | '/central'
     | '/clientes'
     | '/condominios'
     | '/configuracoes'
@@ -690,7 +671,6 @@ export interface FileRouteTypes {
     | '/usuarios'
     | '/assinaturas/$id'
     | '/carteiras/$id'
-    | '/central/$id'
     | '/configuracoes/notificacoes'
     | '/configuracoes/opcoes'
     | '/imoveis/exportacao'
@@ -732,7 +712,6 @@ export interface FileRouteTypes {
     | '/assinaturas'
     | '/auditoria'
     | '/biblioteca'
-    | '/central'
     | '/clientes'
     | '/condominios'
     | '/configuracoes'
@@ -751,7 +730,6 @@ export interface FileRouteTypes {
     | '/usuarios'
     | '/assinaturas/$id'
     | '/carteiras/$id'
-    | '/central/$id'
     | '/configuracoes/notificacoes'
     | '/configuracoes/opcoes'
     | '/imoveis/exportacao'
@@ -795,7 +773,6 @@ export interface FileRouteTypes {
     | '/_authenticated/auditoria'
     | '/_authenticated/biblioteca'
     | '/_authenticated/carteiras'
-    | '/_authenticated/central'
     | '/_authenticated/clientes'
     | '/_authenticated/condominios'
     | '/_authenticated/configuracoes'
@@ -820,7 +797,6 @@ export interface FileRouteTypes {
     | '/_authenticated/usuarios'
     | '/_authenticated/assinaturas/$id'
     | '/_authenticated/carteiras/$id'
-    | '/_authenticated/central/$id'
     | '/_authenticated/configuracoes/notificacoes'
     | '/_authenticated/configuracoes/opcoes'
     | '/_authenticated/imoveis/exportacao'
@@ -1055,13 +1031,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/central': {
-      id: '/_authenticated/central'
-      path: '/central'
-      fullPath: '/central'
-      preLoaderRoute: typeof AuthenticatedCentralRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/carteiras': {
       id: '/_authenticated/carteiras'
       path: '/carteiras'
@@ -1279,13 +1248,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesNotificacoesRouteImport
       parentRoute: typeof AuthenticatedConfiguracoesRoute
     }
-    '/_authenticated/central/$id': {
-      id: '/_authenticated/central/$id'
-      path: '/$id'
-      fullPath: '/central/$id'
-      preLoaderRoute: typeof AuthenticatedCentralIdRouteImport
-      parentRoute: typeof AuthenticatedCentralRoute
-    }
     '/_authenticated/carteiras/$id': {
       id: '/_authenticated/carteiras/$id'
       path: '/$id'
@@ -1367,17 +1329,6 @@ const AuthenticatedCarteirasRouteWithChildren =
   AuthenticatedCarteirasRoute._addFileChildren(
     AuthenticatedCarteirasRouteChildren,
   )
-
-interface AuthenticatedCentralRouteChildren {
-  AuthenticatedCentralIdRoute: typeof AuthenticatedCentralIdRoute
-}
-
-const AuthenticatedCentralRouteChildren: AuthenticatedCentralRouteChildren = {
-  AuthenticatedCentralIdRoute: AuthenticatedCentralIdRoute,
-}
-
-const AuthenticatedCentralRouteWithChildren =
-  AuthenticatedCentralRoute._addFileChildren(AuthenticatedCentralRouteChildren)
 
 interface AuthenticatedConfiguracoesRouteChildren {
   AuthenticatedConfiguracoesNotificacoesRoute: typeof AuthenticatedConfiguracoesNotificacoesRoute
@@ -1541,7 +1492,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
   AuthenticatedCarteirasRoute: typeof AuthenticatedCarteirasRouteWithChildren
-  AuthenticatedCentralRoute: typeof AuthenticatedCentralRouteWithChildren
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRoute
   AuthenticatedCondominiosRoute: typeof AuthenticatedCondominiosRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRouteWithChildren
@@ -1573,7 +1523,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
   AuthenticatedCarteirasRoute: AuthenticatedCarteirasRouteWithChildren,
-  AuthenticatedCentralRoute: AuthenticatedCentralRouteWithChildren,
   AuthenticatedClientesRoute: AuthenticatedClientesRoute,
   AuthenticatedCondominiosRoute: AuthenticatedCondominiosRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRouteWithChildren,
