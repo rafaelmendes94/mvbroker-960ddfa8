@@ -320,6 +320,11 @@ function ClientesPage() {
                       <TableCell>{r.plano?.nome ?? <span className="text-muted-foreground">Sem plano</span>}</TableCell>
                       <TableCell>
                         {r.assinatura
+                          ? <Badge variant="outline" className="capitalize">{r.assinatura.ciclo}</Badge>
+                          : <span className="text-xs text-muted-foreground">—</span>}
+                      </TableCell>
+                      <TableCell>
+                        {r.assinatura
                           ? <Badge variant={r.assinatura.status === "ativa" ? "default" : "outline"}>{r.assinatura.status}</Badge>
                           : <span className="text-xs text-muted-foreground">—</span>}
                       </TableCell>
@@ -331,6 +336,11 @@ function ClientesPage() {
                           : <span className="text-muted-foreground">—</span>}
                       </TableCell>
                       <TableCell>{fmtBRL(r.assinatura?.valor)}</TableCell>
+                      <TableCell>
+                        {r.assinatura?.proximo_vencimento
+                          ? new Date(r.assinatura.proximo_vencimento).toLocaleDateString("pt-BR")
+                          : <span className="text-xs text-muted-foreground">—</span>}
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" variant="ghost" onClick={() => abrirTroca(r)} title="Trocar plano">
                           <Repeat className="h-4 w-4" />
