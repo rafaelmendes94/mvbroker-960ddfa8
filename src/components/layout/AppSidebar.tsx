@@ -24,8 +24,6 @@ const ALL_NAV: NavItem[] = [
   { to: "/usuarios", label: "Usuários", icon: Users },
   { to: "/clientes", label: "Clientes", icon: UserSquare2 },
   { to: "/planos", label: "Planos", icon: Tag },
-  { to: "/assinaturas", label: "Assinaturas", icon: CreditCard },
-  { to: "/pagamentos", label: "Pagamentos", icon: Wallet },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/exportacoes", label: "Exportações", icon: Download },
   { to: "/carteiras", label: "Carteiras XML", icon: Rss },
