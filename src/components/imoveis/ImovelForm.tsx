@@ -119,13 +119,14 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
 
   // Loaders
   useEffect(() => {
-    supabase.from("edificios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r) => setEdificios((r.data as any) ?? []));
-    supabase.from("condominios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r) => setCondominios((r.data as any) ?? []));
+    supabase.from("edificios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura, valor_condominio, valor_iptu").order("nome").then((r) => setEdificios((r.data as any) ?? []));
+    supabase.from("condominios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura, valor_condominio, valor_iptu").order("nome").then((r) => setCondominios((r.data as any) ?? []));
     supabase.from("empreendimentos").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r) => setEmpreendimentos((r.data as any) ?? []));
-    supabase.from("loteamentos" as any).select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r: any) => setLoteamentos((r.data as any) ?? []));
+    supabase.from("loteamentos" as any).select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura, valor_condominio, valor_iptu").order("nome").then((r: any) => setLoteamentos((r.data as any) ?? []));
     supabase.from("imobiliarias").select("id, nome").order("nome").then((r) => setImobiliarias(r.data ?? []));
     supabase.from("corretores").select("id, nome").order("nome").then((r) => setCorretores(r.data ?? []));
   }, []);
+
 
   useEffect(() => {
     if (!imovelId) return;
@@ -418,7 +419,30 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
               </Select>
             </Field>
           </div>
+          {(() => {
+            const linked = (edificios.find((e: any) => e.id === form.edificio_id) as any)
+              || (condominios.find((e: any) => e.id === form.condominio_id) as any)
+              || (loteamentos.find((e: any) => e.id === form.loteamento_id) as any);
+            const vc = linked?.valor_condominio;
+            const vi = linked?.valor_iptu;
+            if (!linked || (vc == null && vi == null)) return null;
+            const fmt = (v: any) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+            return (
+              <div className="rounded-lg border bg-muted/30 p-3 grid grid-cols-2 gap-3">
+                <div>
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Valor do condomínio</div>
+                  <div className="text-sm font-semibold">{vc != null ? fmt(vc) : "—"}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Valor do IPTU</div>
+                  <div className="text-sm font-semibold">{vi != null ? fmt(vi) : "—"}</div>
+                </div>
+                <p className="col-span-2 text-[11px] text-muted-foreground">Herdado do empreendimento vinculado.</p>
+              </div>
+            );
+          })()}
         </TabsContent>
+
 
         {/* === 3 ENDEREÇO === */}
         <TabsContent value="endereco" className="space-y-4 pt-4">

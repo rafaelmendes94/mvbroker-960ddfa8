@@ -25,6 +25,20 @@ import { GaleriaUpload, type EstruturaTipo } from "@/components/forms/GaleriaUpl
 import { logAudit } from "@/lib/audit";
 import { useAuth } from "@/hooks/use-auth";
 
+function parseBRL(v: unknown): number | null {
+  if (v == null || v === "") return null;
+  if (typeof v === "number") return isFinite(v) ? v : null;
+  const s = String(v).replace(/[^\d,.-]/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", ".");
+  const n = Number(s);
+  return isFinite(n) ? n : null;
+}
+function formatBRL(v: unknown): string {
+  const n = typeof v === "number" ? v : parseBRL(v);
+  if (n == null) return "";
+  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+
 function parseLatLngFromUrl(url: string): { lat: number | null; lng: number | null } {
   if (!url) return { lat: null, lng: null };
   const patterns = [
@@ -54,8 +68,13 @@ export type BaseEstrutura = {
 };
 
 type Specific = {
-  fields: { key: string; label: string; type?: "text" | "number" | "date" | "select"; options?: { value: string; label: string }[] }[];
+  fields: { key: string; label: string; type?: "text" | "number" | "currency" | "date" | "select"; options?: { value: string; label: string }[] }[];
 };
+
+const VALORES_FIELDS = [
+  { key: "valor_condominio", label: "Valor do condomínio", type: "currency" as const },
+  { key: "valor_iptu", label: "Valor do IPTU", type: "currency" as const },
+];
 
 const SPECIFIC: Record<EstruturaTipo, Specific> = {
   edificio: {
@@ -65,6 +84,7 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
       { key: "qtd_apartamentos", label: "Qtd. apartamentos", type: "number" },
       { key: "ano_construcao", label: "Ano de construção", type: "number" },
       { key: "construtora", label: "Construtora" },
+      ...VALORES_FIELDS,
       { key: "espelho_grupos", label: "Espelho — andares", type: "number" },
       { key: "espelho_por_grupo", label: "Espelho — unidades por andar", type: "number" },
     ],
@@ -77,6 +97,7 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
       { key: "portaria", label: "Portaria" },
       { key: "seguranca", label: "Segurança" },
       { key: "area_total", label: "Área total (m²)", type: "number" },
+      ...VALORES_FIELDS,
       { key: "espelho_por_grupo", label: "Espelho — unidades por bloco", type: "number" },
     ],
   },
@@ -100,11 +121,13 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
       { key: "area_total_m2", label: "Área total (m²)", type: "number" },
       { key: "total_lotes", label: "Total de lotes", type: "number" },
       { key: "lotes_disponiveis", label: "Lotes disponíveis", type: "number" },
+      ...VALORES_FIELDS,
       { key: "espelho_grupos", label: "Espelho — quadras", type: "number" },
       { key: "espelho_por_grupo", label: "Espelho — lotes por quadra", type: "number" },
     ],
   },
 };
+
 
 const TABLE: Record<EstruturaTipo, "edificios" | "condominios" | "empreendimentos" | "loteamentos"> = {
   edificio: "edificios",
@@ -265,8 +288,11 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     SPECIFIC[tipo].fields.forEach((f) => {
       const v = specific[f.key];
       if (v === "" || v === undefined || v === null) { payload[f.key] = null; return; }
-      payload[f.key] = f.type === "number" ? Number(v) : v;
+      if (f.type === "number") { payload[f.key] = Number(v); return; }
+      if (f.type === "currency") { payload[f.key] = parseBRL(v); return; }
+      payload[f.key] = v;
     });
+
 
     if (editing) {
       const { error } = await supabase.from(table).update(payload).eq("id", editing.id);
@@ -431,6 +457,17 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                         <option value="">—</option>
                         {f.options!.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                       </select>
+                    ) : f.type === "currency" ? (
+                      <Input
+                        inputMode="decimal"
+                        placeholder="R$ 0,00"
+                        value={specific[f.key] === "" || specific[f.key] == null ? "" : formatBRL(specific[f.key])}
+                        onChange={(e) => setSpecific({ ...specific, [f.key]: e.target.value.replace(/[^\d,.-]/g, "") })}
+                        onBlur={(e) => {
+                          const n = parseBRL(e.target.value);
+                          setSpecific({ ...specific, [f.key]: n == null ? "" : n });
+                        }}
+                      />
                     ) : (
                       <Input
                         type={f.type ?? "text"}

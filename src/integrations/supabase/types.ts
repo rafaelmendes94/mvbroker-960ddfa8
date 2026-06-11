@@ -615,6 +615,8 @@ export type Database = {
           seguranca: string | null
           tipo_condominio: string | null
           updated_at: string
+          valor_condominio: number | null
+          valor_iptu: number | null
         }
         Insert: {
           area_total?: number | null
@@ -642,6 +644,8 @@ export type Database = {
           seguranca?: string | null
           tipo_condominio?: string | null
           updated_at?: string
+          valor_condominio?: number | null
+          valor_iptu?: number | null
         }
         Update: {
           area_total?: number | null
@@ -669,6 +673,8 @@ export type Database = {
           seguranca?: string | null
           tipo_condominio?: string | null
           updated_at?: string
+          valor_condominio?: number | null
+          valor_iptu?: number | null
         }
         Relationships: []
       }
@@ -752,6 +758,8 @@ export type Database = {
           qtd_apartamentos: number | null
           qtd_elevadores: number | null
           updated_at: string
+          valor_condominio: number | null
+          valor_iptu: number | null
         }
         Insert: {
           ano_construcao?: number | null
@@ -779,6 +787,8 @@ export type Database = {
           qtd_apartamentos?: number | null
           qtd_elevadores?: number | null
           updated_at?: string
+          valor_condominio?: number | null
+          valor_iptu?: number | null
         }
         Update: {
           ano_construcao?: number | null
@@ -806,6 +816,8 @@ export type Database = {
           qtd_apartamentos?: number | null
           qtd_elevadores?: number | null
           updated_at?: string
+          valor_condominio?: number | null
+          valor_iptu?: number | null
         }
         Relationships: []
       }
@@ -1521,6 +1533,8 @@ export type Database = {
           observacoes: string | null
           total_lotes: number | null
           updated_at: string
+          valor_condominio: number | null
+          valor_iptu: number | null
         }
         Insert: {
           area_total_m2?: number | null
@@ -1547,6 +1561,8 @@ export type Database = {
           observacoes?: string | null
           total_lotes?: number | null
           updated_at?: string
+          valor_condominio?: number | null
+          valor_iptu?: number | null
         }
         Update: {
           area_total_m2?: number | null
@@ -1573,6 +1589,8 @@ export type Database = {
           observacoes?: string | null
           total_lotes?: number | null
           updated_at?: string
+          valor_condominio?: number | null
+          valor_iptu?: number | null
         }
         Relationships: []
       }
