@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Download, ExternalLink, MapPin, Bed, Bath, Car, Ruler, Star, Check } from "lucide-react";
+import { Download, MapPin, Bed, Bath, Car, Ruler, Star, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
