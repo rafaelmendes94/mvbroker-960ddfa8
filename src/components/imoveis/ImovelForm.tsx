@@ -119,13 +119,14 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
 
   // Loaders
   useEffect(() => {
-    supabase.from("edificios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r) => setEdificios((r.data as any) ?? []));
-    supabase.from("condominios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r) => setCondominios((r.data as any) ?? []));
+    supabase.from("edificios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura, valor_condominio, valor_iptu").order("nome").then((r) => setEdificios((r.data as any) ?? []));
+    supabase.from("condominios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura, valor_condominio, valor_iptu").order("nome").then((r) => setCondominios((r.data as any) ?? []));
     supabase.from("empreendimentos").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r) => setEmpreendimentos((r.data as any) ?? []));
-    supabase.from("loteamentos" as any).select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r: any) => setLoteamentos((r.data as any) ?? []));
+    supabase.from("loteamentos" as any).select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura, valor_condominio, valor_iptu").order("nome").then((r: any) => setLoteamentos((r.data as any) ?? []));
     supabase.from("imobiliarias").select("id, nome").order("nome").then((r) => setImobiliarias(r.data ?? []));
     supabase.from("corretores").select("id, nome").order("nome").then((r) => setCorretores(r.data ?? []));
   }, []);
+
 
   useEffect(() => {
     if (!imovelId) return;
