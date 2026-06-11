@@ -16,6 +16,7 @@ import { primaryRole, ROLE_LABEL } from "@/lib/permissions";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "@tanstack/react-router";
+import { BaixarTabelaButton } from "@/components/dashboard/BaixarTabelaButton";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — MV Broker" }] }),
