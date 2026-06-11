@@ -1330,12 +1330,15 @@ export type Database = {
       loteamentos: {
         Row: {
           area_total_m2: number | null
+          ativo: boolean
           bairro: string | null
           cep: string | null
           cidade: string | null
+          codigo_interno: string | null
           complemento: string | null
           created_at: string
           created_by: string | null
+          descricao: string | null
           estado: string | null
           id: string
           infraestrutura: Json | null
@@ -1351,12 +1354,15 @@ export type Database = {
         }
         Insert: {
           area_total_m2?: number | null
+          ativo?: boolean
           bairro?: string | null
           cep?: string | null
           cidade?: string | null
+          codigo_interno?: string | null
           complemento?: string | null
           created_at?: string
           created_by?: string | null
+          descricao?: string | null
           estado?: string | null
           id?: string
           infraestrutura?: Json | null
@@ -1372,12 +1378,15 @@ export type Database = {
         }
         Update: {
           area_total_m2?: number | null
+          ativo?: boolean
           bairro?: string | null
           cep?: string | null
           cidade?: string | null
+          codigo_interno?: string | null
           complemento?: string | null
           created_at?: string
           created_by?: string | null
+          descricao?: string | null
           estado?: string | null
           id?: string
           infraestrutura?: Json | null
