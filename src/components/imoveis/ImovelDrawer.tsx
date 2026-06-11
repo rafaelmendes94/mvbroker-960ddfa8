@@ -116,16 +116,9 @@ export function ImovelDrawer({ id, open, onOpenChange }: { id: string | null; op
               <Button onClick={() => id && exp.toggle(id)} variant={inExport ? "secondary" : "default"} className="w-full">
                 {inExport ? <><Check className="h-4 w-4 mr-1.5" /> Na exportação — Remover</> : <>+ Adicionar à exportação</>}
               </Button>
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" onClick={baixarFotos} disabled={!imagens.length}>
-                  <Download className="h-4 w-4 mr-1.5" /> Baixar fotos
-                </Button>
-                <Button asChild variant="outline">
-                  <Link to="/central/$id" params={{ id: imovel.id }}>
-                    <ExternalLink className="h-4 w-4 mr-1.5" /> Ver detalhes
-                  </Link>
-                </Button>
-              </div>
+              <Button variant="outline" onClick={baixarFotos} disabled={!imagens.length} className="w-full">
+                <Download className="h-4 w-4 mr-1.5" /> Baixar fotos
+              </Button>
             </div>
           </div>
         )}
