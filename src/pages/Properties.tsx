@@ -627,7 +627,7 @@ export default function Properties() {
     const loadFavorites = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("favorites").select("imovel_id").eq("user_id", user.id);
+      const { data } = await supabase.from("imoveis_favoritos").select("imovel_id").eq("usuario_id", user.id);
       if (data) setFavoriteIds(data.map((f: any) => f.imovel_id));
     };
     loadFavorites();
@@ -651,16 +651,17 @@ export default function Properties() {
     const isFav = favoriteIds.includes(id);
     // Optimistic update
     setFavoriteIds((prev: any) => isFav ? prev.filter((x: any) => x !== id) : [...prev, id]);
-    
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    
+
     if (isFav) {
-      await supabase.from("favorites").delete().eq("user_id", user.id).eq("imovel_id", id);
+      await supabase.from("imoveis_favoritos").delete().eq("usuario_id", user.id).eq("imovel_id", id);
     } else {
-      await supabase.from("favorites").insert({ user_id: user.id, imovel_id: id });
+      await supabase.from("imoveis_favoritos").insert({ usuario_id: user.id, imovel_id: id });
     }
   };
+
 
   const toggleRoute = (id: string) => {
     setRouteIds((prev: any) => {
