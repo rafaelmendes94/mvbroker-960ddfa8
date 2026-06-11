@@ -111,8 +111,8 @@ function Dashboard() {
                 <div
                   className={
                     highlight
-                      ? "h-11 w-11 grid place-items-center rounded-xl bg-accent/20 text-accent"
-                      : "h-11 w-11 grid place-items-center rounded-xl bg-muted text-foreground/70"
+                      ? "h-11 w-11 grid place-items-center rounded-xl bg-[image:var(--gradient-accent)] text-accent-foreground shadow-[var(--shadow-accent)]"
+                      : "h-11 w-11 grid place-items-center rounded-xl bg-[image:var(--gradient-accent)] text-accent-foreground shadow-[var(--shadow-accent)]"
                   }
                 >
                   <Icon className="h-5 w-5" />
@@ -121,10 +121,9 @@ function Dashboard() {
                   <span
                     className={
                       k.up
-                        ? "text-[11px] font-bold px-2.5 py-1 rounded-lg bg-accent/15 text-accent-foreground/90"
+                        ? "text-[11px] font-bold px-2.5 py-1 rounded-lg bg-accent/15 text-accent"
                         : "text-[11px] font-bold px-2.5 py-1 rounded-lg bg-destructive/10 text-destructive"
                     }
-                    style={k.up ? { color: "oklch(0.40 0.15 152)" } : undefined}
                   >
                     {k.up ? <TrendingUp className="h-3 w-3 inline -mt-px mr-0.5" /> : <TrendingDown className="h-3 w-3 inline -mt-px mr-0.5" />}
                     {k.delta}
