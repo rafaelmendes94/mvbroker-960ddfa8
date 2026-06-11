@@ -488,45 +488,43 @@ export default function Reports() {
                     </div>
                   ),
                 },
-                ...(filtered.length > 0 ? [
-                  {
-                    key: "rankings-1",
-                    node: (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <RankingBarCard title="Tipo de Imóvel" data={rankings.byType} colors={TYPE_COLORS} />
-                        <RankingBarCard title="Dormitórios" data={rankings.byBedrooms} />
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "rankings-entidades",
-                    node: (
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                       <RankingListCard title="Edifícios Mais Vendidos" icon={Building2} data={rankings.byEdificio.slice(0, 6)} sales={filtered} field="edificio" />
-                       <RankingListCard title="Condomínios Mais Vendidos" icon={Building2} data={rankings.byCondominio.slice(0, 6)} sales={filtered} field="condominio" />
-                       <RankingListCard title="Loteamentos Mais Vendidos" icon={Building2} data={rankings.byEmpreendimento.slice(0, 6)} sales={filtered} field="empreendimento" />
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "rankings-2",
-                    node: (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <RankingProgressCard title="Top Corretores" data={rankings.byBroker} />
-                        <RankingProgressCard title="Proprietários" data={rankings.byOwner} />
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "rankings-3",
-                    node: (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <RankingBarCard title="Cidade" data={rankings.byCity} />
-                        <RankingBarCard title="Bairros" data={rankings.byNeighborhood} />
-                      </div>
-                    ),
-                  },
-                ] : []),
+                {
+                  key: "rankings-1",
+                  node: (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <RankingBarCard title="Tipo de Imóvel" data={rankings.byType} colors={TYPE_COLORS} />
+                      <RankingBarCard title="Dormitórios" data={rankings.byBedrooms} />
+                    </div>
+                  ),
+                },
+                {
+                  key: "rankings-entidades",
+                  node: (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      <RankingListCard title="Edifícios Mais Vendidos" icon={Building2} data={rankings.byEdificio.slice(0, 6)} sales={filtered} field="edificio" />
+                      <RankingListCard title="Condomínios Mais Vendidos" icon={Building2} data={rankings.byCondominio.slice(0, 6)} sales={filtered} field="condominio" />
+                      <RankingListCard title="Loteamentos Mais Vendidos" icon={Building2} data={rankings.byEmpreendimento.slice(0, 6)} sales={filtered} field="empreendimento" />
+                    </div>
+                  ),
+                },
+                {
+                  key: "rankings-2",
+                  node: (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <RankingProgressCard title="Top Corretores" data={rankings.byBroker} />
+                      <RankingProgressCard title="Proprietários" data={rankings.byOwner} />
+                    </div>
+                  ),
+                },
+                {
+                  key: "rankings-3",
+                  node: (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <RankingBarCard title="Cidade" data={rankings.byCity} />
+                      <RankingBarCard title="Bairros" data={rankings.byNeighborhood} />
+                    </div>
+                  ),
+                },
                 {
                   key: "recent-sales",
                   node: (
