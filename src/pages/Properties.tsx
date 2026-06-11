@@ -2698,14 +2698,6 @@ function PropertyRow({
             </div>
           )}
 
-          {/* Contract shortcut */}
-          <button
-            onClick={() => onNavigateToContract?.(property)}
-            className="flex items-center gap-1 mt-1 px-2 py-1 rounded-md bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors text-[9px] font-bold uppercase tracking-wide"
-            title="Gerar contrato com dados do imóvel"
-          >
-            <FileSignature className="w-3 h-3" /> Gerar Contrato
-          </button>
         </div>
 
         {/* ── COL 3.5: Analytics ── */}
@@ -2725,14 +2717,6 @@ function PropertyRow({
             <span className="text-[10px] text-muted-foreground">views</span>
           </div>
 
-          {/* Valuation link */}
-          <button
-            onClick={() => onNavigateToValuation?.(property)}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-[10px] font-bold uppercase tracking-wide"
-            title="Avaliar imóvel com IA"
-          >
-            <TrendingUp className="w-3.5 h-3.5" /> Avaliar com IA
-          </button>
         </div>
 
         {/* ── COL 4: Chaves + Datas + Status ── */}
