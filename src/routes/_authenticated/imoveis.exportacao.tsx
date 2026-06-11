@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useExportacao } from "@/hooks/use-exportacao";
 
-export const Route = createFileRoute("/_authenticated/exportacoes")({
-  head: () => ({ meta: [{ title: "Exportações — MV Broker" }] }),
+export const Route = createFileRoute("/_authenticated/imoveis/exportacao")({
+  head: () => ({ meta: [{ title: "Exportação — MV Broker" }] }),
   component: Exportacoes,
 });
 
