@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedTabelaRouteImport } from './routes/_authenticated/tabela'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
+import { Route as AuthenticatedRelatoriosAdminRouteImport } from './routes/_authenticated/relatorios-admin'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedRegularizacaoRouteImport } from './routes/_authenticated/regularizacao'
 import { Route as AuthenticatedRegistrosRouteImport } from './routes/_authenticated/registros'
@@ -114,6 +115,12 @@ const AuthenticatedSegurancaRoute = AuthenticatedSegurancaRouteImport.update({
   path: '/seguranca',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedRelatoriosAdminRoute =
+  AuthenticatedRelatoriosAdminRouteImport.update({
+    id: '/relatorios-admin',
+    path: '/relatorios-admin',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
@@ -305,39 +312,39 @@ const AuthenticatedSegurancaAcessosRoute =
   } as any)
 const AuthenticatedRelatoriosAdminRankingsRoute =
   AuthenticatedRelatoriosAdminRankingsRouteImport.update({
-    id: '/relatorios-admin/rankings',
-    path: '/relatorios-admin/rankings',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/rankings',
+    path: '/rankings',
+    getParentRoute: () => AuthenticatedRelatoriosAdminRoute,
   } as any)
 const AuthenticatedRelatoriosAdminImoveisRoute =
   AuthenticatedRelatoriosAdminImoveisRouteImport.update({
-    id: '/relatorios-admin/imoveis',
-    path: '/relatorios-admin/imoveis',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/imoveis',
+    path: '/imoveis',
+    getParentRoute: () => AuthenticatedRelatoriosAdminRoute,
   } as any)
 const AuthenticatedRelatoriosAdminImobiliariasRoute =
   AuthenticatedRelatoriosAdminImobiliariasRouteImport.update({
-    id: '/relatorios-admin/imobiliarias',
-    path: '/relatorios-admin/imobiliarias',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/imobiliarias',
+    path: '/imobiliarias',
+    getParentRoute: () => AuthenticatedRelatoriosAdminRoute,
   } as any)
 const AuthenticatedRelatoriosAdminExportacoesRoute =
   AuthenticatedRelatoriosAdminExportacoesRouteImport.update({
-    id: '/relatorios-admin/exportacoes',
-    path: '/relatorios-admin/exportacoes',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/exportacoes',
+    path: '/exportacoes',
+    getParentRoute: () => AuthenticatedRelatoriosAdminRoute,
   } as any)
 const AuthenticatedRelatoriosAdminCorretoresRoute =
   AuthenticatedRelatoriosAdminCorretoresRouteImport.update({
-    id: '/relatorios-admin/corretores',
-    path: '/relatorios-admin/corretores',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/corretores',
+    path: '/corretores',
+    getParentRoute: () => AuthenticatedRelatoriosAdminRoute,
   } as any)
 const AuthenticatedRelatoriosAdminAtividadeRoute =
   AuthenticatedRelatoriosAdminAtividadeRouteImport.update({
-    id: '/relatorios-admin/atividade',
-    path: '/relatorios-admin/atividade',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/atividade',
+    path: '/atividade',
+    getParentRoute: () => AuthenticatedRelatoriosAdminRoute,
   } as any)
 const AuthenticatedRegistrosNovoRoute =
   AuthenticatedRegistrosNovoRouteImport.update({
@@ -469,6 +476,7 @@ export interface FileRoutesByFullPath {
   '/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/relatorios-admin': typeof AuthenticatedRelatoriosAdminRouteWithChildren
   '/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
@@ -530,6 +538,7 @@ export interface FileRoutesByTo {
   '/planos': typeof AuthenticatedPlanosRoute
   '/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/relatorios-admin': typeof AuthenticatedRelatoriosAdminRouteWithChildren
   '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
@@ -597,6 +606,7 @@ export interface FileRoutesById {
   '/_authenticated/registros': typeof AuthenticatedRegistrosRouteWithChildren
   '/_authenticated/regularizacao': typeof AuthenticatedRegularizacaoRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/_authenticated/relatorios-admin': typeof AuthenticatedRelatoriosAdminRouteWithChildren
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/_authenticated/tabela': typeof AuthenticatedTabelaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
@@ -665,6 +675,7 @@ export interface FileRouteTypes {
     | '/registros'
     | '/regularizacao'
     | '/relatorios'
+    | '/relatorios-admin'
     | '/seguranca'
     | '/tabela'
     | '/usuarios'
@@ -726,6 +737,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/regularizacao'
     | '/relatorios'
+    | '/relatorios-admin'
     | '/tabela'
     | '/usuarios'
     | '/assinaturas/$id'
@@ -792,6 +804,7 @@ export interface FileRouteTypes {
     | '/_authenticated/registros'
     | '/_authenticated/regularizacao'
     | '/_authenticated/relatorios'
+    | '/_authenticated/relatorios-admin'
     | '/_authenticated/seguranca'
     | '/_authenticated/tabela'
     | '/_authenticated/usuarios'
@@ -896,6 +909,13 @@ declare module '@tanstack/react-router' {
       path: '/seguranca'
       fullPath: '/seguranca'
       preLoaderRoute: typeof AuthenticatedSegurancaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/relatorios-admin': {
+      id: '/_authenticated/relatorios-admin'
+      path: '/relatorios-admin'
+      fullPath: '/relatorios-admin'
+      preLoaderRoute: typeof AuthenticatedRelatoriosAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/relatorios': {
@@ -1138,45 +1158,45 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/relatorios-admin/rankings': {
       id: '/_authenticated/relatorios-admin/rankings'
-      path: '/relatorios-admin/rankings'
+      path: '/rankings'
       fullPath: '/relatorios-admin/rankings'
       preLoaderRoute: typeof AuthenticatedRelatoriosAdminRankingsRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedRelatoriosAdminRoute
     }
     '/_authenticated/relatorios-admin/imoveis': {
       id: '/_authenticated/relatorios-admin/imoveis'
-      path: '/relatorios-admin/imoveis'
+      path: '/imoveis'
       fullPath: '/relatorios-admin/imoveis'
       preLoaderRoute: typeof AuthenticatedRelatoriosAdminImoveisRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedRelatoriosAdminRoute
     }
     '/_authenticated/relatorios-admin/imobiliarias': {
       id: '/_authenticated/relatorios-admin/imobiliarias'
-      path: '/relatorios-admin/imobiliarias'
+      path: '/imobiliarias'
       fullPath: '/relatorios-admin/imobiliarias'
       preLoaderRoute: typeof AuthenticatedRelatoriosAdminImobiliariasRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedRelatoriosAdminRoute
     }
     '/_authenticated/relatorios-admin/exportacoes': {
       id: '/_authenticated/relatorios-admin/exportacoes'
-      path: '/relatorios-admin/exportacoes'
+      path: '/exportacoes'
       fullPath: '/relatorios-admin/exportacoes'
       preLoaderRoute: typeof AuthenticatedRelatoriosAdminExportacoesRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedRelatoriosAdminRoute
     }
     '/_authenticated/relatorios-admin/corretores': {
       id: '/_authenticated/relatorios-admin/corretores'
-      path: '/relatorios-admin/corretores'
+      path: '/corretores'
       fullPath: '/relatorios-admin/corretores'
       preLoaderRoute: typeof AuthenticatedRelatoriosAdminCorretoresRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedRelatoriosAdminRoute
     }
     '/_authenticated/relatorios-admin/atividade': {
       id: '/_authenticated/relatorios-admin/atividade'
-      path: '/relatorios-admin/atividade'
+      path: '/atividade'
       fullPath: '/relatorios-admin/atividade'
       preLoaderRoute: typeof AuthenticatedRelatoriosAdminAtividadeRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedRelatoriosAdminRoute
     }
     '/_authenticated/registros/novo': {
       id: '/_authenticated/registros/novo'
@@ -1441,6 +1461,36 @@ const AuthenticatedRegistrosRouteWithChildren =
     AuthenticatedRegistrosRouteChildren,
   )
 
+interface AuthenticatedRelatoriosAdminRouteChildren {
+  AuthenticatedRelatoriosAdminAtividadeRoute: typeof AuthenticatedRelatoriosAdminAtividadeRoute
+  AuthenticatedRelatoriosAdminCorretoresRoute: typeof AuthenticatedRelatoriosAdminCorretoresRoute
+  AuthenticatedRelatoriosAdminExportacoesRoute: typeof AuthenticatedRelatoriosAdminExportacoesRoute
+  AuthenticatedRelatoriosAdminImobiliariasRoute: typeof AuthenticatedRelatoriosAdminImobiliariasRoute
+  AuthenticatedRelatoriosAdminImoveisRoute: typeof AuthenticatedRelatoriosAdminImoveisRoute
+  AuthenticatedRelatoriosAdminRankingsRoute: typeof AuthenticatedRelatoriosAdminRankingsRoute
+}
+
+const AuthenticatedRelatoriosAdminRouteChildren: AuthenticatedRelatoriosAdminRouteChildren =
+  {
+    AuthenticatedRelatoriosAdminAtividadeRoute:
+      AuthenticatedRelatoriosAdminAtividadeRoute,
+    AuthenticatedRelatoriosAdminCorretoresRoute:
+      AuthenticatedRelatoriosAdminCorretoresRoute,
+    AuthenticatedRelatoriosAdminExportacoesRoute:
+      AuthenticatedRelatoriosAdminExportacoesRoute,
+    AuthenticatedRelatoriosAdminImobiliariasRoute:
+      AuthenticatedRelatoriosAdminImobiliariasRoute,
+    AuthenticatedRelatoriosAdminImoveisRoute:
+      AuthenticatedRelatoriosAdminImoveisRoute,
+    AuthenticatedRelatoriosAdminRankingsRoute:
+      AuthenticatedRelatoriosAdminRankingsRoute,
+  }
+
+const AuthenticatedRelatoriosAdminRouteWithChildren =
+  AuthenticatedRelatoriosAdminRoute._addFileChildren(
+    AuthenticatedRelatoriosAdminRouteChildren,
+  )
+
 interface AuthenticatedSegurancaRouteChildren {
   AuthenticatedSegurancaAcessosRoute: typeof AuthenticatedSegurancaAcessosRoute
   AuthenticatedSegurancaAlertasRoute: typeof AuthenticatedSegurancaAlertasRoute
@@ -1489,15 +1539,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRegistrosRoute: typeof AuthenticatedRegistrosRouteWithChildren
   AuthenticatedRegularizacaoRoute: typeof AuthenticatedRegularizacaoRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
+  AuthenticatedRelatoriosAdminRoute: typeof AuthenticatedRelatoriosAdminRouteWithChildren
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRouteWithChildren
   AuthenticatedTabelaRoute: typeof AuthenticatedTabelaRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
-  AuthenticatedRelatoriosAdminAtividadeRoute: typeof AuthenticatedRelatoriosAdminAtividadeRoute
-  AuthenticatedRelatoriosAdminCorretoresRoute: typeof AuthenticatedRelatoriosAdminCorretoresRoute
-  AuthenticatedRelatoriosAdminExportacoesRoute: typeof AuthenticatedRelatoriosAdminExportacoesRoute
-  AuthenticatedRelatoriosAdminImobiliariasRoute: typeof AuthenticatedRelatoriosAdminImobiliariasRoute
-  AuthenticatedRelatoriosAdminImoveisRoute: typeof AuthenticatedRelatoriosAdminImoveisRoute
-  AuthenticatedRelatoriosAdminRankingsRoute: typeof AuthenticatedRelatoriosAdminRankingsRoute
   AuthenticatedEmpreendimentosTipoIdRoute: typeof AuthenticatedEmpreendimentosTipoIdRoute
 }
 
@@ -1526,21 +1571,11 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRegistrosRoute: AuthenticatedRegistrosRouteWithChildren,
   AuthenticatedRegularizacaoRoute: AuthenticatedRegularizacaoRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
+  AuthenticatedRelatoriosAdminRoute:
+    AuthenticatedRelatoriosAdminRouteWithChildren,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRouteWithChildren,
   AuthenticatedTabelaRoute: AuthenticatedTabelaRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
-  AuthenticatedRelatoriosAdminAtividadeRoute:
-    AuthenticatedRelatoriosAdminAtividadeRoute,
-  AuthenticatedRelatoriosAdminCorretoresRoute:
-    AuthenticatedRelatoriosAdminCorretoresRoute,
-  AuthenticatedRelatoriosAdminExportacoesRoute:
-    AuthenticatedRelatoriosAdminExportacoesRoute,
-  AuthenticatedRelatoriosAdminImobiliariasRoute:
-    AuthenticatedRelatoriosAdminImobiliariasRoute,
-  AuthenticatedRelatoriosAdminImoveisRoute:
-    AuthenticatedRelatoriosAdminImoveisRoute,
-  AuthenticatedRelatoriosAdminRankingsRoute:
-    AuthenticatedRelatoriosAdminRankingsRoute,
   AuthenticatedEmpreendimentosTipoIdRoute:
     AuthenticatedEmpreendimentosTipoIdRoute,
 }
@@ -1561,13 +1596,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
