@@ -192,12 +192,12 @@
   }
 }
 
-/* Relatórios: usa a paleta base (verde neon + preto/grafite) */
+/* Relatórios: usa a paleta emerald + gradientes do tema base */
 .reports-scope {
-  --accent: oklch(0.88 0.30 142);
-  --accent-foreground: oklch(0.15 0 0);
-  --success: oklch(0.88 0.30 142);
-  --success-foreground: oklch(0.15 0 0);
+  --accent: oklch(0.72 0.17 162);
+  --accent-foreground: oklch(1 0 0);
+  --success: oklch(0.72 0.17 162);
+  --success-foreground: oklch(1 0 0);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
