@@ -17,7 +17,7 @@ const ALL_NAV: NavItem[] = [
   { to: "/central", label: "Central de Imóveis", icon: Search },
   { to: "/favoritos", label: "Favoritos", icon: Heart },
   { to: "/notificacoes", label: "Notificações", icon: Bell },
-  { to: "/registros", label: "Cadastros", icon: FolderKanban },
+  
   { to: "/edificios", label: "Edifícios", icon: Building2 },
   { to: "/condominios", label: "Condomínios", icon: Building },
   { to: "/empreendimentos", label: "Empreendimentos", icon: Briefcase },
