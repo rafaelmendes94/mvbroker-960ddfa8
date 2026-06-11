@@ -167,9 +167,10 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
       : tipo === "empreendimento" ? empreendimentos
       : loteamentos;
     const key = `${tipo}_id`;
-    set(key, id || null);
-    if (!id) return;
-    const found = list.find((x) => x.id === id);
+    const realId = id && id !== "__none__" ? id : null;
+    set(key, realId);
+    if (!realId) return;
+    const found = list.find((x) => x.id === realId);
     if (found) applyEstrutura(found);
   }
 
