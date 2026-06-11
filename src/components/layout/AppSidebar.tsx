@@ -122,20 +122,22 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </nav>
 
-      {/* Plan card */}
-      <div className="p-4">
-        <div className="rounded-2xl bg-accent/10 border border-accent/20 p-4">
-          <p className="text-[10px] uppercase tracking-wider font-bold text-white/50 mb-1">Plano Atual</p>
-          <p className="text-sm font-extrabold text-accent">Premium Pro</p>
-          <a
-            href="#"
-            className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-white text-[#050914] text-[11px] font-extrabold tracking-wider uppercase py-2 hover:bg-white/90 transition-colors"
-          >
-            <LifeBuoy className="h-3.5 w-3.5 mr-1.5" />
-            Suporte
-          </a>
+      {/* Plan card — apenas para clientes (corretores / imobiliárias) */}
+      {!["super_admin", "admin", "secretaria"].includes(role) && (
+        <div className="p-4">
+          <div className="rounded-2xl bg-accent/10 border border-accent/20 p-4">
+            <p className="text-[10px] uppercase tracking-wider font-bold text-white/50 mb-1">Plano Atual</p>
+            <p className="text-sm font-extrabold text-accent">Premium Pro</p>
+            <a
+              href="#"
+              className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-white text-[#050914] text-[11px] font-extrabold tracking-wider uppercase py-2 hover:bg-white/90 transition-colors"
+            >
+              <LifeBuoy className="h-3.5 w-3.5 mr-1.5" />
+              Suporte
+            </a>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
