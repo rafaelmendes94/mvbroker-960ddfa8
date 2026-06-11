@@ -497,10 +497,19 @@ export default function Properties() {
   const xmlMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const STATUS_DB_TO_UI: Record<string, Property["status"]> = {
+      disponivel: "Disponível",
+      vendido: "Vendido",
+      reservado: "Reservado",
+      alugado: "Alugado",
+      suspenso: "Suspenso",
+    };
+
     const fetchProperties = async () => {
       const { data, error } = await supabase
         .from("imoveis")
         .select("*, edificios(nome), condominios(nome), empreendimentos(nome)")
+        .eq("arquivado", false)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -509,45 +518,60 @@ export default function Properties() {
         return;
       }
 
-      // Carrega profiles dos cadastrantes (donos do user_id)
-      const ownerIds = Array.from(new Set((data || []).map((r: any) => r.user_id).filter(Boolean)));
-      const profilesById: Record<string, { full_name: string; phone: string | null; avatar_url: string | null }> = {};
+      // Imagens (tabela separada imovel_imagens)
+      const ids = (data || []).map((r: any) => r.id);
+      const imagesById: Record<string, string[]> = {};
+      if (ids.length) {
+        const { data: imgs } = await supabase
+          .from("imovel_imagens")
+          .select("imovel_id, url, ordem")
+          .in("imovel_id", ids)
+          .order("ordem", { ascending: true });
+        (imgs || []).forEach((im: any) => {
+          if (!imagesById[im.imovel_id]) imagesById[im.imovel_id] = [];
+          if (im.url) imagesById[im.imovel_id].push(im.url);
+        });
+      }
+
+      // Profiles do cadastrante (created_by)
+      const ownerIds = Array.from(new Set((data || []).map((r: any) => r.created_by).filter(Boolean)));
+      const profilesById: Record<string, { full_name: string; avatar_url: string | null }> = {};
       if (ownerIds.length) {
         const { data: profs } = await supabase
           .from("profiles")
-          .select("user_id, full_name, phone, avatar_url")
-          .in("user_id", ownerIds);
+          .select("id, full_name, avatar_url")
+          .in("id", ownerIds);
         (profs || []).forEach((p: any) => {
-          profilesById[p.user_id] = { full_name: p.full_name || "", phone: p.phone, avatar_url: p.avatar_url };
+          profilesById[p.id] = { full_name: p.full_name || "", avatar_url: p.avatar_url };
         });
       }
-      const normalizePhone = (v: string) => (v || "").replace(/\D/g, "");
 
       const mapped: Property[] = (data || []).map((row: any, index: number) => {
-        const owner = profilesById[(row as any).user_id];
+        const owner = profilesById[(row as any).created_by];
+        const imgs = imagesById[row.id] || [];
         return {
         id: row.id,
-        userId: row.user_id,
-        code: `MV${String(index + 1).padStart(2, "0")}`,
+        userId: row.created_by,
+        code: row.codigo_interno || `MV${String(index + 1).padStart(2, "0")}`,
         title: row.titulo || "Imóvel",
-        address: row.endereco || "",
+        address: [row.logradouro, row.numero].filter(Boolean).join(", "),
         neighborhood: row.bairro || "",
         city: row.cidade || "",
-        type: (row.tipo as Property["type"]) || "Casa",
-        status: (row.status as Property["status"]) || "Disponível",
+        type: (row.tipo_imovel as Property["type"]) || "Casa",
+        status: STATUS_DB_TO_UI[row.status_imovel] || "Disponível",
         price: Number(row.preco || 0),
-        area: Number(row.area || 0),
+        area: Number(row.area_total || 0),
         privateArea: Number(row.area_privativa || 0),
-        bedrooms: row.quartos || 0,
+        bedrooms: row.dormitorios || 0,
         bathrooms: row.banheiros || 0,
         parking: row.vagas || 0,
-        broker: owner?.full_name?.trim() || (row as any).corretor_nome?.trim() || "Corretor",
+        broker: owner?.full_name?.trim() || "Corretor",
         brokerPhoto: owner?.avatar_url || undefined,
-        brokerWhatsapp: normalizePhone(owner?.phone || ""),
-        owner: row.proprietario || "",
-        ownerPhone: row.proprietario_telefone || "",
-        image: row.imagens?.[0] || PLACEHOLDER_IMAGE,
-        images: row.imagens || [],
+        brokerWhatsapp: "",
+        owner: row.responsavel_nome || "",
+        ownerPhone: row.responsavel_telefone || "",
+        image: imgs[0] || PLACEHOLDER_IMAGE,
+        images: imgs,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         lat: Number(row.latitude) || 0,
@@ -556,7 +580,7 @@ export default function Properties() {
         seaView: row.vista_mar || false,
         acceptsExchange: row.aceita_permuta || false,
         paymentConditions: row.condicoes_pagamento || [],
-        empreendimento: row.empreendimento || (row as any).edificios?.nome || (row as any).condominios?.nome || (row as any).empreendimentos?.nome || "",
+        empreendimento: (row as any).edificios?.nome || (row as any).condominios?.nome || (row as any).empreendimentos?.nome || "",
         edificioId: (row as any).edificio_id || "",
         condominioId: (row as any).condominio_id || "",
         empreendimentoId: (row as any).empreendimento_id || "",
@@ -564,8 +588,8 @@ export default function Properties() {
         boxNumber: row.box || "",
         quadra: row.quadra || "",
         lote: row.lote || "",
-        exclusivityTerm: row.termo_exclusividade || "",
-        exclusivityTermUrl: (row as any).termo_exclusividade_url || "",
+        exclusivityTerm: row.exclusividade ? "Sim" : "",
+        exclusivityTermUrl: (row as any).termo_exclusividade_path || "",
         description: row.descricao || "",
         posicaoPredio: row.posicao_predio || "",
         posicaoSolar: row.posicao_solar || "",
@@ -573,21 +597,21 @@ export default function Properties() {
         elevadores: row.elevadores || 0,
         vista: row.vista || "",
         condicao: (row.condicao as Property["condicao"]) || undefined,
-        ownerType: (row.proprietario_tipo as Property["ownerType"]) || undefined,
+        ownerType: (row.tipo_proprietario as Property["ownerType"]) || undefined,
         priceInstallment: Number(row.preco_parcelado || 0),
-        commission: Number(row.comissao || 0),
-        bonus: Number(row.bonus || 0),
-        bonusExpiry: row.bonus_validade || "",
+        commission: Number(row.comissao_percentual || 0),
+        bonus: Number(row.bonus || 0) || 0,
+        bonusExpiry: row.validade_bonus || "",
         padrao: (row.padrao as Property["padrao"]) || undefined,
         outrasCaracteristicas: row.outras_caracteristicas || [],
-        linkVideo: (row as any).link_video || "",
-        linkMaterial: (row as any).link_material || "",
-        link360: (row as any).link_360 || "",
-        driveFotosUrl: (row as any).drive_fotos_url || "",
-        fotosPdfUrl: (row as any).fotos_pdf_url || "",
-        views: Number((row as any).views || 0),
-        plataformaVenda: (row as any).plataforma_venda || "",
-        dataVenda: (row as any).data_venda || "",
+        linkVideo: row.link_video || "",
+        linkMaterial: row.link_material || "",
+        link360: row.tour_360 || "",
+        driveFotosUrl: row.link_drive_fotos || "",
+        fotosPdfUrl: row.pdf_comercial_path || "",
+        views: 0,
+        plataformaVenda: "",
+        dataVenda: "",
         };
       });
 
@@ -596,6 +620,7 @@ export default function Properties() {
 
     fetchProperties();
   }, []);
+
 
   // Load favorites from DB
   useEffect(() => {
