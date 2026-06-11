@@ -12,8 +12,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import sharkIcon from "@/assets/shark-icon.png";
-import sharkFriendlyIcon from "@/assets/shark-friendly.png";
 
 interface SharkAIProps {
   properties: Property[];
@@ -131,21 +129,15 @@ export function SharkAI({ properties, onSelectProperty }: SharkAIProps) {
             onClick={() => setIsOpen(true)}
             className="fixed bottom-24 left-6 z-50 w-16 h-16 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 shadow-2xl flex items-center justify-center hover:shadow-sky-400/40 transition-shadow overflow-hidden border-2 border-sky-300/60"
           >
-            <motion.img
-              src={sharkFriendlyIcon}
-              alt="Shark AI"
-              className="w-12 h-12 object-contain"
-              animate={{
-                y: [0, -6, 0],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{
-                duration: 2,
-                ease: "easeInOut",
-                repeat: Infinity,
-                repeatDelay: 58,
-              }}
-            />
+            <motion.span
+              aria-label="Shark AI"
+              role="img"
+              className="text-3xl"
+              animate={{ y: [0, -6, 0], rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatDelay: 58 }}
+            >
+              🦈
+            </motion.span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -173,7 +165,7 @@ export function SharkAI({ properties, onSelectProperty }: SharkAIProps) {
               </div>
               <div className="flex items-center gap-3 z-10">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden border border-cyan-300/30">
-                  <img src={sharkIcon} alt="Shark" className="w-9 h-9 object-contain" />
+                  <span role="img" aria-label="Shark" className="text-2xl">🦈</span>
                 </div>
                 <div>
                   <h3 className="text-white font-extrabold text-lg leading-tight">
