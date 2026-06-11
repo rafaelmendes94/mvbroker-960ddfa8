@@ -116,17 +116,92 @@ const LABELS: Record<EstruturaTipo, { title: string; singular: string; descripti
 export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   const table = TABLE[tipo];
   const meta = LABELS[tipo];
+  const { user } = useAuth();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
 
   const [base, setBase] = useState({ nome: "", codigo_interno: "", descricao: "", ativo: true });
   const [endereco, setEndereco] = useState<Endereco>(emptyEndereco);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
   const [infra, setInfra] = useState<string[]>([]);
   const [specific, setSpecific] = useState<Record<string, any>>({});
+
+  function downloadTemplate() {
+    const ws = XLSX.utils.aoa_to_sheet([
+      ["Nome", "Endereço", "Número", "Bairro", "Cidade", "Estado", "Link da Localização"],
+      [`${meta.singular} exemplo`, "Av. Brasil", "1000", "Centro", "São Paulo", "SP", "https://www.google.com/maps?q=-23.5505,-46.6333"],
+    ]);
+    ws["!cols"] = [{ wch: 32 }, { wch: 28 }, { wch: 10 }, { wch: 20 }, { wch: 22 }, { wch: 8 }, { wch: 50 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, meta.title);
+    XLSX.writeFile(wb, `modelo-importar-${table}.xlsx`);
+  }
+
+  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!user) { toast.error("Faça login para importar"); return; }
+    setImporting(true);
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf);
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows: any[] = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      const norm = (s: string) => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+      const pick = (row: any, keys: string[]) => {
+        const entries = Object.entries(row);
+        for (const k of keys) {
+          const target = norm(k);
+          const found = entries.find(([key]) => norm(key) === target);
+          if (found) return String(found[1] ?? "").trim();
+        }
+        return "";
+      };
+      const payload = rows
+        .map((r) => {
+          const nome = pick(r, ["Nome", "Nome do Empreendimento", "Empreendimento"]);
+          const logradouro = pick(r, ["Endereço", "Endereco", "Rua", "Logradouro"]);
+          const numero = pick(r, ["Número", "Numero", "Nº", "No"]);
+          const bairro = pick(r, ["Bairro"]);
+          const cidade = pick(r, ["Cidade"]);
+          const estado = pick(r, ["Estado", "UF"]);
+          const cep = pick(r, ["CEP", "Cep"]);
+          const link = pick(r, ["Link da Localização", "Link da Localizacao", "Link", "Localização", "Localizacao", "Mapa"]);
+          const { lat, lng } = parseLatLngFromUrl(link);
+          return {
+            nome, logradouro: logradouro || null, numero: numero || null,
+            bairro: bairro || null, cidade: cidade || null, estado: estado || null, cep: cep || null,
+            latitude: lat, longitude: lng,
+            ativo: true, infraestrutura: [] as string[],
+            created_by: user.id,
+          };
+        })
+        .filter((r) => r.nome);
+
+      if (!payload.length) {
+        toast.error("Nenhuma linha válida encontrada", { description: "Verifique se há a coluna 'Nome'." });
+        return;
+      }
+
+      const { error } = await supabase.from(table as any).insert(payload as any);
+      if (error) throw error;
+      await logAudit(`${tipo}_criado`, `${payload.length} ${meta.singular}(s) importado(s) via Excel`);
+      toast.success(`${payload.length} ${meta.singular}(s) importado(s)`);
+      await load();
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erro ao importar", { description: err?.message || "" });
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
 
   async function load() {
     setLoading(true);
