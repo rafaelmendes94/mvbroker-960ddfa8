@@ -47,6 +47,108 @@ export type Database = {
         }
         Relationships: []
       }
+      agenciamentos: {
+        Row: {
+          ano_construcao_iptu: string | null
+          apto_quadra_lote: string | null
+          bairro: string | null
+          box: string | null
+          chaves_obra: string | null
+          cidade: string | null
+          cond_iptu: string | null
+          condicao_pagamento: string | null
+          created_at: string
+          data_atualizacao: string | null
+          data_inclusao: string | null
+          destaque: string | null
+          dormitorios: string | null
+          entrada: string | null
+          fin_bancario: string | null
+          id: string
+          imovel: string
+          metragem: number | null
+          mobiliado: string | null
+          observacoes: string | null
+          padrao: string | null
+          posicao: string | null
+          prazo_direto: string | null
+          proprietario: string | null
+          rua: string | null
+          status: string
+          telefone: string | null
+          tipo: string | null
+          updated_at: string
+          user_id: string
+          valor: number | null
+        }
+        Insert: {
+          ano_construcao_iptu?: string | null
+          apto_quadra_lote?: string | null
+          bairro?: string | null
+          box?: string | null
+          chaves_obra?: string | null
+          cidade?: string | null
+          cond_iptu?: string | null
+          condicao_pagamento?: string | null
+          created_at?: string
+          data_atualizacao?: string | null
+          data_inclusao?: string | null
+          destaque?: string | null
+          dormitorios?: string | null
+          entrada?: string | null
+          fin_bancario?: string | null
+          id?: string
+          imovel?: string
+          metragem?: number | null
+          mobiliado?: string | null
+          observacoes?: string | null
+          padrao?: string | null
+          posicao?: string | null
+          prazo_direto?: string | null
+          proprietario?: string | null
+          rua?: string | null
+          status?: string
+          telefone?: string | null
+          tipo?: string | null
+          updated_at?: string
+          user_id: string
+          valor?: number | null
+        }
+        Update: {
+          ano_construcao_iptu?: string | null
+          apto_quadra_lote?: string | null
+          bairro?: string | null
+          box?: string | null
+          chaves_obra?: string | null
+          cidade?: string | null
+          cond_iptu?: string | null
+          condicao_pagamento?: string | null
+          created_at?: string
+          data_atualizacao?: string | null
+          data_inclusao?: string | null
+          destaque?: string | null
+          dormitorios?: string | null
+          entrada?: string | null
+          fin_bancario?: string | null
+          id?: string
+          imovel?: string
+          metragem?: number | null
+          mobiliado?: string | null
+          observacoes?: string | null
+          padrao?: string | null
+          posicao?: string | null
+          prazo_direto?: string | null
+          proprietario?: string | null
+          rua?: string | null
+          status?: string
+          telefone?: string | null
+          tipo?: string | null
+          updated_at?: string
+          user_id?: string
+          valor?: number | null
+        }
+        Relationships: []
+      }
       arquivo_logs: {
         Row: {
           acao: Database["public"]["Enums"]["arquivo_acao"]
