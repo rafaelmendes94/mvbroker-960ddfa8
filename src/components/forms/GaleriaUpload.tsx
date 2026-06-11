@@ -12,7 +12,7 @@ type Img = {
   capa: boolean;
 };
 
-export type EstruturaTipo = "edificio" | "condominio" | "empreendimento";
+export type EstruturaTipo = "edificio" | "condominio" | "empreendimento" | "loteamento";
 
 export function GaleriaUpload({
   tipo,
