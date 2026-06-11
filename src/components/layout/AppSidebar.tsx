@@ -3,7 +3,7 @@ import { useState } from "react";
 import {
   Building2, LayoutDashboard, Users, UserSquare2,
   BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Lock,
-  Tag, Sparkles, Upload, ChevronDown, Layers,
+  Tag, Sparkles, Upload, ChevronDown, Layers, FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
