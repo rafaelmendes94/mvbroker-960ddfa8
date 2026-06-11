@@ -22,7 +22,6 @@ function RelatoriosAdminIndex() {
       <PageHeader
         title="Relatórios Admin"
         description="BI administrativo da plataforma — restrito ao Super Admin."
-        icon={<BarChart3 className="h-5 w-5" />}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {ITEMS.map((it) => {
