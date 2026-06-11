@@ -182,7 +182,7 @@ function LandingPage() {
 
           <div className="hidden md:block">
             <Link to="/auth">
-              <button className="inline-flex items-center gap-2 rounded-md border border-[#ffffff] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#ffffff]">
+              <button className="inline-flex items-center gap-2 rounded-md border border-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-[#020617]">
                 <User className="h-4 w-4" />
                 Login
               </button>
@@ -465,7 +465,7 @@ function LandingPage() {
               </ul>
               <h4 className="mb-3 mt-6 text-sm font-bold text-white">Acesso</h4>
               <Link to="/auth">
-                <button className="inline-flex items-center gap-2 rounded-md border border-[#ffffff] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#ffffff]">
+                <button className="inline-flex items-center gap-2 rounded-md border border-white px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-white hover:text-[#020617]">
                   <User className="h-3.5 w-3.5" />
                   Login
                 </button>
