@@ -488,45 +488,43 @@ export default function Reports() {
                     </div>
                   ),
                 },
-                ...(filtered.length > 0 ? [
-                  {
-                    key: "rankings-1",
-                    node: (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <RankingBarCard title="Tipo de Imóvel" data={rankings.byType} colors={TYPE_COLORS} />
-                        <RankingBarCard title="Dormitórios" data={rankings.byBedrooms} />
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "rankings-entidades",
-                    node: (
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                       <RankingListCard title="Edifícios Mais Vendidos" icon={Building2} data={rankings.byEdificio.slice(0, 6)} sales={filtered} field="edificio" />
-                       <RankingListCard title="Condomínios Mais Vendidos" icon={Building2} data={rankings.byCondominio.slice(0, 6)} sales={filtered} field="condominio" />
-                       <RankingListCard title="Loteamentos Mais Vendidos" icon={Building2} data={rankings.byEmpreendimento.slice(0, 6)} sales={filtered} field="empreendimento" />
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "rankings-2",
-                    node: (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <RankingProgressCard title="Top Corretores" data={rankings.byBroker} />
-                        <RankingProgressCard title="Proprietários" data={rankings.byOwner} />
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "rankings-3",
-                    node: (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <RankingBarCard title="Cidade" data={rankings.byCity} />
-                        <RankingBarCard title="Bairros" data={rankings.byNeighborhood} />
-                      </div>
-                    ),
-                  },
-                ] : []),
+                {
+                  key: "rankings-1",
+                  node: (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <RankingBarCard title="Tipo de Imóvel" data={rankings.byType} colors={TYPE_COLORS} />
+                      <RankingBarCard title="Dormitórios" data={rankings.byBedrooms} />
+                    </div>
+                  ),
+                },
+                {
+                  key: "rankings-entidades",
+                  node: (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      <RankingListCard title="Edifícios Mais Vendidos" icon={Building2} data={rankings.byEdificio.slice(0, 6)} sales={filtered} field="edificio" />
+                      <RankingListCard title="Condomínios Mais Vendidos" icon={Building2} data={rankings.byCondominio.slice(0, 6)} sales={filtered} field="condominio" />
+                      <RankingListCard title="Loteamentos Mais Vendidos" icon={Building2} data={rankings.byEmpreendimento.slice(0, 6)} sales={filtered} field="empreendimento" />
+                    </div>
+                  ),
+                },
+                {
+                  key: "rankings-2",
+                  node: (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <RankingProgressCard title="Top Corretores" data={rankings.byBroker} />
+                      <RankingProgressCard title="Proprietários" data={rankings.byOwner} />
+                    </div>
+                  ),
+                },
+                {
+                  key: "rankings-3",
+                  node: (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <RankingBarCard title="Cidade" data={rankings.byCity} />
+                      <RankingBarCard title="Bairros" data={rankings.byNeighborhood} />
+                    </div>
+                  ),
+                },
                 {
                   key: "recent-sales",
                   node: (
@@ -909,7 +907,12 @@ function ComparativoAnual({
 }
 
 function RankingBarCard({ title, data, colors }: { title: string; data: { name: string; count: number; vgv: number }[]; colors?: Record<string, string> }) {
-  if (data.length === 0) return null;
+  if (data.length === 0) return (
+    <div className="elevated-card rounded-xl p-5">
+      <h3 className="text-sm font-semibold text-card-foreground mb-3 flex items-center gap-2"><Trophy className="w-4 h-4 text-accent" /> Ranking — {title}</h3>
+      <p className="text-sm text-muted-foreground text-center py-10">Sem dados no período</p>
+    </div>
+  );
   return (
     <div className="elevated-card rounded-xl p-5">
       <h3 className="text-sm font-semibold text-card-foreground mb-3 flex items-center gap-2"><Trophy className="w-4 h-4 text-accent" /> Ranking — {title}</h3>
@@ -944,7 +947,12 @@ function RankingBarCard({ title, data, colors }: { title: string; data: { name: 
 
 function RankingListCard({ title, icon: Icon, data, colors, sales, field }: { title: string; icon: React.ElementType; data: { name: string; count: number; vgv: number }[]; colors?: Record<string, string>; sales?: RealSaleRecord[]; field?: "edificio" | "condominio" | "empreendimento" }) {
   const [openName, setOpenName] = useState<string | null>(null);
-  if (data.length === 0) return null;
+  if (data.length === 0) return (
+    <div className="elevated-card rounded-xl p-5">
+      <h3 className="text-sm font-semibold text-card-foreground mb-3 flex items-center gap-2"><Icon className="w-4 h-4 text-accent" /> {title}</h3>
+      <p className="text-sm text-muted-foreground text-center py-10">Sem dados no período</p>
+    </div>
+  );
   const matched = openName && sales && field ? sales.filter(s => (s[field] || "") === openName) : [];
   const totalVgv = matched.reduce((sum, s) => sum + s.price, 0);
   return (
@@ -1022,7 +1030,12 @@ function RankingListCard({ title, icon: Icon, data, colors, sales, field }: { ti
 }
 
 function RankingProgressCard({ title, data }: { title: string; data: { name: string; count: number; vgv: number }[] }) {
-  if (data.length === 0) return null;
+  if (data.length === 0) return (
+    <div className="elevated-card rounded-xl p-5">
+      <h3 className="text-sm font-semibold text-card-foreground mb-3 flex items-center gap-2"><Trophy className="w-4 h-4 text-accent" /> {title}</h3>
+      <p className="text-sm text-muted-foreground text-center py-10">Sem dados no período</p>
+    </div>
+  );
   const maxVgv = data[0]?.vgv || 1;
   return (
     <div className="elevated-card rounded-xl p-5">
