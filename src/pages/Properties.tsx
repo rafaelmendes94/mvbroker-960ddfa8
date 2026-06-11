@@ -2166,25 +2166,8 @@ function PropertyCard({
         {/* Last update indicator */}
         <UpdateBadge updatedAt={property.updatedAt} createdAt={property.createdAt} />
 
-        {/* Broker + WhatsApp */}
-        <div className="flex items-center justify-between pt-2 border-t border-border">
-          <div className="flex items-center gap-2">
-            <img src={broker.photo} alt={property.broker} className="w-7 h-7 rounded-full object-cover border-2 border-accent" />
-            <div>
-              <p className="text-[11px] font-semibold text-foreground">{property.broker}</p>
-              <p className="text-[9px] text-muted-foreground">Corretor(a)</p>
-            </div>
-          </div>
-          <a
-            href={`https://wa.me/${broker.whatsapp}?text=${whatsappMessage}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-[11px] font-bold hover:bg-emerald-700 transition-colors shadow-sm"
-            onClick={(e: any) => e.stopPropagation()}
-          >
-            <Phone className="w-3 h-3" /> WhatsApp
-          </a>
-        </div>
+        {/* Broker + WhatsApp removidos — somente admin cadastra */}
+
 
         {/* Edit + Delete + Status */}
         <div className="flex items-center gap-2 pt-2 border-t border-border">
@@ -2725,36 +2708,9 @@ function PropertyRow({
           </button>
         </div>
 
-        {/* ── COL 4: Corretor + Chaves + Datas + Status ── */}
+        {/* ── COL 4: Chaves + Datas + Status ── */}
         <div className="w-full md:flex-1 md:min-w-[220px] md:max-w-[240px] flex-shrink-0 md:border-r border-border px-4 py-3 flex flex-col justify-center gap-1.5" onClick={(e: any) => e.stopPropagation()}>
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <User className="w-3.5 h-3.5 text-primary" />
-            <span className="text-[11px] font-black text-primary uppercase tracking-wider">Corretor</span>
-          </div>
-          {/* Broker */}
-          <div className="border-b border-border pb-1.5 mb-0.5 flex items-center gap-2">
-            {property.brokerPhoto ? (
-              <img src={property.brokerPhoto} alt={property.broker} className="w-8 h-8 rounded-full object-cover border border-border flex-shrink-0" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 text-primary" />
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <div className="text-[13px] font-bold text-foreground leading-tight truncate" title={property.broker}>{property.broker || "Corretor"}</div>
-              {property.brokerWhatsapp && (
-                <a
-                  href={`https://wa.me/${property.brokerWhatsapp}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-[11px] text-emerald-500 hover:text-emerald-400 transition-colors mt-0.5"
-                >
-                  <Phone className="w-3 h-3" /> {property.brokerWhatsapp.replace(/^55/, "").replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")}
-                </a>
-              )}
-            </div>
-          </div>
-          {/* Keys */}
+
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground border-b border-border pb-1.5 mb-0.5">
             <Key className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
             <span className="font-bold text-foreground leading-tight">{property.keysLocation || "Não informado"}</span>
