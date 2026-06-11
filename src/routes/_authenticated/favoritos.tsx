@@ -1,7 +1,7 @@
 import { IMOVEL_PUBLIC_COLUMNS } from "@/lib/db-columns";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Heart, MapPin, Eye, ShoppingBag, Check } from "lucide-react";
+import { Heart, MapPin, ShoppingBag, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
