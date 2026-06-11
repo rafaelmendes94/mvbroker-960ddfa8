@@ -30,17 +30,21 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 bg-background/80 backdrop-blur border-b border-border">
-      <div className="flex items-center gap-3 h-16 px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-30 bg-card border-b border-border">
+      <div className="flex items-center gap-3 h-20 px-4 sm:px-6 lg:px-8">
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick}>
           <Menu className="h-5 w-5" />
         </Button>
 
         {/* Search */}
-        <div className="flex-1 max-w-xl relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Busca global..." className="pl-9 bg-muted/40 border-transparent focus-visible:bg-background" />
+        <div className="flex-1 max-w-md relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Pesquisar por clientes, imóveis..."
+            className="pl-11 h-11 rounded-full bg-muted border-transparent focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-accent"
+          />
         </div>
+
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2 shrink-0">
 
