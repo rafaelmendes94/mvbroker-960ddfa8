@@ -680,16 +680,24 @@ export default function Properties() {
 
   const [pendingSold, setPendingSold] = useState<Property | null>(null);
 
+  const STATUS_UI_TO_DB: Record<Property["status"], string> = {
+    "Disponível": "disponivel",
+    "Vendido": "vendido",
+    "Reservado": "reservado",
+    "Alugado": "alugado",
+    "Suspenso": "suspenso",
+  };
+
   const persistStatus = async (
     propertyId: string,
     newStatus: Property["status"],
-    extra: Record<string, any> = {}
+    _extra: Record<string, any> = {}
   ) => {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(propertyId);
     if (isUuid) {
       const { error } = await supabase
         .from("imoveis")
-        .update({ status: newStatus, updated_at: new Date().toISOString(), ...extra })
+        .update({ status_imovel: STATUS_UI_TO_DB[newStatus], updated_at: new Date().toISOString() } as any)
         .eq("id", propertyId);
       if (error) {
         toast.error("Erro ao atualizar status");
@@ -709,17 +717,12 @@ export default function Properties() {
       return;
     }
 
-    // Other status changes: persist immediately and clear sale-specific fields if leaving "Vendido"
-    const extra =
-      target.status === "Vendido" && newStatus !== "Vendido"
-        ? { plataforma_venda: "", data_venda: null }
-        : {};
-    const ok = await persistStatus(propertyId, newStatus, extra);
+    const ok = await persistStatus(propertyId, newStatus);
     if (!ok) return;
     setPropertyList((prev: any) =>
       prev.map((p: any) =>
         p.id === propertyId
-          ? { ...p, status: newStatus, ...(extra.plataforma_venda !== undefined ? { plataformaVenda: "", dataVenda: "" } : {}) }
+          ? { ...p, status: newStatus, ...(target.status === "Vendido" && newStatus !== "Vendido" ? { plataformaVenda: "", dataVenda: "" } : {}) }
           : p
       )
     );
@@ -728,11 +731,9 @@ export default function Properties() {
   const handleConfirmSold = async ({ platform, saleDate }: SoldConfirmPayload) => {
     if (!pendingSold) return;
     const propertyId = pendingSold.id;
-    const ok = await persistStatus(propertyId, "Vendido", {
-      plataforma_venda: platform,
-      data_venda: saleDate,
-    });
+    const ok = await persistStatus(propertyId, "Vendido");
     if (!ok) return;
+
     setPropertyList((prev: any) =>
       prev.map((p: any) =>
         p.id === propertyId
