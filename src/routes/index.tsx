@@ -147,6 +147,18 @@ const PLANS = [
 
 function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [waNumero, setWaNumero] = useState(WHATSAPP_FALLBACK);
+
+  useEffect(() => {
+    supabase
+      .rpc("get_contato_publico", { p_slug: "whatsapp_comercial" })
+      .then(({ data }) => {
+        const v = (data as string | null)?.replace(/\D/g, "");
+        if (v && v.length >= 10) setWaNumero(v);
+      });
+  }, []);
+
+
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
