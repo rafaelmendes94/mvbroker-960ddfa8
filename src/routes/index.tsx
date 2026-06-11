@@ -302,7 +302,7 @@ function LandingPage() {
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <span className="absolute right-3 top-3 rounded-md bg-[#0a0a0a] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                  <span className="absolute right-3 top-3 rounded-md bg-[#10b981] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
                     Destaque
                   </span>
                 </div>
