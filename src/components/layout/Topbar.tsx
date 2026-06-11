@@ -107,14 +107,19 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 rounded-full hover:bg-muted px-1 py-1 transition-colors">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+              <button className="flex items-center gap-3 rounded-full hover:bg-muted pl-3 pr-1 py-1 transition-colors border-l border-border ml-1">
+                <div className="hidden sm:flex flex-col items-end leading-tight">
+                  <span className="text-sm font-bold text-foreground truncate max-w-[160px]">{user?.email?.split("@")[0] ?? "Usuário"}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Conta MV Broker</span>
+                </div>
+                <Avatar className="h-9 w-9 ring-2 ring-muted">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
               </button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col">
