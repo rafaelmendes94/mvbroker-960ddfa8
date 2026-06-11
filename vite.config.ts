@@ -14,10 +14,20 @@ export default defineConfig({
   },
   vite: {
     preview: {
-      allowedHosts: ["app.sistemamvbroker.com.br", ".sistemamvbroker.com.br"],
+      allowedHosts: [
+        "sistemamvbroker.com.br",
+        "www.sistemamvbroker.com.br",
+        "app.sistemamvbroker.com.br",
+        ".sistemamvbroker.com.br",
+      ],
     },
     server: {
-      allowedHosts: ["app.sistemamvbroker.com.br", ".sistemamvbroker.com.br"],
+      allowedHosts: [
+        "sistemamvbroker.com.br",
+        "www.sistemamvbroker.com.br",
+        "app.sistemamvbroker.com.br",
+        ".sistemamvbroker.com.br",
+      ],
     },
   },
 });
