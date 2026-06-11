@@ -165,18 +165,14 @@
   }
 }
 
-/* Relatórios: paleta colorida (azul VGV, verde sucesso) sobreposta ao tema preto/branco */
+/* Relatórios: usa a paleta base (verde neon + preto/grafite) */
 .reports-scope {
-  --accent: oklch(0.55 0.20 255);
-  --accent-foreground: oklch(0.98 0 0);
-  --success: oklch(0.65 0.17 152);
-  --success-foreground: oklch(1 0 0);
+  --accent: oklch(0.88 0.30 142);
+  --accent-foreground: oklch(0.15 0 0);
+  --success: oklch(0.88 0.30 142);
+  --success-foreground: oklch(0.15 0 0);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
-}
-.dark .reports-scope {
-  --accent: oklch(0.70 0.18 255);
-  --success: oklch(0.75 0.16 152);
 }
