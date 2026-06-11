@@ -289,9 +289,11 @@ function ClientesPage() {
                   <TableHead>Cliente</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Plano</TableHead>
+                  <TableHead>Ciclo</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Corretores</TableHead>
                   <TableHead>Valor</TableHead>
+                  <TableHead>Próx. vencimento</TableHead>
                   <TableHead className="w-44 text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
