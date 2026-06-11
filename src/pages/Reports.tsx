@@ -907,7 +907,12 @@ function ComparativoAnual({
 }
 
 function RankingBarCard({ title, data, colors }: { title: string; data: { name: string; count: number; vgv: number }[]; colors?: Record<string, string> }) {
-  if (data.length === 0) return null;
+  if (data.length === 0) return (
+    <div className="elevated-card rounded-xl p-5">
+      <h3 className="text-sm font-semibold text-card-foreground mb-3 flex items-center gap-2"><Trophy className="w-4 h-4 text-accent" /> Ranking — {title}</h3>
+      <p className="text-sm text-muted-foreground text-center py-10">Sem dados no período</p>
+    </div>
+  );
   return (
     <div className="elevated-card rounded-xl p-5">
       <h3 className="text-sm font-semibold text-card-foreground mb-3 flex items-center gap-2"><Trophy className="w-4 h-4 text-accent" /> Ranking — {title}</h3>
