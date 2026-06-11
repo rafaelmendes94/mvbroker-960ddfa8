@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import { Plus, Search, Pencil, Trash2, Building2, Download, Upload, Loader2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Building2, Download, Upload, Loader2, LayoutGrid } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
