@@ -971,6 +971,7 @@ export type Database = {
           logradouro: string | null
           longitude: number | null
           lote: string | null
+          loteamento_id: string | null
           numero: string | null
           observacoes_internas: string | null
           outras_caracteristicas: string[]
@@ -1054,6 +1055,7 @@ export type Database = {
           logradouro?: string | null
           longitude?: number | null
           lote?: string | null
+          loteamento_id?: string | null
           numero?: string | null
           observacoes_internas?: string | null
           outras_caracteristicas?: string[]
@@ -1137,6 +1139,7 @@ export type Database = {
           logradouro?: string | null
           longitude?: number | null
           lote?: string | null
+          loteamento_id?: string | null
           numero?: string | null
           observacoes_internas?: string | null
           outras_caracteristicas?: string[]
@@ -1205,6 +1208,13 @@ export type Database = {
             columns: ["imobiliaria_id"]
             isOneToOne: false
             referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_loteamento_id_fkey"
+            columns: ["loteamento_id"]
+            isOneToOne: false
+            referencedRelation: "loteamentos"
             referencedColumns: ["id"]
           },
         ]
@@ -1316,6 +1326,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      loteamentos: {
+        Row: {
+          area_total_m2: number | null
+          ativo: boolean
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          codigo_interno: string | null
+          complemento: string | null
+          created_at: string
+          created_by: string | null
+          descricao: string | null
+          estado: string | null
+          id: string
+          infraestrutura: Json | null
+          latitude: number | null
+          logradouro: string | null
+          longitude: number | null
+          lotes_disponiveis: number | null
+          nome: string
+          numero: string | null
+          observacoes: string | null
+          total_lotes: number | null
+          updated_at: string
+        }
+        Insert: {
+          area_total_m2?: number | null
+          ativo?: boolean
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          codigo_interno?: string | null
+          complemento?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          estado?: string | null
+          id?: string
+          infraestrutura?: Json | null
+          latitude?: number | null
+          logradouro?: string | null
+          longitude?: number | null
+          lotes_disponiveis?: number | null
+          nome: string
+          numero?: string | null
+          observacoes?: string | null
+          total_lotes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          area_total_m2?: number | null
+          ativo?: boolean
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          codigo_interno?: string | null
+          complemento?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          estado?: string | null
+          id?: string
+          infraestrutura?: Json | null
+          latitude?: number | null
+          logradouro?: string | null
+          longitude?: number | null
+          lotes_disponiveis?: number | null
+          nome?: string
+          numero?: string | null
+          observacoes?: string | null
+          total_lotes?: number | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       notification_preferences: {
         Row: {

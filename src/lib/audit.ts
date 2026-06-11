@@ -9,6 +9,7 @@ export type AuditEvento =
   | "edificio_criado" | "edificio_atualizado" | "edificio_excluido"
   | "condominio_criado" | "condominio_atualizado" | "condominio_excluido"
   | "empreendimento_criado" | "empreendimento_atualizado" | "empreendimento_excluido"
+  | "loteamento_criado" | "loteamento_atualizado" | "loteamento_excluido"
   | "imagem_upload"
   | "imovel_criado" | "imovel_atualizado" | "imovel_excluido" | "imovel_duplicado" | "imovel_arquivado"
   | "imovel_upload" | "imovel_xml_publicado"

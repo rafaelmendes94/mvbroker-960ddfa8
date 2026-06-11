@@ -73,18 +73,27 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
       { key: "data_entrega_efetiva", label: "Data entrega efetiva", type: "date" },
     ],
   },
+  loteamento: {
+    fields: [
+      { key: "area_total_m2", label: "Área total (m²)", type: "number" },
+      { key: "total_lotes", label: "Total de lotes", type: "number" },
+      { key: "lotes_disponiveis", label: "Lotes disponíveis", type: "number" },
+    ],
+  },
 };
 
-const TABLE: Record<EstruturaTipo, "edificios" | "condominios" | "empreendimentos"> = {
+const TABLE: Record<EstruturaTipo, "edificios" | "condominios" | "empreendimentos" | "loteamentos"> = {
   edificio: "edificios",
   condominio: "condominios",
   empreendimento: "empreendimentos",
+  loteamento: "loteamentos",
 };
 
 const LABELS: Record<EstruturaTipo, { title: string; singular: string; description: string }> = {
   edificio: { title: "Edifícios", singular: "edifício", description: "Cadastro centralizado de edifícios para reutilização nos imóveis." },
   condominio: { title: "Condomínios", singular: "condomínio", description: "Cadastro centralizado de condomínios para reutilização nos imóveis." },
   empreendimento: { title: "Empreendimentos", singular: "empreendimento", description: "Cadastro de empreendimentos e lançamentos imobiliários." },
+  loteamento: { title: "Loteamentos", singular: "loteamento", description: "Cadastro de loteamentos para vincular lotes aos imóveis." },
 };
 
 export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {

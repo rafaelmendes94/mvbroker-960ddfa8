@@ -71,7 +71,7 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
     tipo_imovel: "", status_imovel: "disponivel",
     dormitorios: null, banheiros: null, lavabo: null, vagas: null, elevadores: null,
     area_privativa: null, area_total: null,
-    edificio_id: null, condominio_id: null, empreendimento_id: null, imobiliaria_id: null, corretor_id: null,
+    edificio_id: null, condominio_id: null, empreendimento_id: null, loteamento_id: null, imobiliaria_id: null, corretor_id: null,
     cep: "", logradouro: "", numero: "", complemento: "", bairro: "", cidade: "", estado: "",
     latitude: null, longitude: null,
     preco: null, preco_parcelado: null, comissao_percentual: null, valor_comissao: null,
@@ -98,6 +98,7 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
   const [edificios, setEdificios] = useState<Estrutura[]>([]);
   const [condominios, setCondominios] = useState<Estrutura[]>([]);
   const [empreendimentos, setEmpreendimentos] = useState<Estrutura[]>([]);
+  const [loteamentos, setLoteamentos] = useState<Estrutura[]>([]);
   const [imobiliarias, setImobiliarias] = useState<AnyRec[]>([]);
   const [corretores, setCorretores] = useState<AnyRec[]>([]);
 
@@ -121,6 +122,7 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
     supabase.from("edificios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r) => setEdificios((r.data as any) ?? []));
     supabase.from("condominios").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r) => setCondominios((r.data as any) ?? []));
     supabase.from("empreendimentos").select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r) => setEmpreendimentos((r.data as any) ?? []));
+    supabase.from("loteamentos" as any).select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura").order("nome").then((r: any) => setLoteamentos((r.data as any) ?? []));
     supabase.from("imobiliarias").select("id, nome").order("nome").then((r) => setImobiliarias(r.data ?? []));
     supabase.from("corretores").select("id, nome").order("nome").then((r) => setCorretores(r.data ?? []));
   }, []);
@@ -158,8 +160,11 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
     toast.success(`Dados de "${e.nome}" herdados`);
   }
 
-  function selectVinculo(tipo: "edificio" | "condominio" | "empreendimento", id: string) {
-    const list = tipo === "edificio" ? edificios : tipo === "condominio" ? condominios : empreendimentos;
+  function selectVinculo(tipo: "edificio" | "condominio" | "empreendimento" | "loteamento", id: string) {
+    const list = tipo === "edificio" ? edificios
+      : tipo === "condominio" ? condominios
+      : tipo === "empreendimento" ? empreendimentos
+      : loteamentos;
     const key = `${tipo}_id`;
     set(key, id || null);
     if (!id) return;
@@ -244,7 +249,7 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
       ["dormitorios","banheiros","lavabo","vagas","elevadores","area_privativa","area_total","preco","preco_parcelado","comissao_percentual","valor_comissao","comissao_compartilhada","prioridade_xml","latitude","longitude"].forEach((k) => {
         if (payload[k] === "" || payload[k] === undefined) payload[k] = null;
       });
-      ["edificio_id","condominio_id","empreendimento_id","imobiliaria_id","corretor_id"].forEach((k) => {
+      ["edificio_id","condominio_id","empreendimento_id","loteamento_id","imobiliaria_id","corretor_id"].forEach((k) => {
         if (!payload[k]) payload[k] = null;
       });
       delete payload.id;
@@ -391,6 +396,15 @@ export function ImovelForm({ initial, onSaved }: { initial?: AnyRec | null; onSa
                 <SelectContent>
                   <SelectItem value="">—</SelectItem>
                   {empreendimentos.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Loteamento">
+              <Select value={form.loteamento_id ?? ""} onValueChange={(v) => selectVinculo("loteamento", v)}>
+                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">—</SelectItem>
+                  {loteamentos.map((e) => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Field>

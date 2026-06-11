@@ -1,31 +1,42 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
 import {
-  Building2, LayoutDashboard, FolderKanban, Users, UserSquare2,
-  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Heart, Rss, Lock,
-  CreditCard, Tag, Wallet, Bell, Sparkles, Upload,
+  Building2, LayoutDashboard, Users, UserSquare2,
+  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Lock,
+  Tag, Sparkles, Upload, ChevronDown, Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
 import { canAccess, primaryRole, ROLE_LABEL, type AppRole } from "@/lib/permissions";
 
-type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
+type LeafItem = { to: string; label: string; icon: typeof LayoutDashboard };
+type GroupItem = { label: string; icon: typeof LayoutDashboard; children: LeafItem[] };
+type NavEntry = LeafItem | GroupItem;
 
-const ALL_NAV: NavItem[] = [
+const isGroup = (e: NavEntry): e is GroupItem => "children" in e;
+
+const ALL_NAV: NavEntry[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/oportunidades", label: "Oportunidades", icon: Sparkles },
   { to: "/imoveis", label: "Imóveis", icon: Home },
   { to: "/central", label: "Central de Imóveis", icon: Search },
-  
-  { to: "/edificios", label: "Edifícios", icon: Building2 },
-  { to: "/condominios", label: "Condomínios", icon: Building },
-  { to: "/empreendimentos", label: "Empreendimentos", icon: Briefcase },
+  {
+    label: "Empreendimentos",
+    icon: Layers,
+    children: [
+      { to: "/empreendimentos", label: "Empreendimentos", icon: Briefcase },
+      { to: "/condominios", label: "Condomínios", icon: Building },
+      { to: "/edificios", label: "Edifícios", icon: Building2 },
+      { to: "/loteamentos", label: "Loteamentos", icon: Layers },
+    ],
+  },
   { to: "/usuarios", label: "Usuários", icon: Users },
   { to: "/clientes", label: "Clientes", icon: UserSquare2 },
   { to: "/planos", label: "Planos", icon: Tag },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/imoveis/exportacao", label: "Exportação de Imóveis", icon: Download },
-  { to: "/carteiras", label: "Carteiras XML", icon: Rss },
-  { to: "/portais", label: "Portais", icon: Rss },
+  { to: "/carteiras", label: "Carteiras XML", icon: Briefcase },
+  { to: "/portais", label: "Portais", icon: Briefcase },
   { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
   { to: "/seguranca", label: "Segurança", icon: Lock },
   { to: "/biblioteca", label: "Biblioteca de Arquivos", icon: FolderArchive },
@@ -38,7 +49,16 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { roles } = useRoles();
   const effectiveRoles: AppRole[] = roles.length ? roles : ["corretor_autonomo"];
   const role = primaryRole(effectiveRoles);
-  const items = ALL_NAV.filter((n) => canAccess(n.to, effectiveRoles));
+
+  const items: NavEntry[] = ALL_NAV
+    .map((e) => {
+      if (isGroup(e)) {
+        const children = e.children.filter((c) => canAccess(c.to, effectiveRoles));
+        return children.length ? { ...e, children } : null;
+      }
+      return canAccess(e.to, effectiveRoles) ? e : null;
+    })
+    .filter(Boolean) as NavEntry[];
 
   return (
     <div className="flex flex-col h-full">
@@ -64,27 +84,13 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           </span>
         </div>
         <ul className="space-y-0.5">
-          {items.map(item => {
-            const active = pathname === item.to || pathname.startsWith(item.to + "/");
-            const Icon = item.icon;
-            return (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  onClick={onNavigate}
-                  className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                    active
-                      ? "bg-primary text-primary-foreground font-medium shadow-sm"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  )}
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
+          {items.map((item) =>
+            isGroup(item) ? (
+              <GroupNode key={item.label} item={item} pathname={pathname} onNavigate={onNavigate} />
+            ) : (
+              <LeafNode key={item.to} item={item} pathname={pathname} onNavigate={onNavigate} />
+            )
+          )}
         </ul>
       </nav>
 
@@ -95,5 +101,59 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         </a>
       </div>
     </div>
+  );
+}
+
+function LeafNode({ item, pathname, onNavigate, nested }: { item: LeafItem; pathname: string; onNavigate?: () => void; nested?: boolean }) {
+  const active = pathname === item.to || pathname.startsWith(item.to + "/");
+  const Icon = item.icon;
+  return (
+    <li>
+      <Link
+        to={item.to}
+        onClick={onNavigate}
+        className={cn(
+          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+          nested && "pl-9",
+          active
+            ? "bg-primary text-primary-foreground font-medium shadow-sm"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        )}
+      >
+        <Icon className="h-4 w-4 shrink-0" />
+        <span className="truncate">{item.label}</span>
+      </Link>
+    </li>
+  );
+}
+
+function GroupNode({ item, pathname, onNavigate }: { item: GroupItem; pathname: string; onNavigate?: () => void }) {
+  const hasActive = item.children.some((c) => pathname === c.to || pathname.startsWith(c.to + "/"));
+  const [open, setOpen] = useState(hasActive);
+  const Icon = item.icon;
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          "w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+          hasActive
+            ? "text-sidebar-foreground font-medium"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        )}
+      >
+        <Icon className="h-4 w-4 shrink-0" />
+        <span className="truncate flex-1 text-left">{item.label}</span>
+        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <ul className="mt-0.5 space-y-0.5">
+          {item.children.map((c) => (
+            <LeafNode key={c.to} item={c} pathname={pathname} onNavigate={onNavigate} nested />
+          ))}
+        </ul>
+      )}
+    </li>
   );
 }
