@@ -91,7 +91,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       {/* Logo */}
       <div className="px-6 py-6">
         <Link to="/dashboard" onClick={onNavigate} className="flex items-center gap-3 group">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-accent-foreground shrink-0 shadow-[0_0_20px_-2px_oklch(0.89_0.20_121/0.45)] transition-transform group-hover:scale-105">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-[image:var(--gradient-accent)] text-accent-foreground shrink-0 shadow-[var(--shadow-accent)] transition-transform group-hover:scale-105">
             <Building2 className="h-5 w-5" />
           </div>
           <div className="min-w-0">
