@@ -2166,25 +2166,8 @@ function PropertyCard({
         {/* Last update indicator */}
         <UpdateBadge updatedAt={property.updatedAt} createdAt={property.createdAt} />
 
-        {/* Broker + WhatsApp */}
-        <div className="flex items-center justify-between pt-2 border-t border-border">
-          <div className="flex items-center gap-2">
-            <img src={broker.photo} alt={property.broker} className="w-7 h-7 rounded-full object-cover border-2 border-accent" />
-            <div>
-              <p className="text-[11px] font-semibold text-foreground">{property.broker}</p>
-              <p className="text-[9px] text-muted-foreground">Corretor(a)</p>
-            </div>
-          </div>
-          <a
-            href={`https://wa.me/${broker.whatsapp}?text=${whatsappMessage}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-[11px] font-bold hover:bg-emerald-700 transition-colors shadow-sm"
-            onClick={(e: any) => e.stopPropagation()}
-          >
-            <Phone className="w-3 h-3" /> WhatsApp
-          </a>
-        </div>
+        {/* Broker + WhatsApp removidos — somente admin cadastra */}
+
 
         {/* Edit + Delete + Status */}
         <div className="flex items-center gap-2 pt-2 border-t border-border">
