@@ -28,9 +28,9 @@ import {
   Linkedin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import bgDesktop from "@/assets/bg-mv.png.asset.json";
-import bgMobile from "@/assets/bg-mobilemv.png.asset.json";
-import logoMv from "@/assets/logo-mv.png.asset.json";
+const bgDesktop = { url: "/img/bg-mv.png" };
+const bgMobile = { url: "/img/bg-mobilemv.png" };
+const logoMv = { url: "/img/logo-mv.png" };
 
 export const Route = createFileRoute("/")({
   head: () => ({
