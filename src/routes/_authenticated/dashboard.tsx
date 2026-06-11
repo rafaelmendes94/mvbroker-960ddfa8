@@ -4,7 +4,7 @@ import {
   Building, Briefcase, ImageIcon, FileUp, RefreshCw, Clock, FileText, BadgeCheck, Heart, Eye,
 } from "lucide-react";
 import {
-  Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart,
   ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
