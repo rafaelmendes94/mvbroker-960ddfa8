@@ -1434,14 +1434,12 @@ export default function Properties() {
             {sorted.length} imóvel(is)
             {sorted.length > ITEMS_PER_PAGE && ` • Página ${currentPage} de ${totalPages}`}
           </span>
-          {favoriteIds.length > 0 && (
-            <button
-              onClick={() => setShowFavoritesModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent text-sm font-semibold hover:bg-accent/20 transition-colors"
-            >
-              <Heart className="w-3.5 h-3.5 fill-current" /> Minha Lista ({favoriteIds.length})
-            </button>
-          )}
+          <button
+            onClick={() => setShowFavoritesModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent text-sm font-semibold hover:bg-accent/20 transition-colors"
+          >
+            <Heart className={cn("w-3.5 h-3.5", favoriteIds.length > 0 && "fill-current")} /> Favoritos ({favoriteIds.length})
+          </button>
         </div>
 
         {/* Content */}

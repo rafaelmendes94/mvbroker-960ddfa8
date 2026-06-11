@@ -15,8 +15,6 @@ const ALL_NAV: NavItem[] = [
   { to: "/oportunidades", label: "Oportunidades", icon: Sparkles },
   { to: "/imoveis", label: "Imóveis", icon: Home },
   { to: "/central", label: "Central de Imóveis", icon: Search },
-  { to: "/favoritos", label: "Favoritos", icon: Heart },
-  { to: "/notificacoes", label: "Notificações", icon: Bell },
   
   { to: "/edificios", label: "Edifícios", icon: Building2 },
   { to: "/condominios", label: "Condomínios", icon: Building },
