@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Search,
   SlidersHorizontal,
@@ -111,9 +112,9 @@ const BENEFITS = [
   { i: BarChart3, t: "Relatórios de performance", d: "Acompanhe resultados, acessos, downloads e muito mais." },
 ];
 
-const WHATSAPP_COMERCIAL = "5551983282535"; // Patrique Lopes
-const waLink = (plano: string) =>
-  `https://wa.me/${WHATSAPP_COMERCIAL}?text=${encodeURIComponent(
+const WHATSAPP_FALLBACK = "5551983282535"; // Patrique Lopes (fallback)
+const waLink = (numero: string, plano: string) =>
+  `https://wa.me/${numero}?text=${encodeURIComponent(
     `Olá Patrique! Tenho interesse no Plano ${plano} do MV BROKER e gostaria de mais informações para assinar.`
   )}`;
 
@@ -146,6 +147,18 @@ const PLANS = [
 
 function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [waNumero, setWaNumero] = useState(WHATSAPP_FALLBACK);
+
+  useEffect(() => {
+    supabase
+      .rpc("get_contato_publico", { p_slug: "whatsapp_comercial" })
+      .then(({ data }) => {
+        const v = (data as string | null)?.replace(/\D/g, "");
+        if (v && v.length >= 10) setWaNumero(v);
+      });
+  }, []);
+
+
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
@@ -366,7 +379,7 @@ function LandingPage() {
                     ))}
                   </ul>
                 </div>
-                <a href={waLink(p.name)} target="_blank" rel="noreferrer">
+                <a href={waLink(waNumero, p.name)} target="_blank" rel="noreferrer">
                   <button
                     className={`w-full py-3.5 text-sm font-semibold transition-colors ${
                       p.dark

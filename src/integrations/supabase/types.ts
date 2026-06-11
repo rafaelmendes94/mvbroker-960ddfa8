@@ -1679,6 +1679,7 @@ export type Database = {
         }
         Returns: string
       }
+      get_contato_publico: { Args: { p_slug: string }; Returns: string }
       get_corretor_contato: {
         Args: { p_corretor_id: string }
         Returns: {

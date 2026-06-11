@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Save, Settings2, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Save, Settings2, ArrowRight, MessageCircle, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +8,105 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — MV Broker" }] }),
   component: Configuracoes,
 });
+
+function WhatsAppConfigCard() {
+  const { isSuperAdmin } = useAuth();
+  const [whatsapp, setWhatsapp] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("system_options")
+        .select("nome")
+        .eq("categoria", "contato")
+        .eq("slug", "whatsapp_comercial")
+        .maybeSingle();
+      setWhatsapp(data?.nome ?? "");
+      setLoading(false);
+    })();
+  }, []);
+
+  async function salvar() {
+    const limpo = whatsapp.replace(/\D/g, "");
+    if (limpo.length < 10) {
+      toast.error("Informe um número válido (somente dígitos, com DDD).");
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase
+      .from("system_options")
+      .upsert(
+        { categoria: "contato", slug: "whatsapp_comercial", nome: limpo, ativo: true, ordem: 1 },
+        { onConflict: "categoria,slug" }
+      );
+    setSaving(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setWhatsapp(limpo);
+    toast.success("WhatsApp comercial atualizado");
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <MessageCircle className="h-4 w-4 text-primary" />
+          WhatsApp Comercial
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label>Número (com DDI + DDD, somente dígitos)</Label>
+          <Input
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+            placeholder="Ex.: 5551999999999"
+            disabled={loading || !isSuperAdmin}
+            inputMode="numeric"
+          />
+          <p className="text-xs text-muted-foreground">
+            Este é o número usado nos botões de contato e nos planos da página inicial.
+          </p>
+        </div>
+        {whatsapp && (
+          <div className="rounded-md border bg-muted/30 p-3 text-xs">
+            <span className="text-muted-foreground">Pré-visualização: </span>
+            <a
+              href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              https://wa.me/{whatsapp.replace(/\D/g, "")}
+            </a>
+          </div>
+        )}
+        <Separator />
+        <Button onClick={salvar} disabled={saving || loading || !isSuperAdmin}>
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Salvar WhatsApp
+        </Button>
+        {!isSuperAdmin && (
+          <p className="text-xs text-muted-foreground">
+            Apenas super administradores podem alterar este número.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 function Configuracoes() {
   return (
@@ -45,6 +140,8 @@ function Configuracoes() {
             <div className="space-y-2"><Label>E-mail de contato</Label><Input type="email" defaultValue="contato@mvbroker.com" /></div>
           </CardContent>
         </Card>
+
+        <WhatsAppConfigCard />
 
         <Card>
           <CardHeader><CardTitle className="text-base">Preferências</CardTitle></CardHeader>
