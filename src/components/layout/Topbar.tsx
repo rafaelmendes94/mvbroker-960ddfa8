@@ -42,7 +42,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           <Input placeholder="Busca global..." className="pl-9 bg-muted/40 border-transparent focus-visible:bg-background" />
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="ml-auto flex items-center gap-1 sm:gap-2 shrink-0">
           <Button variant="default" size="sm" className="hidden sm:inline-flex">
             <Plus className="h-4 w-4" />
             Novo
