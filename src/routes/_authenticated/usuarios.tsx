@@ -204,7 +204,7 @@ function NewUserDialog({
   const criar = useServerFn(criarUsuarioAdmin);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [roles, setRoles] = useState<AppRole[]>(["corretor_autonomo"]);
+  const [roles, setRoles] = useState<AppRole[]>(["secretaria"]);
   const [modo, setModo] = useState<"senha" | "convite">("senha");
   const [saving, setSaving] = useState(false);
 
@@ -226,7 +226,7 @@ function NewUserDialog({
         toast.success("Convite enviado.");
       }
       onOpenChange(false);
-      setNome(""); setEmail(""); setRoles(["corretor_autonomo"]); setModo("senha");
+      setNome(""); setEmail(""); setRoles(["secretaria"]); setModo("senha");
       onCreated();
     } catch (e: any) { toast.error(e?.message ?? "Falha ao criar"); }
     finally { setSaving(false); }
