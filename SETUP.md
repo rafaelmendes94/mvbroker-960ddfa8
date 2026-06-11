@@ -25,11 +25,8 @@ No domínio (ex.: `meusistema.com.br`):
 
 ```
 A   app.meusistema.com.br       → IP_DA_VPS   (DNS Only)
-A   *.meusistema.com.br         → IP_DA_VPS   (DNS Only — wildcard)
 A   supabase.meusistema.com.br  → IP_DA_VPS   (DNS Only)
 ```
-
-Gere um **API Token Cloudflare** com permissão `Zone:DNS:Edit` no domínio (necessário pro challenge DNS-01 do wildcard).
 
 ---
 
@@ -38,21 +35,15 @@ Gere um **API Token Cloudflare** com permissão `Zone:DNS:Edit` no domínio (nec
 Estrutura em `scripts/traefik/`:
 
 - `docker-compose.traefik.yml` — sobe Traefik + container Nginx que serve o SPA
-- `traefik.yml` — config estática com 3 cert resolvers:
-  - `letsencrypt` (DNS-01 Cloudflare) → wildcard `*.dominio.com.br`
-  - `letsencrypt-alpn` (TLS-ALPN-01) → domínios personalizados dos clientes
-  - `letsencrypt-http` (HTTP-01) → fallback
+- `traefik.yml` — config estática com cert resolver `letsencrypt-http` (HTTP-01) para `app.dominio` e `supabase.dominio`
 - `dynamic/supabase.yml` — roteia `supabase.dominio.com.br` → Kong (8000)
-- `dynamic/custom-domains.yml` — gerado automaticamente pelo `sync-domains.sh`
 - `nginx-app.conf` — config do Nginx que serve `dist/`
-- `sync-domains.sh` — lê `store_domains` do Postgres e gera config Traefik dos domínios personalizados verificados (rodar via cron a cada 5 min)
 
 **Setup:**
 
 ```bash
 docker network create app-net
-cp .env.traefik.example .env.traefik   # preencher CF_DNS_API_TOKEN
-docker compose --env-file .env.traefik -f docker-compose.traefik.yml up -d
+docker compose -f docker-compose.traefik.yml up -d
 ```
 
 ---
@@ -95,7 +86,6 @@ VITE_SUPABASE_URL="https://supabase.dominio.com.br"
 
 ```
 .env.local
-.env.traefik
 letsencrypt/
 node_modules/
 dist/
@@ -137,7 +127,7 @@ Storage: todo path começa com `{store_id}/`.
 2. SSH na VPS: `cd /var/www/seuapp && ./scripts/deploy.sh`
 3. Deploy aplica só o que mudou (migrações novas + functions + build)
 
-Arquivos sensíveis (`.env.local`, `.env.traefik`) ficam **só na VPS**, nunca no Git.
+Arquivo sensível (`.env.local`) fica **só na VPS**, nunca no Git.
 
 ---
 
@@ -145,11 +135,10 @@ Arquivos sensíveis (`.env.local`, `.env.traefik`) ficam **só na VPS**, nunca n
 
 - [ ] VPS com Docker + rede `<projeto>-net` criada
 - [ ] Supabase self-hosted rodando em `/opt/supabase/docker/`
-- [ ] DNS Cloudflare: `A app`, `A *`, `A supabase` + API Token
+- [ ] DNS Cloudflare: `A app`, `A supabase`
 - [ ] Copiar `scripts/traefik/` adaptando nomes e domínio
 - [ ] Copiar `scripts/deploy.sh` adaptando caminhos
 - [ ] Subir Traefik: `docker compose -f docker-compose.traefik.yml up -d`
-- [ ] Cron de 5 min: `*/5 * * * * bash /caminho/scripts/traefik/sync-domains.sh`
 - [ ] No Lovable: `.env` com URL `https://supabase.seudominio.com.br` e anon key da VPS
 - [ ] Copiar `supabase/functions/main/index.ts` e `_shared/get-system-secret.ts`
 - [ ] Conectar Git no projeto Lovable
