@@ -34,6 +34,7 @@ const ALL_NAV: NavEntry[] = [
   { to: "/clientes", label: "Clientes", icon: UserSquare2 },
   { to: "/planos", label: "Planos", icon: Tag },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
+  { to: "/relatorios-admin", label: "Relatórios Admin", icon: BarChart3 },
   { to: "/imoveis/exportacao", label: "Exportação de Imóveis", icon: Download },
   { to: "/carteiras", label: "Carteiras XML", icon: Briefcase },
   { to: "/portais", label: "Portais", icon: Briefcase },
