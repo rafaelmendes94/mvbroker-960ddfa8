@@ -29,9 +29,9 @@ export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/notificacoes": [], // Notificações — todos autenticados
   "/registros": ["super_admin", "secretaria", "imobiliaria", "corretor_imobiliaria", "corretor_autonomo"],
   
-  "/edificios": ["super_admin", "secretaria"],
-  "/condominios": ["super_admin", "secretaria"],
-  "/loteamentos": ["super_admin", "secretaria"],
+  "/edificios": [],
+  "/condominios": [],
+  "/loteamentos": [],
   "/biblioteca": ["super_admin", "secretaria"],
   
   "/usuarios": ["super_admin"],
