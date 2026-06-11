@@ -443,6 +443,17 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                         <option value="">—</option>
                         {f.options!.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                       </select>
+                    ) : f.type === "currency" ? (
+                      <Input
+                        inputMode="decimal"
+                        placeholder="R$ 0,00"
+                        value={specific[f.key] === "" || specific[f.key] == null ? "" : formatBRL(specific[f.key])}
+                        onChange={(e) => setSpecific({ ...specific, [f.key]: e.target.value.replace(/[^\d,.-]/g, "") })}
+                        onBlur={(e) => {
+                          const n = parseBRL(e.target.value);
+                          setSpecific({ ...specific, [f.key]: n == null ? "" : n });
+                        }}
+                      />
                     ) : (
                       <Input
                         type={f.type ?? "text"}
