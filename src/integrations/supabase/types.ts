@@ -600,6 +600,8 @@ export type Database = {
           created_at: string
           created_by: string | null
           descricao: string | null
+          espelho_grupos: number | null
+          espelho_por_grupo: number | null
           estado: string | null
           id: string
           infraestrutura: string[]
@@ -625,6 +627,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descricao?: string | null
+          espelho_grupos?: number | null
+          espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
           infraestrutura?: string[]
@@ -650,6 +654,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descricao?: string | null
+          espelho_grupos?: number | null
+          espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
           infraestrutura?: string[]
@@ -732,6 +738,8 @@ export type Database = {
           created_at: string
           created_by: string | null
           descricao: string | null
+          espelho_grupos: number | null
+          espelho_por_grupo: number | null
           estado: string | null
           id: string
           infraestrutura: string[]
@@ -757,6 +765,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descricao?: string | null
+          espelho_grupos?: number | null
+          espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
           infraestrutura?: string[]
@@ -782,6 +792,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descricao?: string | null
+          espelho_grupos?: number | null
+          espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
           infraestrutura?: string[]
@@ -875,6 +887,60 @@ export type Database = {
           numero?: string | null
           status_obra?: Database["public"]["Enums"]["status_obra"] | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      espelho_unidades: {
+        Row: {
+          area: number | null
+          created_at: string
+          empreendimento_id: string
+          empreendimento_tipo: Database["public"]["Enums"]["espelho_tipo"]
+          grupo: number
+          id: string
+          nascente: boolean | null
+          numero: string
+          observacoes: string | null
+          status: Database["public"]["Enums"]["espelho_status"]
+          suites: number | null
+          tipologia: string | null
+          updated_at: string
+          vagas: number | null
+          valor: number | null
+        }
+        Insert: {
+          area?: number | null
+          created_at?: string
+          empreendimento_id: string
+          empreendimento_tipo: Database["public"]["Enums"]["espelho_tipo"]
+          grupo: number
+          id?: string
+          nascente?: boolean | null
+          numero: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["espelho_status"]
+          suites?: number | null
+          tipologia?: string | null
+          updated_at?: string
+          vagas?: number | null
+          valor?: number | null
+        }
+        Update: {
+          area?: number | null
+          created_at?: string
+          empreendimento_id?: string
+          empreendimento_tipo?: Database["public"]["Enums"]["espelho_tipo"]
+          grupo?: number
+          id?: string
+          nascente?: boolean | null
+          numero?: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["espelho_status"]
+          suites?: number | null
+          tipologia?: string | null
+          updated_at?: string
+          vagas?: number | null
+          valor?: number | null
         }
         Relationships: []
       }
@@ -1441,6 +1507,8 @@ export type Database = {
           created_at: string
           created_by: string | null
           descricao: string | null
+          espelho_grupos: number | null
+          espelho_por_grupo: number | null
           estado: string | null
           id: string
           infraestrutura: Json | null
@@ -1465,6 +1533,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descricao?: string | null
+          espelho_grupos?: number | null
+          espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
           infraestrutura?: Json | null
@@ -1489,6 +1559,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descricao?: string | null
+          espelho_grupos?: number | null
+          espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
           infraestrutura?: Json | null
@@ -2039,6 +2111,8 @@ export type Database = {
         | "materiais"
         | "plantas"
         | "outros"
+      espelho_status: "disponivel" | "reservado" | "vendido"
+      espelho_tipo: "edificio" | "condominio" | "loteamento"
       notification_categoria: "imoveis" | "xml" | "portais" | "sistema"
       notification_tipo:
         | "novo_imovel"
@@ -2198,6 +2272,8 @@ export const Constants = {
         "plantas",
         "outros",
       ],
+      espelho_status: ["disponivel", "reservado", "vendido"],
+      espelho_tipo: ["edificio", "condominio", "loteamento"],
       notification_categoria: ["imoveis", "xml", "portais", "sistema"],
       notification_tipo: [
         "novo_imovel",

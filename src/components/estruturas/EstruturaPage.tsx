@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import { Plus, Search, Pencil, Trash2, Building2, Download, Upload, Loader2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Building2, Download, Upload, Loader2, LayoutGrid } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -64,6 +65,8 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
       { key: "qtd_apartamentos", label: "Qtd. apartamentos", type: "number" },
       { key: "ano_construcao", label: "Ano de construção", type: "number" },
       { key: "construtora", label: "Construtora" },
+      { key: "espelho_grupos", label: "Espelho — andares", type: "number" },
+      { key: "espelho_por_grupo", label: "Espelho — unidades por andar", type: "number" },
     ],
   },
   condominio: {
@@ -73,6 +76,8 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
       { key: "portaria", label: "Portaria" },
       { key: "seguranca", label: "Segurança" },
       { key: "area_total", label: "Área total (m²)", type: "number" },
+      { key: "espelho_grupos", label: "Espelho — blocos", type: "number" },
+      { key: "espelho_por_grupo", label: "Espelho — unidades por bloco", type: "number" },
     ],
   },
   empreendimento: {
@@ -95,6 +100,8 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
       { key: "area_total_m2", label: "Área total (m²)", type: "number" },
       { key: "total_lotes", label: "Total de lotes", type: "number" },
       { key: "lotes_disponiveis", label: "Lotes disponíveis", type: "number" },
+      { key: "espelho_grupos", label: "Espelho — quadras", type: "number" },
+      { key: "espelho_por_grupo", label: "Espelho — lotes por quadra", type: "number" },
     ],
   },
 };
@@ -337,7 +344,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                   <TableHead>Código</TableHead>
                   <TableHead>Cidade</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-[100px]"></TableHead>
+                  <TableHead className="w-[220px] text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -351,6 +358,13 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
+                        {tipo !== "empreendimento" && (
+                          <Button asChild size="sm" variant="outline" title="Espelho de Vendas">
+                            <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
+                              <LayoutGrid className="h-4 w-4 mr-1" /> Espelho
+                            </Link>
+                          </Button>
+                        )}
                         <Button size="icon" variant="ghost" onClick={() => openEdit(i)}><Pencil className="h-4 w-4" /></Button>
                         <Button size="icon" variant="ghost" onClick={() => remove(i.id, i.nome)}><Trash2 className="h-4 w-4" /></Button>
                       </div>

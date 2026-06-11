@@ -72,6 +72,7 @@ import { Route as AuthenticatedAssinaturasIdRouteImport } from './routes/_authen
 import { Route as ApiPublicFeedSlugRouteImport } from './routes/api/public/feed/$slug'
 import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_authenticated/registros.$id.editar'
 import { Route as AuthenticatedImoveisIdEditarRouteImport } from './routes/_authenticated/imoveis.$id.editar'
+import { Route as AuthenticatedEmpreendimentosTipoIdRouteImport } from './routes/_authenticated/empreendimentos.$tipo.$id'
 import { Route as ApiPublicPortalPortalSlugRouteImport } from './routes/api/public/portal/$portal/$slug'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -427,6 +428,12 @@ const AuthenticatedImoveisIdEditarRoute =
     path: '/$id/editar',
     getParentRoute: () => AuthenticatedImoveisRoute,
   } as any)
+const AuthenticatedEmpreendimentosTipoIdRoute =
+  AuthenticatedEmpreendimentosTipoIdRouteImport.update({
+    id: '/empreendimentos/$tipo/$id',
+    path: '/empreendimentos/$tipo/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const ApiPublicPortalPortalSlugRoute =
   ApiPublicPortalPortalSlugRouteImport.update({
     id: '/api/public/portal/$portal/$slug',
@@ -494,6 +501,7 @@ export interface FileRoutesByFullPath {
   '/registros/': typeof AuthenticatedRegistrosIndexRoute
   '/relatorios/': typeof AuthenticatedRelatoriosIndexRoute
   '/seguranca/': typeof AuthenticatedSegurancaIndexRoute
+  '/empreendimentos/$tipo/$id': typeof AuthenticatedEmpreendimentosTipoIdRoute
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
@@ -552,6 +560,7 @@ export interface FileRoutesByTo {
   '/registros': typeof AuthenticatedRegistrosIndexRoute
   '/relatorios': typeof AuthenticatedRelatoriosIndexRoute
   '/seguranca': typeof AuthenticatedSegurancaIndexRoute
+  '/empreendimentos/$tipo/$id': typeof AuthenticatedEmpreendimentosTipoIdRoute
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
@@ -619,6 +628,7 @@ export interface FileRoutesById {
   '/_authenticated/registros/': typeof AuthenticatedRegistrosIndexRoute
   '/_authenticated/relatorios/': typeof AuthenticatedRelatoriosIndexRoute
   '/_authenticated/seguranca/': typeof AuthenticatedSegurancaIndexRoute
+  '/_authenticated/empreendimentos/$tipo/$id': typeof AuthenticatedEmpreendimentosTipoIdRoute
   '/_authenticated/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/_authenticated/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
@@ -686,6 +696,7 @@ export interface FileRouteTypes {
     | '/registros/'
     | '/relatorios/'
     | '/seguranca/'
+    | '/empreendimentos/$tipo/$id'
     | '/imoveis/$id/editar'
     | '/registros/$id/editar'
     | '/api/public/feed/$slug'
@@ -744,6 +755,7 @@ export interface FileRouteTypes {
     | '/registros'
     | '/relatorios'
     | '/seguranca'
+    | '/empreendimentos/$tipo/$id'
     | '/imoveis/$id/editar'
     | '/registros/$id/editar'
     | '/api/public/feed/$slug'
@@ -810,6 +822,7 @@ export interface FileRouteTypes {
     | '/_authenticated/registros/'
     | '/_authenticated/relatorios/'
     | '/_authenticated/seguranca/'
+    | '/_authenticated/empreendimentos/$tipo/$id'
     | '/_authenticated/imoveis/$id/editar'
     | '/_authenticated/registros/$id/editar'
     | '/api/public/feed/$slug'
@@ -1269,6 +1282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImoveisIdEditarRouteImport
       parentRoute: typeof AuthenticatedImoveisRoute
     }
+    '/_authenticated/empreendimentos/$tipo/$id': {
+      id: '/_authenticated/empreendimentos/$tipo/$id'
+      path: '/empreendimentos/$tipo/$id'
+      fullPath: '/empreendimentos/$tipo/$id'
+      preLoaderRoute: typeof AuthenticatedEmpreendimentosTipoIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/api/public/portal/$portal/$slug': {
       id: '/api/public/portal/$portal/$slug'
       path: '/api/public/portal/$portal/$slug'
@@ -1500,6 +1520,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRouteWithChildren
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRouteWithChildren
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
+  AuthenticatedEmpreendimentosTipoIdRoute: typeof AuthenticatedEmpreendimentosTipoIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -1529,6 +1550,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRouteWithChildren,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRouteWithChildren,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
+  AuthenticatedEmpreendimentosTipoIdRoute:
+    AuthenticatedEmpreendimentosTipoIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -1547,13 +1570,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
