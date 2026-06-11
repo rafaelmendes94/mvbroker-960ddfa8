@@ -33,6 +33,7 @@ type Plano = {
 type Assinatura = {
   id: string; plano_id: string; imobiliaria_id: string | null; usuario_id: string | null;
   status: string; ciclo: "mensal" | "anual"; valor: number;
+  proximo_vencimento: string | null;
 };
 type ClienteRow = {
   key: string;
@@ -87,7 +88,7 @@ function ClientesPage() {
       supabase.from("planos").select("id, nome, tipo, preco_mensal, preco_anual, limite_usuarios, ativo").order("ordem"),
       supabase.from("imobiliarias").select("id, nome_fantasia, cnpj, telefone, email, status").order("nome_fantasia"),
       supabase.from("corretores").select("id, user_id, nome, email, telefone, creci, imobiliaria_id, status").is("imobiliaria_id", null).order("nome"),
-      supabase.from("assinaturas").select("id, plano_id, imobiliaria_id, usuario_id, status, ciclo, valor"),
+      supabase.from("assinaturas").select("id, plano_id, imobiliaria_id, usuario_id, status, ciclo, valor, proximo_vencimento"),
       supabase.from("corretores").select("imobiliaria_id, status").eq("status", "ativo").not("imobiliaria_id", "is", null),
     ]);
 
@@ -288,9 +289,11 @@ function ClientesPage() {
                   <TableHead>Cliente</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Plano</TableHead>
+                  <TableHead>Ciclo</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Corretores</TableHead>
                   <TableHead>Valor</TableHead>
+                  <TableHead>Próx. vencimento</TableHead>
                   <TableHead className="w-44 text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -317,6 +320,11 @@ function ClientesPage() {
                       <TableCell>{r.plano?.nome ?? <span className="text-muted-foreground">Sem plano</span>}</TableCell>
                       <TableCell>
                         {r.assinatura
+                          ? <Badge variant="outline" className="capitalize">{r.assinatura.ciclo}</Badge>
+                          : <span className="text-xs text-muted-foreground">—</span>}
+                      </TableCell>
+                      <TableCell>
+                        {r.assinatura
                           ? <Badge variant={r.assinatura.status === "ativa" ? "default" : "outline"}>{r.assinatura.status}</Badge>
                           : <span className="text-xs text-muted-foreground">—</span>}
                       </TableCell>
@@ -328,6 +336,11 @@ function ClientesPage() {
                           : <span className="text-muted-foreground">—</span>}
                       </TableCell>
                       <TableCell>{fmtBRL(r.assinatura?.valor)}</TableCell>
+                      <TableCell>
+                        {r.assinatura?.proximo_vencimento
+                          ? new Date(r.assinatura.proximo_vencimento).toLocaleDateString("pt-BR")
+                          : <span className="text-xs text-muted-foreground">—</span>}
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" variant="ghost" onClick={() => abrirTroca(r)} title="Trocar plano">
                           <Repeat className="h-4 w-4" />
