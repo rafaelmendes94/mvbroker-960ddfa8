@@ -12,10 +12,18 @@ BRANCH="${BRANCH:-main}"
 cd "$APP_DIR"
 
 echo "▶ [1/6] Protegendo .env e arquivos sensíveis"
-# Garante que .env nunca seja sobrescrito pelo git
-git update-index --skip-worktree .env 2>/dev/null || true
-# Backup defensivo
-[ -f .env ] && cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
+# Garante que envs da VPS nunca sejam sobrescritas pelo Git/Lovable.
+# Importante: `git reset --hard` pode trocar arquivo rastreado; por isso fazemos
+# backup ANTES e restauramos DEPOIS do reset.
+ENV_BACKUP_DIR="/tmp/mvbroker-env-backup-$(date +%s)"
+mkdir -p "$ENV_BACKUP_DIR"
+for env_file in .env .env.local .dev.vars; do
+  if [ -f "$env_file" ]; then
+    cp -p "$env_file" "$ENV_BACKUP_DIR/$env_file"
+    cp -p "$env_file" "$env_file.backup.$(date +%Y%m%d_%H%M%S)"
+    git update-index --skip-worktree "$env_file" 2>/dev/null || true
+  fi
+done
 
 echo "▶ [2/6] Buscando atualizações do GitHub (branch: $BRANCH)"
 git fetch --all --prune
@@ -35,6 +43,22 @@ git stash push -u -m "deploy-autostash-$(date +%s)" 2>/dev/null || true
 
 echo "▶ [3/6] Aplicando pull"
 git reset --hard "origin/$BRANCH"
+
+echo "▶ [3.1/6] Restaurando envs locais da VPS"
+for env_file in .env .env.local .dev.vars; do
+  if [ -f "$ENV_BACKUP_DIR/$env_file" ]; then
+    cp -p "$ENV_BACKUP_DIR/$env_file" "$env_file"
+    git update-index --skip-worktree "$env_file" 2>/dev/null || true
+  fi
+done
+
+EXPECTED_SUPABASE_URL="${EXPECTED_SUPABASE_URL:-https://supabase.sistemamvbroker.com.br}"
+CURRENT_SUPABASE_URL="$(grep -E '^VITE_SUPABASE_URL=' .env 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\"' || true)"
+if [ "$CURRENT_SUPABASE_URL" != "$EXPECTED_SUPABASE_URL" ]; then
+  echo "❌ .env não aponta para o Supabase self-host esperado. Build cancelado para não voltar ao Lovable."
+  echo "   Ajuste VITE_SUPABASE_URL=$EXPECTED_SUPABASE_URL em $APP_DIR/.env e rode novamente."
+  exit 1
+fi
 
 echo "▶ [4/6] Verificando dependências (só instala se package.json/lock mudou)"
 CHANGED_FILES=$(git diff --name-only "$LOCAL" "$REMOTE")

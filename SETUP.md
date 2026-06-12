@@ -74,7 +74,7 @@ DATABASE_URL=postgresql://postgres:SENHA@localhost:5433/postgres
 
 ## 5. Configuração do projeto Lovable
 
-**`.env` (commitado, só chaves públicas)**
+**`.env` (somente na VPS; não commitar)**
 
 ```
 VITE_SUPABASE_PROJECT_ID="<ref>"
@@ -85,7 +85,11 @@ VITE_SUPABASE_URL="https://supabase.dominio.com.br"
 **`.gitignore`** — garanta que ficam fora:
 
 ```
+.env
+.env.*
+!.env.example
 .env.local
+.dev.vars
 letsencrypt/
 node_modules/
 dist/
