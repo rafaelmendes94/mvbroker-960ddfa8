@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { IntegracoesCard } from "@/components/configuracoes/IntegracoesCard";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — MV Broker" }] }),
@@ -163,7 +164,10 @@ function Configuracoes() {
             <Button><Save className="h-4 w-4" /> Salvar alterações</Button>
           </CardContent>
         </Card>
+
+        <IntegracoesCard />
       </div>
+
     </>
   );
 }
