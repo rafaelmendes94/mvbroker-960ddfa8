@@ -235,19 +235,19 @@ function LandingPage() {
 
 
       {/* HERO */}
-      <section id="inicio" className="relative isolate overflow-hidden bg-slate-50 text-slate-900">
+      <section id="inicio" className="relative isolate overflow-hidden bg-slate-900 text-white">
         <div
-          className="absolute inset-0 hidden bg-cover bg-center md:block opacity-30"
+          className="absolute inset-0 hidden bg-cover bg-center md:block"
           style={{ backgroundImage: `url(${bgDesktop.url})` }}
           aria-hidden
         />
         <div
-          className="absolute inset-0 bg-cover bg-top md:hidden opacity-20"
+          className="absolute inset-0 bg-cover bg-top md:hidden"
           style={{ backgroundImage: `url(${bgMobile.url})` }}
           aria-hidden
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent md:block hidden" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/80 to-white md:hidden" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent md:block hidden" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70 md:hidden" aria-hidden />
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex min-h-[560px] flex-col justify-end pb-12 pt-16 md:min-h-[600px] md:justify-center md:py-24 md:max-w-2xl">
