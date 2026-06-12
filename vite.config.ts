@@ -12,6 +12,10 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  nitro: {
+    // VPS self-hosted: gera servidor Node em .output/server/index.mjs (rodável via PM2)
+    preset: "node-server",
+  },
   vite: {
     preview: {
       allowedHosts: [
