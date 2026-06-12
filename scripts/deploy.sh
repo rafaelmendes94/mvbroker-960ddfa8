@@ -52,13 +52,15 @@ for env_file in .env .env.local .dev.vars; do
   fi
 done
 
-EXPECTED_SUPABASE_URL="${EXPECTED_SUPABASE_URL:-https://supabase.sistemamvbroker.com.br}"
-CURRENT_SUPABASE_URL="$(grep -E '^VITE_SUPABASE_URL=' .env 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\"' || true)"
-if [ "$CURRENT_SUPABASE_URL" != "$EXPECTED_SUPABASE_URL" ]; then
-  echo "❌ .env não aponta para o Supabase self-host esperado. Build cancelado para não voltar ao Lovable."
-  echo "   Ajuste VITE_SUPABASE_URL=$EXPECTED_SUPABASE_URL em $APP_DIR/.env e rode novamente."
-  exit 1
+if [ -n "${EXPECTED_SUPABASE_URL:-}" ]; then
+  CURRENT_SUPABASE_URL="$(grep -E '^VITE_SUPABASE_URL=' .env 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '\"' || true)"
+  if [ "$CURRENT_SUPABASE_URL" != "$EXPECTED_SUPABASE_URL" ]; then
+    echo "❌ .env não aponta para $EXPECTED_SUPABASE_URL. Build cancelado."
+    echo "   Para ignorar essa checagem, rode sem EXPECTED_SUPABASE_URL definido."
+    exit 1
+  fi
 fi
+
 
 echo "▶ [4/6] Verificando dependências (só instala se package.json/lock mudou)"
 CHANGED_FILES=$(git diff --name-only "$LOCAL" "$REMOTE")

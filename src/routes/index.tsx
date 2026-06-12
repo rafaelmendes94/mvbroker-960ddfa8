@@ -186,7 +186,7 @@ function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-slate-100">
+    <div className="min-h-screen bg-white text-slate-900">
       {/* HEADER */}
       <header className="sticky top-0 z-50 bg-white text-slate-900 shadow-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -235,33 +235,30 @@ function LandingPage() {
 
 
       {/* HERO */}
-      <section id="inicio" className="relative isolate overflow-hidden bg-[#0a0a0a] text-white">
-        {/* Desktop bg */}
+      <section id="inicio" className="relative isolate overflow-hidden bg-slate-50 text-slate-900">
         <div
-          className="absolute inset-0 hidden bg-cover bg-center md:block"
+          className="absolute inset-0 hidden bg-cover bg-center md:block opacity-30"
           style={{ backgroundImage: `url(${bgDesktop.url})` }}
           aria-hidden
         />
-        {/* Mobile bg */}
         <div
-          className="absolute inset-0 bg-cover bg-top md:hidden"
+          className="absolute inset-0 bg-cover bg-top md:hidden opacity-20"
           style={{ backgroundImage: `url(${bgMobile.url})` }}
           aria-hidden
         />
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/95 via-[#0a0a0a]/70 to-transparent md:block hidden" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0a]/60 to-[#0a0a0a] md:hidden" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent md:block hidden" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/80 to-white md:hidden" aria-hidden />
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex min-h-[600px] flex-col justify-end pb-12 pt-16 md:min-h-[640px] md:justify-center md:py-28 md:max-w-2xl">
-            <h1 className="text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl">
-              <span className="text-[#ffffff]">MV</span> <span className="text-white">BROKER</span>
+          <div className="flex min-h-[560px] flex-col justify-end pb-12 pt-16 md:min-h-[600px] md:justify-center md:py-24 md:max-w-2xl">
+            <h1 className="text-5xl font-black tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+              MV <span className="text-[#10b981]">BROKER</span>
             </h1>
-            <p className="mt-6 text-xl font-semibold text-white sm:text-2xl">
+            <p className="mt-6 text-xl font-semibold text-slate-800 sm:text-2xl">
               Sistema de Suporte Imobiliário para corretores e imobiliárias.
             </p>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">
-              Acesse uma base organizada de imóveis, selecione oportunidades, gere sua carteira personalizada e distribua seus imóveis para portais através de XML.
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+              Base organizada de imóveis, carteira personalizada e distribuição via XML para os principais portais.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
               <a href="#planos">
@@ -270,8 +267,8 @@ function LandingPage() {
                 </Button>
               </a>
               <a href="#como-funciona">
-                <Button size="lg" variant="outline" className="w-full gap-2 border-white/30 bg-transparent px-8 text-base font-semibold text-white hover:bg-white/10 hover:text-white sm:w-auto">
-                  <Play className="h-4 w-4 fill-white" />
+                <Button size="lg" variant="outline" className="w-full gap-2 border-slate-300 bg-white px-8 text-base font-semibold text-slate-900 hover:bg-slate-100 sm:w-auto">
+                  <Play className="h-4 w-4 fill-slate-900" />
                   Ver Como Funciona
                 </Button>
               </a>
@@ -280,27 +277,28 @@ function LandingPage() {
         </div>
       </section>
 
+
       {/* COMO FUNCIONA */}
-      <section id="como-funciona" className="bg-[#0a0a0a] py-20 md:py-28">
+      <section id="como-funciona" className="bg-white py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-sm font-bold uppercase tracking-widest text-[#10b981]">Como Funciona</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
               Simples, rápido e eficiente
             </h2>
           </div>
           <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s, idx) => (
               <div key={s.t} className="relative text-center">
-                <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-7xl font-black text-white/5 select-none">
+                <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-7xl font-black text-slate-100 select-none">
                   {idx + 1}
                 </span>
                 <div className="relative">
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#10b981] text-white shadow-lg shadow-[#10b981]/30">
                     <s.icon className="h-7 w-7" />
                   </div>
-                  <h3 className="mt-5 text-base font-bold text-white">{s.t}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/60">{s.d}</p>
+                  <h3 className="mt-5 text-base font-bold text-slate-900">{s.t}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.d}</p>
                 </div>
               </div>
             ))}
@@ -308,10 +306,11 @@ function LandingPage() {
         </div>
       </section>
 
+
       {/* IMÓVEIS */}
-      <section id="imoveis" className="bg-[#111111] py-20 md:py-24">
+      <section id="imoveis" className="bg-slate-50 py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center text-sm font-bold uppercase tracking-widest text-white">
+          <h2 className="text-center text-sm font-bold uppercase tracking-widest text-slate-700">
             Imóveis em Destaque
           </h2>
 
@@ -330,8 +329,8 @@ function LandingPage() {
                 }))
               : IMOVEIS.map((im, idx) => ({ ...im, img: MOCK_IMAGES[idx] }))
             ).map((im, idx) => (
-              <div key={idx} className="group overflow-hidden rounded-xl bg-[#111] shadow-sm ring-1 ring-white/10 transition hover:shadow-lg">
-                <div className="relative aspect-[4/3] overflow-hidden bg-white/5">
+              <div key={idx} className="group overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:shadow-lg">
+                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
                   <img
                     src={im.img}
                     alt={im.titulo}
@@ -343,12 +342,12 @@ function LandingPage() {
                   </span>
                 </div>
                 <div className="space-y-2 p-5">
-                  <h3 className="line-clamp-2 text-base font-bold text-white">{im.titulo}</h3>
-                  <p className="flex items-center gap-1 text-xs text-white/60">
+                  <h3 className="line-clamp-2 text-base font-bold text-slate-900">{im.titulo}</h3>
+                  <p className="flex items-center gap-1 text-xs text-slate-500">
                     <MapPin className="h-3 w-3" />
                     {[im.cidade, im.bairro].filter(Boolean).join(", ")}
                   </p>
-                  <div className="flex flex-wrap gap-3 pt-1 text-xs text-white/70">
+                  <div className="flex flex-wrap gap-3 pt-1 text-xs text-slate-600">
                     {im.dorm ? <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" />{im.dorm}</span> : null}
                     {im.banh ? <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5" />{im.banh}</span> : null}
                     {im.vagas ? <span className="flex items-center gap-1"><Car className="h-3.5 w-3.5" />{im.vagas}</span> : null}
@@ -363,21 +362,22 @@ function LandingPage() {
         </div>
       </section>
 
+
       {/* BENEFÍCIOS */}
-      <section className="bg-[#0a0a0a] py-16 md:py-20">
+      <section className="bg-white py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center text-sm font-bold uppercase tracking-widest text-white">
+          <h2 className="text-center text-sm font-bold uppercase tracking-widest text-slate-700">
             Por que escolher o <span className="text-[#10b981]">MV BROKER</span>?
           </h2>
-          <div className="mt-10 rounded-2xl bg-[#111111] p-6 md:p-10">
+          <div className="mt-10 rounded-2xl bg-slate-50 p-6 md:p-10 ring-1 ring-slate-200">
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
               {BENEFITS.map((b) => (
                 <div key={b.t} className="text-left">
                   <div className="flex h-10 w-10 items-center justify-center rounded-md text-[#10b981]">
                     <b.i className="h-7 w-7" strokeWidth={1.5} />
                   </div>
-                  <h3 className="mt-3 text-sm font-bold leading-snug text-white">{b.t}</h3>
-                  <p className="mt-1 text-xs leading-relaxed text-white/60">{b.d}</p>
+                  <h3 className="mt-3 text-sm font-bold leading-snug text-slate-900">{b.t}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-600">{b.d}</p>
                 </div>
               ))}
             </div>
@@ -386,24 +386,24 @@ function LandingPage() {
       </section>
 
       {/* PLANOS */}
-      <section id="planos" className="bg-[#0a0a0a] py-20 md:py-24">
+      <section id="planos" className="bg-slate-50 py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center text-sm font-bold uppercase tracking-widest text-white">
+          <h2 className="text-center text-sm font-bold uppercase tracking-widest text-slate-700">
             Planos que cabem no seu negócio
           </h2>
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {PLANS.map((p) => (
-              <div key={p.name} className="flex flex-col overflow-hidden rounded-xl bg-[#111] shadow-xl ring-1 ring-white/10">
+              <div key={p.name} className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md ring-1 ring-slate-200">
                 <div className="flex-1 p-7">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#10b981] text-white shadow-lg shadow-[#10b981]/30">
                     <p.icon className="h-7 w-7" />
                   </div>
                   <h3 className="mt-5 text-xl font-bold text-[#10b981]">Plano {p.name}</h3>
-                  <p className="mt-1 text-sm text-white/70">{p.desc}</p>
+                  <p className="mt-1 text-sm text-slate-600">{p.desc}</p>
                   <ul className="mt-6 space-y-2.5">
                     {p.items.map((it) => (
-                      <li key={it} className="flex items-start gap-2 text-sm text-white/80">
+                      <li key={it} className="flex items-start gap-2 text-sm text-slate-700">
                         <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#10b981]" />
                         <span>{it}</span>
                       </li>
@@ -411,13 +411,7 @@ function LandingPage() {
                   </ul>
                 </div>
                 <a href={waLink(waNumero, p.name)} target="_blank" rel="noreferrer">
-                  <button
-                    className={`w-full py-3.5 text-sm font-semibold transition-colors ${
-                      p.dark
-                        ? "bg-[#10b981] text-white hover:bg-[#059669]"
-                        : "bg-[#10b981] text-white hover:bg-[#059669]"
-                    }`}
-                  >
+                  <button className="w-full py-3.5 text-sm font-semibold bg-[#10b981] text-white hover:bg-[#059669] transition-colors">
                     {p.cta}
                   </button>
                 </a>
@@ -426,6 +420,7 @@ function LandingPage() {
           </div>
         </div>
       </section>
+
 
       {/* CTA FINAL */}
       <section className="bg-gradient-to-r from-[#0a0a0a] to-[#1f2937] py-12">
