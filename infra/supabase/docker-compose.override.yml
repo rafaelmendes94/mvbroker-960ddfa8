@@ -1,0 +1,26 @@
+# Override do compose oficial do Supabase pra:
+#  - tirar a porta 8000 do kong da exposição direta
+#  - colocar o kong atrás do Traefik no domínio supabase.sistemamvbroker.com.br
+#
+# Use sempre junto: docker compose -f docker-compose.supabase.yml -f docker-compose.override.yml up -d
+services:
+  kong:
+    ports: !reset []
+    networks:
+      - default
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+      - traefik.http.routers.supabase.rule=Host(`supabase.sistemamvbroker.com.br`)
+      - traefik.http.routers.supabase.entrypoints=websecure
+      - traefik.http.routers.supabase.tls.certresolver=le
+      - traefik.http.services.supabase.loadbalancer.server.port=8000
+
+  studio:
+    # Studio fica acessível só via kong (mesmo domínio /), não expõe porta direta
+    ports: !reset []
+
+networks:
+  web:
+    external: true
