@@ -30,19 +30,24 @@ git fetch --all --prune
 LOCAL=$(git rev-parse HEAD)
 REMOTE=$(git rev-parse "origin/$BRANCH")
 
+SKIP_PULL=0
 if [ "$LOCAL" = "$REMOTE" ]; then
-  echo "✅ Já está atualizado ($LOCAL). Nada a fazer."
-  exit 0
+  echo "ℹ️  Working tree já está em $LOCAL — pulando git reset, mas seguindo com build."
+  SKIP_PULL=1
+else
+  echo "   Local : $LOCAL"
+  echo "   Remoto: $REMOTE"
 fi
-
-echo "   Local : $LOCAL"
-echo "   Remoto: $REMOTE"
 
 # Stash qualquer alteração local (não deveria ter, mas garante)
 git stash push -u -m "deploy-autostash-$(date +%s)" 2>/dev/null || true
 
-echo "▶ [3/6] Aplicando pull"
-git reset --hard "origin/$BRANCH"
+if [ "$SKIP_PULL" = "0" ]; then
+  echo "▶ [3/6] Aplicando pull"
+  git reset --hard "origin/$BRANCH"
+else
+  echo "▶ [3/6] Pulando reset (sem mudanças remotas)"
+fi
 
 echo "▶ [3.1/6] Restaurando envs locais da VPS"
 for env_file in .env .env.local .dev.vars; do
@@ -63,7 +68,11 @@ fi
 
 
 echo "▶ [4/6] Verificando dependências (só instala se package.json/lock mudou)"
-CHANGED_FILES=$(git diff --name-only "$LOCAL" "$REMOTE")
+if [ "$SKIP_PULL" = "1" ]; then
+  CHANGED_FILES=""
+else
+  CHANGED_FILES=$(git diff --name-only "$LOCAL" "$REMOTE")
+fi
 if echo "$CHANGED_FILES" | grep -qE '^(package\.json|package-lock\.json|bun\.lockb)$'; then
   echo "   Mudanças em dependências detectadas → npm install"
   npm install --no-audit --no-fund
