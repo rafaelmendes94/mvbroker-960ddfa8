@@ -81,7 +81,7 @@ export function IntegracoesCard() {
         return;
       }
       const next = { ...values };
-      (data as Row[] | null)?.forEach((r) => {
+      (data as unknown as Row[] | null)?.forEach((r) => {
         if ((KEYS as readonly string[]).includes(r.key)) {
           next[r.key as IntegrationKey] = r.value ?? "";
         }
