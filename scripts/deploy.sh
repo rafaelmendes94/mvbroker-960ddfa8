@@ -80,20 +80,10 @@ else
   echo "   Sem mudanças em dependências, pulando install"
 fi
 
-echo "▶ [5/6] Rodando migrations novas (se houver)"
-NEW_MIGRATIONS=$(echo "$CHANGED_FILES" | grep -E '^supabase/migrations/.*\.sql$' || true)
-if [ -n "$NEW_MIGRATIONS" ]; then
-  echo "   Migrations novas:"
-  echo "$NEW_MIGRATIONS" | sed 's/^/     • /'
-  for f in $NEW_MIGRATIONS; do
-    if [ -f "$f" ]; then
-      echo "   ▶ Aplicando $f"
-      docker exec -i supabase-db psql -U postgres -d postgres -v ON_ERROR_STOP=1 < "$f"
-    fi
-  done
-else
-  echo "   Sem migrations novas"
-fi
+echo "▶ [5/6] Migrations: ignorado (banco gerenciado pelo Lovable Cloud)"
+# O app aponta para o Supabase do Lovable Cloud (VITE_SUPABASE_URL no .env).
+# As migrations já são aplicadas lá automaticamente quando aprovadas no chat.
+# Não rodar contra o Postgres local do Docker (supabase-db) — está vazio e quebra.
 
 echo "▶ [6/6] Build + restart PM2"
 npm run build
