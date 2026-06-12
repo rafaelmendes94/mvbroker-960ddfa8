@@ -251,13 +251,13 @@ function LandingPage() {
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex min-h-[560px] flex-col justify-end pb-12 pt-16 md:min-h-[600px] md:justify-center md:py-24 md:max-w-2xl">
-            <h1 className="text-5xl font-black tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+            <h1 className="text-5xl font-black tracking-tight text-white drop-shadow-lg sm:text-6xl lg:text-7xl">
               MV <span className="text-[#10b981]">BROKER</span>
             </h1>
-            <p className="mt-6 text-xl font-semibold text-slate-800 sm:text-2xl">
+            <p className="mt-6 text-xl font-semibold text-white drop-shadow sm:text-2xl">
               Sistema de Suporte Imobiliário para corretores e imobiliárias.
             </p>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-100 drop-shadow">
               Base organizada de imóveis, carteira personalizada e distribuição via XML para os principais portais.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
