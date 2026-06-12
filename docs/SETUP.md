@@ -1,18 +1,20 @@
 # Guia Completo — Setup de Sistema Auto-Hospedado
 
-Mesmos moldes do CarPost. Use como checklist no projeto novo.
+dooriginorigin
 
----
+do-
 
 ## 1. Infraestrutura na VPS
 
 **Stack base**
+
 - Ubuntu 22.04+ com Docker + Docker Compose
 - Supabase self-hosted em `/opt/supabase/docker/` (clone oficial de `supabase/supabase`)
 - Traefik v2.11 como reverse proxy (substitui Nginx + Certbot)
 - Cloudflare gerenciando DNS (modo **DNS Only**, nuvem cinza)
 
 **Portas**
+
 - `80` / `443` → Traefik
 - `5433` → Postgres (Supabase interno)
 - `8000` → Kong (API Gateway do Supabase, exposto só na rede Docker)
@@ -29,7 +31,7 @@ A    *.meusistema.com.br          → IP_DA_VPS   (DNS Only — wildcard)
 A    supabase.meusistema.com.br   → IP_DA_VPS   (DNS Only)
 ```
 
-Gere um **API Token Cloudflare** com permissão `Zone:DNS:Edit` no domínio (necessário pro challenge DNS-01 do wildcard).
+Gere um **API Token Cloudflare** com permissão `Zone:DNS:Edit` no domínio (necessário pro challengedeploydoDNSchallenge-`nginx-app.conf` — config do Nginx que serve `dist/`/`nginx-app.conf`/-DNSdo wildcard).
 
 ---
 
@@ -43,31 +45,32 @@ Estrutura em `scripts/traefik/`:
   - `letsencrypt-alpn` (TLS-ALPN-01) → domínios personalizados dos clientes
   - `letsencrypt-http` (HTTP-01) → fallback
 - `dynamic/supabase.yml` — roteia `supabase.dominio.com.br` → Kong (porta 8000)
-- `dynamic/custom-domains.yml` — gerado automaticamente pelo `sync-domains.sh`
-- `nginx-app.conf` — config do Nginx que serve `dist/`
-- `sync-domains.sh` — lê `store_domains` do Postgres e gera config Traefik dos domínios personalizados verificados (rodar via cron a cada 5min)
+- `dynamic/custom-domains.yml` — gerado automaticamente pelo `sync-domains.sh``sync-domains.sh`./scripts/deploy.sh- `nginx-app.conf` — config do Nginx que serve `dist/`/`nginx-app.conf`/deploy.sh- `nginx-app.conf` — config do Nginx que serve `dist/`/`nginx-app.conf`/.sh- `nginx-app.conf` — config do Nginx que serve `dist/`/`nginx-app.conf`/deploy.sh- `nginx-app.conf` — config do Nginx que serve `dist/`/`nginx-app.conf`/.sh- `nginx-app.conf` — config do Nginx que serve `dist/`/`nginx-app.conf`/deploy.sh- `nginx-app.conf` — config do Nginx que serve `dist/`/`nginx-app.conf`/.sh- `nginx-app.conf` — config do Nginx que serve `dist/`/`nginx-app.conf`/deploy.sh- `nginx-app.conf` — config do Nginx que serve `dist/`/`nginx-app.conf`/deploy.sh
+  `nginx-app.conf` - `nginx-app.conf` — config do Nginx que serve `dist/` — config do Nginx que serve `dist/` `nginx-app.conf` — config do Nginx que serve `dist/`
+- `sync-domains.sh` — lê `store_domains` do Postgres e gera config Traefik dos domínios personalizados verificados (rodar via cron a cada 5min) `sync-domains.sh` — lê `store_domains` do Postgres e gera config Traefik dos domínios personalizados verificados (rodar via cron a cada 5min)
 
-**Setup:**
+**Setup:**Setup:\*\*
 
-```bash
-docker network create carpost-net
+docker compose --env-file .env.traefik -f docker-compose.traefik.yml up -d```bash
+
+```
 cp .env.traefik.example .env.traefik   # preencher CF_DNS_API_TOKEN
 docker compose --env-file .env.traefik -f docker-compose.traefik.yml up -d
 ```
 
 ---
 
-## 4. Deploy automatizado (`scripts/deploy.sh`)
+## 4. Deploy automatizado (`scripts/deploy.sh`)4. Deploy automatizado (`scripts/deploy.sh`)
 
-Fluxo no servidor após push pro Git:
+Fluxo no servidor após push pro Git:no servidor após push pro Git:
 
-```bash
+```bash./scripts/deploy.sh
 ./scripts/deploy.sh
-```
+---
 
-Faz, em ordem:
+.
 
-1. `git pull origin main`
+novocomo cinza)origin main`
 2. `npm install`
 3. Aplica só migrações novas — usa tabela `_migrations_applied` para controlar quais já rodaram
 4. Copia edge functions pra `/opt/supabase/docker/volumes/functions/` e reinicia o container `supabase-edge-functions`
@@ -76,7 +79,9 @@ Faz, em ordem:
 Requer `.env.local` no servidor com:
 
 ```
+
 DATABASE_URL=postgresql://postgres:SENHA@localhost:5433/postgres
+
 ```
 
 ---
@@ -86,10 +91,12 @@ DATABASE_URL=postgresql://postgres:SENHA@localhost:5433/postgres
 **`.env` (commitado, só chaves públicas):**
 
 ```
+
 VITE_SUPABASE_PROJECT_ID="<ref>"
 VITE_SUPABASE_PUBLISHABLE_KEY="<anon_key>"
 VITE_SUPABASE_URL="https://supabase.dominio.com.br"
-```
+
+````
 
 **`.gitignore`** — garanta que ficam de fora:
 `.env.local`, `.env.traefik`, `letsencrypt/`, `node_modules/`, `dist/`.
@@ -121,7 +128,7 @@ GRANT ALL ON public.x TO service_role;
 
 ALTER TABLE public.x ENABLE ROW LEVEL SECURITY;
 CREATE POLICY ...;
-```
+````
 
 - **Multi-tenant:** use sempre helper `is_store_member(auth.uid(), store_id)` ou `owns_store(...)` nas policies.
 - **Storage:** todo path começa com `{store_id}/`.
