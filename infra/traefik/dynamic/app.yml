@@ -1,4 +1,5 @@
-# Roteia app.sistemamvbroker.com.br → PM2 rodando em 127.0.0.1:3000 (fora do docker).
+# Roteia app.sistemamvbroker.com.br → container Docker `mvbroker-front` na rede `web`.
+# O container é criado pelo deploy.sh (ver DEPLOY.md na raiz do repo).
 http:
   routers:
     mvbroker-app:
@@ -11,5 +12,5 @@ http:
     mvbroker-app:
       loadBalancer:
         servers:
-          - url: "http://host.docker.internal:3000"
+          - url: "http://mvbroker-front:3000"
         passHostHeader: true
