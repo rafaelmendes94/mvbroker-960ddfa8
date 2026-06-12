@@ -86,6 +86,15 @@ echo "▶ [5/6] Migrations: ignorado (banco gerenciado pelo Lovable Cloud)"
 # Não rodar contra o Postgres local do Docker (supabase-db) — está vazio e quebra.
 
 echo "▶ [6/6] Build + restart PM2"
+# Carrega .env para o ambiente atual para que tanto o `npm run build` (Vite SSR)
+# quanto o PM2 (runtime Node/SSR) enxerguem SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY
+# do Supabase auto-hospedado na VPS. Nunca cai para Lovable Cloud.
+if [ -f .env ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env
+  set +a
+fi
 npm run build
 pm2 restart "$APP_NAME" --update-env
 pm2 save
