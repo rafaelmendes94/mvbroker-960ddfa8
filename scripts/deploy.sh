@@ -96,7 +96,16 @@ if [ -f .env ]; then
   set +a
 fi
 npm run build
-pm2 restart "$APP_NAME" --update-env
+
+# Garante que o PM2 está rodando o servidor SSR correto (.output/server/index.mjs),
+# não o `vite preview`. Se o processo já existe com outro script, ele é trocado.
+if pm2 describe "$APP_NAME" >/dev/null 2>&1; then
+  pm2 delete "$APP_NAME" >/dev/null 2>&1 || true
+fi
+PORT="${PORT:-3000}" HOST="${HOST:-0.0.0.0}" pm2 start .output/server/index.mjs \
+  --name "$APP_NAME" \
+  --update-env \
+  --time
 pm2 save
 
 echo ""
