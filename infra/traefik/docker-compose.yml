@@ -1,0 +1,32 @@
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - --api.dashboard=false
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=web
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.le.acme.email=${LETSENCRYPT_EMAIL:-patrique.corretor@gmail.com}
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.le.acme.tlschallenge=true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+      - ./dynamic:/etc/traefik/dynamic:ro
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
