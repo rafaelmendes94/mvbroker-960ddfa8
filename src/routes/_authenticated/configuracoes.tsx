@@ -164,7 +164,10 @@ function Configuracoes() {
             <Button><Save className="h-4 w-4" /> Salvar alterações</Button>
           </CardContent>
         </Card>
+
+        <IntegracoesCard />
       </div>
+
     </>
   );
 }
