@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient, SupabaseClientOptions } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
 const ROLES = [
@@ -16,6 +16,7 @@ const ROLES = [
 
 type Role = (typeof ROLES)[number];
 type AppSupabaseClient = SupabaseClient<Database>;
+type RealtimeTransport = NonNullable<SupabaseClientOptions<"public">["realtime"]>["transport"];
 type AuthedContext = {
   supabase: AppSupabaseClient;
   userId: string;
@@ -26,7 +27,7 @@ async function getWsTransport() {
   if (typeof globalThis.WebSocket !== "undefined") return undefined;
   try {
     const ws = await import("ws");
-    return (ws.default ?? ws.WebSocket ?? ws) as typeof WebSocket;
+    return (ws.default ?? ws.WebSocket ?? ws) as unknown as RealtimeTransport;
   } catch {
     return undefined;
   }
