@@ -363,6 +363,52 @@ function LandingPage() {
       </section>
 
 
+      {/* SERVIÇOS */}
+      <section id="servicos" className="bg-white py-20 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-sm font-bold uppercase tracking-widest text-[#10b981]">Nossos Serviços</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              O que entregamos toda semana
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                icon: Users,
+                title: "+200 construtores e investidores",
+                desc: "Atualizamos nossa base com mais de 200 construtores e investidores ativos toda semana, prontos para receber suas oportunidades.",
+                badge: "Toda semana",
+              },
+              {
+                icon: Briefcase,
+                title: "20 imóveis agenciados por semana",
+                desc: "Agenciamos 20 novos imóveis semanalmente, todos com contato direto do proprietário — sem intermediários.",
+                badge: "Contato direto",
+              },
+              {
+                icon: FileCode2,
+                title: "Fotos, vídeos e anúncios prontos",
+                desc: "Receba diariamente fotos e vídeos profissionais com anúncio completo para enviar a clientes, postar nas redes sociais e cadastrar no seu sistema.",
+                badge: "Todos os dias",
+              },
+            ].map((s) => (
+              <div key={s.title} className="group relative flex flex-col overflow-hidden rounded-xl bg-slate-50 p-7 ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl hover:ring-[#10b981]/40">
+                <span className="inline-flex w-fit items-center rounded-full bg-[#10b981]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#10b981]">
+                  {s.badge}
+                </span>
+                <div className="mt-5 flex h-14 w-14 items-center justify-center rounded-xl bg-[#10b981] text-white shadow-lg shadow-[#10b981]/30">
+                  <s.icon className="h-7 w-7" />
+                </div>
+                <h3 className="mt-5 text-lg font-bold text-slate-900">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* BENEFÍCIOS */}
       <section className="bg-white py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
