@@ -1,5 +1,17 @@
 import "./lib/error-capture";
 
+// Polyfill WebSocket no Node <22 para o realtime-js do Supabase
+// (apenas server-side, sem efeito no Cloudflare Worker que já tem WebSocket global).
+if (typeof (globalThis as any).WebSocket === "undefined") {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const ws = require("ws");
+    (globalThis as any).WebSocket = ws.WebSocket ?? ws.default ?? ws;
+  } catch {
+    // ws indisponível (ex.: edge runtime) — segue sem realtime no servidor
+  }
+}
+
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
