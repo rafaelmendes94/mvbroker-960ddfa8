@@ -267,8 +267,8 @@ function LandingPage() {
                 </Button>
               </a>
               <a href="#como-funciona">
-                <Button size="lg" variant="outline" className="w-full gap-2 border-slate-300 bg-white px-8 text-base font-semibold text-slate-900 hover:bg-slate-100 sm:w-auto">
-                  <Play className="h-4 w-4 fill-slate-900" />
+                <Button size="lg" variant="outline" className="w-full gap-2 border-white/40 bg-white/10 px-8 text-base font-semibold text-white backdrop-blur-sm hover:border-white hover:bg-white hover:text-slate-900 sm:w-auto">
+                  <Play className="h-4 w-4 fill-current" />
                   Ver Como Funciona
                 </Button>
               </a>
