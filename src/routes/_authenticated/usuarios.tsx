@@ -177,7 +177,8 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
 
   async function handleReset() {
     try {
-      const { senha } = await reset({ data: { user_id: user.id } });
+      const _token = await getToken();
+      const { senha } = await reset({ data: { user_id: user.id, _token } });
       navigator.clipboard?.writeText(senha).catch(() => {});
       toast.success(`Nova senha: ${senha} (copiada)`);
     } catch (e: any) { toast.error(e?.message ?? "Falha"); }
