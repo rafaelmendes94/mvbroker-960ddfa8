@@ -36,7 +36,8 @@ export const criarAcessoCliente = createServerFn({ method: "POST" })
       throw new Error("Sem permissão para criar acessos de cliente.");
     }
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getNodeSafeSupabaseAdmin } = await import("@/lib/supabase-node-safe");
+    const supabaseAdmin = await getNodeSafeSupabaseAdmin();
     const role = data.tipo === "imobiliaria" ? "imobiliaria" : "corretor_autonomo";
 
     // Procura por email já existente
