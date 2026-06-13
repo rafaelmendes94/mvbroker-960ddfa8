@@ -1,5 +1,5 @@
-# Roteia app.sistemamvbroker.com.br → container Docker `mvbroker-front` na rede `web`.
-# O container é criado pelo deploy.sh (ver DEPLOY.md na raiz do repo).
+# Roteia todos os domínios MV Broker → container mvbroker-front (TanStack app).
+# NÃO editar manualmente — faz parte da infra da VPS.
 http:
   routers:
     mvbroker-app:
@@ -8,6 +8,14 @@ http:
       service: mvbroker-app
       tls:
         certResolver: le
+
+    mvbroker-landing:
+      rule: "Host(`sistemamvbroker.com.br`) || Host(`www.sistemamvbroker.com.br`)"
+      entryPoints: [websecure]
+      service: mvbroker-app
+      tls:
+        certResolver: le
+
   services:
     mvbroker-app:
       loadBalancer:
