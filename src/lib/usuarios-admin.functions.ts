@@ -165,12 +165,12 @@ export const atualizarRolesUsuario = createServerFn({ method: "POST" })
 
 // ===== Excluir usuário =====
 export const excluirUsuarioAdmin = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ user_id: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    if (data.user_id === context.userId) throw new Error("Você não pode excluir o próprio usuário.");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext();
+    await assertAdmin(authContext);
+    if (data.user_id === authContext.userId) throw new Error("Você não pode excluir o próprio usuário.");
+    const supabaseAdmin = await getSupabaseAdmin();
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -178,11 +178,11 @@ export const excluirUsuarioAdmin = createServerFn({ method: "POST" })
 
 // ===== Resetar senha (gera nova) =====
 export const resetarSenhaUsuario = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ user_id: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext();
+    await assertAdmin(authContext);
+    const supabaseAdmin = await getSupabaseAdmin();
     const senha = gerarSenha(12);
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, { password: senha });
     if (error) throw new Error(error.message);
@@ -191,11 +191,11 @@ export const resetarSenhaUsuario = createServerFn({ method: "POST" })
 
 // ===== Permissões por módulo =====
 export const listarPermissoesUsuario = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ user_id: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { data: rows, error } = await context.supabase
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext();
+    await assertAdmin(authContext);
+    const { data: rows, error } = await authContext.supabase
       .from("user_module_permissions")
       .select("modulo, pode_ver, pode_criar, pode_editar, pode_excluir")
       .eq("user_id", data.user_id);
@@ -215,13 +215,13 @@ const permsSchema = z.object({
 });
 
 export const salvarPermissoesUsuario = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => permsSchema.parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext();
+    await assertAdmin(authContext);
+    const supabaseAdmin = await getSupabaseAdmin();
     // upsert por (user_id, modulo)
-    const rows = data.permissoes.map((p) => ({ user_id: data.user_id, ...p }));
+    const rows = data.permissoes.map((p: z.infer<typeof permsSchema>["permissoes"][number]) => ({ user_id: data.user_id, ...p }));
     if (rows.length === 0) return { ok: true };
     const { error } = await supabaseAdmin
       .from("user_module_permissions")
