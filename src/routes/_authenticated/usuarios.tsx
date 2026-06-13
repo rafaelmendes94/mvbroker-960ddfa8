@@ -229,7 +229,8 @@ function NewUserDialog({
     }
     setSaving(true);
     try {
-      const res: any = await criar({ data: { email, nome, roles, modo } });
+      const _token = await getToken();
+      const res: any = await criar({ data: { email, nome, roles, modo, _token } });
       if (res?.senha) {
         navigator.clipboard?.writeText(res.senha).catch(() => {});
         toast.success(`Usuário criado. Senha: ${res.senha} (copiada)`);
