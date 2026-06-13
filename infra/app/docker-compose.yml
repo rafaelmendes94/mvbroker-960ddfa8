@@ -1,0 +1,20 @@
+services:
+  mvbroker-front:
+    image: mvbroker-front:latest
+    container_name: mvbroker-front
+    restart: unless-stopped
+    # Carrega todas as vars em runtime do env file da VPS (nunca vai ao git).
+    # Caminho relativo a partir de infra/app/ → /opt/mvbroker-infra/app-front/.env
+    env_file:
+      - ../../app-front/.env
+    environment:
+      NODE_ENV: production
+    labels:
+      # Roteamento via infra/traefik/dynamic/app.yml (file provider).
+      - traefik.enable=false
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
