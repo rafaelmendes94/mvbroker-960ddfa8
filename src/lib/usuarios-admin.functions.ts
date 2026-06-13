@@ -7,6 +7,7 @@ const ROLES = [
   "corretor_imobiliaria", "corretor_autonomo",
   "admin", "manager", "user",
 ] as const;
+type Role = (typeof ROLES)[number];
 
 async function getWsTransport() {
   if (typeof globalThis.WebSocket !== "undefined") return undefined;
@@ -80,7 +81,7 @@ function gerarSenha(len = 12) {
 
 // ===== Listar usuários =====
 export const listarUsuariosAdmin = createServerFn({ method: "GET" })
-  .handler(async ({ context }) => {
+  .handler(async () => {
     const authContext = await getAuthedContext();
     await assertAdmin(authContext);
     const { data, error } = await authContext.supabase.rpc("admin_list_users");
@@ -99,11 +100,11 @@ const criarSchema = z.object({
 });
 
 export const criarUsuarioAdmin = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => criarSchema.parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext();
+    await assertAdmin(authContext);
+    const supabaseAdmin = await getSupabaseAdmin();
 
     let userId: string;
     let senhaGerada: string | undefined;
@@ -134,7 +135,7 @@ export const criarUsuarioAdmin = createServerFn({ method: "POST" })
     // limpa role default e aplica os escolhidos
     await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
     await supabaseAdmin.from("user_roles").insert(
-      data.roles.map((r) => ({ user_id: userId, role: r })),
+      data.roles.map((r: Role) => ({ user_id: userId, role: r })),
     );
 
     return { user_id: userId, senha: senhaGerada };
@@ -147,15 +148,15 @@ const rolesSchema = z.object({
 });
 
 export const atualizarRolesUsuario = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => rolesSchema.parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext();
+    await assertAdmin(authContext);
+    const supabaseAdmin = await getSupabaseAdmin();
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
     if (data.roles.length > 0) {
       const { error } = await supabaseAdmin.from("user_roles").insert(
-        data.roles.map((r) => ({ user_id: data.user_id, role: r })),
+        data.roles.map((r: Role) => ({ user_id: data.user_id, role: r })),
       );
       if (error) throw new Error(error.message);
     }
