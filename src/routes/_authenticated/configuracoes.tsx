@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/use-roles";
 import { IntegracoesCard } from "@/components/configuracoes/IntegracoesCard";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
@@ -19,7 +19,8 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({
 });
 
 function WhatsAppConfigCard() {
-  const { isSuperAdmin } = useAuth();
+  const { roles } = useRoles();
+  const isSuperAdmin = roles.includes("super_admin");
   const [whatsapp, setWhatsapp] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/use-roles";
 
 type Row = { key: string; value: string | null };
 
@@ -59,7 +59,8 @@ function SecretInput({
 }
 
 export function IntegracoesCard() {
-  const { isSuperAdmin } = useAuth();
+  const { roles, loading: rolesLoading } = useRoles();
+  const isSuperAdmin = roles.includes("super_admin");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [values, setValues] = useState<Record<IntegrationKey, string>>({
@@ -107,7 +108,7 @@ export function IntegracoesCard() {
     toast.success("Integrações atualizadas");
   }
 
-  if (!isSuperAdmin) {
+  if (!rolesLoading && !isSuperAdmin) {
     return (
       <Card>
         <CardHeader>
