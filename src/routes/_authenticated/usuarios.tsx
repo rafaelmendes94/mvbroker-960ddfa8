@@ -186,7 +186,8 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
   async function handleDelete() {
     if (!confirm(`Excluir definitivamente o usuário ${user.email}?`)) return;
     try {
-      await excluir({ data: { user_id: user.id } });
+      const _token = await getToken();
+      await excluir({ data: { user_id: user.id, _token } });
       toast.success("Usuário excluído");
       onChanged();
     } catch (e: any) { toast.error(e?.message ?? "Falha"); }
