@@ -72,7 +72,8 @@ function Usuarios() {
   async function refresh() {
     setLoading(true);
     try {
-      const data = await listar();
+      const _token = await getToken();
+      const data = await listar({ data: { _token } });
       setRows(data as UserRow[]);
     } catch (e: any) {
       toast.error(e?.message ?? "Erro ao listar");
