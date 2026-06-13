@@ -19,7 +19,8 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({
 });
 
 function WhatsAppConfigCard() {
-  const { isSuperAdmin } = useAuth();
+  const { roles } = useRoles();
+  const isSuperAdmin = roles.includes("super_admin");
   const [whatsapp, setWhatsapp] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
