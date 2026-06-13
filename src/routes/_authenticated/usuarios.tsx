@@ -28,6 +28,14 @@ import {
   excluirUsuarioAdmin, resetarSenhaUsuario,
   listarPermissoesUsuario, salvarPermissoesUsuario,
 } from "@/lib/usuarios-admin.functions";
+import { supabase } from "@/integrations/supabase/client";
+
+async function getToken(): Promise<string> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("Sessão expirada. Faça login novamente.");
+  return token;
+}
 
 export const Route = createFileRoute("/_authenticated/usuarios")({
   head: () => ({ meta: [{ title: "Usuários — MV Broker" }] }),
@@ -64,7 +72,8 @@ function Usuarios() {
   async function refresh() {
     setLoading(true);
     try {
-      const data = await listar();
+      const _token = await getToken();
+      const data = await listar({ data: { _token } });
       setRows(data as UserRow[]);
     } catch (e: any) {
       toast.error(e?.message ?? "Erro ao listar");
@@ -168,7 +177,8 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
 
   async function handleReset() {
     try {
-      const { senha } = await reset({ data: { user_id: user.id } });
+      const _token = await getToken();
+      const { senha } = await reset({ data: { user_id: user.id, _token } });
       navigator.clipboard?.writeText(senha).catch(() => {});
       toast.success(`Nova senha: ${senha} (copiada)`);
     } catch (e: any) { toast.error(e?.message ?? "Falha"); }
@@ -176,7 +186,8 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
   async function handleDelete() {
     if (!confirm(`Excluir definitivamente o usuário ${user.email}?`)) return;
     try {
-      await excluir({ data: { user_id: user.id } });
+      const _token = await getToken();
+      await excluir({ data: { user_id: user.id, _token } });
       toast.success("Usuário excluído");
       onChanged();
     } catch (e: any) { toast.error(e?.message ?? "Falha"); }
@@ -218,7 +229,8 @@ function NewUserDialog({
     }
     setSaving(true);
     try {
-      const res: any = await criar({ data: { email, nome, roles, modo } });
+      const _token = await getToken();
+      const res: any = await criar({ data: { email, nome, roles, modo, _token } });
       if (res?.senha) {
         navigator.clipboard?.writeText(res.senha).catch(() => {});
         toast.success(`Usuário criado. Senha: ${res.senha} (copiada)`);
@@ -299,12 +311,14 @@ function EditUserSheet({
   const [tab, setTab] = useState("papeis");
 
   useEffect(() => {
-    listarPerms({ data: { user_id: user.id } }).then((rows: any) => {
+    (async () => {
+      const _token = await getToken();
+      const rows = await listarPerms({ data: { user_id: user.id, _token } });
       const map: Record<string, Perm> = {};
       MODULOS.forEach((m) => { map[m.key] = { modulo: m.key, pode_ver: false, pode_criar: false, pode_editar: false, pode_excluir: false }; });
       (rows ?? []).forEach((r: Perm) => { map[r.modulo] = r; });
       setPerms(map);
-    });
+    })();
   }, [user.id]);
 
   function togglePerm(mod: ModuloKey, key: keyof Omit<Perm, "modulo">) {
@@ -321,8 +335,9 @@ function EditUserSheet({
   async function save() {
     setSaving(true);
     try {
-      await atualizarRoles({ data: { user_id: user.id, roles } });
-      await salvarPerms({ data: { user_id: user.id, permissoes: Object.values(perms) } });
+      const _token = await getToken();
+      await atualizarRoles({ data: { user_id: user.id, roles, _token } });
+      await salvarPerms({ data: { user_id: user.id, permissoes: Object.values(perms), _token } });
       toast.success("Alterações salvas");
       onChanged(); onClose();
     } catch (e: any) { toast.error(e?.message ?? "Falha ao salvar"); }

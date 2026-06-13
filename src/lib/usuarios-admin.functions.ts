@@ -54,19 +54,13 @@ async function createNodeSafeSupabaseClient(key: string, token?: string) {
   });
 }
 
-async function getAuthedContext(): Promise<AuthedContext> {
-  const { getRequest } = await import("@tanstack/react-start/server");
+async function getAuthedContext(token: string): Promise<AuthedContext> {
   const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
   if (!SUPABASE_PUBLISHABLE_KEY) {
     throw new Error("Missing Supabase environment variable(s): SUPABASE_PUBLISHABLE_KEY.");
   }
+  if (!token) throw new Error("Unauthorized: No token provided");
 
-  const authHeader = getRequest()?.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    throw new Error("Unauthorized: No authorization header provided");
-  }
-
-  const token = authHeader.replace("Bearer ", "");
   const supabase = await createNodeSafeSupabaseClient(SUPABASE_PUBLISHABLE_KEY, token);
   const { data, error } = await supabase.auth.getClaims(token);
   if (error || !data?.claims?.sub) throw new Error("Unauthorized: Invalid token");
@@ -99,17 +93,21 @@ function gerarSenha(len = 12) {
   return out;
 }
 
+const tokenSchema = z.object({ _token: z.string().min(1) });
+
 // ===== Listar usuários =====
-export const listarUsuariosAdmin = createServerFn({ method: "GET" }).handler(async () => {
-  const authContext = await getAuthedContext();
-  await assertAdmin(authContext);
-  const { data, error } = await authContext.supabase.rpc("admin_list_users");
-  if (error) throw new Error(error.message);
-  return data ?? [];
-});
+export const listarUsuariosAdmin = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => tokenSchema.parse(d))
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext(data._token);
+    await assertAdmin(authContext);
+    const { data: rows, error } = await authContext.supabase.rpc("admin_list_users");
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
 
 // ===== Criar usuário =====
-const criarSchema = z.object({
+const criarSchema = tokenSchema.extend({
   email: z.string().trim().email().max(255),
   nome: z.string().trim().min(1).max(200),
   roles: z.array(z.enum(ROLES)).min(1),
@@ -121,7 +119,7 @@ const criarSchema = z.object({
 export const criarUsuarioAdmin = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => criarSchema.parse(d))
   .handler(async ({ data }) => {
-    const authContext = await getAuthedContext();
+    const authContext = await getAuthedContext(data._token);
     await assertAdmin(authContext);
     const supabaseAdmin = await getSupabaseAdmin();
 
@@ -148,10 +146,7 @@ export const criarUsuarioAdmin = createServerFn({ method: "POST" })
       userId = inv.user.id;
     }
 
-    // garante profile
     await supabaseAdmin.from("profiles").upsert({ id: userId, full_name: data.nome });
-
-    // limpa role default e aplica os escolhidos
     await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
     await supabaseAdmin
       .from("user_roles")
@@ -161,7 +156,7 @@ export const criarUsuarioAdmin = createServerFn({ method: "POST" })
   });
 
 // ===== Atualizar papéis =====
-const rolesSchema = z.object({
+const rolesSchema = tokenSchema.extend({
   user_id: z.string().uuid(),
   roles: z.array(z.enum(ROLES)),
 });
@@ -169,7 +164,7 @@ const rolesSchema = z.object({
 export const atualizarRolesUsuario = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => rolesSchema.parse(d))
   .handler(async ({ data }) => {
-    const authContext = await getAuthedContext();
+    const authContext = await getAuthedContext(data._token);
     await assertAdmin(authContext);
     const supabaseAdmin = await getSupabaseAdmin();
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
@@ -183,10 +178,12 @@ export const atualizarRolesUsuario = createServerFn({ method: "POST" })
   });
 
 // ===== Excluir usuário =====
+const userIdSchema = tokenSchema.extend({ user_id: z.string().uuid() });
+
 export const excluirUsuarioAdmin = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ user_id: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => userIdSchema.parse(d))
   .handler(async ({ data }) => {
-    const authContext = await getAuthedContext();
+    const authContext = await getAuthedContext(data._token);
     await assertAdmin(authContext);
     if (data.user_id === authContext.userId) {
       throw new Error("Você não pode excluir o próprio usuário.");
@@ -197,11 +194,11 @@ export const excluirUsuarioAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// ===== Resetar senha (gera nova) =====
+// ===== Resetar senha =====
 export const resetarSenhaUsuario = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ user_id: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => userIdSchema.parse(d))
   .handler(async ({ data }) => {
-    const authContext = await getAuthedContext();
+    const authContext = await getAuthedContext(data._token);
     await assertAdmin(authContext);
     const supabaseAdmin = await getSupabaseAdmin();
     const senha = gerarSenha(12);
@@ -213,10 +210,10 @@ export const resetarSenhaUsuario = createServerFn({ method: "POST" })
   });
 
 // ===== Permissões por módulo =====
-export const listarPermissoesUsuario = createServerFn({ method: "GET" })
-  .inputValidator((d: unknown) => z.object({ user_id: z.string().uuid() }).parse(d))
+export const listarPermissoesUsuario = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => userIdSchema.parse(d))
   .handler(async ({ data }) => {
-    const authContext = await getAuthedContext();
+    const authContext = await getAuthedContext(data._token);
     await assertAdmin(authContext);
     const { data: rows, error } = await authContext.supabase
       .from("user_module_permissions")
@@ -226,7 +223,7 @@ export const listarPermissoesUsuario = createServerFn({ method: "GET" })
     return rows ?? [];
   });
 
-const permsSchema = z.object({
+const permsSchema = tokenSchema.extend({
   user_id: z.string().uuid(),
   permissoes: z.array(
     z.object({
@@ -242,14 +239,10 @@ const permsSchema = z.object({
 export const salvarPermissoesUsuario = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => permsSchema.parse(d))
   .handler(async ({ data }) => {
-    const authContext = await getAuthedContext();
+    const authContext = await getAuthedContext(data._token);
     await assertAdmin(authContext);
     const supabaseAdmin = await getSupabaseAdmin();
-    // upsert por (user_id, modulo)
-    const rows = data.permissoes.map((p: z.infer<typeof permsSchema>["permissoes"][number]) => ({
-      user_id: data.user_id,
-      ...p,
-    }));
+    const rows = data.permissoes.map((p) => ({ user_id: data.user_id, ...p }));
     if (rows.length === 0) return { ok: true };
     const { error } = await supabaseAdmin
       .from("user_module_permissions")
