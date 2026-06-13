@@ -1,12 +1,68 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 const ROLES = [
   "super_admin", "secretaria", "imobiliaria",
   "corretor_imobiliaria", "corretor_autonomo",
   "admin", "manager", "user",
 ] as const;
+
+async function getWsTransport() {
+  if (typeof globalThis.WebSocket !== "undefined") return undefined;
+  try {
+    const ws = await import("ws");
+    return (ws.default ?? ws.WebSocket ?? ws) as any;
+  } catch {
+    return undefined;
+  }
+}
+
+async function createNodeSafeSupabaseClient(key: string, token?: string) {
+  const { createClient } = await import("@supabase/supabase-js");
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+
+  if (!SUPABASE_URL || !key) {
+    const missing = [
+      ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
+      ...(!key ? ["SUPABASE_KEY"] : []),
+    ];
+    throw new Error(`Missing Supabase environment variable(s): ${missing.join(", ")}.`);
+  }
+
+  const transport = await getWsTransport();
+  return createClient<Database>(SUPABASE_URL, key, {
+    ...(transport ? { realtime: { transport } } : {}),
+    ...(token ? { global: { headers: { Authorization: `Bearer ${token}` } } } : {}),
+    auth: {
+      storage: undefined,
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
+async function getAuthedContext() {
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+  if (!SUPABASE_PUBLISHABLE_KEY) throw new Error("Missing Supabase environment variable(s): SUPABASE_PUBLISHABLE_KEY.");
+
+  const authHeader = getRequest()?.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) throw new Error("Unauthorized: No authorization header provided");
+
+  const token = authHeader.replace("Bearer ", "");
+  const supabase = await createNodeSafeSupabaseClient(SUPABASE_PUBLISHABLE_KEY, token);
+  const { data, error } = await supabase.auth.getClaims(token);
+  if (error || !data?.claims?.sub) throw new Error("Unauthorized: Invalid token");
+
+  return { supabase, userId: data.claims.sub, claims: data.claims };
+}
+
+async function getSupabaseAdmin() {
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!SUPABASE_SERVICE_ROLE_KEY) throw new Error("Missing Supabase environment variable(s): SUPABASE_SERVICE_ROLE_KEY.");
+  return createNodeSafeSupabaseClient(SUPABASE_SERVICE_ROLE_KEY);
+}
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data: ok } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "super_admin" });
@@ -24,10 +80,10 @@ function gerarSenha(len = 12) {
 
 // ===== Listar usuários =====
 export const listarUsuariosAdmin = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase.rpc("admin_list_users");
+    const authContext = await getAuthedContext();
+    await assertAdmin(authContext);
+    const { data, error } = await authContext.supabase.rpc("admin_list_users");
     if (error) throw new Error(error.message);
     return data ?? [];
   });
