@@ -311,12 +311,14 @@ function EditUserSheet({
   const [tab, setTab] = useState("papeis");
 
   useEffect(() => {
-    listarPerms({ data: { user_id: user.id } }).then((rows: any) => {
+    (async () => {
+      const _token = await getToken();
+      const rows = await listarPerms({ data: { user_id: user.id, _token } });
       const map: Record<string, Perm> = {};
       MODULOS.forEach((m) => { map[m.key] = { modulo: m.key, pode_ver: false, pode_criar: false, pode_editar: false, pode_excluir: false }; });
       (rows ?? []).forEach((r: Perm) => { map[r.modulo] = r; });
       setPerms(map);
-    });
+    })();
   }, [user.id]);
 
   function togglePerm(mod: ModuloKey, key: keyof Omit<Perm, "modulo">) {
