@@ -60,6 +60,7 @@ import { Route as AuthenticatedRelatoriosAdminCorretoresRouteImport } from './ro
 import { Route as AuthenticatedRelatoriosAdminAtividadeRouteImport } from './routes/_authenticated/relatorios-admin.atividade'
 import { Route as AuthenticatedRegistrosNovoRouteImport } from './routes/_authenticated/registros.novo'
 import { Route as AuthenticatedRegistrosIdRouteImport } from './routes/_authenticated/registros.$id'
+import { Route as AuthenticatedImportacoesMvBrokerRouteImport } from './routes/_authenticated/importacoes.mv-broker'
 import { Route as AuthenticatedImportacoesImoveisRouteImport } from './routes/_authenticated/importacoes.imoveis'
 import { Route as AuthenticatedImportacoesEdificiosRouteImport } from './routes/_authenticated/importacoes.edificios'
 import { Route as AuthenticatedImportacoesCondominiosRouteImport } from './routes/_authenticated/importacoes.condominios'
@@ -358,6 +359,12 @@ const AuthenticatedRegistrosIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedRegistrosRoute,
   } as any)
+const AuthenticatedImportacoesMvBrokerRoute =
+  AuthenticatedImportacoesMvBrokerRouteImport.update({
+    id: '/mv-broker',
+    path: '/mv-broker',
+    getParentRoute: () => AuthenticatedImportacoesRoute,
+  } as any)
 const AuthenticatedImportacoesImoveisRoute =
   AuthenticatedImportacoesImoveisRouteImport.update({
     id: '/imoveis',
@@ -483,6 +490,7 @@ export interface FileRoutesByFullPath {
   '/importacoes/condominios': typeof AuthenticatedImportacoesCondominiosRoute
   '/importacoes/edificios': typeof AuthenticatedImportacoesEdificiosRoute
   '/importacoes/imoveis': typeof AuthenticatedImportacoesImoveisRoute
+  '/importacoes/mv-broker': typeof AuthenticatedImportacoesMvBrokerRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/relatorios-admin/atividade': typeof AuthenticatedRelatoriosAdminAtividadeRoute
@@ -542,6 +550,7 @@ export interface FileRoutesByTo {
   '/importacoes/condominios': typeof AuthenticatedImportacoesCondominiosRoute
   '/importacoes/edificios': typeof AuthenticatedImportacoesEdificiosRoute
   '/importacoes/imoveis': typeof AuthenticatedImportacoesImoveisRoute
+  '/importacoes/mv-broker': typeof AuthenticatedImportacoesMvBrokerRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/relatorios-admin/atividade': typeof AuthenticatedRelatoriosAdminAtividadeRoute
@@ -610,6 +619,7 @@ export interface FileRoutesById {
   '/_authenticated/importacoes/condominios': typeof AuthenticatedImportacoesCondominiosRoute
   '/_authenticated/importacoes/edificios': typeof AuthenticatedImportacoesEdificiosRoute
   '/_authenticated/importacoes/imoveis': typeof AuthenticatedImportacoesImoveisRoute
+  '/_authenticated/importacoes/mv-broker': typeof AuthenticatedImportacoesMvBrokerRoute
   '/_authenticated/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/_authenticated/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/_authenticated/relatorios-admin/atividade': typeof AuthenticatedRelatoriosAdminAtividadeRoute
@@ -678,6 +688,7 @@ export interface FileRouteTypes {
     | '/importacoes/condominios'
     | '/importacoes/edificios'
     | '/importacoes/imoveis'
+    | '/importacoes/mv-broker'
     | '/registros/$id'
     | '/registros/novo'
     | '/relatorios-admin/atividade'
@@ -737,6 +748,7 @@ export interface FileRouteTypes {
     | '/importacoes/condominios'
     | '/importacoes/edificios'
     | '/importacoes/imoveis'
+    | '/importacoes/mv-broker'
     | '/registros/$id'
     | '/registros/novo'
     | '/relatorios-admin/atividade'
@@ -804,6 +816,7 @@ export interface FileRouteTypes {
     | '/_authenticated/importacoes/condominios'
     | '/_authenticated/importacoes/edificios'
     | '/_authenticated/importacoes/imoveis'
+    | '/_authenticated/importacoes/mv-broker'
     | '/_authenticated/registros/$id'
     | '/_authenticated/registros/novo'
     | '/_authenticated/relatorios-admin/atividade'
@@ -1199,6 +1212,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRegistrosIdRouteImport
       parentRoute: typeof AuthenticatedRegistrosRoute
     }
+    '/_authenticated/importacoes/mv-broker': {
+      id: '/_authenticated/importacoes/mv-broker'
+      path: '/mv-broker'
+      fullPath: '/importacoes/mv-broker'
+      preLoaderRoute: typeof AuthenticatedImportacoesMvBrokerRouteImport
+      parentRoute: typeof AuthenticatedImportacoesRoute
+    }
     '/_authenticated/importacoes/imoveis': {
       id: '/_authenticated/importacoes/imoveis'
       path: '/imoveis'
@@ -1369,6 +1389,7 @@ interface AuthenticatedImportacoesRouteChildren {
   AuthenticatedImportacoesCondominiosRoute: typeof AuthenticatedImportacoesCondominiosRoute
   AuthenticatedImportacoesEdificiosRoute: typeof AuthenticatedImportacoesEdificiosRoute
   AuthenticatedImportacoesImoveisRoute: typeof AuthenticatedImportacoesImoveisRoute
+  AuthenticatedImportacoesMvBrokerRoute: typeof AuthenticatedImportacoesMvBrokerRoute
   AuthenticatedImportacoesIndexRoute: typeof AuthenticatedImportacoesIndexRoute
 }
 
@@ -1379,6 +1400,8 @@ const AuthenticatedImportacoesRouteChildren: AuthenticatedImportacoesRouteChildr
     AuthenticatedImportacoesEdificiosRoute:
       AuthenticatedImportacoesEdificiosRoute,
     AuthenticatedImportacoesImoveisRoute: AuthenticatedImportacoesImoveisRoute,
+    AuthenticatedImportacoesMvBrokerRoute:
+      AuthenticatedImportacoesMvBrokerRoute,
     AuthenticatedImportacoesIndexRoute: AuthenticatedImportacoesIndexRoute,
   }
 

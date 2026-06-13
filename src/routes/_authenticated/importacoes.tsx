@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Building2, Building, Home } from "lucide-react";
+import { Building2, Building, Home, FileSpreadsheet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/importacoes")({
@@ -7,9 +7,10 @@ export const Route = createFileRoute("/_authenticated/importacoes")({
 });
 
 const TABS = [
+  { to: "/importacoes/mv-broker", label: "Modelo MV Broker", icon: FileSpreadsheet },
+  { to: "/importacoes/imoveis", label: "Imóveis (avançado)", icon: Home },
   { to: "/importacoes/condominios", label: "Condomínios", icon: Building },
   { to: "/importacoes/edificios", label: "Edifícios", icon: Building2 },
-  { to: "/importacoes/imoveis", label: "Imóveis", icon: Home },
 ];
 
 function ImportacoesLayout() {
