@@ -335,8 +335,9 @@ function EditUserSheet({
   async function save() {
     setSaving(true);
     try {
-      await atualizarRoles({ data: { user_id: user.id, roles } });
-      await salvarPerms({ data: { user_id: user.id, permissoes: Object.values(perms) } });
+      const _token = await getToken();
+      await atualizarRoles({ data: { user_id: user.id, roles, _token } });
+      await salvarPerms({ data: { user_id: user.id, permissoes: Object.values(perms), _token } });
       toast.success("Alterações salvas");
       onChanged(); onClose();
     } catch (e: any) { toast.error(e?.message ?? "Falha ao salvar"); }
