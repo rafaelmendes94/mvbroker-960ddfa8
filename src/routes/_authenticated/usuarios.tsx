@@ -28,6 +28,14 @@ import {
   excluirUsuarioAdmin, resetarSenhaUsuario,
   listarPermissoesUsuario, salvarPermissoesUsuario,
 } from "@/lib/usuarios-admin.functions";
+import { supabase } from "@/integrations/supabase/client";
+
+async function getToken(): Promise<string> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("Sessão expirada. Faça login novamente.");
+  return token;
+}
 
 export const Route = createFileRoute("/_authenticated/usuarios")({
   head: () => ({ meta: [{ title: "Usuários — MV Broker" }] }),
