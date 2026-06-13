@@ -108,7 +108,7 @@ export function IntegracoesCard() {
     toast.success("Integrações atualizadas");
   }
 
-  if (!isSuperAdmin) {
+  if (!rolesLoading && !isSuperAdmin) {
     return (
       <Card>
         <CardHeader>
