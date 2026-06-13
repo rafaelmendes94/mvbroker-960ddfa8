@@ -5,83 +5,115 @@
 #  - Faz git pull do branch main
 #  - Reconstrói a imagem Docker injetando as chaves do Supabase self-hosted
 #    via --build-arg (Vite congela em build time)
-#  - Recria o container mvbroker-front na porta 3000 (atrás do Traefik)
-#  - NUNCA sobrescreve o .env nem mistura com Lovable Cloud
+#  - Aplica novas migrations SQL e recarrega schema do PostgREST
+#  - Recria o container mvbroker-front (atrás do Traefik via app.yml)
+#  - NUNCA sobrescreve .env nem mistura chaves com Lovable Cloud
 #
-#  Uso:
-#    bash /opt/mvbroker-infra/app-front/update.sh
+#  Pré-requisito: /opt/mvbroker-infra/app-front/.env configurado
+#    (use infra/app.env.example como referência)
+#
+#  Uso: bash /opt/mvbroker-infra/infra/update.sh
 # =============================================================================
 set -euo pipefail
 
-APP_DIR="/opt/mvbroker-infra/app-front"
-REPO_DIR="$APP_DIR/repo"          # clone do repositório do Lovable
-ENV_FILE="$APP_DIR/.env"          # chaves reais ficam SÓ aqui (fora do git)
-IMAGE="mvbroker-front:latest"
-CONTAINER="mvbroker-front"
+REPO_DIR="/opt/mvbroker-infra"
+ENV_FILE="$REPO_DIR/app-front/.env"
+MIGRATIONS_DIR="$REPO_DIR/supabase/migrations"
+APPLIED_FILE="$REPO_DIR/infra/app/.applied_migrations"
 BRANCH="${BRANCH:-main}"
-PORT="${PORT:-3000}"
+EXPECTED_SUPABASE_HOST="supabase.sistemamvbroker.com.br"
 
-echo "▶ [1/6] Verificando .env em $ENV_FILE"
+# ── 1. Valida .env ────────────────────────────────────────────────────────────
+echo "▶ [1/6] Verificando $ENV_FILE"
 if [ ! -f "$ENV_FILE" ]; then
-  cat <<EOF >&2
+  cat <<MSG >&2
 ✗ $ENV_FILE não existe.
-  Crie-o com as chaves do Supabase self-hosted:
-
-  VITE_SUPABASE_URL=https://supabase.sistemamvbroker.com.br
-  VITE_SUPABASE_PUBLISHABLE_KEY=<anon key do supabase self-host>
-  VITE_SUPABASE_PROJECT_ID=mvbroker
-  SUPABASE_URL=https://supabase.sistemamvbroker.com.br
-  SUPABASE_PUBLISHABLE_KEY=<anon key>
-  SUPABASE_SERVICE_ROLE_KEY=<service role key>
-EOF
+  Crie-o a partir de: $REPO_DIR/infra/app.env.example
+MSG
   exit 1
 fi
 
-# carrega variáveis no shell sem expor no log
-set -a
-# shellcheck disable=SC1090
-source "$ENV_FILE"
-set +a
+set -a; source "$ENV_FILE"; set +a
 
-: "${VITE_SUPABASE_URL:?VITE_SUPABASE_URL ausente no .env}"
-: "${VITE_SUPABASE_PUBLISHABLE_KEY:?VITE_SUPABASE_PUBLISHABLE_KEY ausente no .env}"
+: "${VITE_SUPABASE_URL:?VITE_SUPABASE_URL ausente em $ENV_FILE}"
+: "${VITE_SUPABASE_PUBLISHABLE_KEY:?VITE_SUPABASE_PUBLISHABLE_KEY ausente em $ENV_FILE}"
 
+case "$VITE_SUPABASE_URL" in
+  *"$EXPECTED_SUPABASE_HOST"*) echo "   OK → $VITE_SUPABASE_URL" ;;
+  *.supabase.co*)
+    echo "✗ .env aponta para Lovable Cloud ($VITE_SUPABASE_URL). Deploy abortado." >&2
+    echo "  Edite $ENV_FILE — use https://$EXPECTED_SUPABASE_HOST" >&2
+    exit 1 ;;
+  *)
+    echo "✗ VITE_SUPABASE_URL inválido: '$VITE_SUPABASE_URL'" >&2; exit 1 ;;
+esac
+
+# ── 2. Git pull ───────────────────────────────────────────────────────────────
 echo "▶ [2/6] git pull origin/$BRANCH"
 cd "$REPO_DIR"
 git fetch --all --prune
-git reset --hard "origin/$BRANCH"
+LOCAL="$(git rev-parse HEAD)"
+REMOTE="$(git rev-parse "origin/$BRANCH")"
+if [ "$LOCAL" = "$REMOTE" ]; then
+  echo "   sem mudanças remotas (HEAD=$(git rev-parse --short HEAD))"
+else
+  git reset --hard "origin/$BRANCH"
+  echo "   atualizado → $(git rev-parse --short HEAD)"
+fi
 
-echo "▶ [3/6] Build da imagem Docker (injetando build-args)"
+# ── 3. Migrations ─────────────────────────────────────────────────────────────
+echo "▶ [3/6] Migrations"
+touch "$APPLIED_FILE"
+MIGRATED=0; ERRORS=0
+for sql_file in $(ls "$MIGRATIONS_DIR"/*.sql 2>/dev/null | sort); do
+  filename=$(basename "$sql_file")
+  grep -qF "$filename" "$APPLIED_FILE" && continue
+  result=$(docker exec -i supabase-db psql -U postgres -d postgres 2>&1 < "$sql_file")
+  if [ $? -ne 0 ]; then
+    echo "   ❌ ERRO: $filename — $(echo "$result" | tail -1)"
+    ERRORS=$((ERRORS + 1))
+  else
+    echo "   ✅ $filename"
+    echo "$filename" >> "$APPLIED_FILE"
+    MIGRATED=$((MIGRATED + 1))
+  fi
+done
+echo "   $MIGRATED aplicadas, $ERRORS erros"
+if [ "$MIGRATED" -gt 0 ]; then
+  docker kill --signal=SIGUSR1 supabase-rest
+  echo "   PostgREST schema recarregado"
+fi
+
+# ── 4. Build Docker ───────────────────────────────────────────────────────────
+echo "▶ [4/6] Build da imagem Docker"
 docker build \
+  -f "$REPO_DIR/infra/app/Dockerfile" \
   --build-arg VITE_SUPABASE_URL="$VITE_SUPABASE_URL" \
   --build-arg VITE_SUPABASE_PUBLISHABLE_KEY="$VITE_SUPABASE_PUBLISHABLE_KEY" \
   --build-arg VITE_SUPABASE_PROJECT_ID="${VITE_SUPABASE_PROJECT_ID:-mvbroker}" \
-  -t "$IMAGE" \
-  "$REPO_DIR"
+  -t mvbroker-front:latest \
+  "$REPO_DIR" 2>&1 | tail -6
 
-echo "▶ [4/6] Parando container antigo (se existir)"
-docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
+# ── 5. Recria container ───────────────────────────────────────────────────────
+echo "▶ [5/6] Recriando container mvbroker-front"
+cd "$REPO_DIR/infra/app"
+docker compose up -d --force-recreate
 
-echo "▶ [5/6] Subindo novo container na porta $PORT"
-docker run -d \
-  --name "$CONTAINER" \
-  --restart unless-stopped \
-  --env-file "$ENV_FILE" \
-  -p "${PORT}:3000" \
-  --network traefik \
-  --label "traefik.enable=true" \
-  --label "traefik.http.routers.mvbroker.rule=Host(\`app.sistemamvbroker.com.br\`)" \
-  --label "traefik.http.routers.mvbroker.entrypoints=websecure" \
-  --label "traefik.http.routers.mvbroker.tls.certresolver=letsencrypt" \
-  --label "traefik.http.services.mvbroker.loadbalancer.server.port=3000" \
-  "$IMAGE"
-
+# ── 6. Health-check ───────────────────────────────────────────────────────────
 echo "▶ [6/6] Health-check"
-sleep 3
-if curl -fsS -o /dev/null "http://localhost:${PORT}"; then
-  echo "✓ Deploy OK em http://localhost:${PORT} (publicado via Traefik em https://app.sistemamvbroker.com.br)"
+sleep 4
+APP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://app.sistemamvbroker.com.br/ || echo "000")
+LP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://sistemamvbroker.com.br/ || echo "000")
+
+echo ""
+if [ "$APP_STATUS" = "200" ] && [ "$LP_STATUS" = "200" ]; then
+  echo "✅ Deploy concluído — commit $(git rev-parse --short HEAD)"
+  echo "   https://app.sistemamvbroker.com.br  → HTTP $APP_STATUS"
+  echo "   https://sistemamvbroker.com.br       → HTTP $LP_STATUS"
 else
-  echo "✗ Container respondeu erro. Logs:"
-  docker logs --tail 50 "$CONTAINER"
+  echo "⚠️  Deploy feito mas health check falhou"
+  echo "   app.sistemamvbroker.com.br  → HTTP $APP_STATUS"
+  echo "   sistemamvbroker.com.br       → HTTP $LP_STATUS"
+  echo "   Verifique: docker logs mvbroker-front"
   exit 1
 fi

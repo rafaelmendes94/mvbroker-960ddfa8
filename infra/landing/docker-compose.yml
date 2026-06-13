@@ -8,12 +8,9 @@ services:
     networks:
       - web
     labels:
-      - traefik.enable=true
-      - traefik.docker.network=web
-      - traefik.http.routers.landing.rule=Host(`sistemamvbroker.com.br`) || Host(`www.sistemamvbroker.com.br`)
-      - traefik.http.routers.landing.entrypoints=websecure
-      - traefik.http.routers.landing.tls.certresolver=le
-      - traefik.http.services.landing.loadbalancer.server.port=80
+      # Roteamento feito via infra/traefik/dynamic/app.yml (file provider) → mvbroker-front.
+      # Este container nginx existe como fallback; não registra roteador no Traefik.
+      - traefik.enable=false
 
 networks:
   web:
