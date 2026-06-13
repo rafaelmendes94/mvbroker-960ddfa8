@@ -59,7 +59,8 @@ function SecretInput({
 }
 
 export function IntegracoesCard() {
-  const { isSuperAdmin } = useAuth();
+  const { roles, loading: rolesLoading } = useRoles();
+  const isSuperAdmin = roles.includes("super_admin");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [values, setValues] = useState<Record<IntegrationKey, string>>({
