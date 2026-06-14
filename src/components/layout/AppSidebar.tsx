@@ -23,6 +23,9 @@ const SECTIONS: Section[] = [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/oportunidades", label: "Oportunidades", icon: Sparkles },
       { to: "/imoveis", label: "Imóveis", icon: Home },
+      { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
+      { to: "/tabela", label: "Tabela", icon: FileText },
+      { to: "/biblioteca", label: "Banco de Imagens", icon: FolderArchive },
       {
         label: "Empreendimentos",
         icon: Layers,
@@ -40,7 +43,6 @@ const SECTIONS: Section[] = [
       { to: "/clientes", label: "Clientes", icon: UserSquare2 },
       { to: "/usuarios", label: "Usuários", icon: Users },
       { to: "/planos", label: "Planos", icon: Tag },
-      { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
       { to: "/relatorios-admin", label: "Relatórios Admin", icon: BarChart3 },
     ],
   },
@@ -50,17 +52,16 @@ const SECTIONS: Section[] = [
       { to: "/imoveis/exportacao", label: "Exportação de Imóveis", icon: Download },
       { to: "/carteiras", label: "Carteiras XML", icon: Briefcase },
       { to: "/portais", label: "Portais", icon: Briefcase },
-      { to: "/tabela", label: "Tabela", icon: FileText },
     ],
   },
   {
     section: "Sistema",
     entries: [
-      { to: "/biblioteca", label: "Banco de Imagens", icon: FolderArchive },
       { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
       { to: "/seguranca", label: "Segurança", icon: Lock },
       { to: "/configuracoes", label: "Configurações", icon: Settings },
     ],
+
   },
 ];
 
