@@ -103,14 +103,29 @@ export const listarUsuariosAdmin = createServerFn({ method: "POST" })
     await assertAdmin(authContext);
     const { data: rows, error } = await authContext.supabase.rpc("admin_list_users");
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    // Anexa roles customizadas
+    const admin = await getSupabaseAdmin();
+    const { data: customs } = await admin
+      .from("user_custom_roles")
+      .select("user_id, role_slug");
+    const byUser = new Map<string, string[]>();
+    (customs ?? []).forEach((c: any) => {
+      const cur = byUser.get(c.user_id) ?? [];
+      cur.push(c.role_slug);
+      byUser.set(c.user_id, cur);
+    });
+    return (rows ?? []).map((u: any) => ({
+      ...u,
+      roles: [...(u.roles ?? []), ...(byUser.get(u.id) ?? [])],
+    }));
   });
 
 // ===== Criar usuário =====
 const criarSchema = tokenSchema.extend({
   email: z.string().trim().email().max(255),
   nome: z.string().trim().min(1).max(200),
-  roles: z.array(z.enum(ROLES)).min(1),
+  roles: z.array(z.enum(ROLES)).default([]),
+  custom_role_slugs: z.array(z.string().min(1)).default([]),
   modo: z.enum(["senha", "convite"]).default("senha"),
   senha: z.string().min(6).max(72).optional(),
   redirectTo: z.string().url().optional(),
@@ -122,6 +137,10 @@ export const criarUsuarioAdmin = createServerFn({ method: "POST" })
     const authContext = await getAuthedContext(data._token);
     await assertAdmin(authContext);
     const supabaseAdmin = await getSupabaseAdmin();
+
+    if (data.roles.length === 0 && data.custom_role_slugs.length === 0) {
+      throw new Error("Selecione ao menos um papel.");
+    }
 
     let userId: string;
     let senhaGerada: string | undefined;
@@ -148,9 +167,16 @@ export const criarUsuarioAdmin = createServerFn({ method: "POST" })
 
     await supabaseAdmin.from("profiles").upsert({ id: userId, full_name: data.nome });
     await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
-    await supabaseAdmin
-      .from("user_roles")
-      .insert(data.roles.map((r: Role) => ({ user_id: userId, role: r })));
+    if (data.roles.length > 0) {
+      await supabaseAdmin
+        .from("user_roles")
+        .insert(data.roles.map((r: Role) => ({ user_id: userId, role: r })));
+    }
+    if (data.custom_role_slugs.length > 0) {
+      await supabaseAdmin
+        .from("user_custom_roles")
+        .insert(data.custom_role_slugs.map((s) => ({ user_id: userId, role_slug: s })));
+    }
 
     return { user_id: userId, senha: senhaGerada };
   });
@@ -158,7 +184,8 @@ export const criarUsuarioAdmin = createServerFn({ method: "POST" })
 // ===== Atualizar papéis =====
 const rolesSchema = tokenSchema.extend({
   user_id: z.string().uuid(),
-  roles: z.array(z.enum(ROLES)),
+  roles: z.array(z.enum(ROLES)).default([]),
+  custom_role_slugs: z.array(z.string().min(1)).default([]),
 });
 
 export const atualizarRolesUsuario = createServerFn({ method: "POST" })
@@ -168,14 +195,22 @@ export const atualizarRolesUsuario = createServerFn({ method: "POST" })
     await assertAdmin(authContext);
     const supabaseAdmin = await getSupabaseAdmin();
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
+    await supabaseAdmin.from("user_custom_roles").delete().eq("user_id", data.user_id);
     if (data.roles.length > 0) {
       const { error } = await supabaseAdmin
         .from("user_roles")
         .insert(data.roles.map((r: Role) => ({ user_id: data.user_id, role: r })));
       if (error) throw new Error(error.message);
     }
+    if (data.custom_role_slugs.length > 0) {
+      const { error } = await supabaseAdmin
+        .from("user_custom_roles")
+        .insert(data.custom_role_slugs.map((s) => ({ user_id: data.user_id, role_slug: s })));
+      if (error) throw new Error(error.message);
+    }
     return { ok: true };
   });
+
 
 // ===== Excluir usuário =====
 const userIdSchema = tokenSchema.extend({ user_id: z.string().uuid() });
