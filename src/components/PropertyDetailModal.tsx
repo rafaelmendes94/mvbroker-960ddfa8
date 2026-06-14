@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import DOMPurify from "dompurify";
 import { Link } from "@/lib/router-shim";
 import {
   X, MapPin, BedDouble, Bath, Car, Ruler, Phone, Waves, Paintbrush,
@@ -641,7 +642,15 @@ export function PropertyDetailModal({ property, onClose, allProperties, brokerIn
                   </span>
                 </div>
                 {link360.startsWith("<") ? (
-                  <div className="aspect-video" dangerouslySetInnerHTML={{ __html: link360 }} />
+                  <div
+                    className="aspect-video"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(link360, {
+                        ALLOWED_TAGS: ["iframe"],
+                        ALLOWED_ATTR: ["src", "width", "height", "allow", "allowfullscreen", "frameborder", "style", "class", "title"],
+                      }),
+                    }}
+                  />
                 ) : link360.includes("http") ? (
                   <div className="aspect-video">
                     <iframe src={link360} title="Tour 360°" className="w-full h-full border-0" allowFullScreen />

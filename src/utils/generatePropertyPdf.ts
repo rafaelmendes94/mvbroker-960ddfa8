@@ -15,6 +15,15 @@ async function imageToBase64(url: string): Promise<string | null> {
   }
 }
 
+function escHtml(s: string): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function generatePropertyPdf(property: Property) {
   const html2pdf = (await import("html2pdf.js")).default;
 
@@ -24,8 +33,8 @@ export async function generatePropertyPdf(property: Property) {
 
   const html = `
 <div style="font-family:'Segoe UI',Arial,sans-serif;color:#1f2937;">
-  <h1 style="font-size:22px;font-weight:800;margin:0 0 4px;color:#1e3a5f;text-align:center;">${property.title}</h1>
-  ${property.code ? `<p style="text-align:center;font-size:11px;color:#6b7280;margin:0 0 16px;">Código: ${property.code}</p>` : `<div style="margin-bottom:16px;"></div>`}
+  <h1 style="font-size:22px;font-weight:800;margin:0 0 4px;color:#1e3a5f;text-align:center;">${escHtml(property.title)}</h1>
+  ${property.code ? `<p style="text-align:center;font-size:11px;color:#6b7280;margin:0 0 16px;">Código: ${escHtml(property.code)}</p>` : `<div style="margin-bottom:16px;"></div>`}
   ${imagesB64.length === 0
     ? `<p style="text-align:center;color:#9ca3af;font-size:12px;">Sem fotos cadastradas.</p>`
     : imagesB64.map((b64) => `<div style="page-break-inside:avoid;margin-bottom:12px;text-align:center;"><img src="${b64}" style="max-width:100%;max-height:240mm;object-fit:contain;border-radius:6px;" /></div>`).join("")}
