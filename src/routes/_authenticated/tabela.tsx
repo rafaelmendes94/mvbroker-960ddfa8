@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Download, FileText, Loader2, Upload } from "lucide-react";
+import { Download, FileText, Loader2, Trash2, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -129,6 +129,21 @@ function TabelaPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!atual) return;
+    if (!confirm(`Excluir "${atual.file_name}"? Os clientes deixarão de ter acesso à tabela.`)) return;
+    try {
+      await supabase.storage.from("tabela").remove([atual.file_path]).catch(() => {});
+      const { error } = await supabase.from("tabela_atual").delete().eq("id", atual.id);
+      if (error) throw error;
+      toast.success("Tabela excluída.");
+      await load();
+    } catch (e) {
+      console.error(e);
+      toast.error("Não foi possível excluir.");
+    }
+  };
+
   return (
     <>
       <PageHeader
@@ -154,9 +169,14 @@ function TabelaPage() {
                   Enviado em {new Date(atual.uploaded_at).toLocaleString("pt-BR")} · {formatBytes(atual.size_bytes)}
                 </p>
               </div>
-              <Button onClick={handleDownload} variant="outline" className="gap-2">
-                <Download className="h-4 w-4" /> Baixar atual
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleDownload} variant="outline" className="gap-2">
+                  <Download className="h-4 w-4" /> Baixar atual
+                </Button>
+                <Button onClick={handleDelete} variant="destructive" className="gap-2">
+                  <Trash2 className="h-4 w-4" /> Excluir
+                </Button>
+              </div>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Nenhuma tabela enviada ainda.</p>
