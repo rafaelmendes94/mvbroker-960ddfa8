@@ -24,7 +24,7 @@ export const MODULOS: { key: ModuloKey; label: string; grupo: string }[] = [
   { key: "portais", label: "Portais", grupo: "Comercial" },
 
   { key: "relatorios", label: "Relatórios", grupo: "Análises" },
-  { key: "biblioteca", label: "Biblioteca", grupo: "Análises" },
+  { key: "biblioteca", label: "Banco de Imagens", grupo: "Análises" },
   { key: "importacoes", label: "Importações", grupo: "Análises" },
 
   { key: "planos", label: "Planos", grupo: "Administração" },
