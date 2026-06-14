@@ -154,9 +154,14 @@ function TabelaPage() {
                   Enviado em {new Date(atual.uploaded_at).toLocaleString("pt-BR")} · {formatBytes(atual.size_bytes)}
                 </p>
               </div>
-              <Button onClick={handleDownload} variant="outline" className="gap-2">
-                <Download className="h-4 w-4" /> Baixar atual
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleDownload} variant="outline" className="gap-2">
+                  <Download className="h-4 w-4" /> Baixar atual
+                </Button>
+                <Button onClick={handleDelete} variant="destructive" className="gap-2">
+                  <Trash2 className="h-4 w-4" /> Excluir
+                </Button>
+              </div>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Nenhuma tabela enviada ainda.</p>
