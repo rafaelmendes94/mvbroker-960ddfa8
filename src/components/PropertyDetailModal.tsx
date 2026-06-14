@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import DOMPurify from "dompurify";
 import { Link } from "@/lib/router-shim";
 import {
   X, MapPin, BedDouble, Bath, Car, Ruler, Phone, Waves, Paintbrush,
