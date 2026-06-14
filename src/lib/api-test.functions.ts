@@ -16,25 +16,27 @@ async function ensureSuperAdmin(context: { supabase: any; userId: string }) {
   if (error || !data) throw new Error("Forbidden");
 }
 
+async function getIntegrationKey(supabase: any, key: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("integration_settings")
+    .select("value")
+    .eq("key", key)
+    .single();
+  return data?.value ?? null;
+}
+
 export const testGoogleMaps = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<TestResult> => {
     await ensureSuperAdmin(context);
-    const lovableKey = process.env.LOVABLE_API_KEY;
-    const mapsKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (!lovableKey || !mapsKey) {
-      return { ok: false, status: 0, latency_ms: 0, detail: "Credenciais Google Maps ausentes" };
+    const mapsKey = await getIntegrationKey(context.supabase, "google_maps_api_key");
+    if (!mapsKey) {
+      return { ok: false, status: 0, latency_ms: 0, detail: "Chave Google Maps não configurada em Integrações" };
     }
     const start = Date.now();
     try {
       const res = await fetch(
-        "https://connector-gateway.lovable.dev/google_maps/maps/api/geocode/json?address=Avenida+Paulista+1000+Sao+Paulo",
-        {
-          headers: {
-            Authorization: `Bearer ${lovableKey}`,
-            "X-Connection-Api-Key": mapsKey,
-          },
-        }
+        `https://maps.googleapis.com/maps/api/geocode/json?address=Avenida+Paulista+1000+Sao+Paulo&key=${mapsKey}`
       );
       const latency = Date.now() - start;
       const json: any = await res.json().catch(() => ({}));
@@ -52,9 +54,9 @@ export const testLovableAi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<TestResult> => {
     await ensureSuperAdmin(context);
-    const geminiKey = process.env.GEMINI_API_KEY;
+    const geminiKey = await getIntegrationKey(context.supabase, "gemini_api_key");
     if (!geminiKey) {
-      return { ok: false, status: 0, latency_ms: 0, detail: "GEMINI_API_KEY ausente" };
+      return { ok: false, status: 0, latency_ms: 0, detail: "Chave Gemini não configurada em Integrações" };
     }
     const start = Date.now();
     const model = "gemini-2.5-flash";
