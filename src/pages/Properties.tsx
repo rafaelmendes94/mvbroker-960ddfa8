@@ -996,16 +996,16 @@ export default function Properties() {
                   </div>
                 )}
               </div>
+              {(isSuperAdmin || isAdminStaff) && (
+                <button
+                  onClick={() => setImportOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                  title="Importações"
+                >
+                  <FolderDown className="w-3.5 h-3.5" /> Importações
+                </button>
+              )}
               <div className="flex flex-col items-end gap-0.5">
-                {(isSuperAdmin || isAdminStaff) && (
-                  <button
-                    onClick={() => setImportOpen(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-muted transition-colors mb-1"
-                    title="Importações"
-                  >
-                    <FolderDown className="w-3.5 h-3.5" /> Importações
-                  </button>
-                )}
                 <button
                   onClick={() => {
                     if (limitReached) {
