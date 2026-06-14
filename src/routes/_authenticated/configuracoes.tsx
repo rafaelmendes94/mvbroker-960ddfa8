@@ -168,6 +168,8 @@ function Configuracoes() {
         </Card>
 
         <IntegracoesCard />
+
+        <TestesApiCard />
       </div>
 
     </>
