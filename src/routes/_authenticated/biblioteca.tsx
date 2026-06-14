@@ -85,7 +85,7 @@ function BibliotecaPage() {
   return (
     <>
       <PageHeader
-        title="Biblioteca de Arquivos"
+        title="Banco de Imagens"
         description="Armazenamento centralizado de imagens, documentos, contratos e materiais."
         actions={
           <Dialog>
