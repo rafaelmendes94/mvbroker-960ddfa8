@@ -63,7 +63,7 @@ export function TestesApiCard() {
           />
           <ApiTestRow
             icon={<Sparkles className="h-4 w-4" />}
-            title="Lovable AI (Gemini Flash)"
+            title="Gemini API (Google AI Studio)"
             loading={aiLoading}
             result={aiResult}
             onTest={handleAi}
