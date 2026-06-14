@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useRoles } from "@/hooks/use-roles";
 import { IntegracoesCard } from "@/components/configuracoes/IntegracoesCard";
+import { TestesApiCard } from "@/components/configuracoes/TestesApiCard";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — MV Broker" }] }),
