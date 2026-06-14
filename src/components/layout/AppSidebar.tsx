@@ -50,7 +50,6 @@ const SECTIONS: Section[] = [
       { to: "/imoveis/exportacao", label: "Exportação de Imóveis", icon: Download },
       { to: "/carteiras", label: "Carteiras XML", icon: Briefcase },
       { to: "/portais", label: "Portais", icon: Briefcase },
-      { to: "/importacoes", label: "Importações", icon: Upload },
       { to: "/tabela", label: "Tabela", icon: FileText },
     ],
   },
