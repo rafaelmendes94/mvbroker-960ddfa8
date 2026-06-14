@@ -731,6 +731,30 @@ export type Database = {
           },
         ]
       }
+      custom_roles: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          nome: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          nome: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          nome?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       edificios: {
         Row: {
           ano_construcao: number | null
@@ -1869,6 +1893,42 @@ export type Database = {
         }
         Relationships: []
       }
+      role_module_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          modulo: string
+          pode_criar: boolean
+          pode_editar: boolean
+          pode_excluir: boolean
+          pode_ver: boolean
+          role_slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          modulo: string
+          pode_criar?: boolean
+          pode_editar?: boolean
+          pode_excluir?: boolean
+          pode_ver?: boolean
+          role_slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          modulo?: string
+          pode_criar?: boolean
+          pode_editar?: boolean
+          pode_excluir?: boolean
+          pode_ver?: boolean
+          role_slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       security_alerts: {
         Row: {
           created_at: string
@@ -1961,6 +2021,35 @@ export type Database = {
           uploaded_by?: string | null
         }
         Relationships: []
+      }
+      user_custom_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role_slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role_slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role_slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_custom_roles_role_slug_fkey"
+            columns: ["role_slug"]
+            isOneToOne: false
+            referencedRelation: "custom_roles"
+            referencedColumns: ["slug"]
+          },
+        ]
       }
       user_module_permissions: {
         Row: {
@@ -2102,6 +2191,16 @@ export type Database = {
           status: string
           titular: string
           valor: number
+        }[]
+      }
+      get_minhas_permissoes_efetivas: {
+        Args: never
+        Returns: {
+          modulo: string
+          pode_criar: boolean
+          pode_editar: boolean
+          pode_excluir: boolean
+          pode_ver: boolean
         }[]
       }
       get_minhas_permissoes_modulo: {
