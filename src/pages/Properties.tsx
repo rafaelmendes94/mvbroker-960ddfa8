@@ -1012,7 +1012,7 @@ export default function Properties() {
                       toast.error(`Limite de ${maxImoveis} imóveis atingido. Faça upgrade do plano.`);
                       return;
                     }
-                    navigate("/cadastro-imovel");
+                    navigate("/imoveis/novo");
                   }}
                   disabled={limitReached}
                   className={cn(
