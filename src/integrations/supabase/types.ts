@@ -391,6 +391,127 @@ export type Database = {
         }
         Relationships: []
       }
+      banco_categorias: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          nome: string
+          ordem: number
+          sistema: boolean
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nome: string
+          ordem?: number
+          sistema?: boolean
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nome?: string
+          ordem?: number
+          sistema?: boolean
+          slug?: string
+        }
+        Relationships: []
+      }
+      banco_galeria_arquivos: {
+        Row: {
+          bucket: string
+          created_at: string
+          created_by: string | null
+          galeria_id: string
+          id: string
+          mime_type: string | null
+          nome: string
+          ordem: number
+          storage_path: string
+          tamanho: number | null
+        }
+        Insert: {
+          bucket?: string
+          created_at?: string
+          created_by?: string | null
+          galeria_id: string
+          id?: string
+          mime_type?: string | null
+          nome: string
+          ordem?: number
+          storage_path: string
+          tamanho?: number | null
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          created_by?: string | null
+          galeria_id?: string
+          id?: string
+          mime_type?: string | null
+          nome?: string
+          ordem?: number
+          storage_path?: string
+          tamanho?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "banco_galeria_arquivos_galeria_id_fkey"
+            columns: ["galeria_id"]
+            isOneToOne: false
+            referencedRelation: "banco_galerias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      banco_galerias: {
+        Row: {
+          capa_arquivo_id: string | null
+          categoria_id: string | null
+          created_at: string
+          created_by: string | null
+          descricao: string | null
+          drive_url: string | null
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          capa_arquivo_id?: string | null
+          categoria_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          drive_url?: string | null
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          capa_arquivo_id?: string | null
+          categoria_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          drive_url?: string | null
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "banco_galerias_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "banco_categorias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buscas_salvas: {
         Row: {
           created_at: string
