@@ -129,6 +129,21 @@ function TabelaPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!atual) return;
+    if (!confirm(`Excluir "${atual.file_name}"? Os clientes deixarão de ter acesso à tabela.`)) return;
+    try {
+      await supabase.storage.from("tabela").remove([atual.file_path]).catch(() => {});
+      const { error } = await supabase.from("tabela_atual").delete().eq("id", atual.id);
+      if (error) throw error;
+      toast.success("Tabela excluída.");
+      await load();
+    } catch (e) {
+      console.error(e);
+      toast.error("Não foi possível excluir.");
+    }
+  };
+
   return (
     <>
       <PageHeader
