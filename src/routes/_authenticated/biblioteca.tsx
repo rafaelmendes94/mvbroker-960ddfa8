@@ -16,7 +16,7 @@ import { DocumentViewer } from "@/components/files/DocumentViewer";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/biblioteca")({
-  head: () => ({ meta: [{ title: "Biblioteca de Arquivos — MV Broker" }] }),
+  head: () => ({ meta: [{ title: "Banco de Imagens — MV Broker" }] }),
   component: () => (
     <RoleGate allow={["super_admin", "secretaria"]}>
       <BibliotecaPage />
