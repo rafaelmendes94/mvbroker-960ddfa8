@@ -56,7 +56,7 @@ const SECTIONS: Section[] = [
   {
     section: "Sistema",
     entries: [
-      { to: "/biblioteca", label: "Biblioteca de Arquivos", icon: FolderArchive },
+      { to: "/biblioteca", label: "Banco de Imagens", icon: FolderArchive },
       { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
       { to: "/seguranca", label: "Segurança", icon: Lock },
       { to: "/configuracoes", label: "Configurações", icon: Settings },
