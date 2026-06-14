@@ -52,30 +52,30 @@ export const testLovableAi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<TestResult> => {
     await ensureSuperAdmin(context);
-    const lovableKey = process.env.LOVABLE_API_KEY;
-    if (!lovableKey) {
-      return { ok: false, status: 0, latency_ms: 0, detail: "LOVABLE_API_KEY ausente" };
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (!geminiKey) {
+      return { ok: false, status: 0, latency_ms: 0, detail: "GEMINI_API_KEY ausente" };
     }
     const start = Date.now();
+    const model = "gemini-2.5-flash";
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Lovable-API-Key": lovableKey,
-          "X-Lovable-AIG-SDK": "mvbroker-test",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [{ role: "user", content: "Responda apenas: PONG" }],
-        }),
-      });
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: "Responda apenas: PONG" }] }],
+          }),
+        }
+      );
       const latency = Date.now() - start;
       const json: any = await res.json().catch(() => ({}));
-      const content: string = json?.choices?.[0]?.message?.content ?? "";
+      const content: string =
+        json?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text).filter(Boolean).join("") ?? "";
       const ok = res.ok && content.length > 0;
       const detail = ok
-        ? `IA respondeu: "${content.trim().slice(0, 80)}" (${json?.usage?.total_tokens ?? "?"} tokens)`
+        ? `Gemini (${model}) respondeu: "${content.trim().slice(0, 80)}"`
         : `Falha: ${json?.error?.message ?? res.statusText}`;
       return { ok, status: res.status, latency_ms: latency, detail };
     } catch (e: any) {
