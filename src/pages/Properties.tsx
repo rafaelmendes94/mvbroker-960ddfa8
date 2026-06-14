@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useAuth } from "@/hooks/useAuth";
-import { ImportImoveisModal } from "@/components/ImportImoveisModal";
+import { ImportacoesModal } from "@/components/ImportacoesModal";
 
 // Broker info
 const brokerInfo: Record<string, { photo: string; whatsapp: string }> = {
@@ -1001,9 +1001,9 @@ export default function Properties() {
                   <button
                     onClick={() => setImportOpen(true)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-muted transition-colors mb-1"
-                    title="Importar planilha Excel"
+                    title="Importações"
                   >
-                    <FolderDown className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Importar</span> Excel
+                    <FolderDown className="w-3.5 h-3.5" /> Importações
                   </button>
                 )}
                 <button
@@ -1762,11 +1762,11 @@ export default function Properties() {
         onCancel={() => setPendingSold(null)}
       />
 
-      <ImportImoveisModal
+      <ImportacoesModal
         open={importOpen}
         onClose={() => setImportOpen(false)}
-        onImported={() => window.location.reload()}
       />
+
 
       {/* Property Detail Modal */}
       <PropertyDetailModal
