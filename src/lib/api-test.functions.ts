@@ -30,14 +30,21 @@ export const testGoogleMaps = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<TestResult> => {
     await ensureSuperAdmin(context);
     const mapsKey = await getIntegrationKey(context.supabase, "google_maps_api_key");
-    if (!mapsKey) {
+    const connectorKey = process.env.GOOGLE_MAPS_API_KEY;
+    const lovableApiKey = process.env.LOVABLE_API_KEY;
+    if (!mapsKey && (!connectorKey || !lovableApiKey)) {
       return { ok: false, status: 0, latency_ms: 0, detail: "Chave Google Maps não configurada em Integrações" };
     }
     const start = Date.now();
     try {
-      const res = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=Avenida+Paulista+1000+Sao+Paulo&key=${mapsKey}`
-      );
+      const res = connectorKey && lovableApiKey
+        ? await fetch("https://connector-gateway.lovable.dev/google_maps/maps/api/geocode/json?address=Avenida+Paulista+1000+Sao+Paulo", {
+            headers: {
+              Authorization: `Bearer ${lovableApiKey}`,
+              "X-Connection-Api-Key": connectorKey!,
+            },
+          })
+        : await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=Avenida+Paulista+1000+Sao+Paulo&key=${mapsKey}`);
       const latency = Date.now() - start;
       const json: any = await res.json().catch(() => ({}));
       const ok = res.ok && json?.status === "OK" && Array.isArray(json?.results) && json.results.length > 0;

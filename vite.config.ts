@@ -17,6 +17,14 @@ export default defineConfig({
     preset: "node-server",
   },
   vite: {
+    define: {
+      "import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY": JSON.stringify(
+        process.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY || process.env.GOOGLE_MAPS_BROWSER_KEY || ""
+      ),
+      "import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID": JSON.stringify(
+        process.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID || process.env.GOOGLE_MAPS_TRACKING_ID || ""
+      ),
+    },
     preview: {
       allowedHosts: [
         "sistemamvbroker.com.br",

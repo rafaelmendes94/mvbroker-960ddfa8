@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { HostRedirect } from "@/components/HostRedirect";
+import { AuthProvider } from "@/hooks/useAuth";
 
 function NotFoundComponent() {
   return (
@@ -121,9 +122,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <HostRedirect />
-        <Outlet />
-        <Toaster richColors position="top-right" />
+        <AuthProvider>
+          <HostRedirect />
+          <Outlet />
+          <Toaster richColors position="top-right" />
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
