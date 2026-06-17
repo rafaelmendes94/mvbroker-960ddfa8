@@ -37,14 +37,14 @@ export const testGoogleMaps = createServerFn({ method: "POST" })
     }
     const start = Date.now();
     try {
-      const res = mapsKey
-        ? await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=Avenida+Paulista+1000+Sao+Paulo&key=${mapsKey}`)
-        : await fetch("https://connector-gateway.lovable.dev/google_maps/maps/api/geocode/json?address=Avenida+Paulista+1000+Sao+Paulo", {
+      const res = connectorKey && lovableApiKey
+        ? await fetch("https://connector-gateway.lovable.dev/google_maps/maps/api/geocode/json?address=Avenida+Paulista+1000+Sao+Paulo", {
             headers: {
               Authorization: `Bearer ${lovableApiKey}`,
               "X-Connection-Api-Key": connectorKey!,
             },
-          });
+          })
+        : await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=Avenida+Paulista+1000+Sao+Paulo&key=${mapsKey}`);
       const latency = Date.now() - start;
       const json: any = await res.json().catch(() => ({}));
       const ok = res.ok && json?.status === "OK" && Array.isArray(json?.results) && json.results.length > 0;
