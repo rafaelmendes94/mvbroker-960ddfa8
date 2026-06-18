@@ -1,46 +1,6 @@
 import { useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-
-declare global {
-  interface Window {
-    google?: any;
-    __mvBrokerInitMap?: () => void;
-    __mvBrokerMapsLoading?: Promise<void>;
-  }
-}
-
-let resolvedBrowserKey: string | null | undefined;
-async function getMapsKey(): Promise<string | null> {
-  const envKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
-  if (envKey) return envKey;
-  if (resolvedBrowserKey !== undefined) return resolvedBrowserKey;
-  const { data, error } = await supabase
-    .from("integration_settings" as any)
-    .select("value")
-    .eq("key", "google_maps_api_key")
-    .maybeSingle();
-  if (error) console.error("[GoogleMaps] key lookup error", error);
-  resolvedBrowserKey = ((data as { value?: string | null } | null)?.value ?? "").trim() || null;
-  return resolvedBrowserKey;
-}
-
-async function loadMapsScript(): Promise<void> {
-  if (typeof window === "undefined") return Promise.resolve();
-  if (window.google?.maps) return Promise.resolve();
-  if (window.__mvBrokerMapsLoading) return window.__mvBrokerMapsLoading;
-  const key = await getMapsKey();
-  if (!key) return Promise.reject(new Error("Google Maps key não configurada"));
-  window.__mvBrokerMapsLoading = new Promise<void>((resolve) => {
-    window.__mvBrokerInitMap = () => resolve();
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&loading=async&callback=__mvBrokerInitMap`;
-    s.async = true;
-    s.defer = true;
-    document.head.appendChild(s);
-  });
-  return window.__mvBrokerMapsLoading;
-}
+import { loadGoogleMaps } from "@/lib/googleMaps";
 
 type Item = {
   id: string;
@@ -61,7 +21,7 @@ export function ImoveisMap({ items, onSelect }: { items: Item[]; onSelect?: (id:
 
   useEffect(() => {
     let cancelled = false;
-    loadMapsScript().then(() => {
+    loadGoogleMaps().then(() => {
       if (cancelled || !ref.current || !window.google) return;
       mapRef.current = new window.google.maps.Map(ref.current, {
         center: { lat: -27.5954, lng: -48.5480 },
