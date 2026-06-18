@@ -96,6 +96,7 @@ Conteúdo mínimo do `.env.production`:
 ```env
 VITE_SUPABASE_URL=https://supabase.sistemamvbroker.com.br
 VITE_SUPABASE_PUBLISHABLE_KEY=<ANON_KEY do infra/.env>
+VITE_GOOGLE_MAPS_API_KEY=<SUA_CHAVE_BROWSER_GOOGLE_MAPS>
 SUPABASE_URL=https://supabase.sistemamvbroker.com.br
 SUPABASE_PUBLISHABLE_KEY=<ANON_KEY>
 SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>
