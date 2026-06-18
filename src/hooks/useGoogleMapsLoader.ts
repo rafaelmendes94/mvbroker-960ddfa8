@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const BROWSER_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+let resolvedBrowserKey: string | null | undefined;
 
 declare global {
   interface Window {
@@ -10,14 +12,36 @@ declare global {
   }
 }
 
-function ensureGoogleMapsLoaded(): Promise<void> {
+async function getGoogleMapsKey(): Promise<string | null> {
+  if (BROWSER_KEY) return BROWSER_KEY;
+  if (resolvedBrowserKey !== undefined) return resolvedBrowserKey;
+
+  const { data, error } = await supabase
+    .from("integration_settings" as any)
+    .select("value")
+    .eq("key", "google_maps_api_key")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[GoogleMaps] key lookup error", error);
+    resolvedBrowserKey = null;
+    return null;
+  }
+
+  resolvedBrowserKey = ((data as { value?: string | null } | null)?.value ?? "").trim() || null;
+  return resolvedBrowserKey;
+}
+
+async function ensureGoogleMapsLoaded(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
-  if (window.__mvGoogleMapsReady && (window as any).google?.maps?.Map) {
+  if ((window as any).google?.maps?.Map) {
+    window.__mvGoogleMapsReady = true;
     return Promise.resolve();
   }
   if (window.__mvGoogleMapsPromise) return window.__mvGoogleMapsPromise;
 
-  if (!BROWSER_KEY) {
+  const apiKey = await getGoogleMapsKey();
+  if (!apiKey) {
     return Promise.reject(new Error("Google Maps browser key não configurada"));
   }
 
@@ -41,11 +65,13 @@ function ensureGoogleMapsLoaded(): Promise<void> {
 
     const existing = document.querySelector('script[data-google-maps-loader]') as HTMLScriptElement | null;
     if (existing) {
+      existing.addEventListener("load", () => window.__mvGoogleMapsCallback?.(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("Falha ao carregar Google Maps")), { once: true });
       return;
     }
 
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__mvGoogleMapsCallback`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&loading=async&callback=__mvGoogleMapsCallback`;
     script.async = true;
     script.defer = true;
     script.dataset.googleMapsLoader = "true";
@@ -57,8 +83,8 @@ function ensureGoogleMapsLoaded(): Promise<void> {
 }
 
 export function useGoogleMapsLoader() {
-  const [ready, setReady] = useState<boolean>(() => !!window.__mvGoogleMapsReady);
-  const [loading, setLoading] = useState<boolean>(() => !window.__mvGoogleMapsReady);
+  const [ready, setReady] = useState<boolean>(() => typeof window !== "undefined" && !!window.__mvGoogleMapsReady);
+  const [loading, setLoading] = useState<boolean>(() => typeof window === "undefined" || !window.__mvGoogleMapsReady);
 
   useEffect(() => {
     let cancelled = false;
