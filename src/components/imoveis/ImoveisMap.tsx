@@ -13,13 +13,12 @@ function loadMapsScript(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.google?.maps) return Promise.resolve();
   if (window.__mvBrokerMapsLoading) return window.__mvBrokerMapsLoading;
-  const key = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
-  const ch = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
+  const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
   if (!key) return Promise.reject(new Error("Google Maps key não configurada"));
   window.__mvBrokerMapsLoading = new Promise<void>((resolve) => {
     window.__mvBrokerInitMap = () => resolve();
     const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&loading=async&callback=__mvBrokerInitMap${ch ? `&channel=${ch}` : ""}`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&loading=async&callback=__mvBrokerInitMap`;
     s.async = true;
     s.defer = true;
     document.head.appendChild(s);

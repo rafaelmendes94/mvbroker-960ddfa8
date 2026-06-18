@@ -11,8 +11,7 @@ declare global {
   }
 }
 
-const BROWSER_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
-const CHANNEL = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
+const BROWSER_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
 
 let loadingPromise: Promise<void> | null = null;
 function loadMaps(): Promise<void> {
@@ -23,7 +22,7 @@ function loadMaps(): Promise<void> {
   loadingPromise = new Promise((resolve, reject) => {
     window.__mvBrokerInitMap = () => resolve();
     const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&libraries=places&callback=__mvBrokerInitMap${CHANNEL ? `&channel=${CHANNEL}` : ""}`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&libraries=places&callback=__mvBrokerInitMap`;
     s.async = true;
     s.onerror = () => reject(new Error("Falha ao carregar Google Maps"));
     document.head.appendChild(s);

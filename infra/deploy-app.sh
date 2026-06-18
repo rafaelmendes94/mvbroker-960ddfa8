@@ -58,6 +58,7 @@ if [ -z "$ANON_KEY" ]; then
   echo "❌ VITE_SUPABASE_PUBLISHABLE_KEY ausente em $ENV_FILE"
   exit 1
 fi
+MAPS_KEY="$(grep -E '^VITE_GOOGLE_MAPS_API_KEY=' "$ENV_FILE" | tail -1 | cut -d= -f2- | tr -d '"' || true)"
 
 # ── 4. Migrations ────────────────────────────────────────────────────────────
 echo "▶ [4/6] Migrations"
@@ -90,6 +91,7 @@ docker build \
   -f "$REPO_DIR/infra/app/Dockerfile" \
   --build-arg VITE_SUPABASE_URL="$SUPA_URL" \
   --build-arg VITE_SUPABASE_PUBLISHABLE_KEY="$ANON_KEY" \
+  --build-arg VITE_GOOGLE_MAPS_API_KEY="$MAPS_KEY" \
   -t mvbroker-front:latest \
   "$REPO_DIR" 2>&1 | tail -6
 
