@@ -1,0 +1,1 @@
+GRANT SELECT ON public.integration_settings TO authenticated;
