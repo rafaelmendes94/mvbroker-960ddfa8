@@ -1,30 +1,6 @@
 import { useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
-
-declare global {
-  interface Window {
-    google?: any;
-    __mvBrokerInitMap?: () => void;
-    __mvBrokerMapsLoading?: Promise<void>;
-  }
-}
-
-function loadMapsScript(): Promise<void> {
-  if (typeof window === "undefined") return Promise.resolve();
-  if (window.google?.maps) return Promise.resolve();
-  if (window.__mvBrokerMapsLoading) return window.__mvBrokerMapsLoading;
-  const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
-  if (!key) return Promise.reject(new Error("Google Maps key não configurada"));
-  window.__mvBrokerMapsLoading = new Promise<void>((resolve) => {
-    window.__mvBrokerInitMap = () => resolve();
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&loading=async&callback=__mvBrokerInitMap`;
-    s.async = true;
-    s.defer = true;
-    document.head.appendChild(s);
-  });
-  return window.__mvBrokerMapsLoading;
-}
+import { loadGoogleMaps } from "@/lib/googleMaps";
 
 type Item = {
   id: string;
@@ -45,7 +21,7 @@ export function ImoveisMap({ items, onSelect }: { items: Item[]; onSelect?: (id:
 
   useEffect(() => {
     let cancelled = false;
-    loadMapsScript().then(() => {
+    loadGoogleMaps().then(() => {
       if (cancelled || !ref.current || !window.google) return;
       mapRef.current = new window.google.maps.Map(ref.current, {
         center: { lat: -27.5954, lng: -48.5480 },

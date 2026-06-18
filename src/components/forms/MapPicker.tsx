@@ -3,32 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { MapPin, Search, Loader2 } from "lucide-react";
-
-declare global {
-  interface Window {
-    google?: any;
-    __mvBrokerInitMap?: () => void;
-  }
-}
-
-const BROWSER_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
-
-let loadingPromise: Promise<void> | null = null;
-function loadMaps(): Promise<void> {
-  if (typeof window === "undefined") return Promise.reject(new Error("no window"));
-  if (window.google?.maps) return Promise.resolve();
-  if (loadingPromise) return loadingPromise;
-  if (!BROWSER_KEY) return Promise.reject(new Error("Google Maps key não configurada"));
-  loadingPromise = new Promise((resolve, reject) => {
-    window.__mvBrokerInitMap = () => resolve();
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&libraries=places&callback=__mvBrokerInitMap`;
-    s.async = true;
-    s.onerror = () => reject(new Error("Falha ao carregar Google Maps"));
-    document.head.appendChild(s);
-  });
-  return loadingPromise;
-}
+import { loadGoogleMaps } from "@/lib/googleMaps";
 
 type Suggestion = { placeId: string; text: string };
 
@@ -63,7 +38,7 @@ export function MapPicker({
 
   useEffect(() => {
     let cancelled = false;
-    loadMaps().then(() => {
+    loadGoogleMaps().then(() => {
       if (cancelled || !ref.current || !window.google) return;
       const center = { lat: latitude ?? -23.5505, lng: longitude ?? -46.6333 };
       const map = new window.google.maps.Map(ref.current, {
@@ -107,7 +82,7 @@ export function MapPicker({
     debounceRef.current = setTimeout(async () => {
       try {
         setSearching(true);
-        await loadMaps();
+        await loadGoogleMaps();
         const { AutocompleteSuggestion, AutocompleteSessionToken } =
           await window.google.maps.importLibrary("places");
         if (!sessionTokenRef.current) sessionTokenRef.current = new AutocompleteSessionToken();
