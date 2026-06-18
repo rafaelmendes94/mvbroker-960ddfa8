@@ -18,21 +18,22 @@ export function getGoogleMapsBrowserKey(): Promise<string | null> {
   if (typeof window === "undefined") return Promise.resolve(null);
 
   if (!keyPromise) {
-    keyPromise = supabase
-      .from("integration_settings")
-      .select("value")
-      .eq("key", "google_maps_api_key")
-      .maybeSingle()
-      .then(({ data, error }) => {
+    keyPromise = (async () => {
+      const { data, error } = await supabase
+        .from("integration_settings")
+        .select("value")
+        .eq("key", "google_maps_api_key")
+        .maybeSingle();
+
         if (error) {
           console.error("[GoogleMaps] key lookup error", error);
           return null;
         }
         return data?.value?.trim() || null;
-      });
+    })();
   }
 
-  return keyPromise;
+  return keyPromise ?? Promise.resolve(null);
 }
 
 export async function loadGoogleMaps(): Promise<void> {
