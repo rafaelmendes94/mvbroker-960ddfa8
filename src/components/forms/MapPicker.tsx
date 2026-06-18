@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { MapPin, Search, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 declare global {
   interface Window {
@@ -14,15 +15,30 @@ declare global {
 const BROWSER_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
 
 let loadingPromise: Promise<void> | null = null;
-function loadMaps(): Promise<void> {
+let resolvedBrowserKey: string | null | undefined;
+async function getMapsKey(): Promise<string | null> {
+  if (BROWSER_KEY) return BROWSER_KEY;
+  if (resolvedBrowserKey !== undefined) return resolvedBrowserKey;
+  const { data, error } = await supabase
+    .from("integration_settings" as any)
+    .select("value")
+    .eq("key", "google_maps_api_key")
+    .maybeSingle();
+  if (error) console.error("[GoogleMaps] key lookup error", error);
+  resolvedBrowserKey = ((data as { value?: string | null } | null)?.value ?? "").trim() || null;
+  return resolvedBrowserKey;
+}
+
+async function loadMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.reject(new Error("no window"));
   if (window.google?.maps) return Promise.resolve();
   if (loadingPromise) return loadingPromise;
-  if (!BROWSER_KEY) return Promise.reject(new Error("Google Maps key não configurada"));
+  const apiKey = await getMapsKey();
+  if (!apiKey) return Promise.reject(new Error("Google Maps key não configurada"));
   loadingPromise = new Promise((resolve, reject) => {
     window.__mvBrokerInitMap = () => resolve();
     const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&libraries=places&callback=__mvBrokerInitMap`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&loading=async&libraries=places&callback=__mvBrokerInitMap`;
     s.async = true;
     s.onerror = () => reject(new Error("Falha ao carregar Google Maps"));
     document.head.appendChild(s);
