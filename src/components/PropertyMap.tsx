@@ -72,7 +72,7 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const infoWindowRef = useRef<any>(null);
-  const { ready, loading } = useGoogleMapsLoader();
+  const { ready, loading, error } = useGoogleMapsLoader();
 
   useEffect(() => {
     const maps = (window as any).google?.maps;
@@ -169,6 +169,17 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
     return (
       <div className="rounded-xl overflow-hidden relative border border-border shadow-sm h-[400px] sm:h-[600px] flex items-center justify-center bg-muted">
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (error || !ready) {
+    return (
+      <div className="rounded-xl overflow-hidden relative border border-border shadow-sm h-[400px] sm:h-[600px] flex items-center justify-center bg-muted p-6 text-center">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Mapa indisponível</p>
+          <p className="mt-1 text-xs text-muted-foreground">{error ?? "A chave do Google Maps não foi carregada."}</p>
+        </div>
       </div>
     );
   }
