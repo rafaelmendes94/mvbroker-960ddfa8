@@ -18,11 +18,8 @@ export default defineConfig({
   },
   vite: {
     define: {
-      "import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY": JSON.stringify(
-        process.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY || process.env.GOOGLE_MAPS_BROWSER_KEY || ""
-      ),
-      "import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID": JSON.stringify(
-        process.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID || process.env.GOOGLE_MAPS_TRACKING_ID || ""
+      "import.meta.env.VITE_GOOGLE_MAPS_API_KEY": JSON.stringify(
+        process.env.VITE_GOOGLE_MAPS_API_KEY || ""
       ),
     },
     preview: {
