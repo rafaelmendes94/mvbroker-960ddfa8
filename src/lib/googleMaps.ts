@@ -38,7 +38,10 @@ export function getGoogleMapsBrowserKey(): Promise<string | null> {
 
 export async function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return;
-  if (window.__mvGoogleMapsReady && window.google?.maps?.Map) return;
+  if (window.google?.maps?.Map) {
+    window.__mvGoogleMapsReady = true;
+    return;
+  }
   if (window.__mvGoogleMapsPromise) return window.__mvGoogleMapsPromise;
 
   const apiKey = await getGoogleMapsBrowserKey();
