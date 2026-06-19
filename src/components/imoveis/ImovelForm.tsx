@@ -64,6 +64,7 @@ const AI_STYLES = [
   { id: "agressiva", label: "🔥 Agressiva" },
   { id: "informativa", label: "📋 Informativa" },
   { id: "geolocalizacao", label: "📍 Geolocalização" },
+  { id: "padrao_anuncio", label: "📣 Legenda Padrão Anúncio" },
 ];
 
 // ---------- helpers ----------
