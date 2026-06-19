@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export function InfraToggle({
   label,
@@ -11,24 +12,39 @@ export function InfraToggle({
   selected,
   onChange,
   allowCustom = false,
+  onAddOption,
 }: {
   label?: string;
   options: string[];
   selected: string[];
   onChange: (sel: string[]) => void;
   allowCustom?: boolean;
+  /** Se informado, persiste a nova opção no catálogo global. */
+  onAddOption?: (nome: string) => Promise<{ nome: string } | null>;
 }) {
   const [custom, setCustom] = useState("");
+  const [busy, setBusy] = useState(false);
   const all = Array.from(new Set([...(options || []), ...(selected || [])]));
 
   function toggle(opt: string) {
     onChange(selected.includes(opt) ? selected.filter((s) => s !== opt) : [...selected, opt]);
   }
 
-  function addCustom() {
+  async function addCustom() {
     const v = custom.trim();
-    if (!v || selected.includes(v)) return;
-    onChange([...selected, v]);
+    if (!v) return;
+    if (onAddOption) {
+      setBusy(true);
+      const res = await onAddOption(v);
+      setBusy(false);
+      if (!res) {
+        toast.error("Não foi possível salvar a opção");
+        return;
+      }
+      if (!selected.includes(res.nome)) onChange([...selected, res.nome]);
+    } else {
+      if (!selected.includes(v)) onChange([...selected, v]);
+    }
     setCustom("");
   }
 
@@ -72,8 +88,9 @@ export function InfraToggle({
               }
             }}
             className="flex-1 sm:max-w-xs h-9"
+            disabled={busy}
           />
-          <Button type="button" variant="outline" size="sm" onClick={addCustom}>
+          <Button type="button" variant="outline" size="sm" onClick={addCustom} disabled={busy}>
             <Plus className="w-3.5 h-3.5" />
           </Button>
         </div>
