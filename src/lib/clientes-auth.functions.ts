@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const schema = z.object({
+  _token: z.string().min(1),
   email: z.string().trim().email().max(255),
   modo: z.enum(["senha", "convite"]),
   nome: z.string().trim().min(1).max(200).optional(),
@@ -20,23 +20,44 @@ function gerarSenha(len = 12) {
 }
 
 export const criarAcessoCliente = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => schema.parse(d))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
+    const { createNodeSafeSupabaseClient, getNodeSafeSupabaseAdmin } = await import(
+      "@/lib/supabase-node-safe"
+    );
+
+    const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
+    const supabase = await createNodeSafeSupabaseClient(SUPABASE_PUBLISHABLE_KEY, data._token);
+
+    // Autentica via token (com fallback getUser para Supabase self-hosted HS256)
+    let userId: string | undefined;
+    try {
+      const { data: claimsData, error } = await supabase.auth.getClaims(data._token);
+      if (!error && claimsData?.claims?.sub) {
+        userId = claimsData.claims.sub as string;
+      }
+    } catch {
+      // ignora — tenta fallback
+    }
+    if (!userId) {
+      const { data: u, error } = await supabase.auth.getUser(data._token);
+      if (error || !u?.user?.id) throw new Error("Unauthorized: token inválido");
+      userId = u.user.id;
+    }
+
     // Autoriza: somente super_admin ou secretaria
-    const { data: isAdmin } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
+    const { data: isAdmin } = await supabase.rpc("has_role", {
+      _user_id: userId,
       _role: "super_admin",
     });
-    const { data: isSec } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
+    const { data: isSec } = await supabase.rpc("has_role", {
+      _user_id: userId,
       _role: "secretaria",
     });
     if (!isAdmin && !isSec) {
       throw new Error("Sem permissão para criar acessos de cliente.");
     }
 
-    const { getNodeSafeSupabaseAdmin } = await import("@/lib/supabase-node-safe");
     const supabaseAdmin = await getNodeSafeSupabaseAdmin();
     const role = data.tipo === "imobiliaria" ? "imobiliaria" : "corretor_autonomo";
 
@@ -46,12 +67,12 @@ export const criarAcessoCliente = createServerFn({ method: "POST" })
       (u) => (u.email ?? "").toLowerCase() === data.email.toLowerCase(),
     );
 
-    let userId: string;
+    let novoUserId: string;
     let senha: string | undefined;
     let jaExistia = false;
 
     if (found) {
-      userId = found.id;
+      novoUserId = found.id;
       jaExistia = true;
     } else if (data.modo === "senha") {
       senha = gerarSenha(12);
@@ -62,20 +83,20 @@ export const criarAcessoCliente = createServerFn({ method: "POST" })
         user_metadata: { full_name: data.nome ?? data.email },
       });
       if (error || !created.user) throw new Error(error?.message ?? "Falha ao criar usuário");
-      userId = created.user.id;
+      novoUserId = created.user.id;
     } else {
       const { data: inv, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
         redirectTo: data.redirectTo,
         data: { full_name: data.nome ?? data.email },
       });
       if (error || !inv.user) throw new Error(error?.message ?? "Falha ao enviar convite");
-      userId = inv.user.id;
+      novoUserId = inv.user.id;
     }
 
     // Garante role apropriada (idempotente via unique(user_id, role))
     await supabaseAdmin
       .from("user_roles")
-      .upsert({ user_id: userId, role }, { onConflict: "user_id,role" });
+      .upsert({ user_id: novoUserId, role }, { onConflict: "user_id,role" });
 
-    return { user_id: userId, senha, jaExistia };
+    return { user_id: novoUserId, senha, jaExistia };
   });
