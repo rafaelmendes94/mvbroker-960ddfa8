@@ -1602,8 +1602,6 @@ export default function Properties() {
                     >
                       <div className="relative h-36 overflow-hidden">
                         <img src={p.images?.[0] || p.image} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                        <p className="absolute bottom-2 left-3 text-base font-bold text-white drop-shadow">{formatCurrency(p.price)}</p>
                         <button
                           onClick={(e) => { e.stopPropagation(); toggleFavorite(p.id); }}
                           className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 text-accent hover:bg-white transition-colors"
@@ -1612,7 +1610,9 @@ export default function Properties() {
                         </button>
                       </div>
                       <div className="p-3 space-y-1">
+                        <p className="text-base font-bold text-foreground">{formatCurrency(p.price)}</p>
                         <h4 className="font-bold text-sm text-foreground truncate">{p.title}</h4>
+
                         <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
                           <MapPin className="w-3 h-3 flex-shrink-0" /> {p.address}, {p.city}
                         </p>
