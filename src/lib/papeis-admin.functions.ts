@@ -53,9 +53,23 @@ async function createNodeSafeSupabaseClient(key: string, token?: string): Promis
 async function getAuthed(token: string) {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
   const supabase = await createNodeSafeSupabaseClient(key, token);
-  const { data, error } = await supabase.auth.getClaims(token);
-  if (error || !data?.claims?.sub) throw new Error("Unauthorized");
-  return { supabase, userId: data.claims.sub as string };
+
+  let userId: string | undefined;
+  try {
+    const { data, error } = await supabase.auth.getClaims(token);
+    if (!error && data?.claims?.sub) {
+      userId = data.claims.sub as string;
+    }
+  } catch {
+    // ignora — fallback abaixo
+  }
+  if (!userId) {
+    const { data: u, error: uErr } = await supabase.auth.getUser(token);
+    if (uErr || !u?.user?.id) throw new Error("Unauthorized");
+    userId = u.user.id;
+  }
+
+  return { supabase, userId };
 }
 
 async function assertAdmin(supabase: AppSupabaseClient, userId: string) {
