@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { CepAutoFill, type Endereco } from "@/components/forms/CepAutoFill";
 import { MapPicker } from "@/components/forms/MapPicker";
 import { QuickPick } from "@/components/forms/QuickPick";
+import { QuickPickEditable } from "@/components/forms/QuickPickEditable";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { InfraToggle } from "@/components/forms/InfraToggle";
 import { DraggableBlocks } from "@/components/forms/DraggableBlocks";
@@ -216,11 +217,14 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const [aiBusyStyle, setAiBusyStyle] = useState<string | null>(null);
   const newCaractRef = useRef<HTMLInputElement>(null);
 
-  const { active: tiposImovel } = useSystemOptions("tipo_imovel");
-  const { active: infraOptsRaw } = useSystemOptions("infraestrutura");
-  const { active: posicaoPredioOpts } = useSystemOptions("posicao_predio");
-  const { active: posicaoSolarOpts } = useSystemOptions("posicao_solar");
-  const { active: vistaOpts } = useSystemOptions("vista");
+  const { active: tiposImovel, addOption: addTipoImovel } = useSystemOptions("tipo_imovel");
+  const { active: infraOptsRaw, addOption: addInfra } = useSystemOptions("infraestrutura");
+  const { active: posicaoPredioOpts, addOption: addPosPredio } = useSystemOptions("posicao_predio");
+  const { active: posicaoSolarOpts, addOption: addPosSolar } = useSystemOptions("posicao_solar");
+  const { active: vistaOpts, addOption: addVista } = useSystemOptions("vista");
+  const { active: padraoOpts, addOption: addPadrao } = useSystemOptions("padrao_imovel");
+  const { active: pagamentoOpts, addOption: addPagamento } = useSystemOptions("condicoes_pagamento");
+  const { active: condicaoOpts, addOption: addCondicao } = useSystemOptions("condicao_imovel");
 
   const tiposLabels = useMemo(
     () => (tiposImovel.length ? tiposImovel.map((t) => t.nome) : TIPOS_FALLBACK),
@@ -238,6 +242,18 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const vistaLabels = useMemo(
     () => (vistaOpts.length ? vistaOpts.map((o) => o.nome) : ["Mar", "Cidade", "Lagoa", "Montanha"]),
     [vistaOpts],
+  );
+  const padraoLabels = useMemo(
+    () => (padraoOpts.length ? padraoOpts.map((o) => o.nome) : PADRAO_OPTS),
+    [padraoOpts],
+  );
+  const pagamentoLabels = useMemo(
+    () => (pagamentoOpts.length ? pagamentoOpts.map((o) => o.nome) : PAYMENT_OPTS),
+    [pagamentoOpts],
+  );
+  const condicaoLabels = useMemo(
+    () => (condicaoOpts.length ? condicaoOpts.map((o) => o.nome) : CONDICAO_OPTS),
+    [condicaoOpts],
   );
 
   const gerarDescFn = useServerFn(gerarDescricaoImovel);
@@ -510,12 +526,13 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             <div className="space-y-1.5"><Label className="text-xs">Lote</Label><Input value={form.lote} onChange={(e) => set("lote", e.target.value)} /></div>
           </div>
 
-          <QuickPick
+          <QuickPickEditable
             label="Tipo do Imóvel"
             icon={<Home className="w-3.5 h-3.5" />}
             options={tiposLabels}
             value={form.tipo_imovel}
             onChange={(v) => set("tipo_imovel", String(v))}
+            onAddOption={addTipoImovel}
             className="mb-4"
           />
 
@@ -640,29 +657,23 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               <Label className="text-xs flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Validade do Bônus</Label>
               <Input type="date" value={form.validade_bonus} onChange={(e) => set("validade_bonus", e.target.value)} />
             </div>
-            <QuickPick label="Padrão" options={PADRAO_OPTS} value={form.padrao} onChange={(v) => set("padrao", String(v))} />
+            <QuickPickEditable
+              label="Padrão"
+              options={padraoLabels}
+              value={form.padrao}
+              onChange={(v) => set("padrao", String(v))}
+              onAddOption={addPadrao}
+            />
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold">Condições de Pagamento</Label>
-            <div className="flex flex-wrap gap-2">
-              {PAYMENT_OPTS.map((cond) => (
-                <button
-                  key={cond}
-                  type="button"
-                  onClick={() => togglePayment(cond)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                    form.condicoes_pagamento.includes(cond)
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-muted text-muted-foreground border-border hover:bg-accent",
-                  )}
-                >
-                  {cond}
-                </button>
-              ))}
-            </div>
-          </div>
+          <QuickPickEditable
+            label="Condições de Pagamento"
+            multi
+            options={pagamentoLabels}
+            value={form.condicoes_pagamento}
+            onChange={(v) => set("condicoes_pagamento", Array.isArray(v) ? v : [v])}
+            onAddOption={addPagamento}
+          />
         </div>
 
         {/* PROPRIETÁRIO */}
@@ -707,10 +718,10 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         <div key="caracteristicas" className="bg-card border border-border rounded-xl p-4 sm:p-5">
           <SectionHeader icon={Sparkles} title="Características" />
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
-            <QuickPick label="Condição" options={CONDICAO_OPTS} value={form.condicao} onChange={(v) => set("condicao", String(v))} />
-            <QuickPick label="Posição no Prédio" options={posPredioLabels} value={form.posicao_predio} onChange={(v) => set("posicao_predio", String(v))} />
-            <QuickPick label="Posição Solar" options={posSolarLabels} value={form.posicao_solar} onChange={(v) => set("posicao_solar", String(v))} />
-            <QuickPick label="Vista" options={vistaLabels} value={form.vista} onChange={(v) => set("vista", String(v))} />
+            <QuickPickEditable label="Condição" options={condicaoLabels} value={form.condicao} onChange={(v) => set("condicao", String(v))} onAddOption={addCondicao} />
+            <QuickPickEditable label="Posição no Prédio" options={posPredioLabels} value={form.posicao_predio} onChange={(v) => set("posicao_predio", String(v))} onAddOption={addPosPredio} />
+            <QuickPickEditable label="Posição Solar" options={posSolarLabels} value={form.posicao_solar} onChange={(v) => set("posicao_solar", String(v))} onAddOption={addPosSolar} />
+            <QuickPickEditable label="Vista" options={vistaLabels} value={form.vista} onChange={(v) => set("vista", String(v))} onAddOption={addVista} />
           </div>
 
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-6 mb-4 py-3 px-3 sm:px-4 bg-muted/50 rounded-lg">
@@ -741,7 +752,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             )}
           </div>
 
-          <InfraToggle label="Infraestrutura" options={infraOpts} selected={form.infraestrutura} onChange={(s) => set("infraestrutura", s)} allowCustom />
+          <InfraToggle label="Infraestrutura" options={infraOpts} selected={form.infraestrutura} onChange={(s) => set("infraestrutura", s)} allowCustom onAddOption={addInfra} />
 
           <div className="mt-4">
             <Label className="text-xs font-semibold mb-2 block">Outras Características</Label>
