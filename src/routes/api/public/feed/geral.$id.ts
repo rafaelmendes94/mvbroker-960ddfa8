@@ -51,22 +51,6 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
           imoveis: enriched,
         });
 
-        const ua = request.headers.get("user-agent") ?? null;
-        const ip =
-          request.headers.get("cf-connecting-ip") ??
-          request.headers.get("x-forwarded-for") ??
-          null;
-        supabaseAdmin
-          .from("feed_logs")
-          .insert({
-            carteira_id: null,
-            acao: "feed_geral_lido",
-            detalhes: { imoveis: enriched.length, scope_id: id } as never,
-            ip,
-            user_agent: ua,
-          })
-          .then(() => {});
-
         return new Response(xml, {
           status: 200,
           headers: {
