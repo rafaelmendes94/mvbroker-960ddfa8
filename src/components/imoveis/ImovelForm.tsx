@@ -217,11 +217,14 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const [aiBusyStyle, setAiBusyStyle] = useState<string | null>(null);
   const newCaractRef = useRef<HTMLInputElement>(null);
 
-  const { active: tiposImovel } = useSystemOptions("tipo_imovel");
-  const { active: infraOptsRaw } = useSystemOptions("infraestrutura");
-  const { active: posicaoPredioOpts } = useSystemOptions("posicao_predio");
-  const { active: posicaoSolarOpts } = useSystemOptions("posicao_solar");
-  const { active: vistaOpts } = useSystemOptions("vista");
+  const { active: tiposImovel, addOption: addTipoImovel } = useSystemOptions("tipo_imovel");
+  const { active: infraOptsRaw, addOption: addInfra } = useSystemOptions("infraestrutura");
+  const { active: posicaoPredioOpts, addOption: addPosPredio } = useSystemOptions("posicao_predio");
+  const { active: posicaoSolarOpts, addOption: addPosSolar } = useSystemOptions("posicao_solar");
+  const { active: vistaOpts, addOption: addVista } = useSystemOptions("vista");
+  const { active: padraoOpts, addOption: addPadrao } = useSystemOptions("padrao_imovel");
+  const { active: pagamentoOpts, addOption: addPagamento } = useSystemOptions("condicoes_pagamento");
+  const { active: condicaoOpts, addOption: addCondicao } = useSystemOptions("condicao_imovel");
 
   const tiposLabels = useMemo(
     () => (tiposImovel.length ? tiposImovel.map((t) => t.nome) : TIPOS_FALLBACK),
@@ -239,6 +242,18 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const vistaLabels = useMemo(
     () => (vistaOpts.length ? vistaOpts.map((o) => o.nome) : ["Mar", "Cidade", "Lagoa", "Montanha"]),
     [vistaOpts],
+  );
+  const padraoLabels = useMemo(
+    () => (padraoOpts.length ? padraoOpts.map((o) => o.nome) : PADRAO_OPTS),
+    [padraoOpts],
+  );
+  const pagamentoLabels = useMemo(
+    () => (pagamentoOpts.length ? pagamentoOpts.map((o) => o.nome) : PAYMENT_OPTS),
+    [pagamentoOpts],
+  );
+  const condicaoLabels = useMemo(
+    () => (condicaoOpts.length ? condicaoOpts.map((o) => o.nome) : CONDICAO_OPTS),
+    [condicaoOpts],
   );
 
   const gerarDescFn = useServerFn(gerarDescricaoImovel);
