@@ -453,6 +453,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         pdf_comercial_path: form.pdf_comercial_path || null,
       };
 
+      let savedId = imovelId;
       if (imovelId) {
         const { error } = await supabase.from("imoveis").update(payload as never).eq("id", imovelId);
         if (error) throw error;
@@ -464,11 +465,24 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         const { data, error } = await supabase.from("imoveis").insert(payload as never).select().single();
         if (error) throw error;
         setImovelId(data.id);
+        savedId = data.id;
         await logAudit("imovel_criado", `Imóvel ${data.titulo} (${data.codigo_interno})`);
         await logImovel(data.id, "criado", `Imóvel criado: ${data.titulo}`);
         toast.success(`Imóvel criado — ${data.codigo_interno}`);
         try { localStorage.removeItem(DRAFT_KEY); } catch {}
-        navigate({ to: "/imoveis/$id/editar", params: { id: data.id } });
+      }
+
+      // Sincroniza Feed Personalizado
+      if (savedId) {
+        try {
+          await fnSetFeed({ data: { imovel_id: savedId, incluir: inFeedPersonalizado } });
+        } catch (err) {
+          console.warn("Falha ao sincronizar Feed Personalizado", err);
+        }
+      }
+
+      if (!imovelId && savedId) {
+        navigate({ to: "/imoveis/$id/editar", params: { id: savedId } });
       }
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao salvar");
