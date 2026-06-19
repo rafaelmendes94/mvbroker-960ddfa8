@@ -66,6 +66,7 @@ import { Route as AuthenticatedImportacoesEdificiosRouteImport } from './routes/
 import { Route as AuthenticatedImportacoesCondominiosRouteImport } from './routes/_authenticated/importacoes.condominios'
 import { Route as AuthenticatedImoveisNovoRouteImport } from './routes/_authenticated/imoveis.novo'
 import { Route as AuthenticatedImoveisExportacaoRouteImport } from './routes/_authenticated/imoveis.exportacao'
+import { Route as AuthenticatedEmpreendimentosIdRouteImport } from './routes/_authenticated/empreendimentos.$id'
 import { Route as AuthenticatedConfiguracoesOpcoesRouteImport } from './routes/_authenticated/configuracoes.opcoes'
 import { Route as AuthenticatedConfiguracoesNotificacoesRouteImport } from './routes/_authenticated/configuracoes.notificacoes'
 import { Route as AuthenticatedCarteirasIdRouteImport } from './routes/_authenticated/carteiras.$id'
@@ -396,6 +397,12 @@ const AuthenticatedImoveisExportacaoRoute =
     path: '/exportacao',
     getParentRoute: () => AuthenticatedImoveisRoute,
   } as any)
+const AuthenticatedEmpreendimentosIdRoute =
+  AuthenticatedEmpreendimentosIdRouteImport.update({
+    id: '/empreendimentos/$id',
+    path: '/empreendimentos/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedConfiguracoesOpcoesRoute =
   AuthenticatedConfiguracoesOpcoesRouteImport.update({
     id: '/opcoes',
@@ -491,6 +498,7 @@ export interface FileRoutesByFullPath {
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
+  '/empreendimentos/$id': typeof AuthenticatedEmpreendimentosIdRoute
   '/imoveis/exportacao': typeof AuthenticatedImoveisExportacaoRoute
   '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/importacoes/condominios': typeof AuthenticatedImportacoesCondominiosRoute
@@ -552,6 +560,7 @@ export interface FileRoutesByTo {
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
+  '/empreendimentos/$id': typeof AuthenticatedEmpreendimentosIdRoute
   '/imoveis/exportacao': typeof AuthenticatedImoveisExportacaoRoute
   '/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/importacoes/condominios': typeof AuthenticatedImportacoesCondominiosRoute
@@ -622,6 +631,7 @@ export interface FileRoutesById {
   '/_authenticated/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/_authenticated/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
   '/_authenticated/configuracoes/opcoes': typeof AuthenticatedConfiguracoesOpcoesRoute
+  '/_authenticated/empreendimentos/$id': typeof AuthenticatedEmpreendimentosIdRoute
   '/_authenticated/imoveis/exportacao': typeof AuthenticatedImoveisExportacaoRoute
   '/_authenticated/imoveis/novo': typeof AuthenticatedImoveisNovoRoute
   '/_authenticated/importacoes/condominios': typeof AuthenticatedImportacoesCondominiosRoute
@@ -692,6 +702,7 @@ export interface FileRouteTypes {
     | '/carteiras/$id'
     | '/configuracoes/notificacoes'
     | '/configuracoes/opcoes'
+    | '/empreendimentos/$id'
     | '/imoveis/exportacao'
     | '/imoveis/novo'
     | '/importacoes/condominios'
@@ -753,6 +764,7 @@ export interface FileRouteTypes {
     | '/carteiras/$id'
     | '/configuracoes/notificacoes'
     | '/configuracoes/opcoes'
+    | '/empreendimentos/$id'
     | '/imoveis/exportacao'
     | '/imoveis/novo'
     | '/importacoes/condominios'
@@ -822,6 +834,7 @@ export interface FileRouteTypes {
     | '/_authenticated/carteiras/$id'
     | '/_authenticated/configuracoes/notificacoes'
     | '/_authenticated/configuracoes/opcoes'
+    | '/_authenticated/empreendimentos/$id'
     | '/_authenticated/imoveis/exportacao'
     | '/_authenticated/imoveis/novo'
     | '/_authenticated/importacoes/condominios'
@@ -1267,6 +1280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImoveisExportacaoRouteImport
       parentRoute: typeof AuthenticatedImoveisRoute
     }
+    '/_authenticated/empreendimentos/$id': {
+      id: '/_authenticated/empreendimentos/$id'
+      path: '/empreendimentos/$id'
+      fullPath: '/empreendimentos/$id'
+      preLoaderRoute: typeof AuthenticatedEmpreendimentosIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/configuracoes/opcoes': {
       id: '/_authenticated/configuracoes/opcoes'
       path: '/opcoes'
@@ -1557,6 +1577,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRouteWithChildren
   AuthenticatedTabelaRoute: typeof AuthenticatedTabelaRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
+  AuthenticatedEmpreendimentosIdRoute: typeof AuthenticatedEmpreendimentosIdRoute
   AuthenticatedEmpreendimentosTipoIdRoute: typeof AuthenticatedEmpreendimentosTipoIdRoute
 }
 
@@ -1589,6 +1610,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRouteWithChildren,
   AuthenticatedTabelaRoute: AuthenticatedTabelaRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
+  AuthenticatedEmpreendimentosIdRoute: AuthenticatedEmpreendimentosIdRoute,
   AuthenticatedEmpreendimentosTipoIdRoute:
     AuthenticatedEmpreendimentosTipoIdRoute,
 }

@@ -26,9 +26,14 @@ const SYSTEM_PROMPT =
 export const gerarDescricaoImovel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => Input.parse(data))
-  .handler(async ({ data }) => {
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) throw new Error("GEMINI_API_KEY ausente. Configure em Configurações → Integrações.");
+  .handler(async ({ data, context }) => {
+    const { data: row } = await context.supabase
+      .from("integration_settings")
+      .select("value")
+      .eq("key", "gemini_api_key")
+      .maybeSingle();
+    const key = row?.value || process.env.GEMINI_API_KEY;
+    if (!key) throw new Error("Chave Gemini não configurada. Acesse Configurações → Integrações e cadastre a GEMINI_API_KEY.");
 
     const ficha = [
       data.titulo && `Título: ${data.titulo}`,
