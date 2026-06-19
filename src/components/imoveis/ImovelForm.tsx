@@ -146,6 +146,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const isEdit = !!editId;
 
   const [imovelId, setImovelId] = useState<string | null>(editId ?? null);
+  const DRAFT_KEY = "imovel-novo-draft";
   const [form, setForm] = useState<FormState>({
     ...INITIAL,
     ...(initial
