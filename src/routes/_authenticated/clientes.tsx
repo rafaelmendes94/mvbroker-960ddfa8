@@ -63,6 +63,13 @@ const emptyForm = {
 const fmtBRL = (n: number | null | undefined) =>
   n == null ? "—" : Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+async function getToken(): Promise<string> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("Sessão expirada. Faça login novamente.");
+  return token;
+}
+
 function ClientesPage() {
   const [planos, setPlanos] = useState<Plano[]>([]);
   const [rows, setRows] = useState<ClienteRow[]>([]);
