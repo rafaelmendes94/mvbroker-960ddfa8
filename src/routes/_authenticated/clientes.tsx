@@ -161,8 +161,10 @@ function ClientesPage() {
     setSaving(true);
     try {
       // 1) Cria/recupera acesso (auth user + role)
+      const _token = await getToken();
       const acesso = await criarAcessoCliente({
         data: {
+          _token,
           email: form.email.trim(),
           modo: form.modoAcesso,
           nome: form.nome.trim(),
