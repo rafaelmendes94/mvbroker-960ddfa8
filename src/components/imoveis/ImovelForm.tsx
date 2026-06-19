@@ -146,6 +146,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const isEdit = !!editId;
 
   const [imovelId, setImovelId] = useState<string | null>(editId ?? null);
+  const DRAFT_KEY = "imovel-novo-draft";
   const [form, setForm] = useState<FormState>({
     ...INITIAL,
     ...(initial
@@ -191,8 +192,20 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           tour_360: initial.tour_360 ?? "", link_drive_fotos: initial.link_drive_fotos ?? "",
           pdf_comercial_path: initial.pdf_comercial_path ?? "",
         }
-      : {}),
+      : (() => {
+          if (typeof window === "undefined") return {};
+          try {
+            const raw = localStorage.getItem(DRAFT_KEY);
+            return raw ? JSON.parse(raw) : {};
+          } catch { return {}; }
+        })()),
   });
+
+  // Persiste rascunho (somente no modo novo)
+  useEffect(() => {
+    if (isEdit) return;
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(form)); } catch {}
+  }, [form, isEdit]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -422,6 +435,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         await logAudit("imovel_criado", `Imóvel ${data.titulo} (${data.codigo_interno})`);
         await logImovel(data.id, "criado", `Imóvel criado: ${data.titulo}`);
         toast.success(`Imóvel criado — ${data.codigo_interno}`);
+        try { localStorage.removeItem(DRAFT_KEY); } catch {}
         navigate({ to: "/imoveis/$id/editar", params: { id: data.id } });
       }
     } catch (e: any) {
@@ -836,7 +850,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
       )}
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 pb-6">
-        <Button type="button" variant="outline" onClick={() => navigate({ to: "/imoveis" })} className="w-full sm:w-auto">Cancelar</Button>
+        <Button type="button" variant="outline" onClick={() => { if (!isEdit) { try { localStorage.removeItem(DRAFT_KEY); } catch {} } navigate({ to: "/imoveis" }); }} className="w-full sm:w-auto">Cancelar</Button>
         <Button type="submit" disabled={saving} className="gap-2 px-8 w-full sm:w-auto">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? "Salvando..." : isEdit || imovelId ? "Salvar" : "Cadastrar"}
