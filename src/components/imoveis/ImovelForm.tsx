@@ -192,8 +192,20 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           tour_360: initial.tour_360 ?? "", link_drive_fotos: initial.link_drive_fotos ?? "",
           pdf_comercial_path: initial.pdf_comercial_path ?? "",
         }
-      : {}),
+      : (() => {
+          if (typeof window === "undefined") return {};
+          try {
+            const raw = localStorage.getItem(DRAFT_KEY);
+            return raw ? JSON.parse(raw) : {};
+          } catch { return {}; }
+        })()),
   });
+
+  // Persiste rascunho (somente no modo novo)
+  useEffect(() => {
+    if (isEdit) return;
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(form)); } catch {}
+  }, [form, isEdit]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
