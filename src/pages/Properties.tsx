@@ -518,18 +518,33 @@ export default function Properties() {
         return;
       }
 
-      // Imagens (tabela separada imovel_imagens)
+      // Imagens (tabela separada imovel_imagens) — bucket privado, gerar signed URLs
       const ids = (data || []).map((r: any) => r.id);
       const imagesById: Record<string, string[]> = {};
       if (ids.length) {
         const { data: imgs } = await supabase
           .from("imovel_imagens")
-          .select("imovel_id, url, ordem")
+          .select("imovel_id, storage_path, url, ordem, capa")
           .in("imovel_id", ids)
+          .order("capa", { ascending: false })
           .order("ordem", { ascending: true });
-        (imgs || []).forEach((im: any) => {
+        const rows = imgs || [];
+        const paths = rows.map((im: any) => im.storage_path || im.url).filter(Boolean);
+        const signedMap: Record<string, string> = {};
+        if (paths.length) {
+          const { data: signed } = await supabase.storage
+            .from("imoveis")
+            .createSignedUrls(paths, 3600);
+          (signed || []).forEach((s: any) => {
+            if (s?.path && s?.signedUrl) signedMap[s.path] = s.signedUrl;
+          });
+        }
+        rows.forEach((im: any) => {
+          const p = im.storage_path || im.url;
+          const u = signedMap[p] || (p?.startsWith("http") ? p : "");
+          if (!u) return;
           if (!imagesById[im.imovel_id]) imagesById[im.imovel_id] = [];
-          if (im.url) imagesById[im.imovel_id].push(im.url);
+          imagesById[im.imovel_id].push(u);
         });
       }
 
