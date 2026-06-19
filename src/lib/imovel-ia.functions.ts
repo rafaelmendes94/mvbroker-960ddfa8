@@ -85,20 +85,21 @@ export const gerarDescricaoImovel = createServerFn({ method: "POST" })
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
       encodeURIComponent(key);
 
+    const isPadraoAnuncio = /padrao_anuncio|padrão anúncio/i.test(data.observacoes || "");
+    const systemPrompt = isPadraoAnuncio ? SYSTEM_PROMPT_PADRAO_ANUNCIO : SYSTEM_PROMPT;
+    const userPrompt = isPadraoAnuncio
+      ? `Gere a legenda de anúncio no formato definido para o seguinte imóvel:\n\n${ficha}`
+      : `Gere uma descrição comercial para o seguinte imóvel:\n\n${ficha}`;
+
     let res: Response;
     try {
       res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: `Gere uma descrição comercial para o seguinte imóvel:\n\n${ficha}` }],
-            },
-          ],
-          generationConfig: { temperature: 0.7 },
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+          generationConfig: { temperature: isPadraoAnuncio ? 0.5 : 0.7 },
         }),
       });
     } catch (err) {
