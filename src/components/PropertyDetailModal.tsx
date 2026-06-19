@@ -693,7 +693,7 @@ export function PropertyDetailModal({ property, onClose, allProperties, brokerIn
             </button>
           )}
           {canEdit && (
-            <Link to={`/editar-imovel/${property.id}`} onClick={onClose} className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card border border-border text-sm font-semibold text-foreground hover:bg-muted/40 transition-colors shadow-sm">
+            <Link to="/imoveis/$id/editar" params={{ id: property.id }} onClick={onClose} className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card border border-border text-sm font-semibold text-foreground hover:bg-muted/40 transition-colors shadow-sm">
               <Pencil className="w-4 h-4 text-primary" /> Editar
             </Link>
           )}
