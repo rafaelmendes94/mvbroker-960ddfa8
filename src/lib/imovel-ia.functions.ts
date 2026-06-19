@@ -32,7 +32,10 @@ export const gerarDescricaoImovel = createServerFn({ method: "POST" })
       .select("value")
       .eq("key", "gemini_api_key")
       .maybeSingle();
-    const key = row?.value || process.env.GEMINI_API_KEY;
+    // Prioriza variável de ambiente (secret GEMINI_API_KEY); usa integration_settings como fallback
+    const envKey = process.env.GEMINI_API_KEY?.trim();
+    const dbKey = row?.value?.trim();
+    const key = envKey || dbKey;
     if (!key) throw new Error("Chave Gemini não configurada. Acesse Configurações → Integrações e cadastre a GEMINI_API_KEY.");
 
     const ficha = [
