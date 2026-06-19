@@ -11,6 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useSystemOptions } from "@/hooks/use-system-options";
 import { gerarDescricaoImovel } from "@/lib/imovel-ia.functions";
+import {
+  listFeedPersonalizadoIds,
+  setImovelInFeedPersonalizado,
+} from "@/lib/feed-personalizado.functions";
 import { logAudit, logImovel } from "@/lib/audit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -258,6 +262,17 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   );
 
   const gerarDescFn = useServerFn(gerarDescricaoImovel);
+  const fnListFeed = useServerFn(listFeedPersonalizadoIds);
+  const fnSetFeed = useServerFn(setImovelInFeedPersonalizado);
+  const [inFeedPersonalizado, setInFeedPersonalizado] = useState(false);
+
+  // Carrega estado do feed personalizado para este imóvel
+  useEffect(() => {
+    if (!imovelId) return;
+    fnListFeed().then((r: any) => {
+      setInFeedPersonalizado((r?.imovel_ids ?? []).includes(imovelId));
+    }).catch(() => {});
+  }, [imovelId]);
 
   // logs (modo edição)
   useEffect(() => {
@@ -438,6 +453,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         pdf_comercial_path: form.pdf_comercial_path || null,
       };
 
+      let savedId = imovelId;
       if (imovelId) {
         const { error } = await supabase.from("imoveis").update(payload as never).eq("id", imovelId);
         if (error) throw error;
@@ -449,11 +465,24 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         const { data, error } = await supabase.from("imoveis").insert(payload as never).select().single();
         if (error) throw error;
         setImovelId(data.id);
+        savedId = data.id;
         await logAudit("imovel_criado", `Imóvel ${data.titulo} (${data.codigo_interno})`);
         await logImovel(data.id, "criado", `Imóvel criado: ${data.titulo}`);
         toast.success(`Imóvel criado — ${data.codigo_interno}`);
         try { localStorage.removeItem(DRAFT_KEY); } catch {}
-        navigate({ to: "/imoveis/$id/editar", params: { id: data.id } });
+      }
+
+      // Sincroniza Feed Personalizado
+      if (savedId) {
+        try {
+          await fnSetFeed({ data: { imovel_id: savedId, incluir: inFeedPersonalizado } });
+        } catch (err) {
+          console.warn("Falha ao sincronizar Feed Personalizado", err);
+        }
+      }
+
+      if (!imovelId && savedId) {
+        navigate({ to: "/imoveis/$id/editar", params: { id: savedId } });
       }
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao salvar");
@@ -729,6 +758,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             <label className="flex items-center gap-2"><Switch checked={form.vista_mar} onCheckedChange={(v) => set("vista_mar", v)} /><span className="text-xs">Vista Mar</span></label>
             <label className="flex items-center gap-2"><Switch checked={form.decorado} onCheckedChange={(v) => set("decorado", v)} /><span className="text-xs">Decorado</span></label>
             <label className="flex items-center gap-2"><Switch checked={form.aceita_permuta} onCheckedChange={(v) => set("aceita_permuta", v)} /><span className="text-xs">Permuta</span></label>
+            <label className="flex items-center gap-2"><Switch checked={inFeedPersonalizado} onCheckedChange={setInFeedPersonalizado} /><span className="text-xs font-semibold">⭐ Feed Personalizado</span></label>
             {isSuperAdmin && (
               <>
                 <label className="flex items-center gap-2"><Switch checked={form.ativo_site} onCheckedChange={(v) => set("ativo_site", v)} /><span className="text-xs font-semibold">🌐 Site</span></label>

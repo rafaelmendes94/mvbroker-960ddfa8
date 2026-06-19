@@ -1,205 +1,138 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, FolderOpen, Trash2, Copy, ExternalLink, Rss } from "lucide-react";
+import { Copy, ExternalLink, Rss, Star, ArrowRight } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import {
-  listCarteiras,
-  createCarteira,
-  deleteCarteira,
-  getFeedGeralInfo,
-} from "@/lib/carteiras.functions";
+import { getFeedGeralInfo } from "@/lib/carteiras.functions";
+import { getFeedPersonalizado } from "@/lib/feed-personalizado.functions";
+import { DownloadXmlButton } from "@/components/feeds/DownloadXmlButton";
 
 export const Route = createFileRoute("/_authenticated/carteiras/")({
-  head: () => ({ meta: [{ title: "Minhas Carteiras — MV Broker" }] }),
-  component: CarteirasList,
+  head: () => ({ meta: [{ title: "Feeds XML — MV Broker" }] }),
+  component: FeedsXmlPage,
 });
 
-function CarteirasList() {
-  const nav = useNavigate();
-  const list = useServerFn(listCarteiras);
-  const create = useServerFn(createCarteira);
-  const remove = useServerFn(deleteCarteira);
+function FeedsXmlPage() {
   const fnGeral = useServerFn(getFeedGeralInfo);
+  const fnPersonalizado = useServerFn(getFeedPersonalizado);
 
-  const [items, setItems] = useState<any[]>([]);
   const [geral, setGeral] = useState<{ id: string; escopo: string; nome: string | null } | null>(null);
+  const [personalizado, setPersonalizado] = useState<{ id: string; slug: string; nome: string; total_imoveis: number } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [nome, setNome] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const reload = async () => {
-    setLoading(true);
-    try {
-      const data = await list();
-      setItems(data ?? []);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    reload();
-    fnGeral().then(setGeral).catch(() => {});
+    (async () => {
+      try {
+        const [g, p] = await Promise.all([fnGeral().catch(() => null), fnPersonalizado().catch(() => null)]);
+        setGeral(g);
+        setPersonalizado(p as any);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const feedUrl = (slug: string) => `${window.location.origin}/api/public/feed/${slug}.xml`;
-  const geralUrl = geral ? `${typeof window !== "undefined" ? window.location.origin : ""}/api/public/feed/geral/${geral.id}.xml` : "";
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const geralUrl = geral ? `${origin}/api/public/feed/geral/${geral.id}.xml` : "";
+  const personalizadoUrl = personalizado ? `${origin}/api/public/feed/${personalizado.slug}.xml` : "";
 
-  const handleCreate = async () => {
-    if (!nome.trim()) return;
-    setSaving(true);
-    try {
-      const created = await create({ data: { nome: nome.trim(), descricao: descricao.trim() || undefined } });
-      toast.success("Carteira criada");
-      setOpen(false);
-      setNome(""); setDescricao("");
-      nav({ to: "/carteiras/$id", params: { id: created.id } });
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erro ao criar carteira");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Excluir esta carteira? O feed XML será desativado.")) return;
-    await remove({ data: { id } });
-    toast.success("Carteira excluída");
-    reload();
-  };
-
-  const copyUrl = (slug: string) => {
-    navigator.clipboard.writeText(feedUrl(slug));
-    toast.success("URL XML copiada");
-  };
+  function copy(url: string) {
+    navigator.clipboard.writeText(url);
+    toast.success("URL copiada");
+  }
 
   return (
     <>
       <PageHeader
-        title="Minhas Carteiras"
-        description="Crie carteiras de imóveis e distribua via XML para os portais."
-        actions={
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button><Plus className="h-4 w-4 mr-1.5" />Nova carteira</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>Nova carteira</DialogTitle></DialogHeader>
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <Label>Nome *</Label>
-                  <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Venda Alto Padrão" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Descrição</Label>
-                  <Textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} rows={3} />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
-                <Button onClick={handleCreate} disabled={saving || !nome.trim()}>Criar</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        }
+        title="Feeds XML"
+        description="Distribua seus imóveis para portais e parceiros via XML."
       />
-
-      {geral && (
-        <Card className="border-primary/40 bg-primary/5">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center gap-2">
-              <Rss className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold text-sm">Feed Geral — todos os imóveis</h3>
-              <Badge variant="secondary" className="ml-auto">Automático</Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              XML único com todos os seus imóveis liberados para exportação. Atualizado automaticamente — não precisa adicionar manualmente.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-              <code className="flex-1 rounded bg-background border px-3 py-2 text-[11px] font-mono break-all">{geralUrl}</code>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => {
-                  navigator.clipboard.writeText(geralUrl);
-                  toast.success("URL copiada");
-                }}>
-                  <Copy className="h-3.5 w-3.5 mr-1" />Copiar
-                </Button>
-                <Button size="sm" variant="outline" asChild>
-                  <a href={geralUrl} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                </Button>
-              </div>
-            </div>
-            <p className="text-[11px] text-muted-foreground pt-1">
-              Para feeds personalizados (seleção manual ou por empreendimento), crie uma carteira abaixo.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Carregando...</p>
-      ) : items.length === 0 ? (
-        <Card>
-          <CardContent className="py-16 text-center">
-            <Rss className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground mb-3">Você ainda não tem carteiras.</p>
-            <p className="text-xs text-muted-foreground mb-4">
-              Crie uma carteira, adicione imóveis e gere uma URL XML para conectar aos portais.
-            </p>
-            <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1.5" />Criar primeira carteira</Button>
-          </CardContent>
-        </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {items.map((c) => (
-            <Card key={c.id} className="hover:shadow-md transition">
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <Link to="/carteiras/$id" params={{ id: c.id }} className="font-semibold hover:underline truncate block">
-                      {c.nome}
-                    </Link>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                      {c.descricao || <span className="italic">Sem descrição</span>}
+        <div className="space-y-4">
+          {/* Feed Geral */}
+          {geral && (
+            <Card className="border-primary/40 bg-primary/5">
+              <CardContent className="p-4 sm:p-5 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-primary/10 p-2">
+                    <Rss className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold">Feed Geral</h3>
+                      <Badge variant="secondary">Automático</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Todos os imóveis liberados para exportação. Atualizado automaticamente — não precisa selecionar manualmente.
                     </p>
                   </div>
-                  <Badge variant={c.status === "ativa" ? "default" : "secondary"}>{c.status}</Badge>
                 </div>
-
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><FolderOpen className="h-3.5 w-3.5" />{c.total_imoveis} imóvel(is)</span>
-                </div>
-
-                <div className="rounded bg-muted px-2 py-1.5 text-[11px] font-mono truncate" title={feedUrl(c.slug)}>
-                  /api/public/feed/{c.slug}.xml
-                </div>
-
-                <div className="flex gap-1.5">
-                  <Button size="sm" variant="outline" onClick={() => copyUrl(c.slug)} className="flex-1">
-                    <Copy className="h-3.5 w-3.5 mr-1" />Copiar XML
+                <code className="block rounded bg-background border px-3 py-2 text-[11px] font-mono break-all">{geralUrl}</code>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => copy(geralUrl)}>
+                    <Copy className="h-3.5 w-3.5 mr-1" />Copiar URL
                   </Button>
                   <Button size="sm" variant="outline" asChild>
-                    <a href={feedUrl(c.slug)} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a>
+                    <a href={geralUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-3.5 w-3.5 mr-1" />Abrir
+                    </a>
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => handleDelete(c.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                  <DownloadXmlButton url={geralUrl} filename="feed-geral.xml" />
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
+
+          {/* Feed Personalizado */}
+          {personalizado && (
+            <Card className="border-amber-400/40 bg-amber-500/5">
+              <CardContent className="p-4 sm:p-5 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-amber-500/10 p-2">
+                    <Star className="h-5 w-5 text-amber-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold">Feed Personalizado</h3>
+                      <Badge variant="secondary">{personalizado.total_imoveis} imóveis</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Seleção manual de imóveis. Você escolhe quais entram no XML.
+                    </p>
+                  </div>
+                </div>
+                <code className="block rounded bg-background border px-3 py-2 text-[11px] font-mono break-all">{personalizadoUrl}</code>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => copy(personalizadoUrl)}>
+                    <Copy className="h-3.5 w-3.5 mr-1" />Copiar URL
+                  </Button>
+                  <Button size="sm" variant="outline" asChild>
+                    <a href={personalizadoUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-3.5 w-3.5 mr-1" />Abrir
+                    </a>
+                  </Button>
+                  <DownloadXmlButton url={personalizadoUrl} filename="feed-personalizado.xml" />
+                  <Button size="sm" asChild className="ml-auto">
+                    <Link to="/carteiras/$id" params={{ id: personalizado.id }}>
+                      Gerenciar imóveis <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                    </Link>
+                  </Button>
+                </div>
+                <div className="pt-1 border-t border-amber-500/20 mt-2">
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 Você pode adicionar imóveis aqui, ou marcando o switch <strong>📡 Feed Personalizado</strong> ao editar cada imóvel.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
     </>
