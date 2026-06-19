@@ -657,29 +657,23 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               <Label className="text-xs flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Validade do Bônus</Label>
               <Input type="date" value={form.validade_bonus} onChange={(e) => set("validade_bonus", e.target.value)} />
             </div>
-            <QuickPick label="Padrão" options={PADRAO_OPTS} value={form.padrao} onChange={(v) => set("padrao", String(v))} />
+            <QuickPickEditable
+              label="Padrão"
+              options={padraoLabels}
+              value={form.padrao}
+              onChange={(v) => set("padrao", String(v))}
+              onAddOption={addPadrao}
+            />
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold">Condições de Pagamento</Label>
-            <div className="flex flex-wrap gap-2">
-              {PAYMENT_OPTS.map((cond) => (
-                <button
-                  key={cond}
-                  type="button"
-                  onClick={() => togglePayment(cond)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                    form.condicoes_pagamento.includes(cond)
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-muted text-muted-foreground border-border hover:bg-accent",
-                  )}
-                >
-                  {cond}
-                </button>
-              ))}
-            </div>
-          </div>
+          <QuickPickEditable
+            label="Condições de Pagamento"
+            multi
+            options={pagamentoLabels}
+            value={form.condicoes_pagamento}
+            onChange={(v) => set("condicoes_pagamento", Array.isArray(v) ? v : [v])}
+            onAddOption={addPagamento}
+          />
         </div>
 
         {/* PROPRIETÁRIO */}
