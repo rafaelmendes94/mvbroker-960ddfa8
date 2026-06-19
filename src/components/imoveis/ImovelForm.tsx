@@ -435,6 +435,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         await logAudit("imovel_criado", `Imóvel ${data.titulo} (${data.codigo_interno})`);
         await logImovel(data.id, "criado", `Imóvel criado: ${data.titulo}`);
         toast.success(`Imóvel criado — ${data.codigo_interno}`);
+        try { localStorage.removeItem(DRAFT_KEY); } catch {}
         navigate({ to: "/imoveis/$id/editar", params: { id: data.id } });
       }
     } catch (e: any) {
