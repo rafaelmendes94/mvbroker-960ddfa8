@@ -2119,23 +2119,23 @@ function PropertyCard({
         </button>
 
 
-        {/* Price + badges */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
-          <p className="text-xl font-bold text-white drop-shadow-lg">{formatCurrency(property.price)}</p>
+        {/* Badges (sea/decorated) */}
+        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-end">
           <div className="flex gap-1">
             {property.seaView && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/90 text-white backdrop-blur-sm flex items-center gap-0.5"><Waves className="w-2.5 h-2.5" /> Mar</span>}
             {property.decorated && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/90 text-white backdrop-blur-sm flex items-center gap-0.5"><Paintbrush className="w-2.5 h-2.5" /> Dec.</span>}
-            
           </div>
         </div>
       </div>
 
       <div className="p-4 space-y-3">
         <div>
-          <h3 className="font-semibold text-card-foreground text-sm cursor-pointer hover:text-primary transition-colors uppercase"
+          <p className="text-xl font-bold text-foreground">{formatCurrency(property.price)}</p>
+          <h3 className="font-semibold text-card-foreground text-sm cursor-pointer hover:text-primary transition-colors uppercase mt-1"
             onClick={() => onSelect?.(property)}
             title="Ver detalhes do imóvel"
           >{property.title}</h3>
+
           {(property.empreendimento || unitParts.length > 0) && (
             <div className="flex flex-wrap items-center gap-1 mt-1">
               {property.empreendimento && (
