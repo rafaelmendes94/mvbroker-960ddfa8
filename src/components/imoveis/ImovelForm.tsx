@@ -752,7 +752,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             )}
           </div>
 
-          <InfraToggle label="Infraestrutura" options={infraOpts} selected={form.infraestrutura} onChange={(s) => set("infraestrutura", s)} allowCustom />
+          <InfraToggle label="Infraestrutura" options={infraOpts} selected={form.infraestrutura} onChange={(s) => set("infraestrutura", s)} allowCustom onAddOption={addInfra} />
 
           <div className="mt-4">
             <Label className="text-xs font-semibold mb-2 block">Outras Características</Label>
