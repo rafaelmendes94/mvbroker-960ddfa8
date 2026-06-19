@@ -62,10 +62,28 @@ async function getAuthedContext(token: string): Promise<AuthedContext> {
   if (!token) throw new Error("Unauthorized: No token provided");
 
   const supabase = await createNodeSafeSupabaseClient(SUPABASE_PUBLISHABLE_KEY, token);
-  const { data, error } = await supabase.auth.getClaims(token);
-  if (error || !data?.claims?.sub) throw new Error("Unauthorized: Invalid token");
 
-  return { supabase, userId: data.claims.sub, claims: data.claims };
+  // Tenta getClaims (cloud / JWKS). Em Supabase self-hosted (VPS) com JWT HS256
+  // legado, getClaims pode falhar — caímos para getUser(token).
+  let userId: string | undefined;
+  let claims: Record<string, unknown> = {};
+  try {
+    const { data, error } = await supabase.auth.getClaims(token);
+    if (!error && data?.claims?.sub) {
+      userId = data.claims.sub as string;
+      claims = data.claims as Record<string, unknown>;
+    }
+  } catch {
+    // ignora — tenta fallback
+  }
+  if (!userId) {
+    const { data: u, error: uErr } = await supabase.auth.getUser(token);
+    if (uErr || !u?.user?.id) throw new Error("Unauthorized: Invalid token");
+    userId = u.user.id;
+    claims = { sub: u.user.id, email: u.user.email } as Record<string, unknown>;
+  }
+
+  return { supabase, userId, claims };
 }
 
 async function getSupabaseAdmin() {
