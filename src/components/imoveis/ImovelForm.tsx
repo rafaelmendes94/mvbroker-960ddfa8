@@ -262,6 +262,17 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   );
 
   const gerarDescFn = useServerFn(gerarDescricaoImovel);
+  const fnListFeed = useServerFn(listFeedPersonalizadoIds);
+  const fnSetFeed = useServerFn(setImovelInFeedPersonalizado);
+  const [inFeedPersonalizado, setInFeedPersonalizado] = useState(false);
+
+  // Carrega estado do feed personalizado para este imóvel
+  useEffect(() => {
+    if (!imovelId) return;
+    fnListFeed().then((r: any) => {
+      setInFeedPersonalizado((r?.imovel_ids ?? []).includes(imovelId));
+    }).catch(() => {});
+  }, [imovelId]);
 
   // logs (modo edição)
   useEffect(() => {
