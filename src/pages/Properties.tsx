@@ -2206,7 +2206,9 @@ function PropertyCard({
           {canManage && (
             <>
               <Link
-                to={`/editar-imovel/${property.id}`}
+                to="/imoveis/$id/editar"
+                params={{ id: property.id }}
+
                 onClick={(e: any) => e.stopPropagation()}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 text-[11px] font-bold hover:bg-amber-500/20 transition-colors"
               >
@@ -2771,7 +2773,7 @@ function PropertyRow({
         <div className="w-full md:w-[52px] flex-shrink-0 flex flex-row md:flex-col items-center justify-start gap-1.5 py-2 px-3 md:px-0" onClick={(e: any) => e.stopPropagation()}>
           {canManage && (
             <button
-              onClick={() => window.location.href = `/editar-imovel/${property.id}`}
+              onClick={() => window.location.href = `/imoveis/${property.id}/editar`}
               className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors" title="Editar"
             ><Pencil className="w-3.5 h-3.5 text-primary" /></button>
           )}
