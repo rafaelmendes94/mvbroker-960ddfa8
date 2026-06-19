@@ -15,6 +15,7 @@ import {
   listCarteiras,
   createCarteira,
   deleteCarteira,
+  getFeedGeralInfo,
 } from "@/lib/carteiras.functions";
 
 export const Route = createFileRoute("/_authenticated/carteiras/")({
