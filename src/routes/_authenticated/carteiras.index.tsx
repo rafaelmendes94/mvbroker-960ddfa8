@@ -115,6 +115,41 @@ function CarteirasList() {
         }
       />
 
+      {geral && (
+        <Card className="border-primary/40 bg-primary/5">
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center gap-2">
+              <Rss className="h-4 w-4 text-primary" />
+              <h3 className="font-semibold text-sm">Feed Geral — todos os imóveis</h3>
+              <Badge variant="secondary" className="ml-auto">Automático</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              XML único com todos os seus imóveis liberados para exportação. Atualizado automaticamente — não precisa adicionar manualmente.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+              <code className="flex-1 rounded bg-background border px-3 py-2 text-[11px] font-mono break-all">{geralUrl}</code>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => {
+                  navigator.clipboard.writeText(geralUrl);
+                  toast.success("URL copiada");
+                }}>
+                  <Copy className="h-3.5 w-3.5 mr-1" />Copiar
+                </Button>
+                <Button size="sm" variant="outline" asChild>
+                  <a href={geralUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground pt-1">
+              Para feeds personalizados (seleção manual ou por empreendimento), crie uma carteira abaixo.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+
       {loading ? (
         <p className="text-sm text-muted-foreground">Carregando...</p>
       ) : items.length === 0 ? (
