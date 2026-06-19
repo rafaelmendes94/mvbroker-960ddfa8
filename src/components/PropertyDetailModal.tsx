@@ -470,7 +470,7 @@ export function PropertyDetailModal({ property, onClose, allProperties, brokerIn
               {canEdit && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Link to={`/editar-imovel/${property.id}`} onClick={onClose} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary">
+                    <Link to="/imoveis/$id/editar" params={{ id: property.id }} onClick={onClose} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary">
                       <Pencil className="w-4.5 h-4.5" />
                     </Link>
                   </TooltipTrigger>
