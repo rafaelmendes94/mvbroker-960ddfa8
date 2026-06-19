@@ -2405,6 +2405,10 @@ export type Database = {
           usados: number
         }[]
       }
+      is_carteira_owner: {
+        Args: { _carteira_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       log_action: {
         Args: {
