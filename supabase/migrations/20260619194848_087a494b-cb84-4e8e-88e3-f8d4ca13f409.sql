@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Auth users can add options" ON public.system_options;
