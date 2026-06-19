@@ -285,7 +285,8 @@ function GaleriaFormDialog({ open, onClose, onSaved, categorias, galeria }: {
       if (files.length > 0 && galId) {
         const { data: u } = await supabase.auth.getUser();
         const uid = u.user?.id;
-        let ordem = Date.now();
+        const { data: maxRow } = await supabase.from("banco_galeria_arquivos").select("ordem").eq("galeria_id", galId).order("ordem", { ascending: false }).limit(1).maybeSingle();
+        let ordem = (maxRow?.ordem ?? 0) + 1;
         for (const f of files) {
           const blob = await resizeImage(f, 2400, 0.9) ?? f;
           const ext = (f.name.split(".").pop() || "jpg").toLowerCase();
@@ -442,7 +443,8 @@ function GaleriaDetailDialog({ galeriaId, isAdmin, onClose, onChanged, onEdit, c
     try {
       const { data: u } = await supabase.auth.getUser();
       const uid = u.user?.id;
-      let ordem = Date.now();
+      const { data: maxRow } = await supabase.from("banco_galeria_arquivos").select("ordem").eq("galeria_id", galeriaId).order("ordem", { ascending: false }).limit(1).maybeSingle();
+      let ordem = (maxRow?.ordem ?? 0) + 1;
       for (const f of Array.from(files)) {
         const blob = await resizeImage(f, 2400, 0.9) ?? f;
         const path = `${galeriaId}/${ordem}-${Math.random().toString(36).slice(2, 8)}.webp`;
