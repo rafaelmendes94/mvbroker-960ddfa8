@@ -850,7 +850,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
       )}
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 pb-6">
-        <Button type="button" variant="outline" onClick={() => navigate({ to: "/imoveis" })} className="w-full sm:w-auto">Cancelar</Button>
+        <Button type="button" variant="outline" onClick={() => { if (!isEdit) { try { localStorage.removeItem(DRAFT_KEY); } catch {} } navigate({ to: "/imoveis" }); }} className="w-full sm:w-auto">Cancelar</Button>
         <Button type="submit" disabled={saving} className="gap-2 px-8 w-full sm:w-auto">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? "Salvando..." : isEdit || imovelId ? "Salvar" : "Cadastrar"}
