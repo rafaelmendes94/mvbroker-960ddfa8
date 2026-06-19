@@ -526,9 +526,20 @@ function ImovelPicker({
   open, onClose, existingIds, onAdd,
 }: { open: boolean; onClose: () => void; existingIds: Set<string>; onAdd: (ids: string[]) => void }) {
   const [busca, setBusca] = useState("");
+  const [empreendimentoId, setEmpreendimentoId] = useState<string>("__all__");
+  const [empreendimentos, setEmpreendimentos] = useState<any[]>([]);
   const [imoveis, setImoveis] = useState<any[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    supabase
+      .from("empreendimentos")
+      .select("id, nome")
+      .order("nome")
+      .then(({ data }) => setEmpreendimentos(data ?? []));
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -537,15 +548,16 @@ function ImovelPicker({
     (async () => {
       setLoading(true);
       let q = supabase.from("imoveis")
-        .select("id, codigo_interno, titulo, cidade, bairro, preco, status, tipo")
-        .eq("arquivado", false).order("created_at", { ascending: false }).limit(50);
+        .select("id, codigo_interno, titulo, cidade, bairro, preco, status, tipo, empreendimento_id")
+        .eq("arquivado", false).order("created_at", { ascending: false }).limit(200);
       if (busca.trim()) q = q.or(`titulo.ilike.%${busca}%,codigo_interno.ilike.%${busca}%,cidade.ilike.%${busca}%`);
+      if (empreendimentoId !== "__all__") q = q.eq("empreendimento_id", empreendimentoId);
       const { data } = await q;
       if (cancel) return;
       setImoveis(data ?? []); setLoading(false);
     })();
     return () => { cancel = true; };
-  }, [open, busca]);
+  }, [open, busca, empreendimentoId]);
 
   const toggle = (id: string) => {
     const n = new Set(selected);
@@ -553,14 +565,50 @@ function ImovelPicker({
     setSelected(n);
   };
 
+  const selectableIds = imoveis.filter((im) => !existingIds.has(im.id)).map((im) => im.id);
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
+
+  const toggleAll = () => {
+    if (allSelected) {
+      const n = new Set(selected);
+      selectableIds.forEach((id) => n.delete(id));
+      setSelected(n);
+    } else {
+      setSelected(new Set([...selected, ...selectableIds]));
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-3xl">
         <DialogHeader><DialogTitle>Adicionar imóveis</DialogTitle></DialogHeader>
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Buscar..." value={busca} onChange={(e) => setBusca(e.target.value)} />
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input className="pl-9" placeholder="Buscar..." value={busca} onChange={(e) => setBusca(e.target.value)} />
+          </div>
+          <Select value={empreendimentoId} onValueChange={setEmpreendimentoId}>
+            <SelectTrigger className="sm:w-64"><SelectValue placeholder="Todos empreendimentos" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">Todos empreendimentos</SelectItem>
+              {empreendimentos.map((e) => (
+                <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+        {selectableIds.length > 0 && (
+          <div className="flex items-center gap-2 text-xs">
+            <Button size="sm" variant="outline" onClick={toggleAll}>
+              {allSelected ? "Desmarcar todos" : `Selecionar todos (${selectableIds.length})`}
+            </Button>
+            {empreendimentoId !== "__all__" && (
+              <span className="text-muted-foreground">
+                Filtro: {empreendimentos.find((e) => e.id === empreendimentoId)?.nome}
+              </span>
+            )}
+          </div>
+        )}
         <div className="max-h-[50vh] overflow-auto border rounded">
           {loading ? <p className="p-6 text-sm text-muted-foreground text-center">Carregando...</p>
             : imoveis.length === 0 ? <p className="p-6 text-sm text-muted-foreground text-center">Nenhum imóvel.</p>
