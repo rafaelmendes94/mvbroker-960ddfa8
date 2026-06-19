@@ -758,11 +758,11 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             <label className="flex items-center gap-2"><Switch checked={form.vista_mar} onCheckedChange={(v) => set("vista_mar", v)} /><span className="text-xs">Vista Mar</span></label>
             <label className="flex items-center gap-2"><Switch checked={form.decorado} onCheckedChange={(v) => set("decorado", v)} /><span className="text-xs">Decorado</span></label>
             <label className="flex items-center gap-2"><Switch checked={form.aceita_permuta} onCheckedChange={(v) => set("aceita_permuta", v)} /><span className="text-xs">Permuta</span></label>
+            <label className="flex items-center gap-2"><Switch checked={inFeedPersonalizado} onCheckedChange={setInFeedPersonalizado} /><span className="text-xs font-semibold">⭐ Feed Personalizado</span></label>
             {isSuperAdmin && (
               <>
                 <label className="flex items-center gap-2"><Switch checked={form.ativo_site} onCheckedChange={(v) => set("ativo_site", v)} /><span className="text-xs font-semibold">🌐 Site</span></label>
                 <label className="flex items-center gap-2"><Switch checked={form.publicar_xml} onCheckedChange={(v) => set("publicar_xml", v)} /><span className="text-xs font-semibold">📡 Portais (XML)</span></label>
-                <label className="flex items-center gap-2"><Switch checked={inFeedPersonalizado} onCheckedChange={setInFeedPersonalizado} /><span className="text-xs font-semibold">⭐ Feed Personalizado</span></label>
                 <label className="flex items-center gap-2">
                   <Switch checked={form.destaque_home} onCheckedChange={(v) => { set("destaque_home", v); if (!v) set("destaque_categoria", "none"); }} />
                   <span className="text-xs font-semibold">⭐ Destaque</span>
