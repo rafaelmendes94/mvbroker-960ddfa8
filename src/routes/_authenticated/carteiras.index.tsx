@@ -48,9 +48,13 @@ function CarteirasList() {
     }
   };
 
-  useEffect(() => { reload(); }, []);
+  useEffect(() => {
+    reload();
+    fnGeral().then(setGeral).catch(() => {});
+  }, []);
 
   const feedUrl = (slug: string) => `${window.location.origin}/api/public/feed/${slug}.xml`;
+  const geralUrl = geral ? `${typeof window !== "undefined" ? window.location.origin : ""}/api/public/feed/geral/${geral.id}.xml` : "";
 
   const handleCreate = async () => {
     if (!nome.trim()) return;
