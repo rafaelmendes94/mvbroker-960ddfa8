@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { CepAutoFill, type Endereco } from "@/components/forms/CepAutoFill";
 import { MapPicker } from "@/components/forms/MapPicker";
 import { QuickPick } from "@/components/forms/QuickPick";
+import { QuickPickEditable } from "@/components/forms/QuickPickEditable";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { InfraToggle } from "@/components/forms/InfraToggle";
 import { DraggableBlocks } from "@/components/forms/DraggableBlocks";
