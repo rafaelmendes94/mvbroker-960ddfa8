@@ -28,8 +28,10 @@ function CarteirasList() {
   const list = useServerFn(listCarteiras);
   const create = useServerFn(createCarteira);
   const remove = useServerFn(deleteCarteira);
+  const fnGeral = useServerFn(getFeedGeralInfo);
 
   const [items, setItems] = useState<any[]>([]);
+  const [geral, setGeral] = useState<{ id: string; escopo: string; nome: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState("");
