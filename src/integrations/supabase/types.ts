@@ -1841,6 +1841,7 @@ export type Database = {
           competencia: string | null
           comprovante_url: string | null
           created_at: string
+          gateway_id: string | null
           id: string
           metodo: string
           observacao: string | null
@@ -1856,6 +1857,7 @@ export type Database = {
           competencia?: string | null
           comprovante_url?: string | null
           created_at?: string
+          gateway_id?: string | null
           id?: string
           metodo?: string
           observacao?: string | null
@@ -1871,6 +1873,7 @@ export type Database = {
           competencia?: string | null
           comprovante_url?: string | null
           created_at?: string
+          gateway_id?: string | null
           id?: string
           metodo?: string
           observacao?: string | null
