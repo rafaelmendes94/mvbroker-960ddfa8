@@ -30,12 +30,31 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
     // Usa createNodeSafeSupabaseClient para evitar erro de WebSocket no Node 20
     const supabase = await createNodeSafeSupabaseClient(SUPABASE_PUBLISHABLE_KEY, token);
 
-    const { data, error } = await supabase.auth.getClaims(token);
-    if (error || !data?.claims) throw new Error('Unauthorized: Invalid token');
-    if (!data.claims.sub) throw new Error('Unauthorized: No user ID found in token');
+    // Tenta getClaims (cloud / JWKS). Em Supabase self-hosted (VPS) com JWT HS256
+    // legado, getClaims pode falhar — caímos para getUser(token) que sempre funciona.
+    let userId: string | undefined;
+    let claims: Record<string, unknown> = {};
+    try {
+      const { data, error } = await supabase.auth.getClaims(token);
+      if (!error && data?.claims?.sub) {
+        userId = data.claims.sub as string;
+        claims = data.claims as Record<string, unknown>;
+      }
+    } catch {
+      // ignora — tenta fallback
+    }
+    if (!userId) {
+      const { data: u, error: uErr } = await supabase.auth.getUser(token);
+      if (uErr || !u?.user?.id) {
+        console.error('[auth-middleware] getUser fallback failed', uErr?.message);
+        throw new Error('Unauthorized: Invalid token');
+      }
+      userId = u.user.id;
+      claims = { sub: u.user.id, email: u.user.email } as Record<string, unknown>;
+    }
 
     return next({
-      context: { supabase, userId: data.claims.sub, claims: data.claims },
+      context: { supabase, userId, claims },
     });
   },
 );
