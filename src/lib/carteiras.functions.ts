@@ -11,6 +11,19 @@ function slugify(s: string) {
     .slice(0, 60);
 }
 
+export const getFeedGeralInfo = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // Prefere imobiliária do usuário (owner); senão usa o próprio user_id
+    const { data: imob } = await context.supabase
+      .from("imobiliarias")
+      .select("id, nome_fantasia")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (imob) return { id: imob.id, escopo: "imobiliaria" as const, nome: imob.nome_fantasia };
+    return { id: context.userId, escopo: "usuario" as const, nome: null };
+  });
+
 export const listCarteiras = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

@@ -75,6 +75,7 @@ import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_au
 import { Route as AuthenticatedImoveisIdEditarRouteImport } from './routes/_authenticated/imoveis.$id.editar'
 import { Route as AuthenticatedEmpreendimentosTipoIdRouteImport } from './routes/_authenticated/empreendimentos.$tipo.$id'
 import { Route as ApiPublicPortalPortalSlugRouteImport } from './routes/api/public/portal/$portal/$slug'
+import { Route as ApiPublicFeedGeralIdRouteImport } from './routes/api/public/feed/geral.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -448,6 +449,11 @@ const ApiPublicPortalPortalSlugRoute =
     path: '/api/public/portal/$portal/$slug',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicFeedGeralIdRoute = ApiPublicFeedGeralIdRouteImport.update({
+  id: '/api/public/feed/geral/$id',
+  path: '/api/public/feed/geral/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -514,6 +520,7 @@ export interface FileRoutesByFullPath {
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
+  '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
 export interface FileRoutesByTo {
@@ -574,6 +581,7 @@ export interface FileRoutesByTo {
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
+  '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
 export interface FileRoutesById {
@@ -643,6 +651,7 @@ export interface FileRoutesById {
   '/_authenticated/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/_authenticated/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
+  '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
 export interface FileRouteTypes {
@@ -712,6 +721,7 @@ export interface FileRouteTypes {
     | '/imoveis/$id/editar'
     | '/registros/$id/editar'
     | '/api/public/feed/$slug'
+    | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -772,6 +782,7 @@ export interface FileRouteTypes {
     | '/imoveis/$id/editar'
     | '/registros/$id/editar'
     | '/api/public/feed/$slug'
+    | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   id:
     | '__root__'
@@ -840,6 +851,7 @@ export interface FileRouteTypes {
     | '/_authenticated/imoveis/$id/editar'
     | '/_authenticated/registros/$id/editar'
     | '/api/public/feed/$slug'
+    | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -850,6 +862,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiPublicFeedSlugRoute: typeof ApiPublicFeedSlugRoute
+  ApiPublicFeedGeralIdRoute: typeof ApiPublicFeedGeralIdRoute
   ApiPublicPortalPortalSlugRoute: typeof ApiPublicPortalPortalSlugRoute
 }
 
@@ -1317,6 +1330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPortalPortalSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/feed/geral/$id': {
+      id: '/api/public/feed/geral/$id'
+      path: '/api/public/feed/geral/$id'
+      fullPath: '/api/public/feed/geral/$id'
+      preLoaderRoute: typeof ApiPublicFeedGeralIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1584,6 +1604,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicFeedSlugRoute: ApiPublicFeedSlugRoute,
+  ApiPublicFeedGeralIdRoute: ApiPublicFeedGeralIdRoute,
   ApiPublicPortalPortalSlugRoute: ApiPublicPortalPortalSlugRoute,
 }
 export const routeTree = rootRouteImport
