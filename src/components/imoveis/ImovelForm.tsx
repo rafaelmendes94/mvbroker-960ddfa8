@@ -718,10 +718,10 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         <div key="caracteristicas" className="bg-card border border-border rounded-xl p-4 sm:p-5">
           <SectionHeader icon={Sparkles} title="Características" />
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
-            <QuickPick label="Condição" options={CONDICAO_OPTS} value={form.condicao} onChange={(v) => set("condicao", String(v))} />
-            <QuickPick label="Posição no Prédio" options={posPredioLabels} value={form.posicao_predio} onChange={(v) => set("posicao_predio", String(v))} />
-            <QuickPick label="Posição Solar" options={posSolarLabels} value={form.posicao_solar} onChange={(v) => set("posicao_solar", String(v))} />
-            <QuickPick label="Vista" options={vistaLabels} value={form.vista} onChange={(v) => set("vista", String(v))} />
+            <QuickPickEditable label="Condição" options={condicaoLabels} value={form.condicao} onChange={(v) => set("condicao", String(v))} onAddOption={addCondicao} />
+            <QuickPickEditable label="Posição no Prédio" options={posPredioLabels} value={form.posicao_predio} onChange={(v) => set("posicao_predio", String(v))} onAddOption={addPosPredio} />
+            <QuickPickEditable label="Posição Solar" options={posSolarLabels} value={form.posicao_solar} onChange={(v) => set("posicao_solar", String(v))} onAddOption={addPosSolar} />
+            <QuickPickEditable label="Vista" options={vistaLabels} value={form.vista} onChange={(v) => set("vista", String(v))} onAddOption={addVista} />
           </div>
 
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-6 mb-4 py-3 px-3 sm:px-4 bg-muted/50 rounded-lg">
