@@ -492,7 +492,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               <Label className="text-xs">Box</Label>
               {(() => {
                 const boxes = form.box ? form.box.split(",").map((b) => b.trim()) : [""];
-                const updateBoxes = (arr: string[]) => set("box", arr.map((b) => b.trim()).filter((b, i, a) => b !== "" || a.length === 1).join(", "));
+                const updateBoxes = (arr: string[]) => set("box", arr.join(", "));
                 return (
                   <div className="space-y-1.5">
                     {boxes.map((b, i) => (
