@@ -2206,7 +2206,9 @@ function PropertyCard({
           {canManage && (
             <>
               <Link
-                to={`/editar-imovel/${property.id}`}
+                to="/imoveis/$id/editar"
+                params={{ id: property.id }}
+
                 onClick={(e: any) => e.stopPropagation()}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 text-[11px] font-bold hover:bg-amber-500/20 transition-colors"
               >
