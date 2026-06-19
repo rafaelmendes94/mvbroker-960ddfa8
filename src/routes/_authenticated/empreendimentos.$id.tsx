@@ -50,7 +50,7 @@ function Page() {
         const fkCol = TABLES.find((x) => x.tipo === found!.tipo)!.fkCol;
         const { data: ims } = await supabase
           .from("imoveis")
-          .select("id, codigo_interno, titulo, tipo_imovel, status_imovel, preco, area_total, dormitorios, banheiros, vagas, unidade, andar, bloco, quadra, lote")
+          .select("id, codigo_interno, titulo, tipo_imovel, status_imovel, preco, area_total, dormitorios, banheiros, vagas, unidade, quadra, lote")
           .eq(fkCol, id)
           .eq("arquivado", false)
           .order("codigo_interno", { ascending: true });
@@ -155,7 +155,7 @@ function Page() {
                       </div>
                       <p className="font-semibold text-sm line-clamp-1">{im.titulo || im.tipo_imovel}</p>
                       <p className="text-xs text-muted-foreground">
-                        {[im.bloco && `Bl ${im.bloco}`, im.andar && `${im.andar}º`, im.unidade && `Ap ${im.unidade}`, im.quadra && `Q${im.quadra}`, im.lote && `L${im.lote}`].filter(Boolean).join(" · ") || "—"}
+                        {[im.unidade && `Ap ${im.unidade}`, im.quadra && `Q${im.quadra}`, im.lote && `L${im.lote}`].filter(Boolean).join(" · ") || "—"}
                       </p>
                       <div className="flex items-center justify-between pt-1 text-xs">
                         <span className="text-muted-foreground">
