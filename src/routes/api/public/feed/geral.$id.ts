@@ -7,7 +7,7 @@ import { IMOVEL_PUBLIC_COLUMNS } from "@/lib/db-columns";
 export const Route = createFileRoute("/api/public/feed/geral/$id")({
   server: {
     handlers: {
-      GET: async ({ params, request }) => {
+      GET: async ({ params }) => {
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const id = params.id.replace(/\.xml$/i, "");
 
