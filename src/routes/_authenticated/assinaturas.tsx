@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Plus, Loader2, Lock, Unlock, ExternalLink } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Loader2, Lock, Unlock, ExternalLink, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { RoleGate } from "@/components/RoleGate";
@@ -8,12 +8,14 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/assinaturas")({
   head: () => ({ meta: [{ title: "Assinaturas — MV Broker" }] }),
@@ -33,7 +35,9 @@ type Row = {
   valor: number;
   status: "ativa" | "bloqueada" | "cancelada" | "trial";
   bloqueio_motivo: string | null;
+  observacao?: string | null;
   proximo_vencimento: string | null;
+  ultimo_pagamento_em: string | null;
   planos?: { nome: string } | null;
   imobiliarias?: { nome_fantasia: string } | null;
 };
@@ -41,6 +45,8 @@ type Row = {
 type Plano = { id: string; nome: string; tipo: string; preco_mensal: number; preco_anual: number | null };
 type Imob = { id: string; nome_fantasia: string };
 type Profile = { id: string; full_name: string | null };
+
+type FiltroResumo = "todos" | "ativa" | "trial" | "bloqueada" | "cancelada" | "inadimplentes" | "a_vencer";
 
 const empty = {
   plano_id: "", titular_tipo: "imobiliaria" as "imobiliaria" | "usuario",
@@ -60,6 +66,17 @@ const STATUS_STYLE: Record<Row["status"], string> = {
 const fmtBRL = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+function startOfToday() {
+  const d = new Date(); d.setHours(0, 0, 0, 0); return d;
+}
+function parseDate(s: string | null) {
+  if (!s) return null;
+  const d = new Date(s); d.setHours(0, 0, 0, 0); return d;
+}
+function diasEntre(a: Date, b: Date) {
+  return Math.floor((a.getTime() - b.getTime()) / (1000 * 60 * 60 * 24));
+}
+
 function AssinaturasPage() {
   const [items, setItems] = useState<Row[]>([]);
   const [planos, setPlanos] = useState<Plano[]>([]);
@@ -69,7 +86,15 @@ function AssinaturasPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
   const [form, setForm] = useState(empty);
-  const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const [filtro, setFiltro] = useState<FiltroResumo>("todos");
+
+  // dialogs de ações
+  const [bloqueioAlvo, setBloqueioAlvo] = useState<Row | null>(null);
+  const [bloqueioMotivo, setBloqueioMotivo] = useState("");
+  const [desbloqueioAlvo, setDesbloqueioAlvo] = useState<Row | null>(null);
+  const [cancelAlvo, setCancelAlvo] = useState<Row | null>(null);
+  const [cancelMotivo, setCancelMotivo] = useState("");
+  const [cancelConfirm, setCancelConfirm] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -88,9 +113,7 @@ function AssinaturasPage() {
   }
   useEffect(() => { load(); }, []);
 
-  function openNew() {
-    setEditing(null); setForm(empty); setOpen(true);
-  }
+  function openNew() { setEditing(null); setForm(empty); setOpen(true); }
   function openEdit(r: Row) {
     setEditing(r);
     setForm({
@@ -126,35 +149,106 @@ function AssinaturasPage() {
     setOpen(false); load();
   }
 
-  async function toggleStatus(r: Row) {
-    const novo = r.status === "ativa" ? "bloqueada" : "ativa";
-    const motivo = novo === "bloqueada" ? (prompt("Motivo do bloqueio:") ?? "") : null;
-    const { error } = await supabase.from("assinaturas").update({ status: novo, bloqueio_motivo: motivo }).eq("id", r.id);
+  async function confirmarBloqueio() {
+    if (!bloqueioAlvo) return;
+    if (!bloqueioMotivo.trim()) { toast.error("Informe o motivo do bloqueio"); return; }
+    const { error } = await supabase.from("assinaturas")
+      .update({ status: "bloqueada", bloqueio_motivo: bloqueioMotivo.trim() })
+      .eq("id", bloqueioAlvo.id);
     if (error) return toast.error(error.message);
-    toast.success(novo === "ativa" ? "Assinatura liberada" : "Assinatura bloqueada");
-    load();
+    toast.success("Assinatura bloqueada");
+    setBloqueioAlvo(null); setBloqueioMotivo(""); load();
   }
 
-  const filtered = statusFilter === "todos" ? items : items.filter((r) => r.status === statusFilter);
+  async function confirmarDesbloqueio() {
+    if (!desbloqueioAlvo) return;
+    const { error } = await supabase.from("assinaturas")
+      .update({ status: "ativa", bloqueio_motivo: null })
+      .eq("id", desbloqueioAlvo.id);
+    if (error) return toast.error(error.message);
+    toast.success("Assinatura liberada");
+    setDesbloqueioAlvo(null); load();
+  }
+
+  async function confirmarCancelamento() {
+    if (!cancelAlvo) return;
+    if (!cancelMotivo.trim()) { toast.error("Informe o motivo do cancelamento"); return; }
+    if (!cancelConfirm) { toast.error("Confirme o cancelamento"); return; }
+    const { error } = await supabase.from("assinaturas")
+      .update({ status: "cancelada", observacao: cancelMotivo.trim() })
+      .eq("id", cancelAlvo.id);
+    if (error) return toast.error(error.message);
+    toast.success("Assinatura cancelada");
+    setCancelAlvo(null); setCancelMotivo(""); setCancelConfirm(false); load();
+  }
+
+  const hoje = startOfToday();
+  const em7 = new Date(hoje); em7.setDate(em7.getDate() + 7);
+
+  const resumo = useMemo(() => {
+    let ativas = 0, trial = 0, inadimplentes = 0, bloqueadas = 0, aVencer = 0;
+    for (const r of items) {
+      const venc = parseDate(r.proximo_vencimento);
+      if (r.status === "ativa" && venc && venc >= hoje) ativas++;
+      if (r.status === "trial") trial++;
+      if (r.status === "bloqueada") bloqueadas++;
+      if ((r.status === "ativa" || r.status === "trial") && venc && venc < hoje) inadimplentes++;
+      if ((r.status === "ativa" || r.status === "trial") && venc && venc >= hoje && venc <= em7) aVencer++;
+    }
+    return { ativas, trial, inadimplentes, bloqueadas, aVencer };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
+
+  const filtered = useMemo(() => items.filter((r) => {
+    const venc = parseDate(r.proximo_vencimento);
+    switch (filtro) {
+      case "todos": return true;
+      case "ativa": return r.status === "ativa" && !!venc && venc >= hoje;
+      case "trial": return r.status === "trial";
+      case "bloqueada": return r.status === "bloqueada";
+      case "cancelada": return r.status === "cancelada";
+      case "inadimplentes":
+        return (r.status === "ativa" || r.status === "trial") && !!venc && venc < hoje;
+      case "a_vencer":
+        return (r.status === "ativa" || r.status === "trial") && !!venc && venc >= hoje && venc <= em7;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [items, filtro]);
+
+  const cards: { key: FiltroResumo; label: string; value: number; tone: string }[] = [
+    { key: "ativa", label: "Ativas em dia", value: resumo.ativas, tone: "text-emerald-600" },
+    { key: "trial", label: "Em trial", value: resumo.trial, tone: "text-blue-600" },
+    { key: "inadimplentes", label: "Inadimplentes", value: resumo.inadimplentes, tone: "text-rose-600" },
+    { key: "bloqueada", label: "Bloqueadas", value: resumo.bloqueadas, tone: "text-amber-600" },
+    { key: "a_vencer", label: "A vencer em 7 dias", value: resumo.aVencer, tone: "text-yellow-600" },
+  ];
 
   return (
     <>
       <PageHeader title="Assinaturas" description="Vincule planos a imobiliárias ou corretores e controle o acesso."
         actions={<Button onClick={openNew}><Plus className="h-4 w-4" /> Nova assinatura</Button>} />
 
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground">Status</Label>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="ativa">Ativas</SelectItem>
-            <SelectItem value="trial">Trial</SelectItem>
-            <SelectItem value="bloqueada">Bloqueadas</SelectItem>
-            <SelectItem value="cancelada">Canceladas</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="mb-4 grid gap-3 grid-cols-2 md:grid-cols-5">
+        {cards.map((c) => (
+          <button
+            key={c.key}
+            onClick={() => setFiltro((cur) => cur === c.key ? "todos" : c.key)}
+            className={cn(
+              "rounded-lg border bg-card p-4 text-left transition hover:shadow-sm",
+              filtro === c.key && "ring-2 ring-primary border-primary"
+            )}
+          >
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">{c.label}</div>
+            <div className={cn("mt-1 text-2xl font-bold", c.tone)}>{c.value}</div>
+          </button>
+        ))}
       </div>
+
+      {filtro !== "todos" && (
+        <div className="mb-3">
+          <Button variant="ghost" size="sm" onClick={() => setFiltro("todos")}>Limpar filtro</Button>
+        </div>
+      )}
 
       <Card>
         {loading ? (
@@ -167,9 +261,10 @@ function AssinaturasPage() {
                 <TableHead>Plano</TableHead>
                 <TableHead>Ciclo</TableHead>
                 <TableHead>Valor</TableHead>
-                <TableHead>Vencimento</TableHead>
+                <TableHead>Próx. vencimento</TableHead>
+                <TableHead>Último pagamento</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="w-44"></TableHead>
+                <TableHead className="w-56"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -177,6 +272,12 @@ function AssinaturasPage() {
                 const titular = r.imobiliaria_id
                   ? r.imobiliarias?.nome_fantasia ?? "Imobiliária"
                   : users.find((u) => u.id === r.usuario_id)?.full_name ?? "Corretor";
+                const venc = parseDate(r.proximo_vencimento);
+                const atrasado = !!venc && venc < hoje && (r.status === "ativa" || r.status === "trial");
+                const aVencer = !!venc && venc >= hoje && venc <= em7 && (r.status === "ativa" || r.status === "trial");
+                const vencColor = atrasado ? "text-rose-600 font-medium"
+                  : aVencer ? "text-yellow-600 font-medium"
+                  : venc ? "text-emerald-700" : "text-muted-foreground";
                 return (
                   <TableRow key={r.id}>
                     <TableCell>
@@ -186,28 +287,50 @@ function AssinaturasPage() {
                     <TableCell>{r.planos?.nome ?? "—"}</TableCell>
                     <TableCell><Badge variant="secondary">{r.ciclo}</Badge></TableCell>
                     <TableCell>{fmtBRL(Number(r.valor))}</TableCell>
-                    <TableCell>{r.proximo_vencimento ? new Date(r.proximo_vencimento).toLocaleDateString("pt-BR") : "—"}</TableCell>
+                    <TableCell>
+                      <div className={cn("flex items-center gap-2", vencColor)}>
+                        {venc ? venc.toLocaleDateString("pt-BR") : "—"}
+                        {atrasado && (
+                          <Badge variant="outline" className="border-rose-500/40 bg-rose-500/10 text-rose-700">Em atraso</Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {r.ultimo_pagamento_em ? new Date(r.ultimo_pagamento_em).toLocaleDateString("pt-BR") : <span className="text-muted-foreground">Nunca</span>}
+                    </TableCell>
                     <TableCell><Badge variant="outline" className={STATUS_STYLE[r.status]}>{r.status}</Badge></TableCell>
                     <TableCell className="text-right">
                       <Link to="/assinaturas/$id" params={{ id: r.id }}>
                         <Button variant="ghost" size="icon" title="Detalhes"><ExternalLink className="h-4 w-4" /></Button>
                       </Link>
-                      <Button variant="ghost" size="icon" onClick={() => toggleStatus(r)} title={r.status === "ativa" ? "Bloquear" : "Liberar"}>
-                        {r.status === "ativa" ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
-                      </Button>
+                      {r.status === "bloqueada" ? (
+                        <Button variant="ghost" size="icon" onClick={() => setDesbloqueioAlvo(r)} title="Liberar">
+                          <Unlock className="h-4 w-4" />
+                        </Button>
+                      ) : r.status !== "cancelada" && (
+                        <Button variant="ghost" size="icon" onClick={() => { setBloqueioAlvo(r); setBloqueioMotivo(""); }} title="Bloquear">
+                          <Lock className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {r.status !== "cancelada" && (
+                        <Button variant="ghost" size="icon" onClick={() => { setCancelAlvo(r); setCancelMotivo(""); setCancelConfirm(false); }} title="Cancelar">
+                          <XCircle className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button variant="ghost" size="sm" onClick={() => openEdit(r)}>Editar</Button>
                     </TableCell>
                   </TableRow>
                 );
               })}
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">Nenhuma assinatura.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-8">Nenhuma assinatura.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
         )}
       </Card>
 
+      {/* Dialog editar/criar */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader><DialogTitle>{editing ? "Editar assinatura" : "Nova assinatura"}</DialogTitle></DialogHeader>
@@ -305,6 +428,62 @@ function AssinaturasPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
             <Button onClick={save}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog bloqueio */}
+      <Dialog open={!!bloqueioAlvo} onOpenChange={(o) => !o && setBloqueioAlvo(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bloquear assinatura</DialogTitle>
+            <DialogDescription>O cliente perderá acesso até ser desbloqueado.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Motivo do bloqueio *</Label>
+            <Textarea rows={3} value={bloqueioMotivo} onChange={(e) => setBloqueioMotivo(e.target.value)} placeholder="Ex.: inadimplência há 30 dias" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBloqueioAlvo(null)}>Cancelar</Button>
+            <Button variant="destructive" onClick={confirmarBloqueio}>Bloquear</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog desbloqueio */}
+      <Dialog open={!!desbloqueioAlvo} onOpenChange={(o) => !o && setDesbloqueioAlvo(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Desbloquear assinatura</DialogTitle>
+            <DialogDescription>Liberar o acesso desta assinatura agora?</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDesbloqueioAlvo(null)}>Cancelar</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={confirmarDesbloqueio}>Desbloquear</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog cancelamento */}
+      <Dialog open={!!cancelAlvo} onOpenChange={(o) => !o && setCancelAlvo(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancelar assinatura</DialogTitle>
+            <DialogDescription className="text-rose-600">O cliente perderá acesso imediatamente.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label>Motivo *</Label>
+              <Textarea rows={3} value={cancelMotivo} onChange={(e) => setCancelMotivo(e.target.value)} />
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox checked={cancelConfirm} onCheckedChange={(v) => setCancelConfirm(!!v)} />
+              Confirmo o cancelamento
+            </label>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelAlvo(null)}>Voltar</Button>
+            <Button variant="destructive" onClick={confirmarCancelamento}>Cancelar assinatura</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
