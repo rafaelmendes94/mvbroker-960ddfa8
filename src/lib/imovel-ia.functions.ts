@@ -23,6 +23,32 @@ const Input = z.object({
 const SYSTEM_PROMPT =
   "Você é um redator imobiliário profissional brasileiro. Escreva descrições de imóveis envolventes, claras, em português do Brasil, com 2 a 4 parágrafos curtos. Destaque diferenciais, localização, lazer e oportunidade. Não invente atributos não fornecidos. Não use markdown.";
 
+const SYSTEM_PROMPT_PADRAO_ANUNCIO = `Você é um redator imobiliário profissional brasileiro especialista em legendas de anúncios para Marketplace, OLX, Instagram e Facebook.
+Gere a legenda EXATAMENTE no formato abaixo, com quebras de linha duplas entre blocos, sem markdown, sem títulos de seção, sem numeração, sem aspas, sem comentários extras.
+Use SOMENTE os dados fornecidos — não invente atributos. Se um dado não existir, omita a linha correspondente (não escreva "não informado").
+
+FORMATO OBRIGATÓRIO:
+
+🏡 [Chamada principal curta e persuasiva, 1 linha]
+
+✅ [característica 1]
+✅ [característica 2]
+✅ [característica 3]
+(uma linha ✅ por característica/cômodo/infraestrutura relevante)
+
+✨ [diferencial 1]
+✨ [diferencial 2]
+✨ [diferencial 3]
+(uma linha ✨ por diferencial — acabamento, localização, proximidades)
+
+📐 Área privativa: [X]m²
+📐 Área total: [X]m²
+(inclua apenas as áreas informadas)
+
+💰 R$ [valor formatado em pt-BR]
+
+📲 Chame no WhatsApp para agendar uma visita.`;
+
 export const gerarDescricaoImovel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => Input.parse(data))
