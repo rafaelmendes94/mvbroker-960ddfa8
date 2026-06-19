@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { logImovel } from "@/lib/audit";
+import { compressImageToWebp } from "@/lib/imageCompress";
 
 type Img = {
   id: string;
@@ -43,10 +44,14 @@ export function ImovelGaleria({ imovelId }: { imovelId: string | null }) {
     try {
       const { data: u } = await supabase.auth.getUser();
       for (let i = 0; i < files.length; i++) {
-        const f = files[i];
-        const ext = f.name.split(".").pop();
+        const original = files[i];
+        const f = await compressImageToWebp(original);
+        const ext = (f.name.split(".").pop() || "webp").toLowerCase();
         const path = `${imovelId}/${Date.now()}-${i}.${ext}`;
-        const up = await supabase.storage.from("imoveis").upload(path, f);
+        const up = await supabase.storage.from("imoveis").upload(path, f, {
+          contentType: f.type || "image/webp",
+          upsert: false,
+        });
         if (up.error) { toast.error(up.error.message); continue; }
         await supabase.from("imovel_imagens").insert({
           imovel_id: imovelId,

@@ -3,6 +3,7 @@ import { Star, Trash2, Upload, ArrowUp, ArrowDown, Loader2 } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { compressImageToWebp } from "@/lib/imageCompress";
 
 type Img = {
   id: string;
@@ -54,10 +55,14 @@ export function GaleriaUpload({
     try {
       const { data: u } = await supabase.auth.getUser();
       for (let i = 0; i < files.length; i++) {
-        const f = files[i];
-        const ext = f.name.split(".").pop();
+        const original = files[i];
+        const f = await compressImageToWebp(original);
+        const ext = (f.name.split(".").pop() || "webp").toLowerCase();
         const path = `${tipo}/${estruturaId}/${Date.now()}-${i}.${ext}`;
-        const up = await supabase.storage.from("estrutura-imagens").upload(path, f);
+        const up = await supabase.storage.from("estrutura-imagens").upload(path, f, {
+          contentType: f.type || "image/webp",
+          upsert: false,
+        });
         if (up.error) { toast.error(up.error.message); continue; }
         const ordem = imgs.length + i;
         await supabase.from("estrutura_imagens").insert({
