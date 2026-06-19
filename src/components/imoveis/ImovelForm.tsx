@@ -472,7 +472,40 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               <Input value={form.titulo} onChange={(e) => set("titulo", e.target.value)} placeholder="Ex: Apartamento 3 quartos frente mar" required />
             </div>
             <div className="space-y-1.5"><Label className="text-xs">Unidade</Label><Input value={form.unidade} onChange={(e) => set("unidade", e.target.value)} /></div>
-            <div className="space-y-1.5"><Label className="text-xs">Box</Label><Input value={form.box} onChange={(e) => set("box", e.target.value)} /></div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Box</Label>
+              {(() => {
+                const boxes = form.box ? form.box.split(",").map((b) => b.trim()) : [""];
+                const updateBoxes = (arr: string[]) => set("box", arr.map((b) => b.trim()).filter((b, i, a) => b !== "" || a.length === 1).join(", "));
+                return (
+                  <div className="space-y-1.5">
+                    {boxes.map((b, i) => (
+                      <div key={i} className="flex gap-1.5">
+                        <Input
+                          value={b}
+                          onChange={(e) => {
+                            const next = [...boxes];
+                            next[i] = e.target.value;
+                            updateBoxes(next);
+                          }}
+                          placeholder={`Box ${i + 1}`}
+                        />
+                        {boxes.length > 1 && (
+                          <Button type="button" variant="outline" size="icon" onClick={() => updateBoxes(boxes.filter((_, j) => j !== i))}>
+                            ×
+                          </Button>
+                        )}
+                        {i === boxes.length - 1 && (
+                          <Button type="button" variant="outline" size="icon" onClick={() => updateBoxes([...boxes, ""])}>
+                            +
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
             <div className="space-y-1.5"><Label className="text-xs">Quadra</Label><Input value={form.quadra} onChange={(e) => set("quadra", e.target.value)} /></div>
             <div className="space-y-1.5"><Label className="text-xs">Lote</Label><Input value={form.lote} onChange={(e) => set("lote", e.target.value)} /></div>
           </div>
