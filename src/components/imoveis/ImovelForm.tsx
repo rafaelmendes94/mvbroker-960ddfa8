@@ -11,6 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useSystemOptions } from "@/hooks/use-system-options";
 import { gerarDescricaoImovel } from "@/lib/imovel-ia.functions";
+import {
+  listFeedPersonalizadoIds,
+  setImovelInFeedPersonalizado,
+} from "@/lib/feed-personalizado.functions";
 import { logAudit, logImovel } from "@/lib/audit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
