@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { logImovel } from "@/lib/audit";
+import { compressImageToWebp } from "@/lib/imageCompress";
 
 type Img = {
   id: string;
