@@ -526,12 +526,13 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             <div className="space-y-1.5"><Label className="text-xs">Lote</Label><Input value={form.lote} onChange={(e) => set("lote", e.target.value)} /></div>
           </div>
 
-          <QuickPick
+          <QuickPickEditable
             label="Tipo do Imóvel"
             icon={<Home className="w-3.5 h-3.5" />}
             options={tiposLabels}
             value={form.tipo_imovel}
             onChange={(v) => set("tipo_imovel", String(v))}
+            onAddOption={addTipoImovel}
             className="mb-4"
           />
 
