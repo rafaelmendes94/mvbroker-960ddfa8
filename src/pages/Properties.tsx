@@ -437,6 +437,7 @@ export default function Properties() {
   const [showFilters, setShowFilters] = useState(true);
   const [filterCity, setFilterCity] = useState("");
   const [filterBedrooms, setFilterBedrooms] = useState("");
+  const [filterSuites, setFilterSuites] = useState("");
   const [filterPriceMin, setFilterPriceMin] = useState("");
   const [filterPriceMax, setFilterPriceMax] = useState("");
   const [filterCondition, setFilterCondition] = useState("");
