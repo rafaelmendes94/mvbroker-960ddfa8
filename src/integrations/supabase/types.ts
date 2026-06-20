@@ -1272,6 +1272,7 @@ export type Database = {
           created_by: string | null
           data_captacao: string | null
           data_vencimento_exclusividade: string | null
+          data_venda: string | null
           decorado: boolean
           descricao: string | null
           destaque_categoria: string | null
@@ -1302,6 +1303,7 @@ export type Database = {
           outras_caracteristicas: string[]
           padrao: string | null
           pdf_comercial_path: string | null
+          plataforma_venda: string | null
           portais_permitidos: string[]
           posicao_predio: string | null
           posicao_solar: string | null
@@ -1356,6 +1358,7 @@ export type Database = {
           created_by?: string | null
           data_captacao?: string | null
           data_vencimento_exclusividade?: string | null
+          data_venda?: string | null
           decorado?: boolean
           descricao?: string | null
           destaque_categoria?: string | null
@@ -1386,6 +1389,7 @@ export type Database = {
           outras_caracteristicas?: string[]
           padrao?: string | null
           pdf_comercial_path?: string | null
+          plataforma_venda?: string | null
           portais_permitidos?: string[]
           posicao_predio?: string | null
           posicao_solar?: string | null
@@ -1440,6 +1444,7 @@ export type Database = {
           created_by?: string | null
           data_captacao?: string | null
           data_vencimento_exclusividade?: string | null
+          data_venda?: string | null
           decorado?: boolean
           descricao?: string | null
           destaque_categoria?: string | null
@@ -1470,6 +1475,7 @@ export type Database = {
           outras_caracteristicas?: string[]
           padrao?: string | null
           pdf_comercial_path?: string | null
+          plataforma_venda?: string | null
           portais_permitidos?: string[]
           posicao_predio?: string | null
           posicao_solar?: string | null
