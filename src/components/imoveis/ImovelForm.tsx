@@ -181,7 +181,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           local_chaves: initial.local_chaves ?? "",
           data_vencimento_exclusividade: initial.data_vencimento_exclusividade ?? "",
           termo_exclusividade_path: initial.termo_exclusividade_path ?? "",
-          dormitorios: initial.dormitorios ?? 0, banheiros: initial.banheiros ?? 0,
+          dormitorios: initial.dormitorios ?? 0, suites: initial.suites ?? 0, banheiros: initial.banheiros ?? 0,
           lavabo: initial.lavabo ?? 0, vagas: initial.vagas ?? 0, elevadores: initial.elevadores ?? 0,
           area_total: initial.area_total != null ? String(initial.area_total) : "",
           area_privativa: initial.area_privativa != null ? String(initial.area_privativa) : "",
