@@ -1805,6 +1805,39 @@ export default function Properties() {
         onUpdateProperty={(updated) => {
           setPropertyList((prev: any) => prev.map((p: any) => (p.id === updated.id ? updated : p)));
           setSelectedProperty(updated);
+          // Persist to DB (only for real DB rows — uuid)
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(updated.id);
+          if (!isUuid) return;
+          const patch: Record<string, any> = {
+            titulo: updated.title,
+            preco: updated.price ?? null,
+            preco_parcelado: updated.priceInstallment ?? null,
+            area_total: updated.area ?? null,
+            area_privativa: updated.privateArea ?? null,
+            dormitorios: updated.bedrooms ?? null,
+            banheiros: updated.bathrooms ?? null,
+            vagas: updated.parking ?? null,
+            descricao: updated.description ?? null,
+            posicao_predio: updated.posicaoPredio ?? null,
+            posicao_solar: updated.posicaoSolar ?? null,
+            vista: updated.vista ?? null,
+            condicao: updated.condicao ?? null,
+            infraestrutura: updated.infraestrutura ?? [],
+            unidade: updated.unitNumber ?? null,
+            box: updated.boxNumber ?? null,
+            quadra: updated.quadra ?? null,
+            lote: updated.lote ?? null,
+            local_chaves: updated.keysLocation ?? null,
+            responsavel_nome: updated.owner ?? null,
+            responsavel_telefone: updated.ownerPhone ?? null,
+            tipo_proprietario: updated.ownerType ?? null,
+            comissao_percentual: updated.commission ?? null,
+            bonus: updated.bonus != null ? String(updated.bonus) : null,
+            validade_bonus: updated.bonusExpiry || null,
+          };
+          supabase.from("imoveis").update(patch as never).eq("id", updated.id).then(({ error }: any) => {
+            if (error) toast.error("Falha ao salvar no banco: " + error.message);
+          });
         }}
         onFilterByTitle={(title) => { setSelectedProperty(null); setSearch(title.split(" ").slice(0, 2).join(" ")); setActiveCategory("todos"); }}
         onFilterByCondition={(cond) => { setSelectedProperty(null); setFilterCondition(cond); setShowFilters(true); setActiveCategory("todos"); }}
@@ -2747,12 +2780,41 @@ function PropertyRow({
 
         </div>
 
-        {/* ── COL 4: Chaves + Datas + Status ── */}
-        <div className="w-full md:flex-1 md:min-w-[220px] md:max-w-[240px] flex-shrink-0 md:border-r border-border px-4 py-3 flex flex-col justify-center gap-1.5" onClick={(e: any) => e.stopPropagation()}>
+        {/* ── COL 4: Proprietário + Chaves + Datas + Status ── */}
+        <div className="w-full md:flex-1 md:min-w-[220px] md:max-w-[260px] flex-shrink-0 md:border-r border-border px-4 py-3 flex flex-col justify-center gap-1.5" onClick={(e: any) => e.stopPropagation()}>
 
+          {/* Proprietário */}
+          <div className="border-b border-border pb-1.5 mb-0.5">
+            <div className="flex items-center gap-1 mb-0.5">
+              <User className="w-3 h-3 text-primary flex-shrink-0" />
+              <span className="text-[9px] font-black text-primary uppercase tracking-wider">Proprietário</span>
+            </div>
+            {property.owner ? (
+              <button
+                onClick={(e) => { e.stopPropagation(); onFilterByOwner?.(property.owner!); }}
+                className="text-[12px] font-bold text-foreground leading-tight hover:text-primary transition-colors text-left truncate w-full"
+                title="Filtrar por este proprietário"
+              >{property.owner}</button>
+            ) : (
+              <span className="text-[11px] text-muted-foreground italic">Sem proprietário</span>
+            )}
+            {property.ownerPhone && (
+              <a
+                href={`https://wa.me/55${property.ownerPhone.replace(/\D/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1 text-[10px] text-emerald-500 hover:text-emerald-400 font-semibold mt-0.5"
+              >
+                <Phone className="w-2.5 h-2.5" /> {property.ownerPhone}
+              </a>
+            )}
+          </div>
+
+          {/* Chaves */}
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground border-b border-border pb-1.5 mb-0.5">
             <Key className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
-            <span className="font-bold text-foreground leading-tight">{property.keysLocation || "Não informado"}</span>
+            <span className="font-bold text-foreground leading-tight truncate">{property.keysLocation || "Chaves: não informado"}</span>
           </div>
           {/* Dates */}
           <div className="space-y-0.5 text-[10px] text-muted-foreground">
