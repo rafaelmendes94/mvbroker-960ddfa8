@@ -134,7 +134,7 @@ const INITIAL: FormState = {
   condicoes_pagamento: [],
   responsavel_nome: "", responsavel_telefone: "", tipo_proprietario: "",
   local_chaves: "", data_vencimento_exclusividade: "", termo_exclusividade_path: "",
-  dormitorios: 0, banheiros: 0, lavabo: 0, vagas: 0, elevadores: 0,
+  dormitorios: 0, suites: 0, banheiros: 0, lavabo: 0, vagas: 0, elevadores: 0,
   area_total: "", area_privativa: "",
   condicao: "", posicao_predio: "", posicao_solar: "", vista: "",
   vista_mar: false, decorado: false, aceita_permuta: false,
