@@ -2581,21 +2581,23 @@ function PropertyRow({
         </div>
 
         {/* ── COL 2: Identidade + Dados Técnicos ── */}
-        <div className="flex-1 min-w-0 md:max-w-[360px] md:border-r border-border px-4 py-3 flex flex-col justify-center gap-1.5 overflow-hidden">
-          {/* Row 1: Title + Code + Site/Destaque toggles */}
-          <div className="flex items-center gap-2 min-w-0">
+        <div className="flex-1 min-w-0 md:basis-[380px] md:max-w-[440px] md:border-r border-border px-4 py-3 flex flex-col justify-center gap-2 overflow-hidden">
+          {/* Row 1: Title + Code */}
+          <div className="flex items-start gap-2 min-w-0">
             <h3
-              className="font-bold text-card-foreground text-base truncate hover:text-primary cursor-pointer transition-colors leading-tight uppercase"
+              className="flex-1 min-w-0 font-bold text-card-foreground text-base hover:text-primary cursor-pointer transition-colors leading-snug uppercase line-clamp-2 break-words"
               onClick={() => onSelect?.(property)}
-              title="Ver detalhes do imóvel"
+              title={property.title}
             >{property.title}</h3>
             {property.code && (
-              <span className="text-[11px] font-black text-muted-foreground bg-muted px-2 py-0.5 rounded flex-shrink-0">{property.code}</span>
+              <span className="text-[11px] font-black text-muted-foreground bg-muted px-2 py-0.5 rounded flex-shrink-0 mt-0.5">{property.code}</span>
             )}
-            <div className="flex items-center gap-1 flex-shrink-0 ml-auto">
-              <SiteToggleButton propertyId={property.id} field="ativo_site" icon={Globe} activeColor="text-emerald-500 bg-emerald-500/10" title="Ativo no Site" showLabel={false} />
-              <DestaqueSelector propertyId={property.id} compact />
-            </div>
+          </div>
+
+          {/* Row 1b: Site/Destaque toggles */}
+          <div className="flex items-center gap-1 flex-wrap">
+            <SiteToggleButton propertyId={property.id} field="ativo_site" icon={Globe} activeColor="text-emerald-500 bg-emerald-500/10" title="Ativo no Site" showLabel={false} />
+            <DestaqueSelector propertyId={property.id} compact />
           </div>
 
           {/* Row 2: Empreendimento + Units */}
