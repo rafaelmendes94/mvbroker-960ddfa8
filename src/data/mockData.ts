@@ -11,6 +11,7 @@ export interface Property {
   area: number;
   privateArea?: number;
   bedrooms: number;
+  suites?: number;
   bathrooms: number;
   parking: number;
   broker: string;
