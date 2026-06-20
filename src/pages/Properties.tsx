@@ -579,6 +579,7 @@ export default function Properties() {
         area: Number(row.area_total || 0),
         privateArea: Number(row.area_privativa || 0),
         bedrooms: row.dormitorios || 0,
+        suites: row.suites || 0,
         bathrooms: row.banheiros || 0,
         parking: row.vagas || 0,
         broker: owner?.full_name?.trim() || "Corretor",
