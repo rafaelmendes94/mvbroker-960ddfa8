@@ -1805,6 +1805,39 @@ export default function Properties() {
         onUpdateProperty={(updated) => {
           setPropertyList((prev: any) => prev.map((p: any) => (p.id === updated.id ? updated : p)));
           setSelectedProperty(updated);
+          // Persist to DB (only for real DB rows — uuid)
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(updated.id);
+          if (!isUuid) return;
+          const patch: Record<string, any> = {
+            titulo: updated.title,
+            preco: updated.price ?? null,
+            preco_parcelado: updated.priceInstallment ?? null,
+            area_total: updated.area ?? null,
+            area_privativa: updated.privateArea ?? null,
+            dormitorios: updated.bedrooms ?? null,
+            banheiros: updated.bathrooms ?? null,
+            vagas: updated.parking ?? null,
+            descricao: updated.description ?? null,
+            posicao_predio: updated.posicaoPredio ?? null,
+            posicao_solar: updated.posicaoSolar ?? null,
+            vista: updated.vista ?? null,
+            condicao: updated.condicao ?? null,
+            infraestrutura: updated.infraestrutura ?? [],
+            unidade: updated.unitNumber ?? null,
+            box: updated.boxNumber ?? null,
+            quadra: updated.quadra ?? null,
+            lote: updated.lote ?? null,
+            local_chaves: updated.keysLocation ?? null,
+            responsavel_nome: updated.owner ?? null,
+            responsavel_telefone: updated.ownerPhone ?? null,
+            tipo_proprietario: updated.ownerType ?? null,
+            comissao_percentual: updated.commission ?? null,
+            bonus: updated.bonus != null ? String(updated.bonus) : null,
+            validade_bonus: updated.bonusExpiry || null,
+          };
+          supabase.from("imoveis").update(patch as never).eq("id", updated.id).then(({ error }: any) => {
+            if (error) toast.error("Falha ao salvar no banco: " + error.message);
+          });
         }}
         onFilterByTitle={(title) => { setSelectedProperty(null); setSearch(title.split(" ").slice(0, 2).join(" ")); setActiveCategory("todos"); }}
         onFilterByCondition={(cond) => { setSelectedProperty(null); setFilterCondition(cond); setShowFilters(true); setActiveCategory("todos"); }}
