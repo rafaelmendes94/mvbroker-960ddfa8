@@ -90,7 +90,13 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-6 py-6">
-        <Link to="/dashboard" onClick={onNavigate} className="flex items-center gap-3 group">
+        <a
+          href="https://sistemamvbroker.com.br"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onNavigate}
+          className="flex items-center gap-3 group"
+        >
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-[image:var(--gradient-accent)] text-accent-foreground shrink-0 shadow-[var(--shadow-accent)] transition-transform group-hover:scale-105">
             <Building2 className="h-5 w-5" />
           </div>
@@ -100,7 +106,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
               {ROLE_LABEL[role]}
             </div>
           </div>
-        </Link>
+        </a>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-2 space-y-2">
