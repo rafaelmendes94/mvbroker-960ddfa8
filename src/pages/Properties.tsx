@@ -1329,6 +1329,13 @@ export default function Properties() {
                     <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
                   </select>
                 </div>
+                <div className="flex-1 min-w-[60px]">
+                  <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5 block whitespace-nowrap">Suítes</label>
+                  <select value={filterSuites} onChange={(e) => setFilterSuites(e.target.value)} className="w-full px-2 py-1.5 rounded border border-input text-[11px] bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+                    <option value="">-</option>
+                    <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
+                  </select>
+                </div>
                 <div className="flex-1 min-w-[55px]">
                   <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5 block whitespace-nowrap">Vagas</label>
                   <select value={filterParking} onChange={(e) => setFilterParking(e.target.value)} className="w-full px-2 py-1.5 rounded border border-input text-[11px] bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
