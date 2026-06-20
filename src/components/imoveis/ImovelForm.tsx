@@ -428,6 +428,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         data_vencimento_exclusividade: form.data_vencimento_exclusividade || null,
         termo_exclusividade_path: form.termo_exclusividade_path || null,
         dormitorios: form.dormitorios || null,
+        suites: form.suites || null,
         banheiros: form.banheiros || null,
         lavabo: form.lavabo || null,
         vagas: form.vagas || null,
