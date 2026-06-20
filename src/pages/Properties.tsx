@@ -845,10 +845,10 @@ export default function Properties() {
     navigate(`/contratos?${params.toString()}`);
   };
 
-  const hasActiveFilters = filterCity || filterBedrooms || filterPriceMin || filterPriceMax || filterCondition || filterEmpreendimento || filterType || filterOwner || filterNeighborhood || filterStreet || filterCode || filterParking;
+  const hasActiveFilters = filterCity || filterBedrooms || filterSuites || filterPriceMin || filterPriceMax || filterCondition || filterEmpreendimento || filterType || filterOwner || filterNeighborhood || filterStreet || filterCode || filterParking;
 
   const clearFilters = () => {
-    setFilterCity(""); setFilterBedrooms(""); setFilterPriceMin(""); setFilterPriceMax(""); setFilterCondition("");
+    setFilterCity(""); setFilterBedrooms(""); setFilterSuites(""); setFilterPriceMin(""); setFilterPriceMax(""); setFilterCondition("");
     setFilterEmpreendimento(""); setFilterType(""); setFilterOwner(""); setFilterNeighborhood(""); setFilterStreet(""); setFilterCode(""); setFilterParking(""); setSearch("");
     setShowInactive(false); setSortBy("default");
   };
