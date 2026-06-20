@@ -437,6 +437,7 @@ export default function Properties() {
   const [showFilters, setShowFilters] = useState(true);
   const [filterCity, setFilterCity] = useState("");
   const [filterBedrooms, setFilterBedrooms] = useState("");
+  const [filterSuites, setFilterSuites] = useState("");
   const [filterPriceMin, setFilterPriceMin] = useState("");
   const [filterPriceMax, setFilterPriceMax] = useState("");
   const [filterCondition, setFilterCondition] = useState("");
@@ -578,6 +579,7 @@ export default function Properties() {
         area: Number(row.area_total || 0),
         privateArea: Number(row.area_privativa || 0),
         bedrooms: row.dormitorios || 0,
+        suites: row.suites || 0,
         bathrooms: row.banheiros || 0,
         parking: row.vagas || 0,
         broker: owner?.full_name?.trim() || "Corretor",
@@ -843,10 +845,10 @@ export default function Properties() {
     navigate(`/contratos?${params.toString()}`);
   };
 
-  const hasActiveFilters = filterCity || filterBedrooms || filterPriceMin || filterPriceMax || filterCondition || filterEmpreendimento || filterType || filterOwner || filterNeighborhood || filterStreet || filterCode || filterParking;
+  const hasActiveFilters = filterCity || filterBedrooms || filterSuites || filterPriceMin || filterPriceMax || filterCondition || filterEmpreendimento || filterType || filterOwner || filterNeighborhood || filterStreet || filterCode || filterParking;
 
   const clearFilters = () => {
-    setFilterCity(""); setFilterBedrooms(""); setFilterPriceMin(""); setFilterPriceMax(""); setFilterCondition("");
+    setFilterCity(""); setFilterBedrooms(""); setFilterSuites(""); setFilterPriceMin(""); setFilterPriceMax(""); setFilterCondition("");
     setFilterEmpreendimento(""); setFilterType(""); setFilterOwner(""); setFilterNeighborhood(""); setFilterStreet(""); setFilterCode(""); setFilterParking(""); setSearch("");
     setShowInactive(false); setSortBy("default");
   };
@@ -937,6 +939,7 @@ export default function Properties() {
       // Advanced filters
       if (filterCity && p.city !== filterCity) return false;
       if (filterBedrooms && p.bedrooms < parseInt(filterBedrooms)) return false;
+      if (filterSuites && (p.suites ?? 0) < parseInt(filterSuites)) return false;
       if (filterPriceMin && p.price < parseInt(filterPriceMin)) return false;
       if (filterPriceMax && p.price > parseInt(filterPriceMax)) return false;
       if (filterCondition && !(p.paymentConditions?.some(c => c.toLowerCase().includes(filterCondition.toLowerCase())))) return false;
@@ -951,12 +954,12 @@ export default function Properties() {
 
       return true;
     });
-  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive]);
+  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeCategory, search, filterCity, filterBedrooms, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy]);
+  }, [activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy]);
 
   const sorted = useMemo(() => {
     if (sortBy === "default") return filtered;
@@ -1322,6 +1325,13 @@ export default function Properties() {
                 <div className="flex-1 min-w-[60px]">
                   <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5 block whitespace-nowrap">Quartos</label>
                   <select value={filterBedrooms} onChange={(e) => setFilterBedrooms(e.target.value)} className="w-full px-2 py-1.5 rounded border border-input text-[11px] bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+                    <option value="">-</option>
+                    <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
+                  </select>
+                </div>
+                <div className="flex-1 min-w-[60px]">
+                  <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5 block whitespace-nowrap">Suítes</label>
+                  <select value={filterSuites} onChange={(e) => setFilterSuites(e.target.value)} className="w-full px-2 py-1.5 rounded border border-input text-[11px] bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
                     <option value="">-</option>
                     <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
                   </select>
@@ -1717,10 +1727,17 @@ export default function Properties() {
                   {streets.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Quartos</label>
                   <select value={filterBedrooms} onChange={(e) => setFilterBedrooms(e.target.value)} className="w-full px-3 py-2.5 rounded-lg border border-input text-sm bg-background text-foreground">
+                    <option value="">-</option>
+                    <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Suítes</label>
+                  <select value={filterSuites} onChange={(e) => setFilterSuites(e.target.value)} className="w-full px-3 py-2.5 rounded-lg border border-input text-sm bg-background text-foreground">
                     <option value="">-</option>
                     <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
                   </select>
