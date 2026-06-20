@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Sparkles, TrendingUp, Flame, Coins, Star, Waves, Crown,
-  Building2, RefreshCw, ImageIcon, MapPin, BedDouble, Car, Maximize,
+  Building2, RefreshCw, ImageIcon, MapPin, BedDouble, Bath, Car,
+  Scan, Maximize2, Paintbrush,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,7 @@ type Imovel = {
   padrao: string | null;
   destaque_home: boolean | null;
   dormitorios: number | null;
+  banheiros: number | null;
   vagas: number | null;
   area_privativa: number | null;
   area_total: number | null;
@@ -62,7 +64,7 @@ async function fetchImoveis(filter: (q: ReturnType<typeof base>) => ReturnType<t
 function base() {
   return supabase
     .from("imoveis")
-    .select("id, codigo_interno, titulo, cidade, bairro, preco, bonus, exclusividade, exclusivo, vista_mar, decorado, padrao, destaque_home, dormitorios, vagas, area_privativa, area_total, created_at, updated_at")
+    .select("id, codigo_interno, titulo, cidade, bairro, preco, bonus, exclusividade, exclusivo, vista_mar, decorado, padrao, destaque_home, dormitorios, banheiros, vagas, area_privativa, area_total, created_at, updated_at")
     .or("arquivado.is.null,arquivado.eq.false");
 }
 async function attachCapas(items: Imovel[]): Promise<Imovel[]> {
@@ -123,12 +125,10 @@ function OportunidadesPage() {
         description="As melhores oportunidades disponíveis na base agora."
       />
 
-      {/* Indicadores */}
       <Indicadores resumo={resumo} loading={loading} />
 
-      {/* Seções */}
       <Secao titulo="Recém Cadastrados" icon={Sparkles} accent="text-blue-600" items={novos} loading={loading} />
-      <Secao titulo="Atualizações Recentes" icon={RefreshCw} accent="text-emerald-600" items={atualizados} loading={loading} mostraData="updated_at" />
+      <Secao titulo="Atualizações Recentes" icon={RefreshCw} accent="text-emerald-600" items={atualizados} loading={loading} />
       <Secao titulo="Exclusividades" icon={Flame} accent="text-orange-600" badge={{ label: "Exclusivo", className: "bg-orange-500" }} items={exclusivos} loading={loading} />
       <Secao titulo="Imóveis com Bônus" icon={Coins} accent="text-amber-600" badge={{ label: "Bônus", className: "bg-amber-500" }} items={bonus} loading={loading} mostraBonus />
       <Secao titulo="Destaques" icon={Star} accent="text-violet-600" items={destaques} loading={loading} />
@@ -175,7 +175,7 @@ function Indicadores({ resumo, loading }: { resumo: Resumo | null; loading: bool
 
 // ---------- Seção ---------- //
 function Secao({
-  titulo, icon: Icon, accent, items, loading, badge, mostraBonus, mostraData,
+  titulo, icon: Icon, accent, items, loading, badge, mostraBonus,
 }: {
   titulo: string;
   icon: typeof Sparkles;
@@ -184,7 +184,6 @@ function Secao({
   loading: boolean;
   badge?: { label: string; className: string };
   mostraBonus?: boolean;
-  mostraData?: "created_at" | "updated_at";
 }) {
   return (
     <section>
@@ -197,9 +196,9 @@ function Secao({
       </div>
 
       {loading ? (
-        <div className="flex gap-3 overflow-hidden">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-56 w-64 shrink-0 rounded-xl border bg-muted/30 animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-80 rounded-xl border bg-muted/30 animate-pulse" />
           ))}
         </div>
       ) : items.length === 0 ? (
@@ -207,9 +206,9 @@ function Secao({
           Nenhum imóvel nesta seção.
         </div>
       ) : (
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {items.map((im) => (
-            <ImovelCardSm key={im.id} im={im} badge={badge} mostraBonus={mostraBonus} mostraData={mostraData} />
+            <OportunidadeCard key={im.id} im={im} badge={badge} mostraBonus={mostraBonus} />
           ))}
         </div>
       )}
@@ -217,69 +216,97 @@ function Secao({
   );
 }
 
-// ---------- Card ---------- //
-function ImovelCardSm({
-  im, badge, mostraBonus, mostraData,
+// ---------- Card (mesmo padrão da grid de Imóveis, somente leitura) ---------- //
+function OportunidadeCard({
+  im, badge, mostraBonus,
 }: {
   im: Imovel;
   badge?: { label: string; className: string };
   mostraBonus?: boolean;
-  mostraData?: "created_at" | "updated_at";
 }) {
-  const cidade = [im.bairro, im.cidade].filter(Boolean).join(", ");
-  const area = im.area_privativa ?? im.area_total;
-  const dataStr = mostraData
-    ? new Date(im[mostraData]).toLocaleDateString("pt-BR")
-    : null;
-
+  const endereco = [im.bairro, im.cidade].filter(Boolean).join(", ");
   return (
-    <Link
-      to="/imoveis/$id/editar"
-      params={{ id: im.id }}
-      className="group w-64 shrink-0 snap-start overflow-hidden rounded-xl border bg-card transition hover:shadow-md"
-    >
+    <div className="elevated-card rounded-xl overflow-hidden relative transition-all duration-300 group/card border bg-card">
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {im.capa ? (
           <img
             src={im.capa}
             alt={im.titulo ?? "Imóvel"}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
           />
         ) : (
           <div className="h-full w-full grid place-items-center text-muted-foreground">
-            <ImageIcon className="h-8 w-8" />
+            <ImageIcon className="h-10 w-10" />
           </div>
         )}
-        {badge && (
-          <span className={cn("absolute right-2 top-2 rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase text-white", badge.className)}>
-            {badge.label}
-          </span>
-        )}
+
         {im.codigo_interno && (
-          <span className="absolute left-2 top-2 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+          <span className="absolute left-3 top-3 z-20 rounded bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white">
             {im.codigo_interno}
           </span>
         )}
-      </div>
-      <div className="p-3 space-y-1">
-        <h3 className="text-sm font-bold line-clamp-1">{im.titulo ?? "Sem título"}</h3>
-        <p className="flex items-center gap-1 text-xs text-muted-foreground line-clamp-1">
-          <MapPin className="h-3 w-3" /> {cidade || "—"}
-        </p>
-        <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-          {im.dormitorios ? <span className="flex items-center gap-1"><BedDouble className="h-3 w-3" />{im.dormitorios}</span> : null}
-          {im.vagas ? <span className="flex items-center gap-1"><Car className="h-3 w-3" />{im.vagas}</span> : null}
-          {area ? <span className="flex items-center gap-1"><Maximize className="h-3 w-3" />{Number(area)}m²</span> : null}
+
+        {badge && (
+          <span className={cn("absolute right-3 top-3 z-20 rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase text-white", badge.className)}>
+            {badge.label}
+          </span>
+        )}
+
+        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-end">
+          <div className="flex gap-1">
+            {im.vista_mar && (
+              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/90 text-white backdrop-blur-sm flex items-center gap-0.5">
+                <Waves className="w-2.5 h-2.5" /> Mar
+              </span>
+            )}
+            {im.decorado && (
+              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/90 text-white backdrop-blur-sm flex items-center gap-0.5">
+                <Paintbrush className="w-2.5 h-2.5" /> Dec.
+              </span>
+            )}
+          </div>
         </div>
-        <div className="flex items-center justify-between pt-1">
-          <p className="text-sm font-bold text-primary">{fmtBRL(im.preco)}</p>
-          {mostraBonus && im.bonus ? (
-            <Badge variant="outline" className="text-[10px] text-amber-700 border-amber-300">+{im.bonus}</Badge>
+      </div>
+
+      <div className="p-4 space-y-3">
+        <div>
+          <p className="text-xl font-bold text-foreground">{fmtBRL(im.preco)}</p>
+          <h3 className="font-semibold text-card-foreground text-sm uppercase mt-1 line-clamp-2">
+            {im.titulo ?? "Sem título"}
+          </h3>
+          {endereco && (
+            <div className="flex items-center gap-1 mt-1">
+              <MapPin className="w-3 h-3 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground line-clamp-1">{endereco}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4 text-xs text-muted-foreground py-2 border-y border-border">
+          {im.dormitorios ? (
+            <span className="flex items-center gap-1"><BedDouble className="w-3.5 h-3.5" /> {im.dormitorios}</span>
+          ) : null}
+          {im.banheiros ? (
+            <span className="flex items-center gap-1"><Bath className="w-3.5 h-3.5" /> {im.banheiros}</span>
+          ) : null}
+          {im.vagas ? (
+            <span className="flex items-center gap-1"><Car className="w-3.5 h-3.5" /> {im.vagas}</span>
+          ) : null}
+          {im.area_total ? (
+            <span className="flex items-center gap-1"><Scan className="w-3.5 h-3.5" /> {Number(im.area_total)}m² t.</span>
+          ) : null}
+          {im.area_privativa ? (
+            <span className="flex items-center gap-1"><Maximize2 className="w-3.5 h-3.5" /> {Number(im.area_privativa)}m² p.</span>
           ) : null}
         </div>
-        {dataStr && <p className="text-[10px] text-muted-foreground">{dataStr}</p>}
+
+        {mostraBonus && im.bonus && (
+          <Badge variant="outline" className="text-[10px] text-amber-700 border-amber-300">
+            +{im.bonus}
+          </Badge>
+        )}
       </div>
-    </Link>
+    </div>
   );
 }
