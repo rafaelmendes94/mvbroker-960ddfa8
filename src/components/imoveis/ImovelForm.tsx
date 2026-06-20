@@ -590,7 +590,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 sm:gap-4 mb-4">
             <QuickPick label="Dormitórios" icon={<BedDouble className="w-3.5 h-3.5" />} options={[0,1,2,3,4,"5+"]} value={form.dormitorios} onChange={(v) => set("dormitorios", v === "5+" ? 5 : Number(v))} />
             <QuickPick label="Suítes" icon={<BedDouble className="w-3.5 h-3.5" />} options={[0,1,2,3,4,"5+"]} value={form.suites} onChange={(v) => set("suites", v === "5+" ? 5 : Number(v))} />
             <QuickPick label="Banheiros" icon={<Bath className="w-3.5 h-3.5" />} options={[0,1,2,3,4,"5+"]} value={form.banheiros} onChange={(v) => set("banheiros", v === "5+" ? 5 : Number(v))} />
