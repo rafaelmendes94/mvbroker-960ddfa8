@@ -1727,10 +1727,17 @@ export default function Properties() {
                   {streets.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Quartos</label>
                   <select value={filterBedrooms} onChange={(e) => setFilterBedrooms(e.target.value)} className="w-full px-3 py-2.5 rounded-lg border border-input text-sm bg-background text-foreground">
+                    <option value="">-</option>
+                    <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Suítes</label>
+                  <select value={filterSuites} onChange={(e) => setFilterSuites(e.target.value)} className="w-full px-3 py-2.5 rounded-lg border border-input text-sm bg-background text-foreground">
                     <option value="">-</option>
                     <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
                   </select>
