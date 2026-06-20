@@ -939,6 +939,7 @@ export default function Properties() {
       // Advanced filters
       if (filterCity && p.city !== filterCity) return false;
       if (filterBedrooms && p.bedrooms < parseInt(filterBedrooms)) return false;
+      if (filterSuites && (p.suites ?? 0) < parseInt(filterSuites)) return false;
       if (filterPriceMin && p.price < parseInt(filterPriceMin)) return false;
       if (filterPriceMax && p.price > parseInt(filterPriceMax)) return false;
       if (filterCondition && !(p.paymentConditions?.some(c => c.toLowerCase().includes(filterCondition.toLowerCase())))) return false;
