@@ -109,7 +109,7 @@ type FormState = {
   data_vencimento_exclusividade: string;
   termo_exclusividade_path: string;
   // caract / contagens
-  dormitorios: number; banheiros: number; lavabo: number; vagas: number; elevadores: number;
+  dormitorios: number; suites: number; banheiros: number; lavabo: number; vagas: number; elevadores: number;
   area_total: string; area_privativa: string;
   condicao: string; posicao_predio: string; posicao_solar: string; vista: string;
   vista_mar: boolean; decorado: boolean; aceita_permuta: boolean;
