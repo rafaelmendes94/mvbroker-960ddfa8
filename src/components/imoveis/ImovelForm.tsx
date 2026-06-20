@@ -109,7 +109,7 @@ type FormState = {
   data_vencimento_exclusividade: string;
   termo_exclusividade_path: string;
   // caract / contagens
-  dormitorios: number; banheiros: number; lavabo: number; vagas: number; elevadores: number;
+  dormitorios: number; suites: number; banheiros: number; lavabo: number; vagas: number; elevadores: number;
   area_total: string; area_privativa: string;
   condicao: string; posicao_predio: string; posicao_solar: string; vista: string;
   vista_mar: boolean; decorado: boolean; aceita_permuta: boolean;
@@ -134,7 +134,7 @@ const INITIAL: FormState = {
   condicoes_pagamento: [],
   responsavel_nome: "", responsavel_telefone: "", tipo_proprietario: "",
   local_chaves: "", data_vencimento_exclusividade: "", termo_exclusividade_path: "",
-  dormitorios: 0, banheiros: 0, lavabo: 0, vagas: 0, elevadores: 0,
+  dormitorios: 0, suites: 0, banheiros: 0, lavabo: 0, vagas: 0, elevadores: 0,
   area_total: "", area_privativa: "",
   condicao: "", posicao_predio: "", posicao_solar: "", vista: "",
   vista_mar: false, decorado: false, aceita_permuta: false,
@@ -181,7 +181,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           local_chaves: initial.local_chaves ?? "",
           data_vencimento_exclusividade: initial.data_vencimento_exclusividade ?? "",
           termo_exclusividade_path: initial.termo_exclusividade_path ?? "",
-          dormitorios: initial.dormitorios ?? 0, banheiros: initial.banheiros ?? 0,
+          dormitorios: initial.dormitorios ?? 0, suites: initial.suites ?? 0, banheiros: initial.banheiros ?? 0,
           lavabo: initial.lavabo ?? 0, vagas: initial.vagas ?? 0, elevadores: initial.elevadores ?? 0,
           area_total: initial.area_total != null ? String(initial.area_total) : "",
           area_privativa: initial.area_privativa != null ? String(initial.area_privativa) : "",
@@ -428,6 +428,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         data_vencimento_exclusividade: form.data_vencimento_exclusividade || null,
         termo_exclusividade_path: form.termo_exclusividade_path || null,
         dormitorios: form.dormitorios || null,
+        suites: form.suites || null,
         banheiros: form.banheiros || null,
         lavabo: form.lavabo || null,
         vagas: form.vagas || null,
@@ -589,8 +590,9 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 sm:gap-4 mb-4">
             <QuickPick label="Dormitórios" icon={<BedDouble className="w-3.5 h-3.5" />} options={[0,1,2,3,4,"5+"]} value={form.dormitorios} onChange={(v) => set("dormitorios", v === "5+" ? 5 : Number(v))} />
+            <QuickPick label="Suítes" icon={<BedDouble className="w-3.5 h-3.5" />} options={[0,1,2,3,4,"5+"]} value={form.suites} onChange={(v) => set("suites", v === "5+" ? 5 : Number(v))} />
             <QuickPick label="Banheiros" icon={<Bath className="w-3.5 h-3.5" />} options={[0,1,2,3,4,"5+"]} value={form.banheiros} onChange={(v) => set("banheiros", v === "5+" ? 5 : Number(v))} />
             <QuickPick label="Lavabo" icon={<Bath className="w-3.5 h-3.5" />} options={[0,1,"2+"]} value={form.lavabo} onChange={(v) => set("lavabo", v === "2+" ? 2 : Number(v))} />
             <QuickPick label="Vagas" icon={<Car className="w-3.5 h-3.5" />} options={[0,1,2,3,"4+"]} value={form.vagas} onChange={(v) => set("vagas", v === "4+" ? 4 : Number(v))} />

@@ -1319,6 +1319,7 @@ export type Database = {
           responsavel_whatsapp: string | null
           status_exportacao: string | null
           status_imovel: string
+          suites: number | null
           termo_exclusividade_path: string | null
           tipo_imovel: string | null
           tipo_proprietario: string | null
@@ -1405,6 +1406,7 @@ export type Database = {
           responsavel_whatsapp?: string | null
           status_exportacao?: string | null
           status_imovel?: string
+          suites?: number | null
           termo_exclusividade_path?: string | null
           tipo_imovel?: string | null
           tipo_proprietario?: string | null
@@ -1491,6 +1493,7 @@ export type Database = {
           responsavel_whatsapp?: string | null
           status_exportacao?: string | null
           status_imovel?: string
+          suites?: number | null
           termo_exclusividade_path?: string | null
           tipo_imovel?: string | null
           tipo_proprietario?: string | null
