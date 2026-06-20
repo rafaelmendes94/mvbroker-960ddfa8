@@ -715,13 +715,17 @@ export default function Properties() {
   const persistStatus = async (
     propertyId: string,
     newStatus: Property["status"],
-    _extra: Record<string, any> = {}
+    extra: Record<string, any> = {}
   ) => {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(propertyId);
     if (isUuid) {
       const { error } = await supabase
         .from("imoveis")
-        .update({ status_imovel: STATUS_UI_TO_DB[newStatus], updated_at: new Date().toISOString() } as any)
+        .update({
+          status_imovel: STATUS_UI_TO_DB[newStatus],
+          updated_at: new Date().toISOString(),
+          ...extra,
+        } as any)
         .eq("id", propertyId);
       if (error) {
         toast.error("Erro ao atualizar status");
@@ -741,7 +745,13 @@ export default function Properties() {
       return;
     }
 
-    const ok = await persistStatus(propertyId, newStatus);
+    // Sai de "Vendido" → limpa data/plataforma para não computar mais como venda
+    const extra =
+      target.status === "Vendido" && newStatus !== "Vendido"
+        ? { data_venda: null, plataforma_venda: null }
+        : {};
+
+    const ok = await persistStatus(propertyId, newStatus, extra);
     if (!ok) return;
     setPropertyList((prev: any) =>
       prev.map((p: any) =>
@@ -755,7 +765,11 @@ export default function Properties() {
   const handleConfirmSold = async ({ platform, saleDate }: SoldConfirmPayload) => {
     if (!pendingSold) return;
     const propertyId = pendingSold.id;
-    const ok = await persistStatus(propertyId, "Vendido");
+    const isoSale = saleDate ? new Date(saleDate).toISOString() : new Date().toISOString();
+    const ok = await persistStatus(propertyId, "Vendido", {
+      data_venda: isoSale,
+      plataforma_venda: platform || null,
+    });
     if (!ok) return;
 
     setPropertyList((prev: any) =>
