@@ -736,7 +736,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                   const g = (window as any).google;
                   if (!g?.maps?.Geocoder) return;
                   const geocoder = new g.maps.Geocoder();
-                  geocoder.geocode({ location: { lat, lng } }, (results: any, status: string) => {
+                  geocoder.geocode({ location: { lat, lng }, region: "br" }, (results: any, status: string) => {
                     if (status !== "OK" || !results?.[0]) return;
                     const comps: any[] = results[0].address_components || [];
                     const get = (type: string) =>
@@ -745,28 +745,33 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                       comps.find((c) => c.types?.includes(type))?.short_name || "";
                     const logradouro = get("route");
                     const numero = get("street_number");
-                    const bairro = get("sublocality") || get("sublocality_level_1") || get("political");
-                    const cidade = get("administrative_area_level_2") || get("locality");
+                    const bairro =
+                      get("sublocality_level_1") || get("sublocality") || get("neighborhood") || "";
+                    const cidade = get("administrative_area_level_2") || get("locality") || "";
                     const estado = getShort("administrative_area_level_1");
                     const cep = get("postal_code");
-                    // evita re-geocode pelo efeito de endereço→mapa
-                    lastGeocodedRef.current = [
-                      [logradouro, numero].filter(Boolean).join(", "),
-                      bairro,
-                      [cidade, estado].filter(Boolean).join(" - "),
-                      cep,
-                      "Brasil",
-                    ].filter(Boolean).join(", ");
-                    setForm((p) => ({
-                      ...p,
-                      logradouro: logradouro || p.logradouro,
-                      numero: numero || p.numero,
-                      bairro: bairro || p.bairro,
-                      cidade: cidade || p.cidade,
-                      estado: estado || p.estado,
-                      cep: cep || p.cep,
-                    }));
+                    setForm((p) => {
+                      const next = {
+                        ...p,
+                        logradouro: logradouro || p.logradouro,
+                        numero: numero || p.numero,
+                        bairro: bairro || p.bairro,
+                        cidade: cidade || p.cidade,
+                        estado: estado || p.estado,
+                        cep: cep || p.cep,
+                      };
+                      // sincroniza ref para evitar re-geocode pelo efeito endereço→mapa
+                      lastGeocodedRef.current = [
+                        [next.logradouro, next.numero].filter(Boolean).join(", "),
+                        next.bairro,
+                        [next.cidade, next.estado].filter(Boolean).join(" - "),
+                        next.cep,
+                        "Brasil",
+                      ].filter(Boolean).join(", ");
+                      return next;
+                    });
                   });
+
                 } catch {
                   /* silencioso */
                 }
