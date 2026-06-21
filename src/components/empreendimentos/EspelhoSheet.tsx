@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Building2, Camera, Map as MapIcon, Table2, MapPin, Loader2,
-  Grid3x3, Upload, Plus, Trash2, Download, Link2, Link2Off, Eye, Search,
-  Bed, Bath, Car, Ruler, ExternalLink,
+  Grid3x3, Upload, Plus, Trash2, Download, Link2Off, ExternalLink,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
