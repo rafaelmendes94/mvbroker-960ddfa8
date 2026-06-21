@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Building2, Camera, Map as MapIcon, Table2, MapPin, Loader2,
-  Grid3x3, Upload, Plus, Trash2, Download, Link2, Link2Off, ExternalLink, Search,
+  Grid3x3, Upload, Plus, Trash2, Download, Link2, Link2Off, Eye, Search,
+  Bed, Bath, Car, Ruler,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -18,7 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Link } from "@tanstack/react-router";
+import { ImovelDrawer } from "@/components/imoveis/ImovelDrawer";
 import {
   STATUS_CONFIG, TIPOLOGIA_CONFIG, TIPO_LABELS, CSV_TEMPLATE, TIPO_TO_IMOVEL_FK,
   type EmpreendimentoTipo, type Unit, type UnitStatus, type Tipologia,
