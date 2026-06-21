@@ -61,6 +61,7 @@ import { Route as AuthenticatedRelatoriosAdminCorretoresRouteImport } from './ro
 import { Route as AuthenticatedRelatoriosAdminAtividadeRouteImport } from './routes/_authenticated/relatorios-admin.atividade'
 import { Route as AuthenticatedRegistrosNovoRouteImport } from './routes/_authenticated/registros.novo'
 import { Route as AuthenticatedRegistrosIdRouteImport } from './routes/_authenticated/registros.$id'
+import { Route as AuthenticatedImportacoesVrsyncRouteImport } from './routes/_authenticated/importacoes.vrsync'
 import { Route as AuthenticatedImportacoesMvBrokerRouteImport } from './routes/_authenticated/importacoes.mv-broker'
 import { Route as AuthenticatedImportacoesImoveisRouteImport } from './routes/_authenticated/importacoes.imoveis'
 import { Route as AuthenticatedImportacoesEdificiosRouteImport } from './routes/_authenticated/importacoes.edificios'
@@ -367,6 +368,12 @@ const AuthenticatedRegistrosIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedRegistrosRoute,
   } as any)
+const AuthenticatedImportacoesVrsyncRoute =
+  AuthenticatedImportacoesVrsyncRouteImport.update({
+    id: '/vrsync',
+    path: '/vrsync',
+    getParentRoute: () => AuthenticatedImportacoesRoute,
+  } as any)
 const AuthenticatedImportacoesMvBrokerRoute =
   AuthenticatedImportacoesMvBrokerRouteImport.update({
     id: '/mv-broker',
@@ -512,6 +519,7 @@ export interface FileRoutesByFullPath {
   '/importacoes/edificios': typeof AuthenticatedImportacoesEdificiosRoute
   '/importacoes/imoveis': typeof AuthenticatedImportacoesImoveisRoute
   '/importacoes/mv-broker': typeof AuthenticatedImportacoesMvBrokerRoute
+  '/importacoes/vrsync': typeof AuthenticatedImportacoesVrsyncRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/relatorios-admin/atividade': typeof AuthenticatedRelatoriosAdminAtividadeRoute
@@ -575,6 +583,7 @@ export interface FileRoutesByTo {
   '/importacoes/edificios': typeof AuthenticatedImportacoesEdificiosRoute
   '/importacoes/imoveis': typeof AuthenticatedImportacoesImoveisRoute
   '/importacoes/mv-broker': typeof AuthenticatedImportacoesMvBrokerRoute
+  '/importacoes/vrsync': typeof AuthenticatedImportacoesVrsyncRoute
   '/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/relatorios-admin/atividade': typeof AuthenticatedRelatoriosAdminAtividadeRoute
@@ -647,6 +656,7 @@ export interface FileRoutesById {
   '/_authenticated/importacoes/edificios': typeof AuthenticatedImportacoesEdificiosRoute
   '/_authenticated/importacoes/imoveis': typeof AuthenticatedImportacoesImoveisRoute
   '/_authenticated/importacoes/mv-broker': typeof AuthenticatedImportacoesMvBrokerRoute
+  '/_authenticated/importacoes/vrsync': typeof AuthenticatedImportacoesVrsyncRoute
   '/_authenticated/registros/$id': typeof AuthenticatedRegistrosIdRouteWithChildren
   '/_authenticated/registros/novo': typeof AuthenticatedRegistrosNovoRoute
   '/_authenticated/relatorios-admin/atividade': typeof AuthenticatedRelatoriosAdminAtividadeRoute
@@ -719,6 +729,7 @@ export interface FileRouteTypes {
     | '/importacoes/edificios'
     | '/importacoes/imoveis'
     | '/importacoes/mv-broker'
+    | '/importacoes/vrsync'
     | '/registros/$id'
     | '/registros/novo'
     | '/relatorios-admin/atividade'
@@ -782,6 +793,7 @@ export interface FileRouteTypes {
     | '/importacoes/edificios'
     | '/importacoes/imoveis'
     | '/importacoes/mv-broker'
+    | '/importacoes/vrsync'
     | '/registros/$id'
     | '/registros/novo'
     | '/relatorios-admin/atividade'
@@ -853,6 +865,7 @@ export interface FileRouteTypes {
     | '/_authenticated/importacoes/edificios'
     | '/_authenticated/importacoes/imoveis'
     | '/_authenticated/importacoes/mv-broker'
+    | '/_authenticated/importacoes/vrsync'
     | '/_authenticated/registros/$id'
     | '/_authenticated/registros/novo'
     | '/_authenticated/relatorios-admin/atividade'
@@ -1258,6 +1271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRegistrosIdRouteImport
       parentRoute: typeof AuthenticatedRegistrosRoute
     }
+    '/_authenticated/importacoes/vrsync': {
+      id: '/_authenticated/importacoes/vrsync'
+      path: '/vrsync'
+      fullPath: '/importacoes/vrsync'
+      preLoaderRoute: typeof AuthenticatedImportacoesVrsyncRouteImport
+      parentRoute: typeof AuthenticatedImportacoesRoute
+    }
     '/_authenticated/importacoes/mv-broker': {
       id: '/_authenticated/importacoes/mv-broker'
       path: '/mv-broker'
@@ -1450,6 +1470,7 @@ interface AuthenticatedImportacoesRouteChildren {
   AuthenticatedImportacoesEdificiosRoute: typeof AuthenticatedImportacoesEdificiosRoute
   AuthenticatedImportacoesImoveisRoute: typeof AuthenticatedImportacoesImoveisRoute
   AuthenticatedImportacoesMvBrokerRoute: typeof AuthenticatedImportacoesMvBrokerRoute
+  AuthenticatedImportacoesVrsyncRoute: typeof AuthenticatedImportacoesVrsyncRoute
   AuthenticatedImportacoesIndexRoute: typeof AuthenticatedImportacoesIndexRoute
 }
 
@@ -1462,6 +1483,7 @@ const AuthenticatedImportacoesRouteChildren: AuthenticatedImportacoesRouteChildr
     AuthenticatedImportacoesImoveisRoute: AuthenticatedImportacoesImoveisRoute,
     AuthenticatedImportacoesMvBrokerRoute:
       AuthenticatedImportacoesMvBrokerRoute,
+    AuthenticatedImportacoesVrsyncRoute: AuthenticatedImportacoesVrsyncRoute,
     AuthenticatedImportacoesIndexRoute: AuthenticatedImportacoesIndexRoute,
   }
 
