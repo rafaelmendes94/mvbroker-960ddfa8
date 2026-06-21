@@ -85,20 +85,16 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
       { key: "ano_construcao", label: "Ano de construção", type: "number" },
       { key: "construtora", label: "Construtora" },
       ...VALORES_FIELDS,
-      { key: "espelho_grupos", label: "Espelho — andares", type: "number" },
-      { key: "espelho_por_grupo", label: "Espelho — unidades por andar", type: "number" },
     ],
   },
   condominio: {
     fields: [
       { key: "tipo_condominio", label: "Tipo de condomínio" },
       { key: "numero_lotes", label: "Número de lotes", type: "number" },
-      { key: "espelho_grupos", label: "Quadras", type: "number" },
       { key: "portaria", label: "Portaria" },
       { key: "seguranca", label: "Segurança" },
       { key: "area_total", label: "Área total (m²)", type: "number" },
       ...VALORES_FIELDS,
-      { key: "espelho_por_grupo", label: "Espelho — unidades por bloco", type: "number" },
     ],
   },
   empreendimento: {
@@ -122,11 +118,10 @@ const SPECIFIC: Record<EstruturaTipo, Specific> = {
       { key: "total_lotes", label: "Total de lotes", type: "number" },
       { key: "lotes_disponiveis", label: "Lotes disponíveis", type: "number" },
       ...VALORES_FIELDS,
-      { key: "espelho_grupos", label: "Espelho — quadras", type: "number" },
-      { key: "espelho_por_grupo", label: "Espelho — lotes por quadra", type: "number" },
     ],
   },
 };
+
 
 
 const TABLE: Record<EstruturaTipo, "edificios" | "condominios" | "empreendimentos" | "loteamentos"> = {
