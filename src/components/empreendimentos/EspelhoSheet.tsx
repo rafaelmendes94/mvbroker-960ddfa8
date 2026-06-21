@@ -697,10 +697,12 @@ function UnitCell({
                   <Select value={unit.status} onValueChange={(v) => quickStatus(v as UnitStatus)}>
                     <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="indisponivel">Indisponível</SelectItem>
                       <SelectItem value="disponivel">Disponível</SelectItem>
                       <SelectItem value="reservado">Reservado</SelectItem>
                       <SelectItem value="vendido">Vendido</SelectItem>
                     </SelectContent>
+
                   </Select>
                 </div>
                 <div className="flex gap-2">
