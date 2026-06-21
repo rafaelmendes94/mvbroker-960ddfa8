@@ -20,7 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { ImovelDrawer } from "@/components/imoveis/ImovelDrawer";
+
 import {
   STATUS_CONFIG, TIPOLOGIA_CONFIG, TIPO_LABELS, CSV_TEMPLATE, TIPO_TO_IMOVEL_FK,
   type EmpreendimentoTipo, type Unit, type UnitStatus, type Tipologia,
