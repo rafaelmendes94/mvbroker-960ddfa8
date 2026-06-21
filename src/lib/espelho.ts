@@ -16,7 +16,14 @@ export interface Unit {
   suites: number | null;
   nascente: boolean;
   observacoes?: string | null;
+  imovel_id?: string | null;
 }
+
+export const TIPO_TO_IMOVEL_FK: Record<EmpreendimentoTipo, "edificio_id" | "condominio_id" | "loteamento_id"> = {
+  edificio: "edificio_id",
+  condominio: "condominio_id",
+  loteamento: "loteamento_id",
+};
 
 export const STATUS_CONFIG: Record<
   UnitStatus,

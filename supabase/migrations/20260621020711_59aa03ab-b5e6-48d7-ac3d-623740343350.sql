@@ -1,0 +1,2 @@
+ALTER TABLE public.espelho_unidades ADD COLUMN IF NOT EXISTS imovel_id uuid REFERENCES public.imoveis(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_espelho_unidades_imovel_id ON public.espelho_unidades(imovel_id);
