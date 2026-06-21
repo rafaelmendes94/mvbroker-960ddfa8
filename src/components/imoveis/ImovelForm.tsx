@@ -519,6 +519,46 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         }
       }
 
+      // Auto-vincular ao espelho de vendas pelo número da unidade
+      if (savedId) {
+        try {
+          const tipoMap: Array<{ tipo: "edificio" | "condominio" | "loteamento"; id: string }> = [
+            { tipo: "edificio", id: form.edificio_id },
+            { tipo: "condominio", id: form.condominio_id },
+            { tipo: "loteamento", id: form.loteamento_id },
+          ];
+          const ativo = tipoMap.find((t) => t.id);
+          const unidadeNum = (form.unidade || form.lote || "").trim();
+
+          // Limpa vínculo anterior deste imóvel (caso unidade/empreendimento tenha mudado)
+          await supabase
+            .from("espelho_unidades")
+            .update({ imovel_id: null } as never)
+            .eq("imovel_id", savedId);
+
+          if (ativo && unidadeNum) {
+            const { data: matches } = await supabase
+              .from("espelho_unidades")
+              .select("id, numero")
+              .eq("empreendimento_tipo", ativo.tipo)
+              .eq("empreendimento_id", ativo.id);
+            const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, "");
+            const target = (matches ?? []).find(
+              (m: any) => norm(String(m.numero)) === norm(unidadeNum),
+            );
+            if (target) {
+              await supabase
+                .from("espelho_unidades")
+                .update({ imovel_id: savedId } as never)
+                .eq("id", (target as any).id);
+              toast.success(`Vinculado ao espelho — unidade ${(target as any).numero}`);
+            }
+          }
+        } catch (err) {
+          console.warn("Falha ao vincular no espelho", err);
+        }
+      }
+
       if (!imovelId && savedId) {
         navigate({ to: "/imoveis/$id/editar", params: { id: savedId } });
       }
