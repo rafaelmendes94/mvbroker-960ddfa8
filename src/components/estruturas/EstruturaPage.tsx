@@ -18,6 +18,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import { generateSkeleton } from "@/lib/espelho";
+
 import { CepAutoFill, emptyEndereco, type Endereco } from "@/components/forms/CepAutoFill";
 import { MapPicker } from "@/components/forms/MapPicker";
 import { InfraestruturaSelect } from "@/components/forms/InfraestruturaSelect";
@@ -289,11 +291,13 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     });
 
 
+    let savedId: string | null = null;
     if (editing) {
       const { error } = await supabase.from(table).update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
       await logAudit(`${tipo}_atualizado`, `${meta.singular}: ${base.nome}`);
       toast.success("Atualizado");
+      savedId = editing.id;
     } else {
       const { data: u } = await supabase.auth.getUser();
       payload.created_by = u.user?.id ?? null;
@@ -302,8 +306,41 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
       await logAudit(`${tipo}_criado`, `${meta.singular}: ${base.nome}`);
       toast.success("Criado");
       setEditing(data);
-      return; // keep dialog open to allow image upload
+      savedId = (data as any)?.id ?? null;
     }
+
+    // Auto-gera espelho para edifício a partir de qtd_andares × qtd_apartamentos
+    if (savedId && tipo === "edificio") {
+      try {
+        const andares = Number(payload.qtd_andares);
+        const porAndar = Number(payload.qtd_apartamentos);
+        if (andares > 0 && porAndar > 0) {
+          const { data: existentes } = await supabase
+            .from("espelho_unidades" as any)
+            .select("grupo, numero")
+            .eq("empreendimento_tipo", "edificio")
+            .eq("empreendimento_id", savedId);
+          const existSet = new Set(
+            ((existentes as any[]) ?? []).map((u) => `${u.grupo}|${String(u.numero).trim()}`),
+          );
+          const grade = generateSkeleton("edificio", savedId, andares, porAndar);
+          const faltantes = grade.filter((u) => !existSet.has(`${u.grupo}|${u.numero}`));
+          if (faltantes.length > 0) {
+            const { error } = await supabase
+              .from("espelho_unidades" as any)
+              .insert(faltantes as any);
+            if (!error) {
+              toast.success(`Espelho atualizado: ${faltantes.length} unidade(s) indisponível(is) gerada(s)`);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Falha ao gerar espelho do edifício", err);
+      }
+    }
+
+    if (!editing) return; // mantém dialog aberto após criar para upload de imagens
+
     setOpen(false);
     load();
   }

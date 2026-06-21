@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Building2, Camera, Map as MapIcon, Table2, MapPin, Loader2,
   Grid3x3, Upload, Plus, Trash2, Download, Link2, Link2Off, Eye, Search,
-  Bed, Bath, Car, Ruler,
+  Bed, Bath, Car, Ruler, ExternalLink,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-roles";
@@ -94,11 +96,13 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
 
   const stats = useMemo(() => ({
     total: units.length,
+    indisponivel: units.filter(u => u.status === "indisponivel").length,
     disponivel: units.filter(u => u.status === "disponivel").length,
     reservado: units.filter(u => u.status === "reservado").length,
     vendido: units.filter(u => u.status === "vendido").length,
     grupos: new Set(units.map(u => u.grupo)).size,
   }), [units]);
+
 
   const byGroup = useMemo(() => {
     const map = new Map<number, Unit[]>();
@@ -165,12 +169,14 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
         <StatCard label={labels.unidadePlural} value={stats.total} color="bg-muted-foreground" />
+        <StatCard label="Indisponíveis" value={stats.indisponivel} color={STATUS_CONFIG.indisponivel.dotClass} />
         <StatCard label="Disponíveis" value={stats.disponivel} color={STATUS_CONFIG.disponivel.dotClass} />
         <StatCard label="Reservados" value={stats.reservado} color={STATUS_CONFIG.reservado.dotClass} />
         <StatCard label="Vendidos" value={stats.vendido} color={STATUS_CONFIG.vendido.dotClass} />
       </div>
+
 
       {/* Section tabs */}
       <div className="flex flex-wrap items-center gap-2">
@@ -693,10 +699,12 @@ function UnitCell({
                   <Select value={unit.status} onValueChange={(v) => quickStatus(v as UnitStatus)}>
                     <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="indisponivel">Indisponível</SelectItem>
                       <SelectItem value="disponivel">Disponível</SelectItem>
                       <SelectItem value="reservado">Reservado</SelectItem>
                       <SelectItem value="vendido">Vendido</SelectItem>
                     </SelectContent>
+
                   </Select>
                 </div>
                 <div className="flex gap-2">
@@ -917,12 +925,18 @@ function ImovelLinkSection({
               <Button size="sm" className="flex-1 h-7 text-xs" onClick={() => setViewerId(linked.id)}>
                 <Eye className="h-3.5 w-3.5 mr-1" /> Abrir
               </Button>
+              <Button asChild size="sm" variant="outline" className="h-7 text-xs">
+                <Link to="/imoveis/$id/editar" params={{ id: linked.id }}>
+                  <ExternalLink className="h-3.5 w-3.5 mr-1" /> Cadastro
+                </Link>
+              </Button>
               {isAdmin && (
                 <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={desvincular}>
                   <Link2Off className="h-3.5 w-3.5" />
                 </Button>
               )}
             </div>
+
           </div>
           <ImovelDrawer id={viewerId} open={!!viewerId} onOpenChange={(o) => !o && setViewerId(null)} />
         </div>
