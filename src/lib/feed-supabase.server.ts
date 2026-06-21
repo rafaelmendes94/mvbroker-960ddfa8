@@ -26,6 +26,8 @@ export function getFeedSupabase(): { client: ReturnType<typeof createClient<Data
 
   _client = createClient<Database>(url, key, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+    realtime: { params: { eventsPerSecond: 0 } },
+    global: { headers: { "X-Client-Info": "mvbroker-feed" } },
   });
   return { client: _client, error: null };
 }
