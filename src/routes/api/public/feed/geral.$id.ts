@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
       GET: async ({ params }) => {
         try {
           const { getFeedSupabase } = await import("@/lib/feed-supabase.server");
-          const { client: supabase, error: envErr } = getFeedSupabase();
+          const { client: supabase, error: envErr } = await getFeedSupabase();
           if (!supabase) {
             console.error("[feed/geral] env error:", envErr);
             return new Response(`Feed unavailable: ${envErr ?? "config error"}`, {
