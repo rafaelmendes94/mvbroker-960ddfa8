@@ -834,10 +834,8 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           </div>
 
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-6 mb-4 py-3 px-3 sm:px-4 bg-muted/50 rounded-lg">
-            <label className="flex items-center gap-2"><Switch checked={form.vista_mar} onCheckedChange={(v) => set("vista_mar", v)} /><span className="text-xs">Vista Mar</span></label>
-            <label className="flex items-center gap-2"><Switch checked={form.decorado} onCheckedChange={(v) => set("decorado", v)} /><span className="text-xs">Decorado</span></label>
-            <label className="flex items-center gap-2"><Switch checked={form.aceita_permuta} onCheckedChange={(v) => set("aceita_permuta", v)} /><span className="text-xs">Permuta</span></label>
             <label className="flex items-center gap-2"><Switch checked={inFeedPersonalizado} onCheckedChange={setInFeedPersonalizado} /><span className="text-xs font-semibold">⭐ Feed Personalizado</span></label>
+
             {isSuperAdmin && (
               <>
                 <label className="flex items-center gap-2"><Switch checked={form.ativo_site} onCheckedChange={(v) => set("ativo_site", v)} /><span className="text-xs font-semibold">🌐 Site</span></label>
@@ -862,7 +860,36 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             )}
           </div>
 
+
+          <div className="mb-4">
+            <Label className="text-xs font-semibold mb-2 block">Características</Label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { key: "vista_mar" as const, label: "Vista Mar" },
+                { key: "decorado" as const, label: "Decorado" },
+                { key: "aceita_permuta" as const, label: "Aceita Permuta" },
+              ].map(({ key, label }) => {
+                const active = !!form[key];
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => set(key, !active)}
+                    className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+                      active
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-foreground border-border hover:bg-accent"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <InfraToggle label="Infraestrutura" options={infraOpts} selected={form.infraestrutura} onChange={(s) => set("infraestrutura", s)} allowCustom onAddOption={addInfra} />
+
 
           <div className="mt-4">
             <Label className="text-xs font-semibold mb-2 block">Outras Características</Label>
