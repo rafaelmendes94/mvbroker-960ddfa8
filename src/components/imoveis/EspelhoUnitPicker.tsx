@@ -33,7 +33,7 @@ export function EspelhoUnitPicker({
   currentImovelId?: string | null;
   valueNumero: string;
   valueGrupo?: string;
-  onPick: (info: { grupo: number; numero: string }) => void;
+  onPick: (info: { grupo: string; numero: string }) => void;
   onClear?: () => void;
 }) {
   const [rows, setRows] = useState<Row[]>([]);
