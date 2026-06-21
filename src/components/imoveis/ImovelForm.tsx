@@ -306,6 +306,43 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   };
   const onEnderecoChange = (v: Endereco) => setForm((p) => ({ ...p, ...v }));
 
+  // Auto-geocode: quando o endereço acima é preenchido, posiciona o pin no mapa
+  const lastGeocodedRef = useRef<string>("");
+  useEffect(() => {
+    const { logradouro, numero, bairro, cidade, estado, cep } = form;
+    const hasMin = (logradouro && cidade) || (cep && cep.replace(/\D/g, "").length === 8);
+    if (!hasMin) return;
+    const query = [
+      [logradouro, numero].filter(Boolean).join(", "),
+      bairro,
+      [cidade, estado].filter(Boolean).join(" - "),
+      cep,
+      "Brasil",
+    ].filter(Boolean).join(", ");
+    if (query === lastGeocodedRef.current) return;
+    const handle = setTimeout(async () => {
+      try {
+        const { loadGoogleMaps } = await import("@/lib/googleMaps");
+        await loadGoogleMaps();
+        const g = (window as any).google;
+        if (!g?.maps?.Geocoder) return;
+        const geocoder = new g.maps.Geocoder();
+        geocoder.geocode({ address: query, region: "br" }, (results: any, status: string) => {
+          if (status !== "OK" || !results?.[0]) return;
+          const loc = results[0].geometry?.location;
+          if (!loc) return;
+          const lat = typeof loc.lat === "function" ? loc.lat() : loc.lat;
+          const lng = typeof loc.lng === "function" ? loc.lng() : loc.lng;
+          lastGeocodedRef.current = query;
+          setForm((p) => ({ ...p, latitude: lat, longitude: lng }));
+        });
+      } catch {
+        /* silencioso */
+      }
+    }, 700);
+    return () => clearTimeout(handle);
+  }, [form.cep, form.logradouro, form.numero, form.bairro, form.cidade, form.estado]);
+
   function handleEntitySelect(entity: EntityOption) {
     setForm((p) => ({
       ...p,
