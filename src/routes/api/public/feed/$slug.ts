@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api/public/feed/$slug")({
 
           const { data: links } = await supabase
             .from("carteira_imoveis").select("imovel_id").eq("carteira_id", carteira.id);
-          const imovelIds = (links ?? []).map((l) => l.imovel_id);
+          const imovelIds = (links ?? []).map((l: any) => l.imovel_id);
 
           let imoveis: any[] = [];
           let imagens: any[] = [];
