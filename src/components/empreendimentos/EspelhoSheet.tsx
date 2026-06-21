@@ -682,6 +682,9 @@ function UnitCell({
               <Info label="Nascente">{unit.nascente ? "Sim" : "Não"}</Info>
             </div>
 
+            <ImovelLinkSection unit={unit} isAdmin={isAdmin} onSave={onSave} />
+
+
             {isAdmin && (
               <div className="pt-2 border-t space-y-2">
                 <div>
