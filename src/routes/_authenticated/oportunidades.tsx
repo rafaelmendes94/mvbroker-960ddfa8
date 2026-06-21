@@ -72,14 +72,40 @@ async function attachCapas(items: Imovel[]): Promise<Imovel[]> {
   const ids = items.map((i) => i.id);
   const { data: imgs } = await supabase
     .from("imovel_imagens")
-    .select("imovel_id, url, capa, ordem")
+    .select("imovel_id, storage_path, url, capa, ordem")
     .in("imovel_id", ids)
     .order("capa", { ascending: false })
     .order("ordem", { ascending: true });
-  const map = new Map<string, string>();
-  (imgs ?? []).forEach((im) => {
-    if (!map.has(im.imovel_id as string) && im.url) map.set(im.imovel_id as string, im.url as string);
+  const rows = (imgs ?? []) as any[];
+
+  // Pega a primeira imagem por imóvel
+  const firstByImovel = new Map<string, any>();
+  rows.forEach((im) => {
+    if (!firstByImovel.has(im.imovel_id)) firstByImovel.set(im.imovel_id, im);
   });
+
+  // Gera signed URLs para bucket privado "imoveis"
+  const paths = Array.from(firstByImovel.values())
+    .map((im) => im.storage_path || im.url)
+    .filter((p): p is string => !!p && !p.startsWith("http"));
+  const signedMap: Record<string, string> = {};
+  if (paths.length) {
+    const { data: signed } = await supabase.storage
+      .from("imoveis")
+      .createSignedUrls(paths, 3600);
+    (signed ?? []).forEach((s: any) => {
+      if (s?.path && s?.signedUrl) signedMap[s.path] = s.signedUrl;
+    });
+  }
+
+  const map = new Map<string, string>();
+  firstByImovel.forEach((im, imovelId) => {
+    const p = im.storage_path || im.url;
+    if (!p) return;
+    const u = p.startsWith("http") ? p : signedMap[p];
+    if (u) map.set(imovelId, u);
+  });
+
   return items.map((i) => ({ ...i, capa: map.get(i.id) ?? null }));
 }
 
