@@ -777,13 +777,8 @@ function ImovelLinkSection({
   const fk = TIPO_TO_IMOVEL_FK[unit.empreendimento_tipo];
   const [linked, setLinked] = useState<ImovelLite | null>(null);
   const [loadingLinked, setLoadingLinked] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [q, setQ] = useState("");
-  const [list, setList] = useState<ImovelLite[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [viewerId, setViewerId] = useState<string | null>(null);
 
-  const SELECT_COLS = "id, titulo, codigo_interno, unidade, preco, area_total, dormitorios, suites, vagas, bairro, cidade, uf";
+  const SELECT_COLS = "id, titulo, codigo_interno, unidade, preco";
 
   async function fetchCoverFor(ids: string[]): Promise<Record<string, string>> {
     if (ids.length === 0) return {};
@@ -800,7 +795,6 @@ function ImovelLinkSection({
     return map;
   }
 
-  // Carrega o imóvel vinculado (se houver)
   useEffect(() => {
     let cancelled = false;
     async function run() {
@@ -821,53 +815,6 @@ function ImovelLinkSection({
     return () => { cancelled = true; };
   }, [unit.imovel_id]);
 
-  // Busca imóveis do mesmo empreendimento
-  useEffect(() => {
-    if (!pickerOpen) return;
-    let cancelled = false;
-    setSearching(true);
-    const t = setTimeout(async () => {
-      let query = supabase
-        .from("imoveis")
-        .select(SELECT_COLS)
-        .eq(fk, unit.empreendimento_id)
-        .eq("arquivado", false)
-        .order("unidade", { ascending: true })
-        .limit(50);
-      if (q.trim()) {
-        const term = `%${q.trim()}%`;
-        query = query.or(
-          `titulo.ilike.${term},codigo_interno.ilike.${term},unidade.ilike.${term}`,
-        );
-      }
-      const { data, error } = await query;
-      if (cancelled) return;
-      if (error) toast.error(error.message);
-      const rows = (data as any[]) ?? [];
-      const covers = await fetchCoverFor(rows.map((r) => r.id));
-      if (cancelled) return;
-      setList(rows.map((r) => ({ ...r, foto_capa_url: covers[r.id] ?? null })) as ImovelLite[]);
-      setSearching(false);
-    }, 250);
-    return () => { cancelled = true; clearTimeout(t); };
-  }, [pickerOpen, q, fk, unit.empreendimento_id]);
-
-  async function vincular(im: ImovelLite) {
-    const patch: Partial<Unit> = {
-      imovel_id: im.id,
-      valor: im.preco ?? unit.valor,
-      area: im.area_total ?? unit.area,
-      suites: im.suites ?? unit.suites,
-      vagas: im.vagas ?? unit.vagas,
-    };
-    const ok = await onSave(unit.id, patch);
-    if (ok) {
-      toast.success(`Vinculado a ${im.unidade || im.codigo_interno || im.titulo}`);
-      setLinked(im);
-      setPickerOpen(false);
-    }
-  }
-
   async function desvincular() {
     const ok = await onSave(unit.id, { imovel_id: null });
     if (ok) {
@@ -875,10 +822,6 @@ function ImovelLinkSection({
       setLinked(null);
     }
   }
-
-  const endereco = linked
-    ? [linked.bairro, linked.cidade && `${linked.cidade}${linked.uf ? "/" + linked.uf : ""}`].filter(Boolean).join(", ")
-    : "";
 
   return (
     <div className="pt-2 border-t space-y-2">
@@ -888,116 +831,37 @@ function ImovelLinkSection({
           <Loader2 className="h-3.5 w-3.5 animate-spin" /> carregando…
         </div>
       ) : linked ? (
-        <div className="rounded-lg border bg-card overflow-hidden shadow-sm">
-          <div className="aspect-video bg-muted relative">
+        <div className="flex items-center gap-2 rounded-md border bg-card p-1.5">
+          <div className="w-10 h-10 rounded bg-muted overflow-hidden shrink-0 flex items-center justify-center">
             {linked.foto_capa_url ? (
-              <img src={linked.foto_capa_url} alt={linked.titulo ?? ""} className="w-full h-full object-cover" loading="lazy" />
+              <img src={linked.foto_capa_url} alt="" className="w-full h-full object-cover" loading="lazy" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                <Building2 className="h-8 w-8" />
-              </div>
-            )}
-            {linked.preco != null && (
-              <div className="absolute bottom-1.5 left-1.5 bg-background/90 backdrop-blur rounded px-2 py-0.5 text-[11px] font-bold">
-                {fmtBRL(linked.preco)}
-              </div>
+              <Building2 className="h-4 w-4 text-muted-foreground" />
             )}
           </div>
-          <div className="p-2.5 space-y-2">
-            <div>
-              <p className="text-xs font-semibold truncate">
-                {linked.unidade ? `Un. ${linked.unidade} • ` : ""}{linked.titulo || "Sem título"}
-              </p>
-              <p className="text-[10px] text-muted-foreground font-mono">{linked.codigo_interno}</p>
-              {endereco && (
-                <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
-                  <MapPin className="h-2.5 w-2.5 shrink-0" /> {endereco}
-                </p>
-              )}
-            </div>
-            <div className="flex items-center gap-2 text-[10px] text-muted-foreground border-t pt-1.5">
-              {linked.dormitorios != null && <span className="flex items-center gap-0.5"><Bed className="h-3 w-3" />{linked.dormitorios}</span>}
-              {linked.suites != null && linked.suites > 0 && <span className="flex items-center gap-0.5"><Bath className="h-3 w-3" />{linked.suites}</span>}
-              {linked.vagas != null && <span className="flex items-center gap-0.5"><Car className="h-3 w-3" />{linked.vagas}</span>}
-              {linked.area_total != null && <span className="flex items-center gap-0.5"><Ruler className="h-3 w-3" />{linked.area_total}m²</span>}
-            </div>
-            <div className="flex gap-1.5">
-              <Button size="sm" className="flex-1 h-7 text-xs" onClick={() => setViewerId(linked.id)}>
-                <Eye className="h-3.5 w-3.5 mr-1" /> Abrir
-              </Button>
-              <Button asChild size="sm" variant="outline" className="h-7 text-xs">
-                <Link to="/imoveis/$id/editar" params={{ id: linked.id }}>
-                  <ExternalLink className="h-3.5 w-3.5 mr-1" /> Cadastro
-                </Link>
-              </Button>
-              {isAdmin && (
-                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={desvincular}>
-                  <Link2Off className="h-3.5 w-3.5" />
-                </Button>
-              )}
-            </div>
-
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium truncate">
+              {linked.unidade ? `Un. ${linked.unidade} • ` : ""}{linked.titulo || "Sem título"}
+            </p>
+            <p className="text-[10px] text-muted-foreground font-mono truncate">
+              {linked.codigo_interno}{linked.preco != null ? ` • ${fmtBRL(linked.preco)}` : ""}
+            </p>
           </div>
-          <ImovelDrawer id={viewerId} open={!!viewerId} onOpenChange={(o) => !o && setViewerId(null)} />
-        </div>
-      ) : isAdmin ? (
-        <Popover open={pickerOpen} onOpenChange={(v) => { setPickerOpen(v); if (v) setQ(""); }}>
-          <PopoverTrigger asChild>
-            <Button size="sm" variant="outline" className="w-full h-8 text-xs">
-              <Link2 className="h-3.5 w-3.5 mr-1.5" /> Vincular imóvel cadastrado
+          <Button asChild size="sm" variant="outline" className="h-7 text-xs shrink-0">
+            <Link to="/imoveis/$id/editar" params={{ id: linked.id }}>
+              <ExternalLink className="h-3.5 w-3.5 mr-1" /> Abrir
+            </Link>
+          </Button>
+          {isAdmin && (
+            <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={desvincular} title="Desvincular">
+              <Link2Off className="h-3.5 w-3.5" />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-2" align="start">
-            <div className="relative mb-2">
-              <Search className="h-3.5 w-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="h-8 pl-7 text-xs"
-                placeholder="Buscar por unidade, código ou título…"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                autoFocus
-              />
-            </div>
-            <div className="max-h-72 overflow-auto -mx-2 px-2">
-              {searching ? (
-                <div className="py-6 flex justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
-              ) : list.length === 0 ? (
-                <p className="py-6 text-center text-xs text-muted-foreground">
-                  Nenhum imóvel cadastrado neste empreendimento.
-                </p>
-              ) : (
-                <div className="space-y-1">
-                  {list.map((im) => (
-                    <button
-                      key={im.id}
-                      onClick={() => vincular(im)}
-                      className="w-full text-left rounded-md p-1.5 hover:bg-accent text-xs flex gap-2 items-center"
-                    >
-                      <div className="w-12 h-12 rounded bg-muted overflow-hidden shrink-0 flex items-center justify-center">
-                        {im.foto_capa_url ? (
-                          <img src={im.foto_capa_url} alt="" className="w-full h-full object-cover" loading="lazy" />
-                        ) : (
-                          <Building2 className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium truncate">
-                          {im.unidade ? `Un. ${im.unidade} • ` : ""}{im.titulo || "Sem título"}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground flex gap-2">
-                          <span>{im.codigo_interno || "—"}</span>
-                          {im.preco != null && <span className="font-semibold text-foreground">{fmtBRL(im.preco)}</span>}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
+          )}
+        </div>
       ) : (
-        <p className="text-xs text-muted-foreground">Nenhum imóvel vinculado.</p>
+        <p className="text-[11px] text-muted-foreground">
+          Sem imóvel vinculado. Vincule pelo cadastro do imóvel.
+        </p>
       )}
     </div>
   );
