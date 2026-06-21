@@ -18,7 +18,12 @@ export function DownloadXmlButton({ url, filename, label = "Baixar XML", size = 
     setBusy(true);
     try {
       const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const ct = res.headers.get("content-type") ?? "";
+      if (!res.ok || !/xml/i.test(ct)) {
+        const body = await res.text();
+        const msg = body.slice(0, 200).replace(/<[^>]+>/g, " ").trim();
+        throw new Error(msg || `HTTP ${res.status}`);
+      }
       const blob = await res.blob();
       const objUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
