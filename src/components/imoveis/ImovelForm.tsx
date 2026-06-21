@@ -717,21 +717,64 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           </div>
         </div>
 
-        {/* ENDEREÇO */}
+        {/* ENDEREÇO + MAPA */}
         <div key="endereco" className="bg-card border border-border rounded-xl p-4 sm:p-5">
-          <SectionHeader icon={MapPin} title="Endereço" />
+          <SectionHeader icon={MapPin} title="Endereço e Localização" />
           <CepAutoFill value={enderecoValue} onChange={onEnderecoChange} />
+          <div className="mt-4">
+            <p className="text-xs text-muted-foreground mb-2">
+              Arraste o pin no mapa para ajustar a posição — o endereço acima será atualizado automaticamente.
+            </p>
+            <MapPicker
+              latitude={form.latitude}
+              longitude={form.longitude}
+              onChange={async (lat, lng) => {
+                setForm((p) => ({ ...p, latitude: lat, longitude: lng }));
+                try {
+                  const { loadGoogleMaps } = await import("@/lib/googleMaps");
+                  await loadGoogleMaps();
+                  const g = (window as any).google;
+                  if (!g?.maps?.Geocoder) return;
+                  const geocoder = new g.maps.Geocoder();
+                  geocoder.geocode({ location: { lat, lng } }, (results: any, status: string) => {
+                    if (status !== "OK" || !results?.[0]) return;
+                    const comps: any[] = results[0].address_components || [];
+                    const get = (type: string) =>
+                      comps.find((c) => c.types?.includes(type))?.long_name || "";
+                    const getShort = (type: string) =>
+                      comps.find((c) => c.types?.includes(type))?.short_name || "";
+                    const logradouro = get("route");
+                    const numero = get("street_number");
+                    const bairro = get("sublocality") || get("sublocality_level_1") || get("political");
+                    const cidade = get("administrative_area_level_2") || get("locality");
+                    const estado = getShort("administrative_area_level_1");
+                    const cep = get("postal_code");
+                    // evita re-geocode pelo efeito de endereço→mapa
+                    lastGeocodedRef.current = [
+                      [logradouro, numero].filter(Boolean).join(", "),
+                      bairro,
+                      [cidade, estado].filter(Boolean).join(" - "),
+                      cep,
+                      "Brasil",
+                    ].filter(Boolean).join(", ");
+                    setForm((p) => ({
+                      ...p,
+                      logradouro: logradouro || p.logradouro,
+                      numero: numero || p.numero,
+                      bairro: bairro || p.bairro,
+                      cidade: cidade || p.cidade,
+                      estado: estado || p.estado,
+                      cep: cep || p.cep,
+                    }));
+                  });
+                } catch {
+                  /* silencioso */
+                }
+              }}
+            />
+          </div>
         </div>
 
-        {/* MAPA */}
-        <div key="mapa" className="bg-card border border-border rounded-xl p-4 sm:p-5">
-          <SectionHeader icon={MapPin} title="Localização no Mapa" />
-          <MapPicker
-            latitude={form.latitude}
-            longitude={form.longitude}
-            onChange={(lat, lng) => setForm((p) => ({ ...p, latitude: lat, longitude: lng }))}
-          />
-        </div>
 
         {/* VALORES */}
         <div key="valor" className="bg-card border border-border rounded-xl p-4 sm:p-5">
