@@ -120,7 +120,7 @@ function FeedsXmlPage() {
                   </Button>
                   <DownloadXmlButton url={personalizadoUrl} filename="feed-personalizado.xml" />
                   <Button size="sm" asChild className="ml-auto">
-                    <Link to="/carteiras/$id" params={{ id: personalizado.id }}>
+                    <Link to="/imoveis">
                       Gerenciar imóveis <ArrowRight className="h-3.5 w-3.5 ml-1" />
                     </Link>
                   </Button>
