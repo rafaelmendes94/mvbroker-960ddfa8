@@ -33,7 +33,7 @@ export function EspelhoUnitPicker({
   currentImovelId?: string | null;
   valueNumero: string;
   valueGrupo?: string;
-  onPick: (info: { grupo: number; numero: string }) => void;
+  onPick: (info: { grupo: string; numero: string }) => void;
   onClear?: () => void;
 }) {
   const [rows, setRows] = useState<Row[]>([]);
@@ -77,8 +77,8 @@ export function EspelhoUnitPicker({
 
   const handleNumeroChange = (v: string) => {
     const row = rows.find((r) => r.numero === v);
-    if (row) onPick({ grupo: row.grupo, numero: row.numero });
-    else onPick({ grupo: valueGrupo ? Number(valueGrupo) : 0, numero: v });
+    if (row) onPick({ grupo: String(row.grupo), numero: row.numero });
+    else onPick({ grupo: valueGrupo ?? "", numero: v });
   };
 
   return (
@@ -88,7 +88,7 @@ export function EspelhoUnitPicker({
         <Input
           list={grupoListId}
           value={valueGrupo ?? ""}
-          onChange={(e) => onPick({ grupo: Number(e.target.value) || 0, numero: valueNumero })}
+          onChange={(e) => onPick({ grupo: e.target.value, numero: valueNumero })}
           placeholder={`Ex.: ${grupos[0] ?? ""}`}
         />
         <datalist id={grupoListId}>
