@@ -857,10 +857,37 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                   />
                 </div>
               </>
-            )}
+          </div>
+
+          <div className="mb-4">
+            <Label className="text-xs font-semibold mb-2 block">Características</Label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { key: "vista_mar" as const, label: "Vista Mar" },
+                { key: "decorado" as const, label: "Decorado" },
+                { key: "aceita_permuta" as const, label: "Aceita Permuta" },
+              ].map(({ key, label }) => {
+                const active = !!form[key];
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => set(key, !active)}
+                    className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+                      active
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-foreground border-border hover:bg-accent"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <InfraToggle label="Infraestrutura" options={infraOpts} selected={form.infraestrutura} onChange={(s) => set("infraestrutura", s)} allowCustom onAddOption={addInfra} />
+
 
           <div className="mt-4">
             <Label className="text-xs font-semibold mb-2 block">Outras Características</Label>
