@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Building2, Camera, Map as MapIcon, Table2, MapPin, Loader2,
-  Grid3x3, Upload, Plus, Trash2, Download, Link2, Link2Off, ExternalLink, Search,
+  Grid3x3, Upload, Plus, Trash2, Download, Link2, Link2Off, Eye, Search,
+  Bed, Bath, Car, Ruler,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -18,7 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Link } from "@tanstack/react-router";
+import { ImovelDrawer } from "@/components/imoveis/ImovelDrawer";
 import {
   STATUS_CONFIG, TIPOLOGIA_CONFIG, TIPO_LABELS, CSV_TEMPLATE, TIPO_TO_IMOVEL_FK,
   type EmpreendimentoTipo, type Unit, type UnitStatus, type Tipologia,
@@ -752,6 +753,10 @@ type ImovelLite = {
   dormitorios: number | null;
   suites: number | null;
   vagas: number | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  uf?: string | null;
+  foto_capa_url?: string | null;
 };
 
 function ImovelLinkSection({
@@ -768,6 +773,24 @@ function ImovelLinkSection({
   const [q, setQ] = useState("");
   const [list, setList] = useState<ImovelLite[]>([]);
   const [searching, setSearching] = useState(false);
+  const [viewerId, setViewerId] = useState<string | null>(null);
+
+  const SELECT_COLS = "id, titulo, codigo_interno, unidade, preco, area_total, dormitorios, suites, vagas, bairro, cidade, uf";
+
+  async function fetchCoverFor(ids: string[]): Promise<Record<string, string>> {
+    if (ids.length === 0) return {};
+    const { data } = await supabase
+      .from("imovel_imagens")
+      .select("imovel_id, url, capa, ordem")
+      .in("imovel_id", ids)
+      .order("capa", { ascending: false })
+      .order("ordem", { ascending: true });
+    const map: Record<string, string> = {};
+    for (const row of (data as any[]) ?? []) {
+      if (!map[row.imovel_id] && row.url) map[row.imovel_id] = row.url;
+    }
+    return map;
+  }
 
   // Carrega o imóvel vinculado (se houver)
   useEffect(() => {
@@ -777,11 +800,12 @@ function ImovelLinkSection({
       setLoadingLinked(true);
       const { data } = await supabase
         .from("imoveis")
-        .select("id, titulo, codigo_interno, unidade, preco, area_total, dormitorios, suites, vagas")
+        .select(SELECT_COLS)
         .eq("id", unit.imovel_id)
         .maybeSingle();
+      const covers = data ? await fetchCoverFor([(data as any).id]) : {};
       if (!cancelled) {
-        setLinked((data as ImovelLite) ?? null);
+        setLinked(data ? { ...(data as any), foto_capa_url: covers[(data as any).id] ?? null } : null);
         setLoadingLinked(false);
       }
     }
@@ -797,7 +821,7 @@ function ImovelLinkSection({
     const t = setTimeout(async () => {
       let query = supabase
         .from("imoveis")
-        .select("id, titulo, codigo_interno, unidade, preco, area_total, dormitorios, suites, vagas")
+        .select(SELECT_COLS)
         .eq(fk, unit.empreendimento_id)
         .eq("arquivado", false)
         .order("unidade", { ascending: true })
@@ -811,7 +835,10 @@ function ImovelLinkSection({
       const { data, error } = await query;
       if (cancelled) return;
       if (error) toast.error(error.message);
-      setList((data as ImovelLite[]) ?? []);
+      const rows = (data as any[]) ?? [];
+      const covers = await fetchCoverFor(rows.map((r) => r.id));
+      if (cancelled) return;
+      setList(rows.map((r) => ({ ...r, foto_capa_url: covers[r.id] ?? null })) as ImovelLite[]);
       setSearching(false);
     }, 250);
     return () => { cancelled = true; clearTimeout(t); };
@@ -820,7 +847,6 @@ function ImovelLinkSection({
   async function vincular(im: ImovelLite) {
     const patch: Partial<Unit> = {
       imovel_id: im.id,
-      // Puxa dados do imóvel pra unidade
       valor: im.preco ?? unit.valor,
       area: im.area_total ?? unit.area,
       suites: im.suites ?? unit.suites,
@@ -842,6 +868,10 @@ function ImovelLinkSection({
     }
   }
 
+  const endereco = linked
+    ? [linked.bairro, linked.cidade && `${linked.cidade}${linked.uf ? "/" + linked.uf : ""}`].filter(Boolean).join(", ")
+    : "";
+
   return (
     <div className="pt-2 border-t space-y-2">
       <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Imóvel cadastrado</p>
@@ -850,27 +880,51 @@ function ImovelLinkSection({
           <Loader2 className="h-3.5 w-3.5 animate-spin" /> carregando…
         </div>
       ) : linked ? (
-        <div className="rounded-md border bg-muted/30 p-2 space-y-2">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
+        <div className="rounded-lg border bg-card overflow-hidden shadow-sm">
+          <div className="aspect-video bg-muted relative">
+            {linked.foto_capa_url ? (
+              <img src={linked.foto_capa_url} alt={linked.titulo ?? ""} className="w-full h-full object-cover" loading="lazy" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                <Building2 className="h-8 w-8" />
+              </div>
+            )}
+            {linked.preco != null && (
+              <div className="absolute bottom-1.5 left-1.5 bg-background/90 backdrop-blur rounded px-2 py-0.5 text-[11px] font-bold">
+                {fmtBRL(linked.preco)}
+              </div>
+            )}
+          </div>
+          <div className="p-2.5 space-y-2">
+            <div>
               <p className="text-xs font-semibold truncate">
                 {linked.unidade ? `Un. ${linked.unidade} • ` : ""}{linked.titulo || "Sem título"}
               </p>
-              <p className="text-[10px] text-muted-foreground">{linked.codigo_interno}</p>
+              <p className="text-[10px] text-muted-foreground font-mono">{linked.codigo_interno}</p>
+              {endereco && (
+                <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
+                  <MapPin className="h-2.5 w-2.5 shrink-0" /> {endereco}
+                </p>
+              )}
             </div>
-            <Link
-              to="/imoveis/$id/editar"
-              params={{ id: linked.id }}
-              className="text-primary hover:underline flex items-center gap-0.5 text-[11px]"
-            >
-              abrir <ExternalLink className="h-3 w-3" />
-            </Link>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground border-t pt-1.5">
+              {linked.dormitorios != null && <span className="flex items-center gap-0.5"><Bed className="h-3 w-3" />{linked.dormitorios}</span>}
+              {linked.suites != null && linked.suites > 0 && <span className="flex items-center gap-0.5"><Bath className="h-3 w-3" />{linked.suites}</span>}
+              {linked.vagas != null && <span className="flex items-center gap-0.5"><Car className="h-3 w-3" />{linked.vagas}</span>}
+              {linked.area_total != null && <span className="flex items-center gap-0.5"><Ruler className="h-3 w-3" />{linked.area_total}m²</span>}
+            </div>
+            <div className="flex gap-1.5">
+              <Button size="sm" className="flex-1 h-7 text-xs" onClick={() => setViewerId(linked.id)}>
+                <Eye className="h-3.5 w-3.5 mr-1" /> Abrir
+              </Button>
+              {isAdmin && (
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={desvincular}>
+                  <Link2Off className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
           </div>
-          {isAdmin && (
-            <Button size="sm" variant="ghost" className="w-full h-7 text-xs" onClick={desvincular}>
-              <Link2Off className="h-3.5 w-3.5 mr-1" /> Desvincular
-            </Button>
-          )}
+          <ImovelDrawer id={viewerId} open={!!viewerId} onOpenChange={(o) => !o && setViewerId(null)} />
         </div>
       ) : isAdmin ? (
         <Popover open={pickerOpen} onOpenChange={(v) => { setPickerOpen(v); if (v) setQ(""); }}>
@@ -879,7 +933,7 @@ function ImovelLinkSection({
               <Link2 className="h-3.5 w-3.5 mr-1.5" /> Vincular imóvel cadastrado
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-72 p-2" align="start">
+          <PopoverContent className="w-80 p-2" align="start">
             <div className="relative mb-2">
               <Search className="h-3.5 w-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -890,7 +944,7 @@ function ImovelLinkSection({
                 autoFocus
               />
             </div>
-            <div className="max-h-64 overflow-auto -mx-2 px-2">
+            <div className="max-h-72 overflow-auto -mx-2 px-2">
               {searching ? (
                 <div className="py-6 flex justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
               ) : list.length === 0 ? (
@@ -903,14 +957,23 @@ function ImovelLinkSection({
                     <button
                       key={im.id}
                       onClick={() => vincular(im)}
-                      className="w-full text-left rounded-md px-2 py-1.5 hover:bg-accent text-xs"
+                      className="w-full text-left rounded-md p-1.5 hover:bg-accent text-xs flex gap-2 items-center"
                     >
-                      <div className="font-medium truncate">
-                        {im.unidade ? `Un. ${im.unidade} • ` : ""}{im.titulo || "Sem título"}
+                      <div className="w-12 h-12 rounded bg-muted overflow-hidden shrink-0 flex items-center justify-center">
+                        {im.foto_capa_url ? (
+                          <img src={im.foto_capa_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                        ) : (
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                        )}
                       </div>
-                      <div className="text-[10px] text-muted-foreground flex gap-2">
-                        <span>{im.codigo_interno || "—"}</span>
-                        {im.preco != null && <span>{fmtBRL(im.preco)}</span>}
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium truncate">
+                          {im.unidade ? `Un. ${im.unidade} • ` : ""}{im.titulo || "Sem título"}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground flex gap-2">
+                          <span>{im.codigo_interno || "—"}</span>
+                          {im.preco != null && <span className="font-semibold text-foreground">{fmtBRL(im.preco)}</span>}
+                        </div>
                       </div>
                     </button>
                   ))}
