@@ -834,10 +834,8 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           </div>
 
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-6 mb-4 py-3 px-3 sm:px-4 bg-muted/50 rounded-lg">
-            <label className="flex items-center gap-2"><Switch checked={form.vista_mar} onCheckedChange={(v) => set("vista_mar", v)} /><span className="text-xs">Vista Mar</span></label>
-            <label className="flex items-center gap-2"><Switch checked={form.decorado} onCheckedChange={(v) => set("decorado", v)} /><span className="text-xs">Decorado</span></label>
-            <label className="flex items-center gap-2"><Switch checked={form.aceita_permuta} onCheckedChange={(v) => set("aceita_permuta", v)} /><span className="text-xs">Permuta</span></label>
             <label className="flex items-center gap-2"><Switch checked={inFeedPersonalizado} onCheckedChange={setInFeedPersonalizado} /><span className="text-xs font-semibold">⭐ Feed Personalizado</span></label>
+
             {isSuperAdmin && (
               <>
                 <label className="flex items-center gap-2"><Switch checked={form.ativo_site} onCheckedChange={(v) => set("ativo_site", v)} /><span className="text-xs font-semibold">🌐 Site</span></label>
