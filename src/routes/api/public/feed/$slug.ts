@@ -47,7 +47,9 @@ export const Route = createFileRoute("/api/public/feed/$slug")({
               q,
               supabase.from("imovel_imagens").select("imovel_id, url, storage_path, ordem, capa").in("imovel_id", imovelIds),
             ]);
-            imoveis = (imovData ?? []).filter((im: any) => ["disponivel", "reservado"].includes(im.status));
+            imoveis = (imovData ?? []).filter((im: any) =>
+              ["disponivel", "reservado"].includes(im.status_imovel ?? im.status),
+            );
             imagens = imgData ?? [];
           }
 
