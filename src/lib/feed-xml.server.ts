@@ -18,7 +18,21 @@ function cdata(s: unknown): string {
 type ImovelRow = Record<string, any>;
 type ImagemRow = { url: string | null; storage_path: string; ordem: number; capa: boolean };
 
-const TIPO_MAP: Record<string, string> = {
+const TIPO_MAP_VRSYNC: Record<string, string> = {
+  apartamento: "Residential / Apartment",
+  cobertura: "Residential / Apartment",
+  casa: "Residential / Home",
+  casa_condominio: "Residential / Home",
+  terreno: "Land / Lot",
+  loteamento: "Land / Lot",
+  comercial: "Commercial / Office",
+  sala_comercial: "Commercial / Office",
+  galpao: "Commercial / Warehouse",
+  loja: "Commercial / Storefront",
+  rural: "Farm / Ranch",
+};
+
+const TIPO_MAP_PT: Record<string, string> = {
   apartamento: "Apartamento",
   casa: "Casa",
   casa_condominio: "Casa de Condomínio",
@@ -31,9 +45,14 @@ const TIPO_MAP: Record<string, string> = {
   rural: "Fazenda / Sítio",
 };
 
-function mapTipo(t?: string | null): string {
+function mapTipoVRSync(t?: string | null): string {
+  if (!t) return "Residential / Apartment";
+  return TIPO_MAP_VRSYNC[t] ?? "Residential / Apartment";
+}
+
+function mapTipoPT(t?: string | null): string {
   if (!t) return "Outros";
-  return TIPO_MAP[t] ?? t.charAt(0).toUpperCase() + t.slice(1);
+  return TIPO_MAP_PT[t] ?? t.charAt(0).toUpperCase() + t.slice(1);
 }
 
 function transactionType(condicao?: string | null): "For Sale" | "For Rent" {
@@ -41,26 +60,36 @@ function transactionType(condicao?: string | null): "For Sale" | "For Rent" {
   return "For Sale";
 }
 
+function resolveUrl(f: ImagemRow, base?: string): string | null {
+  if (f.url && f.url.startsWith("http")) return f.url;
+  const path = f.storage_path || f.url;
+  if (!path) return null;
+  if (base) return `${base.replace(/\/$/, "")}/${path}`;
+  return null;
+}
+
 type BuildOpts = {
   carteira: { nome: string; slug: string; updated_at: string };
   imoveis: Array<ImovelRow & { imagens: ImagemRow[] }>;
   publisherEmail?: string;
   portal?: { slug: string; nome: string; formato_xml: string } | null;
+  storageBaseUrl?: string;
 };
 
 export function buildVRSyncXML(opts: BuildOpts): string {
-  const { carteira, imoveis, publisherEmail = "contato@mvbroker.com", portal } = opts;
+  const { carteira, imoveis, publisherEmail = "contato@mvbroker.com", portal, storageBaseUrl } = opts;
   const now = new Date().toISOString();
 
   const listings = imoveis
     .map((im) => {
       const codigo = im.codigo_interno || im.id;
       const tt = transactionType(im.condicao);
-      const tipo = mapTipo(im.tipo);
+      const tipo = mapTipoVRSync(im.tipo_imovel ?? im.tipo);
       const fotos = (im.imagens ?? [])
         .slice()
         .sort((a, b) => (b.capa ? 1 : 0) - (a.capa ? 1 : 0) || a.ordem - b.ordem)
-        .filter((f) => !!f.url)
+        .map((f) => ({ ...f, resolvedUrl: resolveUrl(f, storageBaseUrl) }))
+        .filter((f) => !!f.resolvedUrl)
         .slice(0, 30);
 
       const mediaXML = fotos.length
@@ -68,7 +97,7 @@ export function buildVRSyncXML(opts: BuildOpts): string {
             .map(
               (f, idx) =>
                 `<Item medium="image" caption="${esc(`Foto ${idx + 1}`)}" primary="${idx === 0 ? "true" : "false"}">${esc(
-                  f.url,
+                  f.resolvedUrl,
                 )}</Item>`,
             )
             .join("")}</Media>`
@@ -86,7 +115,7 @@ export function buildVRSyncXML(opts: BuildOpts): string {
         ? `<Features>${im.infraestrutura.map((f: string) => `<Feature>${esc(f)}</Feature>`).join("")}</Features>`
         : "";
 
-      const preco = im.preco != null ? `<ListPrice currency="BRL">${im.preco}</ListPrice>` : "";
+      const preco = im.preco != null ? `<Price currency="BRL">${im.preco}</Price>` : "";
       const condo = im.valor_condominio != null ? `<PropertyAdministrationFee currency="BRL">${im.valor_condominio}</PropertyAdministrationFee>` : "";
       const iptu = im.valor_iptu != null ? `<YearlyTax currency="BRL">${im.valor_iptu}</YearlyTax>` : "";
 
@@ -141,17 +170,21 @@ ${listings}
 
 // OLX usa estrutura própria simplificada
 export function buildOLXXML(opts: BuildOpts): string {
-  const { carteira, imoveis } = opts;
+  const { carteira, imoveis, storageBaseUrl } = opts;
   const items = imoveis
     .map((im) => {
-      const fotos = (im.imagens ?? []).slice().sort((a, b) => (b.capa ? 1 : 0) - (a.capa ? 1 : 0) || a.ordem - b.ordem)
-        .filter((f) => !!f.url).slice(0, 20);
-      const pics = fotos.map((f) => `<picture_url>${esc(f.url)}</picture_url>`).join("");
+      const fotos = (im.imagens ?? [])
+        .slice()
+        .sort((a, b) => (b.capa ? 1 : 0) - (a.capa ? 1 : 0) || a.ordem - b.ordem)
+        .map((f) => ({ ...f, resolvedUrl: resolveUrl(f, storageBaseUrl) }))
+        .filter((f) => !!f.resolvedUrl)
+        .slice(0, 20);
+      const pics = fotos.map((f) => `<picture_url>${esc(f.resolvedUrl)}</picture_url>`).join("");
       const tt = /alug|locac/i.test(im.condicao ?? "") ? "Locacao" : "Venda";
       return `<ad>
   <id>${esc(im.codigo_interno || im.id)}</id>
   <subject>${cdata(im.titulo)}</subject>
-  <category_name>${esc(mapTipo(im.tipo))}</category_name>
+  <category_name>${esc(mapTipoPT(im.tipo_imovel ?? im.tipo))}</category_name>
   <subcategory>${esc(tt)}</subcategory>
   <body>${cdata(im.descricao)}</body>
   <price>${im.preco ?? 0}</price>
@@ -177,16 +210,20 @@ ${items}
 
 // ImovelWeb usa estrutura adaptada
 export function buildImovelWebXML(opts: BuildOpts): string {
-  const { carteira, imoveis } = opts;
+  const { carteira, imoveis, storageBaseUrl } = opts;
   const items = imoveis.map((im) => {
-    const fotos = (im.imagens ?? []).slice().sort((a, b) => (b.capa ? 1 : 0) - (a.capa ? 1 : 0) || a.ordem - b.ordem)
-      .filter((f) => !!f.url).slice(0, 20);
-    const pics = fotos.map((f, i) => `<imagem ordem="${i + 1}">${esc(f.url)}</imagem>`).join("");
+    const fotos = (im.imagens ?? [])
+      .slice()
+      .sort((a, b) => (b.capa ? 1 : 0) - (a.capa ? 1 : 0) || a.ordem - b.ordem)
+      .map((f) => ({ ...f, resolvedUrl: resolveUrl(f, storageBaseUrl) }))
+      .filter((f) => !!f.resolvedUrl)
+      .slice(0, 20);
+    const pics = fotos.map((f, i) => `<imagem ordem="${i + 1}">${esc(f.resolvedUrl)}</imagem>`).join("");
     return `<imovel>
   <codigo>${esc(im.codigo_interno || im.id)}</codigo>
   <titulo>${cdata(im.titulo)}</titulo>
   <descricao>${cdata(im.descricao)}</descricao>
-  <tipo>${esc(mapTipo(im.tipo))}</tipo>
+  <tipo>${esc(mapTipoPT(im.tipo_imovel ?? im.tipo))}</tipo>
   <transacao>${/alug|locac/i.test(im.condicao ?? "") ? "Locacao" : "Venda"}</transacao>
   <preco>${im.preco ?? 0}</preco>
   <condominio>${im.valor_condominio ?? 0}</condominio>
