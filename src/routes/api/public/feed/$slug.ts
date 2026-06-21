@@ -62,7 +62,9 @@ export const Route = createFileRoute("/api/public/feed/$slug")({
           const xml = buildFeedXML({
             carteira: { nome: carteira.nome, slug: carteira.slug, updated_at: carteira.updated_at },
             imoveis: enriched,
+            storageBaseUrl: `${process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL}/storage/v1/object/public/imoveis`,
           });
+
 
           const ua = request.headers.get("user-agent") ?? null;
           const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for") ?? null;

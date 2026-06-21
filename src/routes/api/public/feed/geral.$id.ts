@@ -68,7 +68,9 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
               updated_at: new Date().toISOString(),
             },
             imoveis: enriched,
+            storageBaseUrl: `${process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL}/storage/v1/object/public/imoveis`,
           });
+
 
           return new Response(xml, {
             status: 200,
