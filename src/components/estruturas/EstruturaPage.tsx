@@ -18,6 +18,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import { generateSkeleton } from "@/lib/espelho";
+
 import { CepAutoFill, emptyEndereco, type Endereco } from "@/components/forms/CepAutoFill";
 import { MapPicker } from "@/components/forms/MapPicker";
 import { InfraestruturaSelect } from "@/components/forms/InfraestruturaSelect";
