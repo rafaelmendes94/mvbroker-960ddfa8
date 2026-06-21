@@ -1,4 +1,4 @@
-export type UnitStatus = "disponivel" | "reservado" | "vendido";
+export type UnitStatus = "indisponivel" | "disponivel" | "reservado" | "vendido";
 export type Tipologia = "studio" | "1quarto" | "2quartos" | "3quartos" | "cobertura" | "lote";
 export type EmpreendimentoTipo = "edificio" | "condominio" | "loteamento";
 
@@ -29,6 +29,13 @@ export const STATUS_CONFIG: Record<
   UnitStatus,
   { label: string; bgClass: string; dotClass: string; cellClass: string }
 > = {
+  indisponivel: {
+    label: "Indisponível",
+    bgClass: "bg-muted-foreground",
+    dotClass: "bg-muted-foreground",
+    cellClass:
+      "bg-muted/40 border-muted-foreground/30 text-muted-foreground hover:bg-muted/60",
+  },
   disponivel: {
     label: "Disponível",
     bgClass: "bg-success",
@@ -51,6 +58,7 @@ export const STATUS_CONFIG: Record<
       "bg-destructive/15 border-destructive/40 text-destructive hover:bg-destructive/25",
   },
 };
+
 
 export const TIPOLOGIA_CONFIG: Record<Tipologia, { label: string }> = {
   studio: { label: "Studio" },
