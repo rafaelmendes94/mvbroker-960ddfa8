@@ -2482,7 +2482,7 @@ export type Database = {
         | "materiais"
         | "plantas"
         | "outros"
-      espelho_status: "disponivel" | "reservado" | "vendido" | "indisponivel"
+      espelho_status: "indisponivel" | "disponivel" | "reservado" | "vendido"
       espelho_tipo: "edificio" | "condominio" | "loteamento"
       notification_categoria: "imoveis" | "xml" | "portais" | "sistema"
       notification_tipo:
@@ -2643,7 +2643,7 @@ export const Constants = {
         "plantas",
         "outros",
       ],
-      espelho_status: ["disponivel", "reservado", "vendido", "indisponivel"],
+      espelho_status: ["indisponivel", "disponivel", "reservado", "vendido"],
       espelho_tipo: ["edificio", "condominio", "loteamento"],
       notification_categoria: ["imoveis", "xml", "portais", "sistema"],
       notification_tipo: [
