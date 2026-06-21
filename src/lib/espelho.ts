@@ -102,7 +102,7 @@ export function generateSkeleton(
         empreendimento_id: empreendimentoId,
         grupo: g,
         numero,
-        status: "disponivel",
+        status: "indisponivel",
         valor: null,
         area: null,
         tipologia: tipo === "loteamento" ? "lote" : null,
