@@ -530,16 +530,24 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           const ativo = tipoMap.find((t) => t.id);
           const unidadeNum = (form.unidade || form.lote || "").trim();
 
-          // Limpa vínculo anterior deste imóvel (caso unidade/empreendimento tenha mudado)
-          await supabase
+          // Limpa vínculo anterior deste imóvel e devolve para indisponível
+          // (a menos que o admin tenha marcado reservado/vendido manualmente)
+          const { data: anteriores } = await supabase
             .from("espelho_unidades")
-            .update({ imovel_id: null } as never)
+            .select("id, status")
             .eq("imovel_id", savedId);
+          for (const row of (anteriores as any[]) ?? []) {
+            const novoStatus = ["reservado", "vendido"].includes(row.status) ? row.status : "indisponivel";
+            await supabase
+              .from("espelho_unidades")
+              .update({ imovel_id: null, status: novoStatus } as never)
+              .eq("id", row.id);
+          }
 
           if (ativo && unidadeNum) {
             const { data: matches } = await supabase
               .from("espelho_unidades")
-              .select("id, numero")
+              .select("id, numero, status")
               .eq("empreendimento_tipo", ativo.tipo)
               .eq("empreendimento_id", ativo.id);
             const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, "");
@@ -547,17 +555,37 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               (m: any) => norm(String(m.numero)) === norm(unidadeNum),
             );
             if (target) {
+              // Preserva reservado/vendido; senão marca disponível
+              const novoStatus = ["reservado", "vendido"].includes((target as any).status)
+                ? (target as any).status
+                : "disponivel";
               await supabase
                 .from("espelho_unidades")
-                .update({ imovel_id: savedId } as never)
+                .update({ imovel_id: savedId, status: novoStatus } as never)
                 .eq("id", (target as any).id);
               toast.success(`Vinculado ao espelho — unidade ${(target as any).numero}`);
+            } else if (ativo.tipo === "edificio") {
+              // Edifício com grade mas numeração custom: cria a unidade já disponível
+              const grupoNum = parseInt(unidadeNum.replace(/\D/g, "").slice(0, -2) || "1", 10) || 1;
+              const { error: insErr } = await supabase
+                .from("espelho_unidades" as any)
+                .insert({
+                  empreendimento_tipo: "edificio",
+                  empreendimento_id: ativo.id,
+                  grupo: grupoNum,
+                  numero: unidadeNum,
+                  status: "disponivel",
+                  imovel_id: savedId,
+                  nascente: false,
+                } as never);
+              if (!insErr) toast.success(`Unidade ${unidadeNum} adicionada ao espelho`);
             }
           }
         } catch (err) {
           console.warn("Falha ao vincular no espelho", err);
         }
       }
+
 
       if (!imovelId && savedId) {
         navigate({ to: "/imoveis/$id/editar", params: { id: savedId } });
