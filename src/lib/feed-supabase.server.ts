@@ -28,6 +28,6 @@ export function getFeedSupabase(): { client: ReturnType<typeof createClient<Data
       // @ts-ignore ws polyfill obrigatório para Node.js < 22
       transport: ws,
     },
-  });
+  } as any) as any;
   return { client: _client, error: null };
 }
