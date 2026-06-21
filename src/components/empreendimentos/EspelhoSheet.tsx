@@ -753,6 +753,10 @@ type ImovelLite = {
   dormitorios: number | null;
   suites: number | null;
   vagas: number | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  uf?: string | null;
+  foto_capa_url?: string | null;
 };
 
 function ImovelLinkSection({
