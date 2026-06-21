@@ -857,7 +857,9 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                   />
                 </div>
               </>
+            )}
           </div>
+
 
           <div className="mb-4">
             <Label className="text-xs font-semibold mb-2 block">Características</Label>
