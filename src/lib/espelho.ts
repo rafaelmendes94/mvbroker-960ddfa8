@@ -149,7 +149,7 @@ function parseCSVLine(line: string): string[] {
 }
 
 const TRUTHY = new Set(["sim", "s", "yes", "y", "true", "1", "x"]);
-const VALID_STATUS = new Set<UnitStatus>(["disponivel", "reservado", "vendido"]);
+const VALID_STATUS = new Set<UnitStatus>(["indisponivel", "disponivel", "reservado", "vendido"]);
 const VALID_TIPOLOGIA = new Set<Tipologia>(["studio", "1quarto", "2quartos", "3quartos", "cobertura", "lote"]);
 
 export interface CSVParseResult {
