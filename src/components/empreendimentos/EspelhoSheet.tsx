@@ -739,3 +739,190 @@ function Info({ label, children }: { label: string; children: React.ReactNode })
     </div>
   );
 }
+
+/* ===== Vínculo com imóvel cadastrado ===== */
+
+type ImovelLite = {
+  id: string;
+  titulo: string | null;
+  codigo_interno: string | null;
+  unidade: string | null;
+  preco: number | null;
+  area_total: number | null;
+  dormitorios: number | null;
+  suites: number | null;
+  vagas: number | null;
+};
+
+function ImovelLinkSection({
+  unit, isAdmin, onSave,
+}: {
+  unit: Unit;
+  isAdmin: boolean;
+  onSave: (id: string, patch: Partial<Unit>) => Promise<boolean>;
+}) {
+  const fk = TIPO_TO_IMOVEL_FK[unit.empreendimento_tipo];
+  const [linked, setLinked] = useState<ImovelLite | null>(null);
+  const [loadingLinked, setLoadingLinked] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const [list, setList] = useState<ImovelLite[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  // Carrega o imóvel vinculado (se houver)
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      if (!unit.imovel_id) { setLinked(null); return; }
+      setLoadingLinked(true);
+      const { data } = await supabase
+        .from("imoveis")
+        .select("id, titulo, codigo_interno, unidade, preco, area_total, dormitorios, suites, vagas")
+        .eq("id", unit.imovel_id)
+        .maybeSingle();
+      if (!cancelled) {
+        setLinked((data as ImovelLite) ?? null);
+        setLoadingLinked(false);
+      }
+    }
+    run();
+    return () => { cancelled = true; };
+  }, [unit.imovel_id]);
+
+  // Busca imóveis do mesmo empreendimento
+  useEffect(() => {
+    if (!pickerOpen) return;
+    let cancelled = false;
+    setSearching(true);
+    const t = setTimeout(async () => {
+      let query = supabase
+        .from("imoveis")
+        .select("id, titulo, codigo_interno, unidade, preco, area_total, dormitorios, suites, vagas")
+        .eq(fk, unit.empreendimento_id)
+        .eq("arquivado", false)
+        .order("unidade", { ascending: true })
+        .limit(50);
+      if (q.trim()) {
+        const term = `%${q.trim()}%`;
+        query = query.or(
+          `titulo.ilike.${term},codigo_interno.ilike.${term},unidade.ilike.${term}`,
+        );
+      }
+      const { data, error } = await query;
+      if (cancelled) return;
+      if (error) toast.error(error.message);
+      setList((data as ImovelLite[]) ?? []);
+      setSearching(false);
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [pickerOpen, q, fk, unit.empreendimento_id]);
+
+  async function vincular(im: ImovelLite) {
+    const patch: Partial<Unit> = {
+      imovel_id: im.id,
+      // Puxa dados do imóvel pra unidade
+      valor: im.preco ?? unit.valor,
+      area: im.area_total ?? unit.area,
+      suites: im.suites ?? unit.suites,
+      vagas: im.vagas ?? unit.vagas,
+    };
+    const ok = await onSave(unit.id, patch);
+    if (ok) {
+      toast.success(`Vinculado a ${im.unidade || im.codigo_interno || im.titulo}`);
+      setLinked(im);
+      setPickerOpen(false);
+    }
+  }
+
+  async function desvincular() {
+    const ok = await onSave(unit.id, { imovel_id: null });
+    if (ok) {
+      toast.success("Vínculo removido");
+      setLinked(null);
+    }
+  }
+
+  return (
+    <div className="pt-2 border-t space-y-2">
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Imóvel cadastrado</p>
+      {loadingLinked ? (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> carregando…
+        </div>
+      ) : linked ? (
+        <div className="rounded-md border bg-muted/30 p-2 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold truncate">
+                {linked.unidade ? `Un. ${linked.unidade} • ` : ""}{linked.titulo || "Sem título"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">{linked.codigo_interno}</p>
+            </div>
+            <Link
+              to="/imoveis/$id/editar"
+              params={{ id: linked.id }}
+              className="text-primary hover:underline flex items-center gap-0.5 text-[11px]"
+            >
+              abrir <ExternalLink className="h-3 w-3" />
+            </Link>
+          </div>
+          {isAdmin && (
+            <Button size="sm" variant="ghost" className="w-full h-7 text-xs" onClick={desvincular}>
+              <Link2Off className="h-3.5 w-3.5 mr-1" /> Desvincular
+            </Button>
+          )}
+        </div>
+      ) : isAdmin ? (
+        <Popover open={pickerOpen} onOpenChange={(v) => { setPickerOpen(v); if (v) setQ(""); }}>
+          <PopoverTrigger asChild>
+            <Button size="sm" variant="outline" className="w-full h-8 text-xs">
+              <Link2 className="h-3.5 w-3.5 mr-1.5" /> Vincular imóvel cadastrado
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-72 p-2" align="start">
+            <div className="relative mb-2">
+              <Search className="h-3.5 w-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="h-8 pl-7 text-xs"
+                placeholder="Buscar por unidade, código ou título…"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="max-h-64 overflow-auto -mx-2 px-2">
+              {searching ? (
+                <div className="py-6 flex justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+              ) : list.length === 0 ? (
+                <p className="py-6 text-center text-xs text-muted-foreground">
+                  Nenhum imóvel cadastrado neste empreendimento.
+                </p>
+              ) : (
+                <div className="space-y-1">
+                  {list.map((im) => (
+                    <button
+                      key={im.id}
+                      onClick={() => vincular(im)}
+                      className="w-full text-left rounded-md px-2 py-1.5 hover:bg-accent text-xs"
+                    >
+                      <div className="font-medium truncate">
+                        {im.unidade ? `Un. ${im.unidade} • ` : ""}{im.titulo || "Sem título"}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground flex gap-2">
+                        <span>{im.codigo_interno || "—"}</span>
+                        {im.preco != null && <span>{fmtBRL(im.preco)}</span>}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <p className="text-xs text-muted-foreground">Nenhum imóvel vinculado.</p>
+      )}
+    </div>
+  );
+}
+
