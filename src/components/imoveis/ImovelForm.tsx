@@ -570,7 +570,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                 currentImovelId={imovelId}
                 valueNumero={form.unidade}
                 valueGrupo={form.quadra}
-                onPick={({ grupo, numero }) => { set("unidade", numero); set("quadra", grupo ? String(grupo) : form.quadra); set("lote", ""); }}
+                onPick={({ grupo, numero }) => { set("unidade", numero); set("quadra", grupo); set("lote", ""); }}
               />
             ) : form.condominio_id ? (
               <EspelhoUnitPicker
@@ -579,7 +579,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                 currentImovelId={imovelId}
                 valueNumero={form.unidade}
                 valueGrupo={form.quadra}
-                onPick={({ grupo, numero }) => { set("unidade", numero); set("quadra", grupo ? String(grupo) : form.quadra); set("lote", ""); }}
+                onPick={({ grupo, numero }) => { set("unidade", numero); set("quadra", grupo); set("lote", ""); }}
               />
             ) : form.loteamento_id ? (
               <EspelhoUnitPicker
@@ -588,7 +588,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                 currentImovelId={imovelId}
                 valueNumero={form.lote}
                 valueGrupo={form.quadra}
-                onPick={({ grupo, numero }) => { set("lote", numero); set("quadra", grupo ? String(grupo) : form.quadra); set("unidade", ""); }}
+                onPick={({ grupo, numero }) => { set("lote", numero); set("quadra", grupo); set("unidade", ""); }}
               />
             ) : (
               <>
