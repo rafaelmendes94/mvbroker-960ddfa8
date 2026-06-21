@@ -11,6 +11,11 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const id = params.id.replace(/\.xml$/i, "");
 
+        // Valida que id é UUID antes de usar em filtro
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+          return new Response("Bad Request", { status: 400 });
+        }
+
         // Busca imóveis: created_by = id OR imobiliaria_id = id
         const { data: imovData, error: imErr } = await supabaseAdmin
           .from("imoveis")
@@ -19,7 +24,10 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
           .eq("arquivado", false)
           .eq("exportacao_liberada", true);
 
-        if (imErr) return new Response(`Erro: ${imErr.message}`, { status: 500 });
+        if (imErr) {
+          console.error("[feed/geral] DB error:", imErr.message);
+          return new Response("Feed unavailable", { status: 500 });
+        }
         const imoveis = (imovData ?? []).filter((im: any) =>
           ["disponivel", "reservado"].includes(im.status_imovel ?? im.status),
         );
