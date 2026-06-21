@@ -94,11 +94,13 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
 
   const stats = useMemo(() => ({
     total: units.length,
+    indisponivel: units.filter(u => u.status === "indisponivel").length,
     disponivel: units.filter(u => u.status === "disponivel").length,
     reservado: units.filter(u => u.status === "reservado").length,
     vendido: units.filter(u => u.status === "vendido").length,
     grupos: new Set(units.map(u => u.grupo)).size,
   }), [units]);
+
 
   const byGroup = useMemo(() => {
     const map = new Map<number, Unit[]>();
