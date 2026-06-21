@@ -628,15 +628,15 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               <Input value={form.titulo} onChange={(e) => set("titulo", e.target.value)} placeholder="Ex: Apartamento 3 quartos frente mar" required />
             </div>
 
-            {/* Andar/Unidade — vira select quando vinculado a edifício/condomínio/loteamento com espelho */}
+            {/* Andar/Unidade — sugestões do espelho quando vinculado a edifício/condomínio/loteamento; campo livre sempre */}
             {form.edificio_id ? (
               <EspelhoUnitPicker
                 tipo="edificio"
                 empreendimentoId={form.edificio_id}
                 currentImovelId={imovelId}
                 valueNumero={form.unidade}
-                onPick={({ numero }) => { set("unidade", numero); set("quadra", ""); set("lote", ""); }}
-                onClear={() => set("unidade", "")}
+                valueGrupo={form.quadra}
+                onPick={({ grupo, numero }) => { set("unidade", numero); set("quadra", grupo ? String(grupo) : form.quadra); set("lote", ""); }}
               />
             ) : form.condominio_id ? (
               <EspelhoUnitPicker
@@ -644,8 +644,8 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                 empreendimentoId={form.condominio_id}
                 currentImovelId={imovelId}
                 valueNumero={form.unidade}
-                onPick={({ numero }) => { set("unidade", numero); set("quadra", ""); set("lote", ""); }}
-                onClear={() => set("unidade", "")}
+                valueGrupo={form.quadra}
+                onPick={({ grupo, numero }) => { set("unidade", numero); set("quadra", grupo ? String(grupo) : form.quadra); set("lote", ""); }}
               />
             ) : form.loteamento_id ? (
               <EspelhoUnitPicker
@@ -653,8 +653,8 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                 empreendimentoId={form.loteamento_id}
                 currentImovelId={imovelId}
                 valueNumero={form.lote}
-                onPick={({ grupo, numero }) => { set("lote", numero); set("quadra", String(grupo)); set("unidade", ""); }}
-                onClear={() => { set("lote", ""); set("quadra", ""); }}
+                valueGrupo={form.quadra}
+                onPick={({ grupo, numero }) => { set("lote", numero); set("quadra", grupo ? String(grupo) : form.quadra); set("unidade", ""); }}
               />
             ) : (
               <>
