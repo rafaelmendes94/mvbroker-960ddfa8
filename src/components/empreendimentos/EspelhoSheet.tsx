@@ -925,12 +925,18 @@ function ImovelLinkSection({
               <Button size="sm" className="flex-1 h-7 text-xs" onClick={() => setViewerId(linked.id)}>
                 <Eye className="h-3.5 w-3.5 mr-1" /> Abrir
               </Button>
+              <Button asChild size="sm" variant="outline" className="h-7 text-xs">
+                <Link to="/imoveis/$id/editar" params={{ id: linked.id }}>
+                  <ExternalLink className="h-3.5 w-3.5 mr-1" /> Cadastro
+                </Link>
+              </Button>
               {isAdmin && (
                 <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={desvincular}>
                   <Link2Off className="h-3.5 w-3.5" />
                 </Button>
               )}
             </div>
+
           </div>
           <ImovelDrawer id={viewerId} open={!!viewerId} onOpenChange={(o) => !o && setViewerId(null)} />
         </div>
