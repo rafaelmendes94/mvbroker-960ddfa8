@@ -1055,6 +1055,7 @@ export type Database = {
           empreendimento_tipo: Database["public"]["Enums"]["espelho_tipo"]
           grupo: number
           id: string
+          imovel_id: string | null
           nascente: boolean | null
           numero: string
           observacoes: string | null
@@ -1072,6 +1073,7 @@ export type Database = {
           empreendimento_tipo: Database["public"]["Enums"]["espelho_tipo"]
           grupo: number
           id?: string
+          imovel_id?: string | null
           nascente?: boolean | null
           numero: string
           observacoes?: string | null
@@ -1089,6 +1091,7 @@ export type Database = {
           empreendimento_tipo?: Database["public"]["Enums"]["espelho_tipo"]
           grupo?: number
           id?: string
+          imovel_id?: string | null
           nascente?: boolean | null
           numero?: string
           observacoes?: string | null
@@ -1099,7 +1102,15 @@ export type Database = {
           vagas?: number | null
           valor?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "espelho_unidades_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       estrutura_imagens: {
         Row: {
