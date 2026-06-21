@@ -167,12 +167,14 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
         <StatCard label={labels.unidadePlural} value={stats.total} color="bg-muted-foreground" />
+        <StatCard label="Indisponíveis" value={stats.indisponivel} color={STATUS_CONFIG.indisponivel.dotClass} />
         <StatCard label="Disponíveis" value={stats.disponivel} color={STATUS_CONFIG.disponivel.dotClass} />
         <StatCard label="Reservados" value={stats.reservado} color={STATUS_CONFIG.reservado.dotClass} />
         <StatCard label="Vendidos" value={stats.vendido} color={STATUS_CONFIG.vendido.dotClass} />
       </div>
+
 
       {/* Section tabs */}
       <div className="flex flex-wrap items-center gap-2">
