@@ -544,6 +544,13 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               .eq("id", row.id);
           }
 
+          // Status do espelho derivado do status do imóvel
+          const statusImovel = (form.status_imovel || "disponivel").toLowerCase();
+          const espelhoStatus: "vendido" | "reservado" | "disponivel" =
+            statusImovel === "vendido" ? "vendido"
+            : statusImovel === "reservado" ? "reservado"
+            : "disponivel";
+
           if (ativo && unidadeNum) {
             const { data: matches } = await supabase
               .from("espelho_unidades")
@@ -555,17 +562,13 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               (m: any) => norm(String(m.numero)) === norm(unidadeNum),
             );
             if (target) {
-              // Preserva reservado/vendido; senão marca disponível
-              const novoStatus = ["reservado", "vendido"].includes((target as any).status)
-                ? (target as any).status
-                : "disponivel";
               await supabase
                 .from("espelho_unidades")
-                .update({ imovel_id: savedId, status: novoStatus } as never)
+                .update({ imovel_id: savedId, status: espelhoStatus } as never)
                 .eq("id", (target as any).id);
               toast.success(`Vinculado ao espelho — unidade ${(target as any).numero}`);
             } else if (ativo.tipo === "edificio") {
-              // Edifício com grade mas numeração custom: cria a unidade já disponível
+              // Edifício com grade mas numeração custom: cria a unidade já com o status atual
               const grupoNum = parseInt(unidadeNum.replace(/\D/g, "").slice(0, -2) || "1", 10) || 1;
               const { error: insErr } = await supabase
                 .from("espelho_unidades" as any)
@@ -574,7 +577,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                   empreendimento_id: ativo.id,
                   grupo: grupoNum,
                   numero: unidadeNum,
-                  status: "disponivel",
+                  status: espelhoStatus,
                   imovel_id: savedId,
                   nascente: false,
                 } as never);
