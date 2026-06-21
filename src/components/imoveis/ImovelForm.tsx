@@ -32,6 +32,7 @@ import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { InfraToggle } from "@/components/forms/InfraToggle";
 import { DraggableBlocks } from "@/components/forms/DraggableBlocks";
 import { EntitySelector, type EntityOption } from "@/components/imoveis/EntitySelector";
+import { EspelhoUnitPicker } from "@/components/imoveis/EspelhoUnitPicker";
 import { ImovelGaleria } from "@/components/imoveis/ImovelGaleria";
 
 // ---------- catálogos ----------
@@ -626,7 +627,43 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               <Label className="text-xs">Título do Imóvel *</Label>
               <Input value={form.titulo} onChange={(e) => set("titulo", e.target.value)} placeholder="Ex: Apartamento 3 quartos frente mar" required />
             </div>
-            <div className="space-y-1.5"><Label className="text-xs">Unidade</Label><Input value={form.unidade} onChange={(e) => set("unidade", e.target.value)} /></div>
+
+            {/* Andar/Unidade — vira select quando vinculado a edifício/condomínio/loteamento com espelho */}
+            {form.edificio_id ? (
+              <EspelhoUnitPicker
+                tipo="edificio"
+                empreendimentoId={form.edificio_id}
+                currentImovelId={imovelId}
+                valueNumero={form.unidade}
+                onPick={({ numero }) => { set("unidade", numero); set("quadra", ""); set("lote", ""); }}
+                onClear={() => set("unidade", "")}
+              />
+            ) : form.condominio_id ? (
+              <EspelhoUnitPicker
+                tipo="condominio"
+                empreendimentoId={form.condominio_id}
+                currentImovelId={imovelId}
+                valueNumero={form.unidade}
+                onPick={({ numero }) => { set("unidade", numero); set("quadra", ""); set("lote", ""); }}
+                onClear={() => set("unidade", "")}
+              />
+            ) : form.loteamento_id ? (
+              <EspelhoUnitPicker
+                tipo="loteamento"
+                empreendimentoId={form.loteamento_id}
+                currentImovelId={imovelId}
+                valueNumero={form.lote}
+                onPick={({ grupo, numero }) => { set("lote", numero); set("quadra", String(grupo)); set("unidade", ""); }}
+                onClear={() => { set("lote", ""); set("quadra", ""); }}
+              />
+            ) : (
+              <>
+                <div className="space-y-1.5"><Label className="text-xs">Unidade</Label><Input value={form.unidade} onChange={(e) => set("unidade", e.target.value)} /></div>
+                <div className="space-y-1.5"><Label className="text-xs">Quadra</Label><Input value={form.quadra} onChange={(e) => set("quadra", e.target.value)} /></div>
+                <div className="space-y-1.5"><Label className="text-xs">Lote</Label><Input value={form.lote} onChange={(e) => set("lote", e.target.value)} /></div>
+              </>
+            )}
+
             <div className="space-y-1.5">
               <Label className="text-xs">Box</Label>
               {(() => {
@@ -661,8 +698,6 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                 );
               })()}
             </div>
-            <div className="space-y-1.5"><Label className="text-xs">Quadra</Label><Input value={form.quadra} onChange={(e) => set("quadra", e.target.value)} /></div>
-            <div className="space-y-1.5"><Label className="text-xs">Lote</Label><Input value={form.lote} onChange={(e) => set("lote", e.target.value)} /></div>
           </div>
 
           <QuickPickEditable
