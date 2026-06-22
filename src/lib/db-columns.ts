@@ -23,6 +23,7 @@ export const IMOVEL_PUBLIC_COLUMNS = [
   "ativo_site", "publicar_xml", "destaque_home", "destaque_categoria",
   "descricao", "link_video", "link_material", "link_drive_fotos", "tour_360",
   "data_captacao", "responsavel_captacao",
+  "responsavel_nome", "responsavel_telefone", "responsavel_whatsapp", "responsavel_email",
   "exclusivo", "compartilhamento_permitido", "comissao_compartilhada",
   "data_vencimento_exclusividade", "portais_permitidos", "prioridade_xml",
   "ultima_exportacao", "status_exportacao", "exportacao_liberada", "arquivado",

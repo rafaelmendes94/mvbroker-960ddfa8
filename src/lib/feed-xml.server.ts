@@ -119,6 +119,26 @@ export function buildVRSyncXML(opts: BuildOpts): string {
       const condo = im.valor_condominio != null ? `<PropertyAdministrationFee currency="BRL">${im.valor_condominio}</PropertyAdministrationFee>` : "";
       const iptu = im.valor_iptu != null ? `<YearlyTax currency="BRL">${im.valor_iptu}</YearlyTax>` : "";
 
+      // CEP — fallback para padrão Capão da Canoa quando ausente, para não travar
+      // a importação de portais que exigem o campo.
+      const cepValor = (im.cep && String(im.cep).trim()) || "95555-000";
+
+      // Proprietário (não-oficial VRSync, mas aceito por alguns portais)
+      const propNome = im.responsavel_nome || null;
+      const propTel = im.responsavel_telefone || im.responsavel_whatsapp || null;
+      const propEmail = im.responsavel_email || null;
+      const ownerXML = (propNome || propTel)
+        ? `<Owner>
+    ${propNome ? `<Name>${cdata(propNome)}</Name>` : ""}
+    ${propTel ? `<Phone>${esc(propTel)}</Phone>` : ""}
+    ${propEmail ? `<Email>${esc(propEmail)}</Email>` : ""}
+  </Owner>`
+        : "";
+
+      // Nome do condomínio / edifício
+      const nomeCondo = im.condominio_nome || im.edificio_nome || null;
+      const condoNomeXML = nomeCondo ? `<CondominiumName>${cdata(nomeCondo)}</CondominiumName>` : "";
+
       return `<Listing>
   <ListingID>${esc(codigo)}</ListingID>
   <Title>${cdata(im.titulo || `${tipo} em ${im.bairro || im.cidade || ""}`)}</Title>
@@ -142,10 +162,12 @@ export function buildVRSyncXML(opts: BuildOpts): string {
     <Neighborhood>${esc(im.bairro || "")}</Neighborhood>
     <Address>${esc(im.logradouro || "")}</Address>
     <StreetNumber>${esc(im.numero || "")}</StreetNumber>
-    <PostalCode>${esc(im.cep || "")}</PostalCode>
+    <PostalCode>${esc(cepValor)}</PostalCode>
+    ${condoNomeXML}
     ${im.latitude != null ? `<Latitude>${im.latitude}</Latitude>` : ""}
     ${im.longitude != null ? `<Longitude>${im.longitude}</Longitude>` : ""}
   </Location>
+  ${ownerXML}
   ${mediaXML}
 </Listing>`;
     })
