@@ -14,8 +14,9 @@ export async function getEstruturaImageUrls(path?: string | null): Promise<Estru
   const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(cleanPath);
   const { data: signedData } = await supabase.storage.from(BUCKET).createSignedUrl(cleanPath, 60 * 60);
 
+  // Prefer signed URL (works for private buckets and on self-hosted VPS); fall back to public.
   return {
-    url: publicData.publicUrl || signedData?.signedUrl || cleanPath,
-    fallbackUrl: signedData?.signedUrl || publicData.publicUrl || cleanPath,
+    url: signedData?.signedUrl || publicData.publicUrl || cleanPath,
+    fallbackUrl: publicData.publicUrl || signedData?.signedUrl || cleanPath,
   };
 }
