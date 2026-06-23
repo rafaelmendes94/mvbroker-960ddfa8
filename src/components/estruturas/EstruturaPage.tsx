@@ -459,6 +459,22 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                     </p>
                   </Link>
                   <div className="col-span-2 flex items-center justify-end gap-1 sm:col-span-1">
+                    {(i.latitude && i.longitude) || i.logradouro || i.cidade ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8"
+                        onClick={() => {
+                          const q = (i.latitude && i.longitude)
+                            ? `${i.latitude},${i.longitude}`
+                            : encodeURIComponent([i.logradouro, i.numero, i.bairro, i.cidade, i.estado].filter(Boolean).join(", "));
+                          window.open(`https://www.google.com/maps?q=${q}`, "_blank", "noopener,noreferrer");
+                        }}
+                        title="Abrir no Google Maps"
+                      >
+                        <MapPin className="h-3.5 w-3.5 mr-1" /> Maps
+                      </Button>
+                    ) : null}
                     {tipo !== "empreendimento" && (
                       <Button asChild size="sm" variant="outline" className="h-8">
                         <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
