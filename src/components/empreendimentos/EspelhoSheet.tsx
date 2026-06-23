@@ -20,6 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getEstruturaImageUrls } from "@/lib/estrutura-images";
 
 import {
   STATUS_CONFIG, TIPOLOGIA_CONFIG, TIPO_LABELS, CSV_TEMPLATE, TIPO_TO_IMOVEL_FK,
@@ -41,6 +42,7 @@ type EmpData = {
   cidade?: string | null;
   estado?: string | null;
   cover_url?: string | null;
+  cover_fallback_url?: string | null;
 };
 
 type SectionId = "midia" | "implantacao" | "tabela";
@@ -68,13 +70,15 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
 
     const { data: imgs } = await supabase
       .from("estrutura_imagens")
-      .select("url, ordem")
+      .select("storage_path, url, capa, ordem")
       .eq("estrutura_tipo", tipo)
       .eq("estrutura_id", empreendimentoId)
+      .order("capa", { ascending: false })
       .order("ordem", { ascending: true })
       .limit(1);
 
-    setEmp(e ? { ...(e as any), cover_url: imgs?.[0]?.url ?? null } : null);
+    const coverUrls = await getEstruturaImageUrls((imgs?.[0] as any)?.storage_path || (imgs?.[0] as any)?.url);
+    setEmp(e ? { ...(e as any), cover_url: coverUrls?.url ?? null, cover_fallback_url: coverUrls?.fallbackUrl ?? null } : null);
 
     const { data: u, error } = await supabase
       .from("espelho_unidades" as any)
@@ -147,7 +151,14 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
       {/* Hero */}
       <div className="relative w-full h-56 sm:h-72 overflow-hidden rounded-xl border bg-muted">
         {emp.cover_url ? (
-          <img src={emp.cover_url} alt={emp.nome} className="w-full h-full object-cover" />
+          <img
+            src={emp.cover_url}
+            alt={emp.nome}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              if (emp.cover_fallback_url && e.currentTarget.src !== emp.cover_fallback_url) e.currentTarget.src = emp.cover_fallback_url;
+            }}
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
             <Building2 className="h-12 w-12" />

@@ -4,11 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { compressImageToWebp } from "@/lib/imageCompress";
+import { getEstruturaImageUrls } from "@/lib/estrutura-images";
 
 type Img = {
   id: string;
   storage_path: string;
   url: string;
+  fallback_url?: string;
   ordem: number;
   capa: boolean;
 };
@@ -34,13 +36,10 @@ export function GaleriaUpload({
       .eq("estrutura_id", estruturaId)
       .order("ordem", { ascending: true });
     if (!data) return;
-    // gerar URLs assinadas
     const enriched = await Promise.all(
       data.map(async (r: any) => {
-        const { data: signed } = await supabase.storage
-          .from("estrutura-imagens")
-          .createSignedUrl(r.storage_path, 60 * 60);
-        return { ...r, url: signed?.signedUrl ?? r.url } as Img;
+        const urls = await getEstruturaImageUrls(r.storage_path || r.url);
+        return { ...r, url: urls?.url ?? r.url, fallback_url: urls?.fallbackUrl } as Img;
       })
     );
     setImgs(enriched);
@@ -127,7 +126,14 @@ export function GaleriaUpload({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {imgs.map((img, idx) => (
             <div key={img.id} className="relative group rounded-md overflow-hidden border bg-muted">
-              <img src={img.url} alt="" className="w-full h-32 object-cover" />
+              <img
+                src={img.url}
+                alt=""
+                className="w-full h-32 object-cover"
+                onError={(e) => {
+                  if (img.fallback_url && e.currentTarget.src !== img.fallback_url) e.currentTarget.src = img.fallback_url;
+                }}
+              />
               {img.capa && (
                 <span className="absolute top-1.5 left-1.5 text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded">CAPA</span>
               )}
