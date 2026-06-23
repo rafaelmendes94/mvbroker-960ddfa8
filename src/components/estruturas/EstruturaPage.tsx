@@ -230,12 +230,39 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   }
 
 
+  const [covers, setCovers] = useState<Record<string, string>>({});
+
   async function load() {
     setLoading(true);
     const { data, error } = await supabase.from(table).select("*").order("created_at", { ascending: false });
     if (error) toast.error(error.message);
-    setItems(data ?? []);
+    const list = data ?? [];
+    setItems(list);
     setLoading(false);
+    // carregar capas
+    if (list.length) {
+      const ids = list.map((i: any) => i.id);
+      const { data: imgs } = await supabase
+        .from("estrutura_imagens")
+        .select("estrutura_id, storage_path, capa, ordem")
+        .eq("estrutura_tipo", tipo)
+        .in("estrutura_id", ids)
+        .order("capa", { ascending: false })
+        .order("ordem", { ascending: true });
+      const firstByEst: Record<string, string> = {};
+      for (const r of (imgs ?? []) as any[]) {
+        if (!firstByEst[r.estrutura_id]) firstByEst[r.estrutura_id] = r.storage_path;
+      }
+      const entries = await Promise.all(
+        Object.entries(firstByEst).map(async ([eid, path]) => {
+          const { data: s } = await supabase.storage.from("estrutura-imagens").createSignedUrl(path, 60 * 60);
+          return [eid, s?.signedUrl ?? ""] as const;
+        })
+      );
+      setCovers(Object.fromEntries(entries));
+    } else {
+      setCovers({});
+    }
   }
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [tipo]);
 
