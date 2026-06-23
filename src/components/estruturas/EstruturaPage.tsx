@@ -14,9 +14,6 @@ import { Switch } from "@/components/ui/switch";
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
 import { toast } from "sonner";
 import { generateSkeleton } from "@/lib/espelho";
 
@@ -134,10 +131,10 @@ const TABLE: Record<EstruturaTipo, "edificios" | "condominios" | "empreendimento
 };
 
 const LABELS: Record<EstruturaTipo, { title: string; singular: string; description: string }> = {
-  edificio: { title: "Edifícios", singular: "edifício", description: "Cadastro centralizado de edifícios para reutilização nos imóveis." },
-  condominio: { title: "Condomínios", singular: "condomínio", description: "Cadastro centralizado de condomínios para reutilização nos imóveis." },
-  empreendimento: { title: "Empreendimentos", singular: "empreendimento", description: "Cadastro de empreendimentos e lançamentos imobiliários." },
-  loteamento: { title: "Loteamentos", singular: "loteamento", description: "Cadastro de loteamentos para vincular lotes aos imóveis." },
+  edificio: { title: "Edifícios", singular: "edifício", description: "Gerencie os edifícios cadastrados e reutilize-os ao vincular novos imóveis." },
+  condominio: { title: "Condomínios", singular: "condomínio", description: "Gerencie os condomínios cadastrados e reutilize-os ao vincular novos imóveis." },
+  empreendimento: { title: "Empreendimentos", singular: "empreendimento", description: "Gerencie empreendimentos e lançamentos imobiliários da sua base." },
+  loteamento: { title: "Loteamentos", singular: "loteamento", description: "Gerencie os loteamentos cadastrados e vincule rapidamente os lotes aos imóveis." },
 };
 
 export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
@@ -230,12 +227,39 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   }
 
 
+  const [covers, setCovers] = useState<Record<string, string>>({});
+
   async function load() {
     setLoading(true);
     const { data, error } = await supabase.from(table).select("*").order("created_at", { ascending: false });
     if (error) toast.error(error.message);
-    setItems(data ?? []);
+    const list = data ?? [];
+    setItems(list);
     setLoading(false);
+    // carregar capas
+    if (list.length) {
+      const ids = list.map((i: any) => i.id);
+      const { data: imgs } = await supabase
+        .from("estrutura_imagens")
+        .select("estrutura_id, storage_path, capa, ordem")
+        .eq("estrutura_tipo", tipo)
+        .in("estrutura_id", ids)
+        .order("capa", { ascending: false })
+        .order("ordem", { ascending: true });
+      const firstByEst: Record<string, string> = {};
+      for (const r of (imgs ?? []) as any[]) {
+        if (!firstByEst[r.estrutura_id]) firstByEst[r.estrutura_id] = r.storage_path;
+      }
+      const entries = await Promise.all(
+        Object.entries(firstByEst).map(async ([eid, path]) => {
+          const { data: s } = await supabase.storage.from("estrutura-imagens").createSignedUrl(path, 60 * 60);
+          return [eid, s?.signedUrl ?? ""] as const;
+        })
+      );
+      setCovers(Object.fromEntries(entries));
+    } else {
+      setCovers({});
+    }
   }
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [tipo]);
 
@@ -395,42 +419,48 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
               <p className="text-sm text-muted-foreground">Nenhum registro encontrado.</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Código</TableHead>
-                  <TableHead>Cidade</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[220px] text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((i) => (
-                  <TableRow key={i.id}>
-                    <TableCell className="font-medium">{i.nome}</TableCell>
-                    <TableCell className="text-muted-foreground">{i.codigo_interno ?? "—"}</TableCell>
-                    <TableCell className="text-muted-foreground">{[i.cidade, i.estado].filter(Boolean).join("/") || "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant={i.ativo ? "default" : "secondary"}>{i.ativo ? "Ativo" : "Inativo"}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end gap-1">
-                        {tipo !== "empreendimento" && (
-                          <Button asChild size="sm" variant="outline" title="Espelho de Vendas">
-                            <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
-                              <LayoutGrid className="h-4 w-4 mr-1" /> Espelho
-                            </Link>
-                          </Button>
-                        )}
-                        <Button size="icon" variant="ghost" onClick={() => openEdit(i)}><Pencil className="h-4 w-4" /></Button>
-                        <Button size="icon" variant="ghost" onClick={() => remove(i.id, i.nome)}><Trash2 className="h-4 w-4" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filtered.map((i) => (
+                <div key={i.id} className="group relative rounded-lg border bg-card overflow-hidden hover:border-primary transition-colors">
+                  <Link
+                    to="/empreendimentos/$id"
+                    params={{ id: i.id }}
+                    className="block"
+                  >
+                    <div className="aspect-[16/9] bg-muted relative overflow-hidden">
+                      {covers[i.id] ? (
+                        <img src={covers[i.id]} alt={i.nome} className="w-full h-full object-cover" loading="lazy" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <Building2 className="h-10 w-10" />
+                        </div>
+                      )}
+                      <Badge variant={i.ativo ? "default" : "secondary"} className="absolute top-2 right-2 text-[10px]">
+                        {i.ativo ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </div>
+                    <div className="p-3 space-y-1">
+                      <p className="font-semibold text-sm line-clamp-1">{i.nome}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {[i.cidade, i.estado].filter(Boolean).join("/") || "—"}
+                        {i.codigo_interno ? ` · ${i.codigo_interno}` : ""}
+                      </p>
+                    </div>
+                  </Link>
+                  <div className="flex items-center justify-end gap-1 px-2 pb-2">
+                    {tipo !== "empreendimento" && (
+                      <Button asChild size="sm" variant="outline" className="h-8">
+                        <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
+                          <LayoutGrid className="h-3.5 w-3.5 mr-1" /> Espelho
+                        </Link>
+                      </Button>
+                    )}
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(i)}><Pencil className="h-4 w-4" /></Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => remove(i.id, i.nome)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
