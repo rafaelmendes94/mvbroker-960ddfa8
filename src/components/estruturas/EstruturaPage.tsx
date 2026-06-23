@@ -23,6 +23,7 @@ import { InfraestruturaSelect } from "@/components/forms/InfraestruturaSelect";
 import { GaleriaUpload, type EstruturaTipo } from "@/components/forms/GaleriaUpload";
 import { logAudit } from "@/lib/audit";
 import { useAuth } from "@/hooks/use-auth";
+import { getEstruturaImageUrls, type EstruturaImageUrls } from "@/lib/estrutura-images";
 
 function parseBRL(v: unknown): number | null {
   if (v == null || v === "") return null;
@@ -227,7 +228,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   }
 
 
-  const [covers, setCovers] = useState<Record<string, string>>({});
+  const [covers, setCovers] = useState<Record<string, EstruturaImageUrls>>({});
 
   async function load() {
     setLoading(true);
@@ -252,11 +253,11 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
       }
       const entries = await Promise.all(
         Object.entries(firstByEst).map(async ([eid, path]) => {
-          const { data: s } = await supabase.storage.from("estrutura-imagens").createSignedUrl(path, 60 * 60);
-          return [eid, s?.signedUrl ?? ""] as const;
+          const urls = await getEstruturaImageUrls(path);
+          return [eid, urls] as const;
         })
       );
-      setCovers(Object.fromEntries(entries));
+      setCovers(Object.fromEntries(entries.filter((entry): entry is readonly [string, EstruturaImageUrls] => Boolean(entry[1]))));
     } else {
       setCovers({});
     }
@@ -419,35 +420,45 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
               <p className="text-sm text-muted-foreground">Nenhum registro encontrado.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="space-y-2">
               {filtered.map((i) => (
-                <div key={i.id} className="group relative rounded-lg border bg-card overflow-hidden hover:border-primary transition-colors">
+                <div key={i.id} className="group grid grid-cols-[72px_minmax(0,1fr)] items-center gap-3 rounded-lg border bg-card p-2 transition-colors hover:border-primary sm:grid-cols-[88px_minmax(0,1fr)_auto]">
                   <Link
                     to="/empreendimentos/$id"
                     params={{ id: i.id }}
-                    className="block"
+                    className="block h-16 w-[72px] overflow-hidden rounded-md bg-muted sm:h-16 sm:w-[88px]"
                   >
-                    <div className="aspect-[16/9] bg-muted relative overflow-hidden">
-                      {covers[i.id] ? (
-                        <img src={covers[i.id]} alt={i.nome} className="w-full h-full object-cover" loading="lazy" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          <Building2 className="h-10 w-10" />
-                        </div>
-                      )}
-                      <Badge variant={i.ativo ? "default" : "secondary"} className="absolute top-2 right-2 text-[10px]">
+                    {covers[i.id] ? (
+                      <img
+                        src={covers[i.id].url}
+                        alt={i.nome}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          const fallback = covers[i.id]?.fallbackUrl;
+                          if (fallback && e.currentTarget.src !== fallback) e.currentTarget.src = fallback;
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                        <Building2 className="h-5 w-5" />
+                      </div>
+                    )}
+                  </Link>
+                  <Link to="/empreendimentos/$id" params={{ id: i.id }} className="min-w-0 space-y-1">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <p className="truncate text-sm font-semibold">{i.nome}</p>
+                      <Badge variant={i.ativo ? "default" : "secondary"} className="shrink-0 text-[10px]">
                         {i.ativo ? "Ativo" : "Inativo"}
                       </Badge>
                     </div>
-                    <div className="p-3 space-y-1">
-                      <p className="font-semibold text-sm line-clamp-1">{i.nome}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-1">
-                        {[i.cidade, i.estado].filter(Boolean).join("/") || "—"}
-                        {i.codigo_interno ? ` · ${i.codigo_interno}` : ""}
-                      </p>
-                    </div>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {[i.cidade, i.estado].filter(Boolean).join("/") || "Sem cidade"}
+                      {i.bairro ? ` · ${i.bairro}` : ""}
+                      {i.codigo_interno ? ` · Cód. ${i.codigo_interno}` : ""}
+                    </p>
                   </Link>
-                  <div className="flex items-center justify-end gap-1 px-2 pb-2">
+                  <div className="col-span-2 flex items-center justify-end gap-1 sm:col-span-1">
                     {tipo !== "empreendimento" && (
                       <Button asChild size="sm" variant="outline" className="h-8">
                         <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
