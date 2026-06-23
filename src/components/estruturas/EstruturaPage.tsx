@@ -134,10 +134,10 @@ const TABLE: Record<EstruturaTipo, "edificios" | "condominios" | "empreendimento
 };
 
 const LABELS: Record<EstruturaTipo, { title: string; singular: string; description: string }> = {
-  edificio: { title: "Edifícios", singular: "edifício", description: "Cadastro centralizado de edifícios para reutilização nos imóveis." },
-  condominio: { title: "Condomínios", singular: "condomínio", description: "Cadastro centralizado de condomínios para reutilização nos imóveis." },
-  empreendimento: { title: "Empreendimentos", singular: "empreendimento", description: "Cadastro de empreendimentos e lançamentos imobiliários." },
-  loteamento: { title: "Loteamentos", singular: "loteamento", description: "Cadastro de loteamentos para vincular lotes aos imóveis." },
+  edificio: { title: "Edifícios", singular: "edifício", description: "Gerencie os edifícios cadastrados e reutilize-os ao vincular novos imóveis." },
+  condominio: { title: "Condomínios", singular: "condomínio", description: "Gerencie os condomínios cadastrados e reutilize-os ao vincular novos imóveis." },
+  empreendimento: { title: "Empreendimentos", singular: "empreendimento", description: "Gerencie empreendimentos e lançamentos imobiliários da sua base." },
+  loteamento: { title: "Loteamentos", singular: "loteamento", description: "Gerencie os loteamentos cadastrados e vincule rapidamente os lotes aos imóveis." },
 };
 
 export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
