@@ -56,25 +56,47 @@ const CamposSchema = z.object({
 
 export type CamposExtraidos = z.infer<typeof CamposSchema>;
 
-const SYSTEM_PROMPT = `Você é um extrator de dados imobiliários. Recebe uma descrição livre de imóvel (WhatsApp, e-mail, ficha do proprietário) e retorna SOMENTE um JSON válido, sem markdown, sem crases, sem comentários.
+const SYSTEM_PROMPT = `Você é um extrator de dados imobiliários altamente preciso. Recebe uma descrição livre de imóvel (WhatsApp, e-mail, ficha do proprietário) e retorna SOMENTE um JSON válido, sem markdown, sem crases, sem comentários.
 
-Regras:
-- Use exatamente as chaves definidas no schema abaixo.
-- Use null quando a informação não estiver no texto. NUNCA invente.
-- Números como valores numéricos puros (sem R$, sem pontos de milhar, use ponto decimal). Ex: 1.250.000,00 -> 1250000. 75,05 m² -> 75.05.
-- "estado" em UF de 2 letras quando possível (RS, SP...).
-- "tipo_imovel" ex: "Apartamento", "Casa", "Comercial", "Terreno", "Lote", "Cobertura".
-- "responsavel_nome" e "responsavel_telefone": pegue o PRIMEIRO proprietário/contato listado. Coloque os demais dentro de "descricao".
-- "local_chaves": se houver tag, senha, box, código de acesso — resuma tudo aqui (ex: "Tag Lux Group central/sepe - Senha 1745 - Box 26").
-- "vista_mar": true se mencionar "vista mar", "beira mar", "frente mar".
-- "decorado": true se mencionar "decorado" ou "mobiliado e decorado".
+REGRAS GERAIS:
+- Use exatamente as chaves definidas no schema abaixo. Preencha TODAS as chaves; use null quando a informação REALMENTE não estiver no texto. NUNCA invente.
+- LEIA O TEXTO INTEIRO antes de decidir. Muitas informações aparecem como emoji + número (ex: "▪️2 dormitorios", "🚗 1 vaga", "📐 75,05m²").
+- Números: valores numéricos puros (sem R$, sem "m²", sem pontos de milhar). Vírgula decimal vira ponto. Ex: "R$ 1.250.000,00" -> 1250000. "75,05 m²" -> 75.05. "2 dormitórios" -> 2.
+- "estado": UF de 2 letras (RS, SP, SC...).
+
+CAMPOS ESTRUTURAIS (extraia com muita atenção):
+- "tipo_imovel": "Apartamento" | "Casa" | "Cobertura" | "Comercial" | "Sala Comercial" | "Terreno" | "Lote" | "Sítio" | "Chácara". Se cita "apto", "apartamento", "unidade em prédio" -> "Apartamento".
+- "unidade": número/identificador da unidade dentro do prédio (ex: "303", "1201"). SÓ o número/código.
+- "box": número da vaga de garagem/box (ex: "26").
+- "quadra" / "lote": só se o texto explicitamente citar "quadra X" e "lote Y" (loteamento/terreno).
+- "dormitorios": total de dormitórios/quartos. "2 dormitórios sendo 1 suíte" -> dormitorios=2, suites=1.
+- "suites": quantas dessas são suítes.
+- "banheiros": total de banheiros extras (fora suítes). Se não citado, null.
+- "vagas": vagas de garagem.
+- "area_privativa": m² privativa/útil/interna.
+- "area_total": m² total (com áreas comuns/terreno).
+
+CONTATOS E CHAVES:
+- "responsavel_nome" / "responsavel_telefone": PRIMEIRO proprietário/contato. Demais vão em "descricao".
+- "local_chaves": junte tag/senha/box/código. Ex: "Tag Lux Group central - Senha 1745 - Box 26".
+
+FLAGS:
+- "vista_mar": true se citar "vista mar", "beira mar", "frente mar".
+- "decorado": true se citar "decorado", "mobiliado".
+- "aceita_permuta": true se citar "permuta".
 - "condicao": "Mobiliado" | "Semi-mobiliado" | "Vazio" | "Decorado".
-- "condicoes_pagamento": array com ex "À Vista", "Estuda Propostas", "Financiamento Bancário", "FGTS", "Permuta".
-- "infraestrutura": array com itens curtos: "Piscina", "Elevador", "Hall Decorado", "Beira Mar", "Portaria 24h", "Churrasqueira", "Academia", "Salão de Festas" etc.
-- "descricao": reescreva a descrição limpa e comercial em pt-BR, 2-3 parágrafos, sem repetir bruto o WhatsApp. Inclua contatos extras que não couberam em responsavel_*.
-- "titulo": monte curto, ex: "Apartamento 2 dorm - Zona Nova, Capão da Canoa".
+- "padrao": "Econômico" | "Médio Padrão" | "Alto Padrão" | "Luxo". Deduza pelo preço/localização.
+- "vista": "Mar" | "Cidade" | "Lagoa" | "Montanha" | "Interna".
 
-Schema (todas opcionais/nullable):
+LISTAS:
+- "condicoes_pagamento": ex ["À Vista", "Estuda Propostas", "Financiamento Bancário", "FGTS", "Permuta"].
+- "infraestrutura": itens curtos capitalizados: "Piscina", "Elevador", "Hall Decorado", "Beira Mar", "Portaria 24h", "Churrasqueira", "Academia", "Salão de Festas", "Playground", "Sacada".
+
+TEXTO:
+- "descricao": reescreva limpa e comercial, 2-3 parágrafos, sem colar bruto. Inclua telefones extras no fim.
+- "titulo": curto, ex: "Apartamento 2 dorm com vista mar - Zona Nova, Capão da Canoa".
+
+Schema (retorne SEMPRE todas as chaves):
 {
   "titulo": string|null, "tipo_imovel": string|null, "descricao": string|null,
   "cep": string|null, "logradouro": string|null, "numero": string|null,
@@ -91,7 +113,30 @@ Schema (todas opcionais/nullable):
   "infraestrutura": string[]|null
 }
 
-Retorne SOMENTE o JSON.`;
+EXEMPLO:
+Entrada:
+"Rio Tevere 303 box 26 - R$1.250.000,00 - Paga 4% comissão - Proprietário Júlio 51 98022-8125 - SACADA FRENTE COM VISTA MAR - 2 dormitorios sendo 1 suíte - 75,05m² priv / 109,50m² total - 1 vaga - Mobiliado e decorado - Piscina, elevador, hall decorado - Zona Nova, Capão da Canoa/RS - Av. Beira mar 1301 - Estuda propostas - Tag Lux Group central - Senha 1745"
+
+Saída:
+{
+  "titulo": "Apartamento 2 dorm com vista mar - Zona Nova, Capão da Canoa",
+  "tipo_imovel": "Apartamento",
+  "descricao": "Excelente apartamento no Edifício Rio Tevere com sacada frontal e vista mar deslumbrante...",
+  "cep": null, "logradouro": "Av. Beira Mar", "numero": "1301",
+  "bairro": "Zona Nova", "cidade": "Capão da Canoa", "estado": "RS",
+  "unidade": "303", "box": "26", "quadra": null, "lote": null,
+  "preco": 1250000, "comissao_percentual": 4, "bonus": null,
+  "condicoes_pagamento": ["Estuda Propostas"],
+  "responsavel_nome": "Júlio", "responsavel_telefone": "51 98022-8125",
+  "local_chaves": "Tag Lux Group central - Senha 1745 - Box 26",
+  "dormitorios": 2, "suites": 1, "banheiros": null, "lavabo": null, "vagas": 1, "elevadores": null,
+  "area_privativa": 75.05, "area_total": 109.50,
+  "vista_mar": true, "decorado": true, "aceita_permuta": null,
+  "condicao": "Decorado", "posicao_solar": null, "vista": "Mar", "padrao": "Alto Padrão",
+  "infraestrutura": ["Sacada", "Piscina", "Elevador", "Hall Decorado", "Beira Mar"]
+}
+
+Retorne SOMENTE o JSON, sem texto adicional.`;
 
 function stripFences(s: string): string {
   return s
