@@ -32,7 +32,7 @@ Docker + Traefik (SSL automático Let's Encrypt) + Supabase self-hosted.
 Como `root`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/rafaelmendes94/mvbroker-2309b0aa/main/infra/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/rafaelmendes94/mvbroker-960ddfa8/main/infra/bootstrap.sh | bash
 ```
 
 Isso instala Docker, Compose, git, ufw, cria a rede `web` e clona o repo em
@@ -85,7 +85,7 @@ mkdir -p /opt/mvbroker-infra/app-front
 cd /opt/mvbroker-infra/app-front
 
 # Clone do repositório
-git clone https://github.com/rafaelmendes94/mvbroker-2309b0aa.git repo
+git clone https://github.com/rafaelmendes94/mvbroker-960ddfa8.git repo
 
 # .env de produção (NUNCA commitado, fica só na VPS)
 nano .env.production

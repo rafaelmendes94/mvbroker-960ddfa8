@@ -34,7 +34,7 @@ yes | ufw enable || true
 
 echo "▶ Clonando repo de infra em /opt/mvbroker-infra"
 if [ ! -d /opt/mvbroker-infra ]; then
-  git clone https://github.com/rafaelmendes94/mvbroker-2309b0aa.git /opt/mvbroker-infra
+  git clone https://github.com/rafaelmendes94/mvbroker-960ddfa8.git /opt/mvbroker-infra
 fi
 
 echo "▶ Criando rede docker compartilhada"
