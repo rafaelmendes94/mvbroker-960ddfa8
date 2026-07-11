@@ -48,6 +48,7 @@ export function ImovelGaleria({ imovelId }: { imovelId: string | null }) {
         const up = await supabase.storage.from("imoveis").upload(path, f, {
           contentType: f.type || "image/webp",
           upsert: false,
+          cacheControl: "31536000",
         });
         if (up.error) { toast.error(up.error.message); continue; }
         await supabase.from("imovel_imagens").insert({
