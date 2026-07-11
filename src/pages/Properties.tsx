@@ -21,7 +21,7 @@ import {
   TrendingUp, Wallet, RefreshCw, ArrowUp, ArrowDown, Banknote, Copy, Maximize2, Scan, Route, Globe, Trash2,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "@/lib/router-shim";
-import { cn } from "@/lib/utils";
+import { cn, formatUnitParts } from "@/lib/utils";
 import { toast } from "sonner";
 import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useAuth } from "@/hooks/useAuth";
