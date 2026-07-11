@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { AppLayout } from "@/components/AppLayout";
-import { BackButton } from "@/components/BackButton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MetricCard } from "@/components/MetricCard";
@@ -291,7 +290,7 @@ export default function Reports() {
   return (
     <AppLayout>
       <div className="reports-scope p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-5">
-        <BackButton />
+        
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Relatório de Vendas</h1>
