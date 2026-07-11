@@ -13,3 +13,19 @@ export function toSlug(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 }
+
+export function formatUnitParts(property: {
+  unitNumber?: string | null;
+  boxNumber?: string | null;
+  quadra?: string | null;
+  lote?: string | null;
+}): string[] {
+  const clean = (v: string) => v.trim().replace(/^(Qd?|Lt?|L)\s*[-.]?\s*/i, "");
+  const parts: string[] = [];
+  if (property.quadra?.trim()) parts.push(`Qd ${clean(property.quadra)}`);
+  if (property.lote?.trim()) parts.push(`Lt ${clean(property.lote)}`);
+  if (property.unitNumber?.trim()) parts.push(property.unitNumber.trim());
+  if (property.boxNumber?.trim()) parts.push(property.boxNumber.trim());
+  return parts;
+}
+

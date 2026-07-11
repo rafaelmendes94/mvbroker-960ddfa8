@@ -14,7 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { formatCurrency, type Property } from "@/data/mockData";
-import { cn, toSlug } from "@/lib/utils";
+import { cn, toSlug, formatUnitParts } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client-any";
 import { useAuth } from "@/hooks/useAuth";
@@ -166,7 +166,7 @@ export function PropertyDetailModal({ property, onClose, allProperties, brokerIn
   if (!property) return null;
 
   const images = property.images && property.images.length > 0 ? property.images : [property.image];
-  const unitParts = [property.unitNumber, property.boxNumber, property.quadra, property.lote].filter(Boolean);
+  const unitParts = formatUnitParts(property);
   const broker = brokerInfo?.[property.broker];
   const whatsappMessage = encodeURIComponent(`Olá! Tenho interesse no imóvel: ${property.title} - ${formatCurrency(property.price)}`);
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${property.address}, ${property.city}`)}`;

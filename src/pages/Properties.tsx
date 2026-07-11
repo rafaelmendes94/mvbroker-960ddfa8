@@ -21,7 +21,7 @@ import {
   TrendingUp, Wallet, RefreshCw, ArrowUp, ArrowDown, Banknote, Copy, Maximize2, Scan, Route, Globe, Trash2,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "@/lib/router-shim";
-import { cn } from "@/lib/utils";
+import { cn, formatUnitParts } from "@/lib/utils";
 import { toast } from "sonner";
 import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useAuth } from "@/hooks/useAuth";
@@ -829,7 +829,7 @@ export default function Properties() {
   };
 
   const handleNavigateToContract = (property: Property) => {
-    const unitParts = [property.unitNumber, property.boxNumber, property.quadra, property.lote].filter(Boolean);
+    const unitParts = formatUnitParts(property);
     const params = new URLSearchParams({
       imovel: property.title,
       endereco: `${property.address}, ${property.city}`,
@@ -2122,7 +2122,7 @@ function PropertyCard({
     whatsapp: property.brokerWhatsapp || fallback.whatsapp,
   };
   const whatsappMessage = encodeURIComponent(`Olá! Tenho interesse no imóvel: ${property.title} - ${formatCurrency(property.price)}`);
-  const unitParts = [property.unitNumber, property.boxNumber, property.quadra, property.lote].filter(Boolean);
+  const unitParts = formatUnitParts(property);
 
   const handleStatusChange = (newStatus: Property["status"]) => {
     if (newStatus === "Vendido" && property.status !== "Vendido") {
@@ -2560,7 +2560,7 @@ function PropertyRow({
   };
 
   const ownerTypeInfo = property.ownerType ? ownerTypeConfig[property.ownerType] : null;
-  const unitParts = [property.unitNumber, property.boxNumber, property.quadra, property.lote].filter(Boolean);
+  const unitParts = formatUnitParts(property);
 
   return (
     <div className={cn("elevated-card rounded-xl relative overflow-hidden transition-all duration-300", animatePulse && "animate-sold-pulse")}>
