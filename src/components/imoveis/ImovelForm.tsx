@@ -34,6 +34,7 @@ import { DraggableBlocks } from "@/components/forms/DraggableBlocks";
 import { EntitySelector, type EntityOption } from "@/components/imoveis/EntitySelector";
 import { EspelhoUnitPicker } from "@/components/imoveis/EspelhoUnitPicker";
 import { ImovelGaleria } from "@/components/imoveis/ImovelGaleria";
+import { QuickCreateEntityModal } from "@/components/imoveis/QuickCreateEntityModal";
 
 // ---------- catálogos ----------
 const STATUS_OPTS: { slug: string; label: string; icon: typeof Home; color: string; bg: string; border: string }[] = [
