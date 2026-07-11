@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getImageUrls } from "@/lib/imageUrl";
 import {
   Search,
   SlidersHorizontal,
@@ -48,6 +49,9 @@ export const Route = createFileRoute("/")({
           "Organize sua operação imobiliária. Pesquise, monte carteiras e distribua imóveis para os principais portais.",
       },
       { property: "og:image", content: bgDesktop.url },
+    ],
+    links: [
+      { rel: "preload", as: "image", href: bgDesktop.url, fetchpriority: "high" } as any,
     ],
   }),
   component: LandingPage,
@@ -181,7 +185,15 @@ function LandingPage() {
       (imgs ?? []).forEach((im: any) => {
         if (!map.has(im.imovel_id) && im.url) map.set(im.imovel_id, im.url);
       });
-      setDestaques(items.map((i: any) => ({ ...i, capa: map.get(i.id) ?? null })));
+      // Assina em lote com cache — evita N HTTP calls.
+      const paths = Array.from(map.values());
+      const urlMap = await getImageUrls(paths, "imoveis");
+      setDestaques(
+        items.map((i: any) => {
+          const path = map.get(i.id) ?? null;
+          return { ...i, capa: path ? urlMap.get(path) ?? null : null };
+        })
+      );
     })();
   }, []);
 

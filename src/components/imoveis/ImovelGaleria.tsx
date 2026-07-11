@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { logImovel } from "@/lib/audit";
 import { compressImageToWebp } from "@/lib/imageCompress";
+import { getImageUrls } from "@/lib/imageUrl";
 
 type Img = {
   id: string;
@@ -26,13 +27,9 @@ export function ImovelGaleria({ imovelId }: { imovelId: string | null }) {
       .eq("imovel_id", imovelId)
       .order("ordem", { ascending: true });
     if (!data) return;
-    const enriched = await Promise.all(
-      data.map(async (r) => {
-        const { data: s } = await supabase.storage.from("imoveis").createSignedUrl(r.storage_path, 3600);
-        return { ...r, url: s?.signedUrl ?? "" } as Img;
-      })
-    );
-    setImgs(enriched);
+    const paths = data.map((r) => r.storage_path).filter(Boolean) as string[];
+    const urlMap = await getImageUrls(paths, "imoveis");
+    setImgs(data.map((r) => ({ ...r, url: urlMap.get(r.storage_path) ?? "" } as Img)));
   }
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [imovelId]);
 
@@ -51,6 +48,7 @@ export function ImovelGaleria({ imovelId }: { imovelId: string | null }) {
         const up = await supabase.storage.from("imoveis").upload(path, f, {
           contentType: f.type || "image/webp",
           upsert: false,
+          cacheControl: "31536000",
         });
         if (up.error) { toast.error(up.error.message); continue; }
         await supabase.from("imovel_imagens").insert({

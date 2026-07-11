@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useExportacao } from "@/hooks/use-exportacao";
 import { logImovel } from "@/lib/audit";
+import { getImageUrl, getImageUrls } from "@/lib/imageUrl";
 
 export function ImovelDrawer({ id, open, onOpenChange }: { id: string | null; open: boolean; onOpenChange: (o: boolean) => void }) {
   const [imovel, setImovel] = useState<any>(null);
@@ -25,7 +26,10 @@ export function ImovelDrawer({ id, open, onOpenChange }: { id: string | null; op
       ]);
       if (cancelled) return;
       setImovel(i);
-      setImagens(imgs ?? []);
+      const list = imgs ?? [];
+      const paths = list.map((x: any) => x.storage_path).filter(Boolean) as string[];
+      const urlMap = await getImageUrls(paths, "imoveis");
+      setImagens(list.map((x: any) => ({ ...x, url: urlMap.get(x.storage_path) ?? "" })));
       setLoading(false);
       logImovel(id, "visualizado");
     })();
@@ -35,10 +39,10 @@ export function ImovelDrawer({ id, open, onOpenChange }: { id: string | null; op
   async function baixarFotos() {
     if (!imagens.length) return;
     for (const img of imagens) {
-      const { data } = await supabase.storage.from("imoveis").createSignedUrl(img.storage_path, 3600);
-      if (data?.signedUrl) {
+      const signed = await getImageUrl(img.storage_path, "imoveis");
+      if (signed) {
         const a = document.createElement("a");
-        a.href = data.signedUrl;
+        a.href = signed;
         a.download = "";
         a.target = "_blank";
         a.click();

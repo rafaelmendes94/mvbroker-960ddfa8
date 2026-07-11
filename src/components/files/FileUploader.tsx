@@ -60,12 +60,12 @@ export function FileUploader({
           const thumb = await resizeImage(file, 320, 0.8);
           if (thumb) {
             thumb_path = `${base}-thumb.webp`;
-            await supabase.storage.from(cfg.bucket).upload(thumb_path, thumb, { contentType: "image/webp" });
+            await supabase.storage.from(cfg.bucket).upload(thumb_path, thumb, { contentType: "image/webp", cacheControl: "31536000" });
           }
           const medium = await resizeImage(file, 1200, 0.85);
           if (medium) {
             medium_path = `${base}-medium.webp`;
-            await supabase.storage.from(cfg.bucket).upload(medium_path, medium, { contentType: "image/webp" });
+            await supabase.storage.from(cfg.bucket).upload(medium_path, medium, { contentType: "image/webp", cacheControl: "31536000" });
           }
         }
         setItems((p) => p.map((it, idx) => idx === i ? { ...it, progress: 85 } : it));
