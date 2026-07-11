@@ -1006,7 +1006,7 @@ export default function Properties() {
                 onClick={() => navigate("/relatorios")}
                 className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg bg-primary text-primary-foreground text-[11px] sm:text-xs font-bold hover:bg-primary/90 transition-colors"
               >
-                <BarChart3 className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Relatórios</span><span className="xs:hidden">Rel.</span>
+                <BarChart3 className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Relatórios</span><span className="sm:hidden">Rel.</span>
               </button>
               <div className="relative" ref={xmlMenuRef}>
                 <button
@@ -1032,7 +1032,7 @@ export default function Properties() {
                 className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
                 title="Importações"
               >
-                <FolderDown className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Importações</span><span className="xs:hidden">Import.</span>
+                <FolderDown className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Importações</span><span className="sm:hidden">Import.</span>
               </button>
               <div className="flex flex-col items-end gap-0.5 ml-auto sm:ml-0">
                 <button
