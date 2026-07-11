@@ -450,13 +450,11 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
     e?.preventDefault();
     if (!user) { toast.error("Você precisa estar logado."); return; }
     if (!form.titulo.trim()) { toast.error("Título é obrigatório."); return; }
-    if ((form.edificio_id || form.condominio_id) && !form.unidade.trim()) {
-      toast.error("Informe a Unidade para vincular ao espelho do empreendimento.");
-      return;
-    }
-    if (form.loteamento_id && !form.lote.trim()) {
-      toast.error("Informe o Lote para vincular ao espelho do loteamento.");
-      return;
+    if (form.edificio_id || form.condominio_id || form.loteamento_id) {
+      if (!form.unidade.trim() && !form.lote.trim()) {
+        toast.error("Informe Unidade ou Quadra/Lote para vincular ao espelho.");
+        return;
+      }
     }
     setSaving(true);
     try {
