@@ -125,7 +125,13 @@ function RootComponent() {
         <AuthProvider>
           <HostRedirect />
           <Outlet />
-          <Toaster richColors position="top-right" />
+          <Toaster
+            richColors
+            position="top-center"
+            mobileOffset={{ top: 12, left: 12, right: 12 }}
+            toastOptions={{ style: { maxWidth: "calc(100vw - 24px)" } }}
+          />
+
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
