@@ -1,43 +1,68 @@
-## Objetivo
+## Diagnóstico da lentidão
 
-No topo da tela **Novo Imóvel** adicionar um botão **"✨ Cadastrar por IA"**. Ao clicar, abre um modal onde o usuário cola uma descrição livre (WhatsApp, texto do proprietário, etc.). A IA analisa, extrai os campos e volta para a tela do formulário já preenchida — o usuário só revisa e clica em Salvar.
+Investigando o carregamento, achei 4 gargalos claros — os 3 primeiros afetam **tanto Lovable quanto VPS**:
 
-## Mudanças
+### 1. Bucket `imoveis` é privado → tudo usa signed URL
+Cada tela de imóveis (galeria, drawer, tabela, home) faz:
+- 1 SELECT em `imovel_imagens`
+- **N chamadas HTTP** ao Storage (`createSignedUrl`, uma por foto) para gerar URL temporária de 1h
+- URLs assinadas **não são cacheáveis** pelo browser/CDN entre sessões, e expiram
 
-### 1) Nova server function `src/lib/imovel-ia-extract.functions.ts`
-- `extrairImovelDeTexto` (POST, `requireSupabaseAuth`).
-- Input: `{ texto: string }`.
-- Usa a mesma chave Gemini já configurada em `imovel-ia.functions.ts` (DB `integration_settings.gemini_api_key` com fallback `GEMINI_API_KEY`).
-- Chama Gemini `gemini-2.5-flash` com prompt system em pt-BR: "Extraia os campos do imóvel a partir do texto livre. Retorne SOMENTE JSON válido com este schema; use `null` quando o campo não aparecer no texto. Nunca invente."
-- Schema retornado (subset do `FormState` — só campos que se costuma inferir de descrição livre):
-  - `titulo`, `tipo_imovel`, `descricao` (texto limpo/reformatado)
-  - Localização: `cep`, `logradouro`, `numero`, `bairro`, `cidade`, `estado`
-  - Identificação: `unidade`, `box`, `quadra`, `lote`
-  - Valores: `preco` (number), `comissao_percentual` (number), `bonus`, `condicoes_pagamento` (array)
-  - Proprietários: `responsavel_nome`, `responsavel_telefone` (primeiro contato)
-  - Chaves/acesso: `local_chaves` (ex: "Tag Lux Group central/sepe, senha 1745")
-  - Contagens: `dormitorios`, `suites`, `banheiros`, `lavabo`, `vagas`, `elevadores`
-  - Áreas: `area_privativa`, `area_total` (numbers)
-  - Booleans/enums: `vista_mar`, `decorado`, `aceita_permuta`, `condicao`, `posicao_solar`, `vista`, `padrao`
-  - `infraestrutura` (array de strings livre — piscina, elevador, hall decorado, beira mar, etc.)
-- Faz `JSON.parse` defensivo (strip de crases/```json), valida com Zod, devolve `{ campos: Partial<FormState> }`. Nunca lança por campo faltando — só devolve o que achou.
+Só a home dispara 6 signed URLs em série a cada visita. Uma galeria com 20 fotos = 20 round-trips extras antes do primeiro pixel.
 
-### 2) Novo componente `src/components/imoveis/CadastroIAModal.tsx`
-- Props: `open`, `onClose`, `onExtracted(campos: Partial<FormState>)`.
-- Layout: `Dialog` com `Textarea` grande (rows 12), placeholder mostrando exemplo curto ("Cole aqui a descrição do imóvel — WhatsApp, e-mail, ficha do proprietário…"), botão **"Analisar com IA"** e botão Cancelar.
-- Ao clicar Analisar: `useServerFn(extrairImovelDeTexto)` com loading (`Loader2` + "Analisando descrição..."). Em sucesso: `onExtracted(campos)` e fecha. Em erro: toast.
-- Sem outros campos — a IA cuida de tudo.
+### 2. Fotos originais servidas em qualquer tamanho
+Upload comprime para WebP mas mantém **até 2000px** no maior lado. Essas mesmas fotos gigantes são servidas em cards de ~300px na home e listagem → megabytes desnecessários por card.
 
-### 3) `src/components/imoveis/ImovelForm.tsx`
-- Adicionar estado `iaModalOpen: boolean` (só disponível em modo "novo", esconder quando `isEdit`).
-- Novo botão no topo do formulário (ao lado do título da página, dentro do próprio form): **"✨ Cadastrar por IA"** (`variant="outline"`, ícone `Wand2` já importado).
-- Handler `handleIAExtracted(campos)`:
-  - `setForm(prev => ({ ...prev, ...cleanCampos }))` — merge só das chaves não-nulas.
-  - Normalizações: números viram string onde `FormState` guarda string (`preco`, `area_*`, `comissao_percentual`); arrays substituem; booleans só se vierem `true`.
-  - Se `infraestrutura` vier com nomes livres, casar com `infraOpts` por match case-insensitive; itens não encontrados vão para `outras_caracteristicas`.
-  - Toast "Dados preenchidos pela IA. Revise antes de salvar."
-- Renderizar `<CadastroIAModal>` uma vez, controlado por `iaModalOpen`.
-- **Não** salva sozinho — usuário confere e clica em Salvar (fluxo atual).
+Não existe versão "thumb" nem "medium" salva para imóveis (só o FileUploader genérico gera, mas ele não é usado no fluxo de fotos de imóveis).
 
-### Resultado
-Fluxo do usuário no exemplo do Rio Tevere 303: abre "Novo Imóvel" → clica "Cadastrar por IA" → cola o texto do WhatsApp → clica Analisar → modal fecha e o formulário aparece preenchido (título, 2 dorm/1 suíte, 75,05 m² priv / 109,50 m² total, 1 vaga, vista mar, mobiliado/decorado, Capão da Canoa/Zona Nova/Av. Beira Mar 1301, R$ 1.250.000, comissão 4%, proprietários Júlio/Ramon/Eduardo com telefones no campo responsável, local das chaves com tag e senha, infraestrutura piscina/elevador/hall decorado/beira mar, descrição reformatada). O usuário revisa, ajusta o que faltar e salva normalmente.
+### 3. Landing (`/`) está com URL de imagem quebrada
+Em `src/routes/index.tsx` linha ~182, o `capa` é preenchido com `im.url` — que na tabela `imovel_imagens` é só o **path bruto do storage** (`uuid/1781...jpg`), não uma URL. O `<img src>` cai em 404 silencioso e fica só o mock do Unsplash aparecendo (o que explica por que "os imóveis reais quase não aparecem").
+
+### 4. Hero da landing sem preload
+`bg-mv.png` e `bg-mobilemv.png` são pintados via CSS `background-image` inline, sem `<link rel="preload">` — LCP demora.
+
+---
+
+## Plano de correção (rápido, sem quebrar nada)
+
+### Passo 1 — Home: usar URL pública correta + preload do hero
+- Trocar `im.url` cru por `supabase.storage.from("imoveis").getPublicUrl(path).data.publicUrl` **em uma única chamada local** (é só string, não faz HTTP).
+- Como o bucket é privado, também preciso liberar leitura pública das fotos **só** pela política existente ou expor via signed URL longa em cache. Solução mais simples e segura: **tornar o bucket `imoveis` público** (o path já é UUID imprevisível; é o padrão do mercado para fotos de anúncio) e passar a usar `getPublicUrl` em todos os call sites.
+- Adicionar `<link rel="preload" as="image" href={bgDesktop} fetchpriority="high">` no `head()` do `/`.
+
+### Passo 2 — Trocar signed URL por URL pública nos 4 call sites
+Arquivos afetados:
+- `src/routes/index.tsx` (home)
+- `src/components/imoveis/ImovelDrawer.tsx` (linha 38)
+- `src/components/imoveis/ImovelGaleria.tsx` (linha 29–34, o `Promise.all` de N HTTP calls)
+- `src/lib/storage.ts` (helper `getSignedUrl` fica para documentos privados)
+
+Ganho: **1 request de rede a menos por foto** em toda tela que lista imagens. Galeria de 20 fotos abre imediata.
+
+### Passo 3 — Gerar thumb + medium no upload de fotos do imóvel
+Alterar `ImovelGaleria.handleUpload` para gerar 3 versões (thumb 400px, medium 1200px, full 2000px) e salvar `storage_path_thumb` / `storage_path_medium` na tabela `imovel_imagens`. Migration adiciona as duas colunas (nullable, back-compat).
+
+Depois, usar `thumb` em listagens/cards e `medium` em drawer/preview; `full` só no lightbox.
+
+### Passo 4 — Cache HTTP forte
+Bucket público do Supabase já serve com `Cache-Control: max-age=3600`. Aumentar para `31536000, immutable` no upload (`cacheControl: "31536000"`). O path já contém timestamp, então nunca precisa invalidar.
+
+### Passo 5 (VPS) — Cache no Traefik
+Adicionar middleware de cache no `traefik/dynamic/app.yml` para as rotas `/storage/v1/object/public/imoveis/*` (assets imutáveis, TTL longo). Impacto forte no self-hosted onde não tem CDN na frente.
+
+---
+
+## Ordem de execução sugerida
+
+1. **Passo 1 + 2 juntos** (uma única leva de edits) — resolve 80% da lentidão percebida sem migration.
+2. **Passo 4** (uma linha em cada `upload`) — grátis, só afeta uploads novos.
+3. **Passo 3** (thumb/medium) — melhoria maior mas exige migration + reprocessar fotos antigas (opcional: script one-off que roda no primeiro load).
+4. **Passo 5** (VPS) — mexe em `infra/`; me confirma antes que aí eu edito.
+
+---
+
+## Perguntas antes de executar
+
+1. Posso tornar o bucket `imoveis` **público**? (Recomendado — é o padrão para fotos de anúncio, o path é UUID e nada muda de segurança real. Se preferir manter privado, faço com signed URLs longas em cache local no lugar.)
+2. Quer que eu inclua o Passo 3 (thumb/medium) agora ou deixamos para depois? Ele exige migration e reprocessamento das fotos existentes.
+3. Passo 5 (Traefik/VPS) — mexo agora nos arquivos de `infra/`? (Você tem memória "nunca modificar `infra/`", por isso pergunto.)
