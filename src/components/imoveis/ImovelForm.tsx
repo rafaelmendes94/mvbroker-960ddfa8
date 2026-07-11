@@ -450,13 +450,11 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
     e?.preventDefault();
     if (!user) { toast.error("Você precisa estar logado."); return; }
     if (!form.titulo.trim()) { toast.error("Título é obrigatório."); return; }
-    if ((form.edificio_id || form.condominio_id) && !form.unidade.trim()) {
-      toast.error("Informe a Unidade para vincular ao espelho do empreendimento.");
-      return;
-    }
-    if (form.loteamento_id && !form.lote.trim()) {
-      toast.error("Informe o Lote para vincular ao espelho do loteamento.");
-      return;
+    if (form.edificio_id || form.condominio_id || form.loteamento_id) {
+      if (!form.unidade.trim() && !form.lote.trim()) {
+        toast.error("Informe Unidade ou Quadra/Lote para vincular ao espelho.");
+        return;
+      }
     }
     setSaving(true);
     try {
@@ -585,41 +583,29 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               <Input value={form.titulo} onChange={(e) => set("titulo", e.target.value)} placeholder="Ex: Apartamento 3 quartos frente mar" required />
             </div>
 
-            {/* Andar/Unidade — sugestões do espelho quando vinculado a edifício/condomínio/loteamento; campo livre sempre */}
-            {form.edificio_id ? (
-              <EspelhoUnitPicker
-                tipo="edificio"
-                empreendimentoId={form.edificio_id}
-                currentImovelId={imovelId}
-                valueNumero={form.unidade}
-                valueGrupo={form.quadra}
-                onPick={({ grupo, numero }) => { set("unidade", numero); set("quadra", grupo); set("lote", ""); }}
-              />
-            ) : form.condominio_id ? (
-              <EspelhoUnitPicker
-                tipo="condominio"
-                empreendimentoId={form.condominio_id}
-                currentImovelId={imovelId}
-                valueNumero={form.unidade}
-                valueGrupo={form.quadra}
-                onPick={({ grupo, numero }) => { set("unidade", numero); set("quadra", grupo); set("lote", ""); }}
-              />
-            ) : form.loteamento_id ? (
-              <EspelhoUnitPicker
-                tipo="loteamento"
-                empreendimentoId={form.loteamento_id}
-                currentImovelId={imovelId}
-                valueNumero={form.lote}
-                valueGrupo={form.quadra}
-                onPick={({ grupo, numero }) => { set("lote", numero); set("quadra", grupo); set("unidade", ""); }}
-              />
-            ) : (
-              <>
+            {/* Identificação flexível: Unidade, Quadra e Lote sempre disponíveis.
+                Picker do espelho aparece como atalho opcional quando há vínculo. */}
+            <div className="sm:col-span-3 space-y-2">
+              {(form.edificio_id || form.condominio_id || form.loteamento_id) && (
+                <EspelhoUnitPicker
+                  tipo={form.edificio_id ? "edificio" : form.condominio_id ? "condominio" : "loteamento"}
+                  empreendimentoId={form.edificio_id || form.condominio_id || form.loteamento_id}
+                  currentImovelId={imovelId}
+                  valueNumero={form.loteamento_id ? form.lote : form.unidade}
+                  valueGrupo={form.quadra}
+                  onPick={({ grupo, numero }) => {
+                    if (form.loteamento_id) { set("lote", numero); set("quadra", grupo); }
+                    else { set("unidade", numero); if (grupo) set("quadra", grupo); }
+                  }}
+                />
+              )}
+              <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-1.5"><Label className="text-xs">Unidade</Label><Input value={form.unidade} onChange={(e) => set("unidade", e.target.value)} /></div>
                 <div className="space-y-1.5"><Label className="text-xs">Quadra</Label><Input value={form.quadra} onChange={(e) => set("quadra", e.target.value)} /></div>
                 <div className="space-y-1.5"><Label className="text-xs">Lote</Label><Input value={form.lote} onChange={(e) => set("lote", e.target.value)} /></div>
-              </>
-            )}
+              </div>
+            </div>
+
 
             <div className="space-y-1.5">
               <Label className="text-xs">Box</Label>
