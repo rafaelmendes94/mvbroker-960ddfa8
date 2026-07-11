@@ -35,6 +35,8 @@ import { EntitySelector, type EntityOption } from "@/components/imoveis/EntitySe
 import { EspelhoUnitPicker } from "@/components/imoveis/EspelhoUnitPicker";
 import { ImovelGaleria } from "@/components/imoveis/ImovelGaleria";
 import { QuickCreateEntityModal } from "@/components/imoveis/QuickCreateEntityModal";
+import { CadastroIAModal } from "@/components/imoveis/CadastroIAModal";
+import type { CamposExtraidos } from "@/lib/imovel-ia-extract.functions";
 
 // ---------- catálogos ----------
 const STATUS_OPTS: { slug: string; label: string; icon: typeof Home; color: string; bg: string; border: string }[] = [
