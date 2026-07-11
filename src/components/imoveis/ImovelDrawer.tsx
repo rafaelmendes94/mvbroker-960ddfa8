@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useExportacao } from "@/hooks/use-exportacao";
 import { logImovel } from "@/lib/audit";
+import { getImageUrl, getImageUrls } from "@/lib/imageUrl";
 
 export function ImovelDrawer({ id, open, onOpenChange }: { id: string | null; open: boolean; onOpenChange: (o: boolean) => void }) {
   const [imovel, setImovel] = useState<any>(null);
