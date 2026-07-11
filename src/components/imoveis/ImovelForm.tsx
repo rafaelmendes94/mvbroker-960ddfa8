@@ -711,6 +711,8 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               onChange={(id) => { set("edificio_id", id); if (id) { set("condominio_id", ""); set("empreendimento_id", ""); set("loteamento_id", ""); } }}
               onSelect={handleEntitySelect}
               openId={openEntity} setOpenId={setOpenEntity}
+              reloadKey={reloadKeys.edificios}
+              onCreateNew={(name) => setQuickCreate({ table: "edificios", initialName: name })}
             />
             <EntitySelector
               id="condominio" label="Condomínio" icon={<Fence className="w-3.5 h-3.5" />} table="condominios"
@@ -718,6 +720,8 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               onChange={(id) => { set("condominio_id", id); if (id) { set("edificio_id", ""); set("empreendimento_id", ""); set("loteamento_id", ""); } }}
               onSelect={handleEntitySelect}
               openId={openEntity} setOpenId={setOpenEntity}
+              reloadKey={reloadKeys.condominios}
+              onCreateNew={(name) => setQuickCreate({ table: "condominios", initialName: name })}
             />
             <EntitySelector
               id="loteamento" label="Loteamento" icon={<Landmark className="w-3.5 h-3.5" />} table="loteamentos"
@@ -725,8 +729,32 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               onChange={(id) => { set("loteamento_id", id); if (id) { set("edificio_id", ""); set("condominio_id", ""); set("empreendimento_id", ""); } }}
               onSelect={handleEntitySelect}
               openId={openEntity} setOpenId={setOpenEntity}
+              reloadKey={reloadKeys.loteamentos}
+              onCreateNew={(name) => setQuickCreate({ table: "loteamentos", initialName: name })}
             />
           </div>
+          <QuickCreateEntityModal
+            open={!!quickCreate}
+            onClose={() => setQuickCreate(null)}
+            table={quickCreate?.table ?? "edificios"}
+            initialName={quickCreate?.initialName ?? ""}
+            onCreated={(entity) => {
+              if (!quickCreate) return;
+              const t = quickCreate.table;
+              setReloadKeys((k) => ({ ...k, [t]: k[t] + 1 }));
+              if (t === "edificios") {
+                set("edificio_id", entity.id);
+                set("condominio_id", ""); set("empreendimento_id", ""); set("loteamento_id", "");
+              } else if (t === "condominios") {
+                set("condominio_id", entity.id);
+                set("edificio_id", ""); set("empreendimento_id", ""); set("loteamento_id", "");
+              } else {
+                set("loteamento_id", entity.id);
+                set("edificio_id", ""); set("condominio_id", ""); set("empreendimento_id", "");
+              }
+              handleEntitySelect(entity);
+            }}
+          />
         </div>
 
         {/* ENDEREÇO + MAPA */}
