@@ -2,10 +2,24 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { Topbar } from "./Topbar";
+import { BackButton } from "@/components/BackButton";
+import { useLocation } from "@/lib/router-shim";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+
+const HIDE_BACK_ON = new Set([
+  "/",
+  "/dashboard",
+  "/login",
+  "/auth",
+  "/reset-password",
+  "/confianca",
+]);
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const pathname = (location as any)?.pathname ?? "/";
+  const showBack = !HIDE_BACK_ON.has(pathname);
 
   return (
     <div className="min-h-screen flex bg-background">
