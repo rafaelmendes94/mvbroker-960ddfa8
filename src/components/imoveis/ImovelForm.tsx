@@ -220,6 +220,8 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
 
   const [saving, setSaving] = useState(false);
   const [openEntity, setOpenEntity] = useState<string | null>(null);
+  const [quickCreate, setQuickCreate] = useState<{ table: "edificios" | "condominios" | "loteamentos"; initialName: string } | null>(null);
+  const [reloadKeys, setReloadKeys] = useState({ edificios: 0, condominios: 0, loteamentos: 0 });
   const [logs, setLogs] = useState<any[]>([]);
   const [aiBusyStyle, setAiBusyStyle] = useState<string | null>(null);
   const newCaractRef = useRef<HTMLInputElement>(null);
