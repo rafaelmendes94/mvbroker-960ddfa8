@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,8 @@ export function EntitySelector({
   onSelect,
   openId,
   setOpenId,
+  onCreateNew,
+  reloadKey,
 }: {
   id: string;
   label: string;
@@ -39,6 +41,8 @@ export function EntitySelector({
   onSelect: (entity: EntityOption) => void;
   openId: string | null;
   setOpenId: (id: string | null) => void;
+  onCreateNew?: (initialName: string) => void;
+  reloadKey?: number;
 }) {
   const [options, setOptions] = useState<EntityOption[]>([]);
   const [search, setSearch] = useState("");
@@ -53,7 +57,7 @@ export function EntitySelector({
         .order("nome");
       if (data) setOptions(data as any);
     })();
-  }, [table]);
+  }, [table, reloadKey]);
 
   useEffect(() => {
     if (!open) return;
@@ -98,8 +102,8 @@ export function EntitySelector({
           </button>
         )}
       </div>
-      {open && filtered.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+      {open && (
+        <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-56 overflow-y-auto">
           {filtered.map((o) => (
             <button
               key={o.id}
@@ -116,11 +120,26 @@ export function EntitySelector({
               {o.cidade && <span className="text-muted-foreground ml-2 text-xs">• {o.cidade}</span>}
             </button>
           ))}
-        </div>
-      )}
-      {open && filtered.length === 0 && search && (
-        <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg p-3 text-sm text-muted-foreground">
-          Nenhum encontrado
+          {filtered.length === 0 && (
+            <div className="px-3 py-2 text-sm text-muted-foreground">
+              {search ? "Nenhum encontrado" : "Nenhum cadastrado"}
+            </div>
+          )}
+          {onCreateNew && (
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onCreateNew(search);
+                setSearch("");
+                setOpenId(null);
+              }}
+              className="w-full text-left px-3 py-2 text-sm border-t border-border flex items-center gap-2 text-primary hover:bg-accent transition-colors sticky bottom-0 bg-popover"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              {search ? `Criar "${search}"` : `Criar novo ${label}`}
+            </button>
+          )}
         </div>
       )}
     </div>

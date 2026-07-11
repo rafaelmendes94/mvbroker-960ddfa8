@@ -1,33 +1,31 @@
-## Problema
-
-Hoje o formulário e o banco assumem uma nomenclatura fixa por tipo de vínculo:
-- Edifício/Condomínio → obriga **Unidade** (e o picker esconde Quadra/Lote, sobrescrevendo o que o usuário digitou)
-- Loteamento → obriga **Lote**
-
-Isso quebra casos reais: condomínios horizontais usam Quadra/Lote, alguns loteamentos usam Unidade, etc. O usuário digita Quadra/Lote, salva, recebe o erro "Informe a Unidade…" e o form volta mostrando só Unidade/Bloco.
-
 ## Objetivo
 
-Deixar Quadra, Lote e Unidade **sempre disponíveis** em qualquer vínculo. O sistema identifica sozinho qual identificador foi preenchido e usa esse para vincular ao espelho.
+No formulário de imóvel, no bloco "Vincular a Edifício / Condomínio / Loteamento", adicionar em cada um dos três selects (Edifício, Condomínio, Loteamento) um botão fixo no final da lista: **"+ Criar novo …"**. Ao clicar, abre um modal para cadastro rápido, sem sair da tela. Após salvar, o item é inserido no banco, adicionado à lista do select e já selecionado automaticamente.
 
 ## Mudanças
 
-### 1) `src/components/imoveis/ImovelForm.tsx`
-- Trocar o bloco condicional (linhas 588–622) por **um único layout fixo** com os três campos (Unidade, Quadra, Lote) sempre visíveis, independente do vínculo.
-- Manter o `EspelhoUnitPicker` como **complemento**: quando houver vínculo (edifício/condomínio/loteamento), mostrar acima dos inputs um seletor opcional "Escolher do espelho" que, ao selecionar, preenche o campo correto (Unidade para edifício/condomínio, Lote+Quadra para loteamento) — sem apagar os outros campos.
-- Validação em `save()` (linhas 453–460): substituir por regra flexível — se houver qualquer vínculo, exigir que **pelo menos um** entre `unidade` ou `lote` esteja preenchido. Mensagem: "Informe Unidade ou Quadra/Lote para vincular ao espelho."
+### 1) `src/components/imoveis/EntitySelector.tsx`
+- No dropdown (bloco após `filtered.map(...)`), acrescentar um item fixo **sempre visível** no final: `+ Criar novo {label}`.
+- Ao clicar, chama um callback novo `onCreateNew()` recebido por props (opcional). Se `search` estiver preenchido, envia como nome inicial (`onCreateNew(search)`).
+- Expor uma função `refresh()` via `useImperativeHandle` (ou aceitar prop `reloadKey`) para o pai forçar recarregar `options` depois de criar. Abordagem escolhida: **prop `reloadKey: number`** — quando muda, o `useEffect` roda novamente e busca a lista atualizada. Simples e suficiente.
+- Nenhuma outra mudança de layout/estilo.
 
-### 2) Migration nova para `fn_espelho_sync_imovel`
-Ajustar a função para resolver o identificador de forma flexível:
-- Para qualquer tipo de vínculo, `v_numero := COALESCE(NULLIF(trim(NEW.unidade),''), NULLIF(trim(NEW.lote),''))`.
-- Se `unidade` estiver vazio mas `quadra`+`lote` preenchidos, usar formato `"Qd X - Lt Y"` como número no espelho (mesmo padrão do `formatUnitParts`).
-- Trigger `trg_imoveis_espelho_sync_upd` passa a observar também mudanças em `lote` para edifício/condomínio (já observa `quadra`).
+### 2) Novo componente `src/components/imoveis/QuickCreateEntityModal.tsx`
+Modal enxuto reutilizável para os três tipos:
+- Props: `open`, `onClose`, `table: "edificios" | "condominios" | "loteamentos"`, `initialName?: string`, `onCreated(entity)`.
+- Campos mínimos: **Nome** (obrigatório), **Cidade**, **Estado** (UF). Os demais dados (endereço completo, infraestrutura, imagens) ficam para editar depois na tela da estrutura — mesma filosofia do "cadastro rápido".
+- Ao salvar: `supabase.from(table).insert({ nome, cidade, estado, ativo: true }).select().single()`, então `onCreated(data)` e fecha.
+- Título dinâmico: `Novo Edifício` / `Novo Condomínio` / `Novo Loteamento` a partir de um mapa de labels.
+- Usa os componentes shadcn `Dialog`, `Input`, `Label`, `Button` (mesmo padrão do resto do projeto).
 
-### 3) Sem mudança de schema
-Colunas `unidade`, `quadra`, `lote`, `box` já existem em `imoveis` e a coluna `numero` do espelho é `text` — comporta ambos os formatos.
+### 3) `src/components/imoveis/ImovelForm.tsx`
+No bloco "Vincular a Edifício / Condomínio / Loteamento" (onde os três `EntitySelector` são renderizados):
+- Adicionar estado local: `quickCreate: { table, initialName } | null` e `reloadKeys: { edificios, condominios, loteamentos }`.
+- Passar para cada `EntitySelector`:
+  - `onCreateNew={(name) => setQuickCreate({ table: "edificios"|..., initialName: name })}`
+  - `reloadKey={reloadKeys.<table>}`
+- Renderizar `<QuickCreateEntityModal>` uma vez no bloco, controlado por `quickCreate`.
+- No `onCreated(entity)`: incrementar `reloadKeys[table]`, chamar o `onChange`/`onSelect` correspondente já preenchendo o `form.edificio_id`/`condominio_id`/`loteamento_id` e herdando endereço/infra igual ao fluxo atual do `onSelect`, e fechar o modal.
 
-## Resultado
-
-- Usuário cadastra Quadra 5 + Lote 12 em um condomínio → salva sem erro, espelho recebe unidade "Qd 5 - Lt 12".
-- Usuário cadastra Unidade 302 em um loteamento → salva sem erro, espelho recebe unidade "302".
-- Os três campos permanecem visíveis ao reabrir o cadastro (nada de mudar de "Quadra/Lote" para "Bloco/Unidade").
+### Resultado
+Usuário abre o select de Condomínio, não encontra "Residencial X", digita o nome, clica em **"+ Criar novo Condomínio"** no rodapé da lista → modal abre com o nome pré-preenchido → informa cidade/UF → salva → modal fecha, o novo condomínio aparece selecionado no campo e disponível na lista, sem sair da tela de cadastro do imóvel. Mesmo comportamento para Edifício e Loteamento.
