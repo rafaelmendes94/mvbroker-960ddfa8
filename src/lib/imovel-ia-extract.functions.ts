@@ -7,54 +7,54 @@ const Input = z.object({ texto: z.string().min(5) });
 // Subset of ImovelForm FormState — only fields commonly present in free-form
 // property descriptions. Everything is nullable/optional; the model returns
 // null when a field isn't in the text.
-const CamposSchema = z
-  .object({
-    titulo: z.string().nullable().optional(),
-    tipo_imovel: z.string().nullable().optional(),
-    descricao: z.string().nullable().optional(),
+const CamposSchema = z.object({
+  titulo: z.string().nullable().optional(),
+  tipo_imovel: z.string().nullable().optional(),
+  descricao: z.string().nullable().optional(),
 
-    cep: z.string().nullable().optional(),
-    logradouro: z.string().nullable().optional(),
-    numero: z.string().nullable().optional(),
-    bairro: z.string().nullable().optional(),
-    cidade: z.string().nullable().optional(),
-    estado: z.string().nullable().optional(),
+  cep: z.string().nullable().optional(),
+  logradouro: z.string().nullable().optional(),
+  numero: z.string().nullable().optional(),
+  bairro: z.string().nullable().optional(),
+  cidade: z.string().nullable().optional(),
+  estado: z.string().nullable().optional(),
 
-    unidade: z.string().nullable().optional(),
-    box: z.string().nullable().optional(),
-    quadra: z.string().nullable().optional(),
-    lote: z.string().nullable().optional(),
+  unidade: z.string().nullable().optional(),
+  box: z.string().nullable().optional(),
+  quadra: z.string().nullable().optional(),
+  lote: z.string().nullable().optional(),
 
-    preco: z.number().nullable().optional(),
-    comissao_percentual: z.number().nullable().optional(),
-    bonus: z.string().nullable().optional(),
-    condicoes_pagamento: z.array(z.string()).nullable().optional(),
+  preco: z.number().nullable().optional(),
+  comissao_percentual: z.number().nullable().optional(),
+  bonus: z.string().nullable().optional(),
+  condicoes_pagamento: z.array(z.string()).nullable().optional(),
 
-    responsavel_nome: z.string().nullable().optional(),
-    responsavel_telefone: z.string().nullable().optional(),
-    local_chaves: z.string().nullable().optional(),
+  responsavel_nome: z.string().nullable().optional(),
+  responsavel_telefone: z.string().nullable().optional(),
+  local_chaves: z.string().nullable().optional(),
 
-    dormitorios: z.number().nullable().optional(),
-    suites: z.number().nullable().optional(),
-    banheiros: z.number().nullable().optional(),
-    lavabo: z.number().nullable().optional(),
-    vagas: z.number().nullable().optional(),
-    elevadores: z.number().nullable().optional(),
+  dormitorios: z.number().nullable().optional(),
+  suites: z.number().nullable().optional(),
+  banheiros: z.number().nullable().optional(),
+  lavabo: z.number().nullable().optional(),
+  vagas: z.number().nullable().optional(),
+  elevadores: z.number().nullable().optional(),
 
-    area_privativa: z.number().nullable().optional(),
-    area_total: z.number().nullable().optional(),
+  area_privativa: z.number().nullable().optional(),
+  area_total: z.number().nullable().optional(),
 
-    vista_mar: z.boolean().nullable().optional(),
-    decorado: z.boolean().nullable().optional(),
-    aceita_permuta: z.boolean().nullable().optional(),
-    condicao: z.string().nullable().optional(),
-    posicao_solar: z.string().nullable().optional(),
-    vista: z.string().nullable().optional(),
-    padrao: z.string().nullable().optional(),
+  vista_mar: z.boolean().nullable().optional(),
+  decorado: z.boolean().nullable().optional(),
+  aceita_permuta: z.boolean().nullable().optional(),
+  condicao: z.string().nullable().optional(),
+  posicao_solar: z.string().nullable().optional(),
+  vista: z.string().nullable().optional(),
+  padrao: z.string().nullable().optional(),
 
-    infraestrutura: z.array(z.string()).nullable().optional(),
-  })
-  .strip();
+  infraestrutura: z.array(z.string()).nullable().optional(),
+});
+
+export type CamposExtraidos = z.infer<typeof CamposSchema>;
 
 const SYSTEM_PROMPT = `Você é um extrator de dados imobiliários. Recebe uma descrição livre de imóvel (WhatsApp, e-mail, ficha do proprietário) e retorna SOMENTE um JSON válido, sem markdown, sem crases, sem comentários.
 
