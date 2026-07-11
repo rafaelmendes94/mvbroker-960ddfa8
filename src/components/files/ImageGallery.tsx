@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { getSignedUrl, logArquivoAcao } from "@/lib/storage";
+import { getImageUrls, getImageUrl } from "@/lib/imageUrl";
 import { toast } from "sonner";
 
 export type GalleryFile = {
