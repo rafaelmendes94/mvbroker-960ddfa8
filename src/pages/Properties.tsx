@@ -2560,7 +2560,7 @@ function PropertyRow({
   };
 
   const ownerTypeInfo = property.ownerType ? ownerTypeConfig[property.ownerType] : null;
-  const unitParts = [property.unitNumber, property.boxNumber, property.quadra, property.lote].filter(Boolean);
+  const unitParts = formatUnitParts(property);
 
   return (
     <div className={cn("elevated-card rounded-xl relative overflow-hidden transition-all duration-300", animatePulse && "animate-sold-pulse")}>
