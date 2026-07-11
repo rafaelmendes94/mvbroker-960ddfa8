@@ -185,7 +185,15 @@ function LandingPage() {
       (imgs ?? []).forEach((im: any) => {
         if (!map.has(im.imovel_id) && im.url) map.set(im.imovel_id, im.url);
       });
-      setDestaques(items.map((i: any) => ({ ...i, capa: map.get(i.id) ?? null })));
+      // Assina em lote com cache — evita N HTTP calls.
+      const paths = Array.from(map.values());
+      const urlMap = await getImageUrls(paths, "imoveis");
+      setDestaques(
+        items.map((i: any) => {
+          const path = map.get(i.id) ?? null;
+          return { ...i, capa: path ? urlMap.get(path) ?? null : null };
+        })
+      );
     })();
   }, []);
 
