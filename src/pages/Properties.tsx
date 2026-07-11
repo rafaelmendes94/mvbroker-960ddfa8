@@ -829,7 +829,7 @@ export default function Properties() {
   };
 
   const handleNavigateToContract = (property: Property) => {
-    const unitParts = [property.unitNumber, property.boxNumber, property.quadra, property.lote].filter(Boolean);
+    const unitParts = formatUnitParts(property);
     const params = new URLSearchParams({
       imovel: property.title,
       endereco: `${property.address}, ${property.city}`,
