@@ -50,6 +50,9 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:image", content: bgDesktop.url },
     ],
+    links: [
+      { rel: "preload", as: "image", href: bgDesktop.url, fetchpriority: "high" } as any,
+    ],
   }),
   component: LandingPage,
 });
