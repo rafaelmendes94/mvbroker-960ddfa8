@@ -291,7 +291,7 @@ export default function Reports() {
   return (
     <AppLayout>
       <div className="reports-scope p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-5">
-        <BackButton />
+        
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Relatório de Vendas</h1>
