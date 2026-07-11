@@ -2316,11 +2316,13 @@ function RowCarousel({ images }: { images: string[] }) {
       {images.length > 1 && (
         <>
           <button onClick={(e) => { e.stopPropagation(); setCurrent((c) => (c === 0 ? images.length - 1 : c - 1)); }}
-            className="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-foreground/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/row-carousel:opacity-100 transition-opacity">
+            className="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-foreground/50 backdrop-blur-sm flex items-center justify-center opacity-100 md:opacity-0 md:group-hover/row-carousel:opacity-100 transition-opacity active:scale-95 touch-manipulation"
+            aria-label="Foto anterior">
             <ChevronLeft className="w-3.5 h-3.5 text-background" />
           </button>
           <button onClick={(e) => { e.stopPropagation(); setCurrent((c) => (c === images.length - 1 ? 0 : c + 1)); }}
-            className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-foreground/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/row-carousel:opacity-100 transition-opacity">
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-foreground/50 backdrop-blur-sm flex items-center justify-center opacity-100 md:opacity-0 md:group-hover/row-carousel:opacity-100 transition-opacity active:scale-95 touch-manipulation"
+            aria-label="Próxima foto">
             <ChevronRight className="w-3.5 h-3.5 text-background" />
           </button>
           <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
