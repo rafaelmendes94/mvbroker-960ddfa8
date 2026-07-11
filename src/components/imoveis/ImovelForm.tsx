@@ -386,10 +386,25 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   async function uploadPdf(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (f.size > 20 * 1024 * 1024) { toast.error("Arquivo muito grande (limite 20MB)"); return; }
-    const ext = f.name.split(".").pop() || "pdf";
+    const MAX = 100 * 1024 * 1024;
+    if (f.size > MAX) { toast.error("Arquivo muito grande (limite 100MB)"); return; }
+    const ext = (f.name.split(".").pop() || "pdf").toLowerCase();
+    let uploadData: Blob | File = f;
+    if (ext === "pdf") {
+      try {
+        const { PDFDocument } = await import("pdf-lib");
+        const bytes = new Uint8Array(await f.arrayBuffer());
+        const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+        const out = await doc.save({ useObjectStreams: true, addDefaultPage: false });
+        if (out.byteLength < f.size) {
+          uploadData = new Blob([out as BlobPart], { type: "application/pdf" });
+          const savedPct = Math.round((1 - out.byteLength / f.size) * 100);
+          if (savedPct > 0) toast.info(`PDF comprimido (~${savedPct}% menor)`);
+        }
+      } catch { /* usa original */ }
+    }
     const path = `pdf/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("materiais").upload(path, f);
+    const { error } = await supabase.storage.from("materiais").upload(path, uploadData, { contentType: "application/pdf" });
     if (error) { toast.error(error.message); return; }
     set("pdf_comercial_path", path);
     toast.success("PDF enviado");
