@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { logImovel } from "@/lib/audit";
 import { compressImageToWebp } from "@/lib/imageCompress";
+import { getImageUrls } from "@/lib/imageUrl";
 
 type Img = {
   id: string;
