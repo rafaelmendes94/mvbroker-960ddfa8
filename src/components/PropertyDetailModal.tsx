@@ -14,7 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { formatCurrency, type Property } from "@/data/mockData";
-import { cn, toSlug } from "@/lib/utils";
+import { cn, toSlug, formatUnitParts } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client-any";
 import { useAuth } from "@/hooks/useAuth";
