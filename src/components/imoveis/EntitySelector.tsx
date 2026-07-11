@@ -57,7 +57,7 @@ export function EntitySelector({
         .order("nome");
       if (data) setOptions(data as any);
     })();
-  }, [table]);
+  }, [table, reloadKey]);
 
   useEffect(() => {
     if (!open) return;
