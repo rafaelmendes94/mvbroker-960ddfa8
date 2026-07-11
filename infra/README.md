@@ -32,7 +32,7 @@ Espere propagar (`dig +short app.sistemamvbroker.com.br` tem que retornar o IP).
 
 ```bash
 # Na VPS, como root:
-curl -fsSL https://raw.githubusercontent.com/rafaelmendes94/mvbroker-2309b0aa/main/infra/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/rafaelmendes94/mvbroker-960ddfa8/main/infra/bootstrap.sh | bash
 ```
 
 Isso instala: Docker, Docker Compose plugin, Node 20, npm, PM2, git, ufw e clona o repo em `/opt/mvbroker-infra`.
@@ -78,7 +78,7 @@ Traefik faz reverse proxy pra ele.
 ```bash
 # Clona o repo no lugar certo (uma vez)
 mkdir -p /var/www && cd /var/www
-git clone https://github.com/rafaelmendes94/mvbroker-2309b0aa.git mvbroker
+git clone https://github.com/rafaelmendes94/mvbroker-960ddfa8.git mvbroker
 cd mvbroker
 
 # Cria .env apontando pro SEU Supabase (NUNCA pro Lovable Cloud)
