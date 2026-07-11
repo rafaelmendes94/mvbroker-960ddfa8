@@ -459,9 +459,17 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
       const s = (v: unknown) => (v == null ? undefined : String(v));
       const n = (v: unknown) => (v == null ? undefined : String(v));
 
+      // match fuzzy contra lista de opções (case/acentos-insensitive)
+      const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const matchOpt = (val: string, list: string[]): string => {
+        const n = norm(val);
+        const hit = list.find((o) => norm(o) === n) || list.find((o) => norm(o).includes(n) || n.includes(norm(o)));
+        return hit || val;
+      };
+
       // strings
       if (campos.titulo) put("titulo", campos.titulo);
-      if (campos.tipo_imovel) put("tipo_imovel", campos.tipo_imovel);
+      if (campos.tipo_imovel) put("tipo_imovel", matchOpt(campos.tipo_imovel, tiposLabels));
       if (campos.descricao) put("descricao", campos.descricao);
       if (campos.cep) put("cep", campos.cep);
       if (campos.logradouro) put("logradouro", campos.logradouro);
@@ -477,10 +485,10 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
       if (campos.responsavel_nome) put("responsavel_nome", campos.responsavel_nome);
       if (campos.responsavel_telefone) put("responsavel_telefone", campos.responsavel_telefone);
       if (campos.local_chaves) put("local_chaves", campos.local_chaves);
-      if (campos.condicao) put("condicao", campos.condicao);
-      if (campos.posicao_solar) put("posicao_solar", campos.posicao_solar);
-      if (campos.vista) put("vista", campos.vista);
-      if (campos.padrao) put("padrao", campos.padrao);
+      if (campos.condicao) put("condicao", matchOpt(campos.condicao, condicaoLabels));
+      if (campos.posicao_solar) put("posicao_solar", matchOpt(campos.posicao_solar, posSolarLabels));
+      if (campos.vista) put("vista", matchOpt(campos.vista, vistaLabels));
+      if (campos.padrao) put("padrao", matchOpt(campos.padrao, padraoLabels));
 
       // numbers -> string
       const preco = n(campos.preco); if (preco) put("preco", preco);
