@@ -29,6 +29,8 @@ export function EntitySelector({
   onSelect,
   openId,
   setOpenId,
+  onCreateNew,
+  reloadKey,
 }: {
   id: string;
   label: string;
@@ -39,6 +41,8 @@ export function EntitySelector({
   onSelect: (entity: EntityOption) => void;
   openId: string | null;
   setOpenId: (id: string | null) => void;
+  onCreateNew?: (initialName: string) => void;
+  reloadKey?: number;
 }) {
   const [options, setOptions] = useState<EntityOption[]>([]);
   const [search, setSearch] = useState("");
