@@ -3,7 +3,6 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client-any";
 import { Link } from "@/lib/router-shim";
 import { AppLayout } from "@/components/AppLayout";
-import { BackButton } from "@/components/BackButton";
 import { PropertyMap } from "@/components/PropertyMap";
 import { PropertyDetailModal } from "@/components/PropertyDetailModal";
 import { RoutePlanner } from "@/components/RoutePlanner";
