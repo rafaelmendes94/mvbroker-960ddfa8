@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { getSignedUrl, logArquivoAcao } from "@/lib/storage";
+import { getImageUrls, getImageUrl } from "@/lib/imageUrl";
 import { toast } from "sonner";
 
 export type GalleryFile = {
@@ -34,12 +35,25 @@ export function ImageGallery({
 
   useEffect(() => {
     (async () => {
-      const map: Record<string, string> = {};
+      // Agrupa por bucket para chamar getImageUrls em batch por bucket.
+      const byBucket = new Map<string, { id: string; path: string }[]>();
       for (const f of files) {
         const path = f.thumb_path ?? f.storage_path;
-        const url = await getSignedUrl(f.bucket, path, 3600);
-        if (url) map[f.id] = url;
+        if (!path) continue;
+        const arr = byBucket.get(f.bucket) ?? [];
+        arr.push({ id: f.id, path });
+        byBucket.set(f.bucket, arr);
       }
+      const map: Record<string, string> = {};
+      await Promise.all(
+        Array.from(byBucket.entries()).map(async ([bucket, items]) => {
+          const urlMap = await getImageUrls(items.map((i) => i.path), bucket);
+          for (const it of items) {
+            const u = urlMap.get(it.path);
+            if (u) map[it.id] = u;
+          }
+        })
+      );
       setUrls(map);
     })();
   }, [files]);
@@ -48,7 +62,7 @@ export function ImageGallery({
     setIdx(i); setOpen(true);
     const f = files[i];
     const path = f.medium_path ?? f.storage_path;
-    const u = await getSignedUrl(f.bucket, path);
+    const u = await getImageUrl(path, f.bucket);
     if (u) setUrls((p) => ({ ...p, [`big:${f.id}`]: u }));
   }
 
