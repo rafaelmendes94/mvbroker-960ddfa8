@@ -35,6 +35,8 @@ import { EntitySelector, type EntityOption } from "@/components/imoveis/EntitySe
 import { EspelhoUnitPicker } from "@/components/imoveis/EspelhoUnitPicker";
 import { ImovelGaleria } from "@/components/imoveis/ImovelGaleria";
 import { QuickCreateEntityModal } from "@/components/imoveis/QuickCreateEntityModal";
+import { CadastroIAModal } from "@/components/imoveis/CadastroIAModal";
+import type { CamposExtraidos } from "@/lib/imovel-ia-extract.functions";
 
 // ---------- catálogos ----------
 const STATUS_OPTS: { slug: string; label: string; icon: typeof Home; color: string; bg: string; border: string }[] = [
@@ -222,6 +224,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const [openEntity, setOpenEntity] = useState<string | null>(null);
   const [quickCreate, setQuickCreate] = useState<{ table: "edificios" | "condominios" | "loteamentos"; initialName: string } | null>(null);
   const [reloadKeys, setReloadKeys] = useState({ edificios: 0, condominios: 0, loteamentos: 0 });
+  const [iaModalOpen, setIaModalOpen] = useState(false);
   const [logs, setLogs] = useState<any[]>([]);
   const [aiBusyStyle, setAiBusyStyle] = useState<string | null>(null);
   const newCaractRef = useRef<HTMLInputElement>(null);
@@ -449,6 +452,77 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
     }
   }
 
+  function handleIAExtracted(campos: CamposExtraidos) {
+    setForm((prev) => {
+      const next = { ...prev };
+      const put = <K extends keyof FormState>(k: K, v: FormState[K]) => { next[k] = v; };
+      const s = (v: unknown) => (v == null ? undefined : String(v));
+      const n = (v: unknown) => (v == null ? undefined : String(v));
+
+      // strings
+      if (campos.titulo) put("titulo", campos.titulo);
+      if (campos.tipo_imovel) put("tipo_imovel", campos.tipo_imovel);
+      if (campos.descricao) put("descricao", campos.descricao);
+      if (campos.cep) put("cep", campos.cep);
+      if (campos.logradouro) put("logradouro", campos.logradouro);
+      if (campos.numero) put("numero", campos.numero);
+      if (campos.bairro) put("bairro", campos.bairro);
+      if (campos.cidade) put("cidade", campos.cidade);
+      if (campos.estado) put("estado", campos.estado);
+      if (campos.unidade) put("unidade", campos.unidade);
+      if (campos.box) put("box", campos.box);
+      if (campos.quadra) put("quadra", campos.quadra);
+      if (campos.lote) put("lote", campos.lote);
+      if (campos.bonus) put("bonus", campos.bonus);
+      if (campos.responsavel_nome) put("responsavel_nome", campos.responsavel_nome);
+      if (campos.responsavel_telefone) put("responsavel_telefone", campos.responsavel_telefone);
+      if (campos.local_chaves) put("local_chaves", campos.local_chaves);
+      if (campos.condicao) put("condicao", campos.condicao);
+      if (campos.posicao_solar) put("posicao_solar", campos.posicao_solar);
+      if (campos.vista) put("vista", campos.vista);
+      if (campos.padrao) put("padrao", campos.padrao);
+
+      // numbers -> string
+      const preco = n(campos.preco); if (preco) put("preco", preco);
+      const com = n(campos.comissao_percentual); if (com) put("comissao_percentual", com);
+      const ap = n(campos.area_privativa); if (ap) put("area_privativa", ap);
+      const at = n(campos.area_total); if (at) put("area_total", at);
+
+      // number counters
+      if (campos.dormitorios != null) put("dormitorios", Number(campos.dormitorios));
+      if (campos.suites != null) put("suites", Number(campos.suites));
+      if (campos.banheiros != null) put("banheiros", Number(campos.banheiros));
+      if (campos.lavabo != null) put("lavabo", Number(campos.lavabo));
+      if (campos.vagas != null) put("vagas", Number(campos.vagas));
+      if (campos.elevadores != null) put("elevadores", Number(campos.elevadores));
+
+      // booleans (só true)
+      if (campos.vista_mar) put("vista_mar", true);
+      if (campos.decorado) put("decorado", true);
+      if (campos.aceita_permuta) put("aceita_permuta", true);
+
+      // arrays
+      if (campos.condicoes_pagamento?.length) put("condicoes_pagamento", campos.condicoes_pagamento);
+
+      if (campos.infraestrutura?.length) {
+        const lower = infraOpts.map((o) => o.toLowerCase());
+        const matched: string[] = [];
+        const outras: string[] = [...prev.outras_caracteristicas];
+        for (const item of campos.infraestrutura) {
+          const idx = lower.indexOf(item.toLowerCase());
+          if (idx >= 0) matched.push(infraOpts[idx]);
+          else if (!outras.includes(item)) outras.push(item);
+        }
+        if (matched.length) put("infraestrutura", Array.from(new Set([...prev.infraestrutura, ...matched])));
+        if (outras.length !== prev.outras_caracteristicas.length) put("outras_caracteristicas", outras);
+      }
+
+      void s; // silence
+      return next;
+    });
+  }
+
+
   async function save(e?: React.FormEvent) {
     e?.preventDefault();
     if (!user) { toast.error("Você precisa estar logado."); return; }
@@ -570,10 +644,17 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             <p className="text-xs text-muted-foreground">Código: <b>{initial.codigo_interno}</b></p>
           )}
         </div>
-        <Button type="submit" disabled={saving} className="gap-2 w-full sm:w-auto">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? "Salvando..." : isEdit || imovelId ? "Salvar" : "Cadastrar"}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          {!isEdit && (
+            <Button type="button" variant="outline" onClick={() => setIaModalOpen(true)} className="gap-2 w-full sm:w-auto">
+              <Wand2 className="w-4 h-4" /> Cadastrar por IA
+            </Button>
+          )}
+          <Button type="submit" disabled={saving} className="gap-2 w-full sm:w-auto">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {saving ? "Salvando..." : isEdit || imovelId ? "Salvar" : "Cadastrar"}
+          </Button>
+        </div>
       </div>
 
       <DraggableBlocks storageKey="imovel-form-blocks-order">
@@ -1125,6 +1206,12 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           {saving ? "Salvando..." : isEdit || imovelId ? "Salvar" : "Cadastrar"}
         </Button>
       </div>
+
+      <CadastroIAModal
+        open={iaModalOpen}
+        onClose={() => setIaModalOpen(false)}
+        onExtracted={handleIAExtracted}
+      />
     </form>
   );
 }
