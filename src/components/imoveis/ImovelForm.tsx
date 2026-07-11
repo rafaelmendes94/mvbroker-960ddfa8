@@ -1206,6 +1206,12 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           {saving ? "Salvando..." : isEdit || imovelId ? "Salvar" : "Cadastrar"}
         </Button>
       </div>
+
+      <CadastroIAModal
+        open={iaModalOpen}
+        onClose={() => setIaModalOpen(false)}
+        onExtracted={handleIAExtracted}
+      />
     </form>
   );
 }
