@@ -996,28 +996,27 @@ export default function Properties() {
         <PartnersAdSlider />
         {/* Header */}
         <div className="flex flex-col gap-3">
-          <BackButton />
           {/* Action buttons row */}
-          <div className="flex items-center justify-between gap-3">
-            <h1 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-accent" /> Imóveis
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-base sm:text-xl font-bold text-foreground flex items-center gap-2 min-w-0 truncate">
+              <Building2 className="w-5 h-5 text-accent shrink-0" /> Imóveis
             </h1>
-            <div className="flex gap-2 flex-wrap flex-shrink-0">
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
               <button
                 onClick={() => navigate("/relatorios")}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors"
+                className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg bg-primary text-primary-foreground text-[11px] sm:text-xs font-bold hover:bg-primary/90 transition-colors"
               >
-                <BarChart3 className="w-3.5 h-3.5" /> Relatórios
+                <BarChart3 className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Relatórios</span><span className="xs:hidden">Rel.</span>
               </button>
               <div className="relative" ref={xmlMenuRef}>
                 <button
                   onClick={() => setShowXmlMenu(!showXmlMenu)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-input text-foreground text-xs font-medium hover:bg-muted transition-colors"
+                  className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg bg-card border border-input text-foreground text-[11px] sm:text-xs font-medium hover:bg-muted transition-colors"
                 >
                   <FileCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Exportar</span> XML <ChevronDown className="w-3 h-3" />
                 </button>
                 {showXmlMenu && (
-                  <div className="absolute right-0 top-full mt-1 w-56 bg-card border border-border rounded-lg shadow-xl z-50 py-1 animate-scale-in">
+                  <div className="absolute right-0 top-full mt-1 w-56 max-w-[calc(100vw-2rem)] bg-card border border-border rounded-lg shadow-xl z-50 py-1 animate-scale-in">
                     <p className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Selecione o portal</p>
                     {xmlPortals.map((portal) => (
                       <button key={portal.name} onClick={() => handleExportXml(portal.name)} className="w-full text-left px-3 py-2 hover:bg-muted transition-colors">
@@ -1030,12 +1029,12 @@ export default function Properties() {
               </div>
               <button
                 onClick={() => setImportOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
                 title="Importações"
               >
-                <FolderDown className="w-3.5 h-3.5" /> Importações
+                <FolderDown className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Importações</span><span className="xs:hidden">Import.</span>
               </button>
-              <div className="flex flex-col items-end gap-0.5">
+              <div className="flex flex-col items-end gap-0.5 ml-auto sm:ml-0">
                 <button
                   onClick={() => {
                     if (limitReached) {
@@ -1046,7 +1045,7 @@ export default function Properties() {
                   }}
                   disabled={limitReached}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity",
+                    "flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold transition-opacity",
                     limitReached ? "bg-muted text-muted-foreground cursor-not-allowed" : "gradient-gold text-primary hover:opacity-90"
                   )}
                   title={limitReached ? "Limite atingido — faça upgrade" : "Novo imóvel"}
@@ -1061,6 +1060,7 @@ export default function Properties() {
               </div>
             </div>
           </div>
+
 
           {/* VGV Cards - larger and centered */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
