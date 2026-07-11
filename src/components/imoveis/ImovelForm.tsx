@@ -644,10 +644,17 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
             <p className="text-xs text-muted-foreground">Código: <b>{initial.codigo_interno}</b></p>
           )}
         </div>
-        <Button type="submit" disabled={saving} className="gap-2 w-full sm:w-auto">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? "Salvando..." : isEdit || imovelId ? "Salvar" : "Cadastrar"}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          {!isEdit && (
+            <Button type="button" variant="outline" onClick={() => setIaModalOpen(true)} className="gap-2 w-full sm:w-auto">
+              <Wand2 className="w-4 h-4" /> Cadastrar por IA
+            </Button>
+          )}
+          <Button type="submit" disabled={saving} className="gap-2 w-full sm:w-auto">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {saving ? "Salvando..." : isEdit || imovelId ? "Salvar" : "Cadastrar"}
+          </Button>
+        </div>
       </div>
 
       <DraggableBlocks storageKey="imovel-form-blocks-order">
