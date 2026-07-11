@@ -54,7 +54,7 @@ const CamposSchema = z
 
     infraestrutura: z.array(z.string()).nullable().optional(),
   })
-  .passthrough();
+  .strip();
 
 const SYSTEM_PROMPT = `Você é um extrator de dados imobiliários. Recebe uma descrição livre de imóvel (WhatsApp, e-mail, ficha do proprietário) e retorna SOMENTE um JSON válido, sem markdown, sem crases, sem comentários.
 
