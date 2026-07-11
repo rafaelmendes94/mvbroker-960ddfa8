@@ -27,13 +27,9 @@ export function ImovelGaleria({ imovelId }: { imovelId: string | null }) {
       .eq("imovel_id", imovelId)
       .order("ordem", { ascending: true });
     if (!data) return;
-    const enriched = await Promise.all(
-      data.map(async (r) => {
-        const { data: s } = await supabase.storage.from("imoveis").createSignedUrl(r.storage_path, 3600);
-        return { ...r, url: s?.signedUrl ?? "" } as Img;
-      })
-    );
-    setImgs(enriched);
+    const paths = data.map((r) => r.storage_path).filter(Boolean) as string[];
+    const urlMap = await getImageUrls(paths, "imoveis");
+    setImgs(data.map((r) => ({ ...r, url: urlMap.get(r.storage_path) ?? "" } as Img)));
   }
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [imovelId]);
 
