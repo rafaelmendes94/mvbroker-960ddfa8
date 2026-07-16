@@ -667,6 +667,16 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
             <Section title="Galeria">
               <GaleriaUpload tipo={tipo} estruturaId={editing?.id ?? null} />
             </Section>
+
+            <Section title="Implantação (PDF)">
+              <PdfImplantacaoUpload
+                tipo={tipo}
+                estruturaId={editing?.id ?? null}
+                table={table}
+                currentPath={implantacaoPdf}
+                onChange={setImplantacaoPdf}
+              />
+            </Section>
           </div>
 
           <DialogFooter>
