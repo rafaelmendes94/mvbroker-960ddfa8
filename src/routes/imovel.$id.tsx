@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   BedDouble, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
-  ArrowLeft, Share2, Phone,
+  Share2, Phone,
 } from "lucide-react";
 
 export const Route = createFileRoute("/imovel/$id")({
