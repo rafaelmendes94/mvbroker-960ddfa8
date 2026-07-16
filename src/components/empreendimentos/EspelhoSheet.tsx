@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Building2, Camera, Map as MapIcon, Table2, MapPin, Loader2,
-  Plus, ExternalLink,
+  Plus, ExternalLink, LayoutGrid, List as ListIcon, Grid3x3,
+  BedDouble, Bath, Car, Ruler,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -21,6 +22,8 @@ import {
   agruparImoveis, rotuloCelula, statusCelula, extrairBloco, extrairAndar,
   type ImovelEspelho,
 } from "@/lib/espelho-grouping";
+
+type TabelaView = "espelho" | "lista" | "blocos";
 
 interface Props {
   tipo: EmpreendimentoTipo;
