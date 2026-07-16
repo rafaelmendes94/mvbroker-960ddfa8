@@ -301,6 +301,8 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     SPECIFIC[tipo].fields.forEach((f) => { spec[f.key] = it[f.key] ?? ""; });
     setSpecific(spec);
     setImplantacaoPdf((it as any).implantacao_pdf_path ?? null);
+    setMapaPdf((it as any).mapa_pdf_path ?? null);
+    setMaterialUrl((it as any).material_completo_url ?? "");
     setOpen(true);
   }
 
