@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { MapPin, Search, Loader2 } from "lucide-react";
 import { loadGoogleMaps } from "@/lib/googleMaps";
+import { toast } from "sonner";
 
 type Suggestion = { placeId: string; text: string };
 
@@ -101,7 +102,9 @@ export function MapPicker({
         setSuggestions(list);
         setOpen(true);
       } catch (e: any) {
-        setErr(e?.message ?? String(e));
+        console.error("[MapPicker] autocomplete", e);
+        toast.error("Não foi possível buscar endereços", { description: e?.message ?? String(e) });
+        setSuggestions([]);
       } finally {
         setSearching(false);
       }
@@ -125,7 +128,8 @@ export function MapPicker({
       setOpen(false);
       sessionTokenRef.current = null;
     } catch (e: any) {
-      setErr(e?.message ?? String(e));
+      console.error("[MapPicker] pickSuggestion", e);
+      toast.error("Não foi possível carregar este endereço", { description: e?.message ?? String(e) });
     }
   }
 
@@ -193,7 +197,7 @@ export function MapPicker({
           Mapa indisponível: {err}. Use os campos de latitude/longitude acima.
         </div>
       ) : (
-        <div ref={ref} className="h-72 w-full rounded-md border bg-muted" />
+        <div ref={ref} className="h-[520px] w-full rounded-md border bg-muted" />
       )}
       <p className="text-xs text-muted-foreground">Busque pelo endereço acima, clique no mapa ou arraste o marcador para ajustar.</p>
     </div>
