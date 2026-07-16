@@ -1639,7 +1639,7 @@ export default function Properties() {
                       className="bg-background rounded-xl border border-border overflow-hidden cursor-pointer hover:shadow-md transition-shadow group"
                     >
                       <div className="relative h-36 overflow-hidden">
-                        <img src={p.images?.[0] || p.image} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={p.images?.[0] || p.image} alt={p.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         <button
                           onClick={(e) => { e.stopPropagation(); toggleFavorite(p.id); }}
                           className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 text-accent hover:bg-white transition-colors"
