@@ -15,6 +15,7 @@ import { Route as ConfiancaRouteImport } from './routes/confianca'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ImovelIdRouteImport } from './routes/imovel.$id'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedTabelaRouteImport } from './routes/_authenticated/tabela'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
@@ -108,6 +109,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImovelIdRoute = ImovelIdRouteImport.update({
+  id: '/imovel/$id',
+  path: '/imovel/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
@@ -514,6 +520,7 @@ export interface FileRoutesByFullPath {
   '/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/imovel/$id': typeof ImovelIdRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
@@ -579,6 +586,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/imovel/$id': typeof ImovelIdRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
@@ -653,6 +661,7 @@ export interface FileRoutesById {
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/_authenticated/tabela': typeof AuthenticatedTabelaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/imovel/$id': typeof ImovelIdRoute
   '/_authenticated/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/_authenticated/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
   '/_authenticated/configuracoes/notificacoes': typeof AuthenticatedConfiguracoesNotificacoesRoute
@@ -727,6 +736,7 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/tabela'
     | '/usuarios'
+    | '/imovel/$id'
     | '/assinaturas/$id'
     | '/carteiras/$id'
     | '/configuracoes/notificacoes'
@@ -792,6 +802,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/tabela'
     | '/usuarios'
+    | '/imovel/$id'
     | '/assinaturas/$id'
     | '/carteiras/$id'
     | '/configuracoes/notificacoes'
@@ -865,6 +876,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seguranca'
     | '/_authenticated/tabela'
     | '/_authenticated/usuarios'
+    | '/imovel/$id'
     | '/_authenticated/assinaturas/$id'
     | '/_authenticated/carteiras/$id'
     | '/_authenticated/configuracoes/notificacoes'
@@ -912,6 +924,7 @@ export interface RootRouteChildren {
   ConfiancaRoute: typeof ConfiancaRoute
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ImovelIdRoute: typeof ImovelIdRoute
   ApiPublicFeedSlugRoute: typeof ApiPublicFeedSlugRoute
   ApiPublicImovelIdRoute: typeof ApiPublicImovelIdRoute
   ApiPublicFeedGeralIdRoute: typeof ApiPublicFeedGeralIdRoute
@@ -960,6 +973,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/imovel/$id': {
+      id: '/imovel/$id'
+      path: '/imovel/$id'
+      fullPath: '/imovel/$id'
+      preLoaderRoute: typeof ImovelIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/usuarios': {
@@ -1688,6 +1708,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiancaRoute: ConfiancaRoute,
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ImovelIdRoute: ImovelIdRoute,
   ApiPublicFeedSlugRoute: ApiPublicFeedSlugRoute,
   ApiPublicImovelIdRoute: ApiPublicImovelIdRoute,
   ApiPublicFeedGeralIdRoute: ApiPublicFeedGeralIdRoute,
