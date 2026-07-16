@@ -684,6 +684,31 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                 onChange={setImplantacaoPdf}
               />
             </Section>
+
+            <Section title="Mapa (PDF)">
+              <PdfImplantacaoUpload
+                tipo={tipo}
+                estruturaId={editing?.id ?? null}
+                table={table}
+                currentPath={mapaPdf}
+                onChange={setMapaPdf}
+                column="mapa_pdf_path"
+                fileSlug="mapa"
+                labelSend="Enviar PDF do mapa"
+                labelReplace="Substituir mapa"
+                labelEmpty="Nenhum mapa enviado."
+              />
+            </Section>
+
+            <Section title="Material completo (link do Drive)">
+              <Input
+                type="url"
+                placeholder="https://drive.google.com/..."
+                value={materialUrl}
+                onChange={(e) => setMaterialUrl(e.target.value)}
+              />
+              <p className="mt-1.5 text-xs text-muted-foreground">Cole o link público do Google Drive (ou similar) com o material completo do empreendimento.</p>
+            </Section>
           </div>
 
           <DialogFooter>
