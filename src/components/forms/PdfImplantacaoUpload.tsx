@@ -17,7 +17,14 @@ type Props = {
   fileSlug?: string;
 };
 
-export function PdfImplantacaoUpload({ tipo, estruturaId, table, currentPath, onChange }: Props) {
+export function PdfImplantacaoUpload({
+  tipo, estruturaId, table, currentPath, onChange,
+  column = "implantacao_pdf_path",
+  labelSend = "Enviar PDF de implantação",
+  labelReplace = "Substituir PDF",
+  labelEmpty = "Nenhum PDF de implantação enviado.",
+  fileSlug = "implantacao",
+}: Props) {
   const [uploading, setUploading] = useState(false);
   const [signed, setSigned] = useState<string | null>(null);
 
@@ -40,20 +47,19 @@ export function PdfImplantacaoUpload({ tipo, estruturaId, table, currentPath, on
     }
     setUploading(true);
     try {
-      // Remove anterior (se houver) para evitar arquivos órfãos
       if (currentPath) {
         await supabase.storage.from("estrutura-arquivos").remove([currentPath]);
       }
-      const path = `${tipo}/${estruturaId}/implantacao-${Date.now()}.pdf`;
+      const path = `${tipo}/${estruturaId}/${fileSlug}-${Date.now()}.pdf`;
       const up = await supabase.storage.from("estrutura-arquivos").upload(path, file, {
         contentType: "application/pdf",
         upsert: true,
       });
       if (up.error) { toast.error(up.error.message); return; }
-      const { error } = await supabase.from(table).update({ implantacao_pdf_path: path }).eq("id", estruturaId);
+      const { error } = await supabase.from(table).update({ [column]: path } as any).eq("id", estruturaId);
       if (error) { toast.error(error.message); return; }
       onChange(path);
-      toast.success("Implantação enviada");
+      toast.success("Enviado");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -62,11 +68,11 @@ export function PdfImplantacaoUpload({ tipo, estruturaId, table, currentPath, on
 
   async function remove() {
     if (!estruturaId || !currentPath) return;
-    if (!confirm("Remover a implantação?")) return;
+    if (!confirm("Remover o PDF?")) return;
     await supabase.storage.from("estrutura-arquivos").remove([currentPath]);
-    await supabase.from(table).update({ implantacao_pdf_path: null }).eq("id", estruturaId);
+    await supabase.from(table).update({ [column]: null } as any).eq("id", estruturaId);
     onChange(null);
-    toast.success("Implantação removida");
+    toast.success("Removido");
   }
 
   return (
