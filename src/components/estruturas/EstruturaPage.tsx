@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import { Plus, Search, Pencil, Trash2, Building2, Download, Upload, Loader2, LayoutGrid, MapPin, List as ListIcon } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Building2, Download, Upload, Loader2, LayoutGrid, MapPin, List as ListIcon, Link as LinkIcon, Map as MapIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -164,6 +164,8 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   const [infra, setInfra] = useState<string[]>([]);
   const [specific, setSpecific] = useState<Record<string, any>>({});
   const [implantacaoPdf, setImplantacaoPdf] = useState<string | null>(null);
+  const [mapaPdf, setMapaPdf] = useState<string | null>(null);
+  const [materialUrl, setMaterialUrl] = useState<string>("");
 
   function downloadTemplate() {
     const ws = XLSX.utils.aoa_to_sheet([
@@ -281,6 +283,8 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     setInfra([]);
     setSpecific({});
     setImplantacaoPdf(null);
+    setMapaPdf(null);
+    setMaterialUrl("");
   }
 
   function openCreate() { resetForm(); setOpen(true); }
@@ -297,6 +301,8 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     SPECIFIC[tipo].fields.forEach((f) => { spec[f.key] = it[f.key] ?? ""; });
     setSpecific(spec);
     setImplantacaoPdf((it as any).implantacao_pdf_path ?? null);
+    setMapaPdf((it as any).mapa_pdf_path ?? null);
+    setMaterialUrl((it as any).material_completo_url ?? "");
     setOpen(true);
   }
 
@@ -317,6 +323,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
       latitude: coords.lat,
       longitude: coords.lng,
       infraestrutura: infra,
+      material_completo_url: materialUrl.trim() || null,
     };
     SPECIFIC[tipo].fields.forEach((f) => {
       const v = specific[f.key];
@@ -395,6 +402,26 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
       v?.toLowerCase?.().includes(search.toLowerCase())
     )
   );
+
+  function openMapsFor(i: any) {
+    const q = (i.latitude && i.longitude)
+      ? `${i.latitude},${i.longitude}`
+      : encodeURIComponent([i.logradouro, i.numero, i.bairro, i.cidade, i.estado].filter(Boolean).join(", "));
+    if (!q) { toast.error("Sem endereço/coordenadas cadastradas"); return; }
+    window.open(`https://www.google.com/maps?q=${q}`, "_blank", "noopener,noreferrer");
+  }
+
+  async function openMapaPdf(path: string | null | undefined) {
+    if (!path) { toast.error("Nenhum mapa cadastrado"); return; }
+    const { data, error } = await supabase.storage.from("estrutura-arquivos").createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) { toast.error("Não foi possível abrir o mapa"); return; }
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  }
+
+  function openMaterial(url: string | null | undefined) {
+    if (!url) { toast.error("Nenhum material completo cadastrado"); return; }
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
 
   return (
     <>
@@ -495,14 +522,27 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                         {i.bairro ? ` · ${i.bairro}` : ""}
                       </p>
                     </Link>
-                    <div className="flex items-center justify-end gap-1 pt-1">
+                    <div className="flex flex-wrap items-center justify-end gap-1 pt-1">
                       {tipo !== "empreendimento" && (
-                        <Button asChild size="icon" variant="ghost" className="h-7 w-7" title="Espelho">
+                        <Button asChild size="icon" variant="ghost" className="h-7 w-7" title="Disponibilidade">
                           <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
                             <LayoutGrid className="h-3.5 w-3.5" />
                           </Link>
                         </Button>
                       )}
+                      {i.material_completo_url && (
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openMaterial(i.material_completo_url)} title="Material completo">
+                          <LinkIcon className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                      {i.mapa_pdf_path && (
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openMapaPdf(i.mapa_pdf_path)} title="Mapa">
+                          <MapIcon className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openMapsFor(i)} title="Localização">
+                        <MapPin className="h-3.5 w-3.5" />
+                      </Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(i)} title="Editar">
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
@@ -553,28 +593,45 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                       {i.codigo_interno ? ` · Cód. ${i.codigo_interno}` : ""}
                     </p>
                   </Link>
-                  <div className="col-span-2 flex items-center justify-end gap-1 sm:col-span-1">
-                    {(i.latitude && i.longitude) || i.logradouro || i.cidade ? (
+                  <div className="col-span-2 flex flex-wrap items-center justify-end gap-1 sm:col-span-1">
+                    {tipo !== "empreendimento" && (
+                      <Button asChild size="sm" variant="outline" className="h-8">
+                        <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
+                          <LayoutGrid className="h-3.5 w-3.5 mr-1" /> Disponibilidade
+                        </Link>
+                      </Button>
+                    )}
+                    {i.material_completo_url && (
                       <Button
                         size="sm"
                         variant="outline"
                         className="h-8"
-                        onClick={() => {
-                          const q = (i.latitude && i.longitude)
-                            ? `${i.latitude},${i.longitude}`
-                            : encodeURIComponent([i.logradouro, i.numero, i.bairro, i.cidade, i.estado].filter(Boolean).join(", "));
-                          window.open(`https://www.google.com/maps?q=${q}`, "_blank", "noopener,noreferrer");
-                        }}
-                        title="Abrir no Google Maps"
+                        onClick={() => openMaterial(i.material_completo_url)}
+                        title="Material completo"
                       >
-                        <MapPin className="h-3.5 w-3.5 mr-1" /> Maps
+                        <LinkIcon className="h-3.5 w-3.5 mr-1" /> Material completo
                       </Button>
-                    ) : null}
-                    {tipo !== "empreendimento" && (
-                      <Button asChild size="sm" variant="outline" className="h-8">
-                        <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
-                          <LayoutGrid className="h-3.5 w-3.5 mr-1" /> Espelho
-                        </Link>
+                    )}
+                    {i.mapa_pdf_path && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8"
+                        onClick={() => openMapaPdf(i.mapa_pdf_path)}
+                        title="Mapa"
+                      >
+                        <MapIcon className="h-3.5 w-3.5 mr-1" /> Mapa
+                      </Button>
+                    )}
+                    {((i.latitude && i.longitude) || i.logradouro || i.cidade) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8"
+                        onClick={() => openMapsFor(i)}
+                        title="Abrir localização no Google Maps"
+                      >
+                        <MapPin className="h-3.5 w-3.5 mr-1" /> Localização
                       </Button>
                     )}
                     <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(i)}><Pencil className="h-4 w-4" /></Button>
@@ -676,6 +733,31 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                 currentPath={implantacaoPdf}
                 onChange={setImplantacaoPdf}
               />
+            </Section>
+
+            <Section title="Mapa (PDF)">
+              <PdfImplantacaoUpload
+                tipo={tipo}
+                estruturaId={editing?.id ?? null}
+                table={table}
+                currentPath={mapaPdf}
+                onChange={setMapaPdf}
+                column="mapa_pdf_path"
+                fileSlug="mapa"
+                labelSend="Enviar PDF do mapa"
+                labelReplace="Substituir mapa"
+                labelEmpty="Nenhum mapa enviado."
+              />
+            </Section>
+
+            <Section title="Material completo (link do Drive)">
+              <Input
+                type="url"
+                placeholder="https://drive.google.com/..."
+                value={materialUrl}
+                onChange={(e) => setMaterialUrl(e.target.value)}
+              />
+              <p className="mt-1.5 text-xs text-muted-foreground">Cole o link público do Google Drive (ou similar) com o material completo do empreendimento.</p>
             </Section>
           </div>
 

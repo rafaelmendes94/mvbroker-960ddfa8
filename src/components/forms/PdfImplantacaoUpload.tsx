@@ -10,9 +10,21 @@ type Props = {
   table: "edificios" | "condominios" | "empreendimentos" | "loteamentos";
   currentPath: string | null;
   onChange: (path: string | null) => void;
+  column?: "implantacao_pdf_path" | "mapa_pdf_path";
+  labelSend?: string;
+  labelReplace?: string;
+  labelEmpty?: string;
+  fileSlug?: string;
 };
 
-export function PdfImplantacaoUpload({ tipo, estruturaId, table, currentPath, onChange }: Props) {
+export function PdfImplantacaoUpload({
+  tipo, estruturaId, table, currentPath, onChange,
+  column = "implantacao_pdf_path",
+  labelSend = "Enviar PDF de implantação",
+  labelReplace = "Substituir PDF",
+  labelEmpty = "Nenhum PDF de implantação enviado.",
+  fileSlug = "implantacao",
+}: Props) {
   const [uploading, setUploading] = useState(false);
   const [signed, setSigned] = useState<string | null>(null);
 
@@ -35,20 +47,19 @@ export function PdfImplantacaoUpload({ tipo, estruturaId, table, currentPath, on
     }
     setUploading(true);
     try {
-      // Remove anterior (se houver) para evitar arquivos órfãos
       if (currentPath) {
         await supabase.storage.from("estrutura-arquivos").remove([currentPath]);
       }
-      const path = `${tipo}/${estruturaId}/implantacao-${Date.now()}.pdf`;
+      const path = `${tipo}/${estruturaId}/${fileSlug}-${Date.now()}.pdf`;
       const up = await supabase.storage.from("estrutura-arquivos").upload(path, file, {
         contentType: "application/pdf",
         upsert: true,
       });
       if (up.error) { toast.error(up.error.message); return; }
-      const { error } = await supabase.from(table).update({ implantacao_pdf_path: path }).eq("id", estruturaId);
+      const { error } = await supabase.from(table).update({ [column]: path } as any).eq("id", estruturaId);
       if (error) { toast.error(error.message); return; }
       onChange(path);
-      toast.success("Implantação enviada");
+      toast.success("Enviado");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -57,11 +68,11 @@ export function PdfImplantacaoUpload({ tipo, estruturaId, table, currentPath, on
 
   async function remove() {
     if (!estruturaId || !currentPath) return;
-    if (!confirm("Remover a implantação?")) return;
+    if (!confirm("Remover o PDF?")) return;
     await supabase.storage.from("estrutura-arquivos").remove([currentPath]);
-    await supabase.from(table).update({ implantacao_pdf_path: null }).eq("id", estruturaId);
+    await supabase.from(table).update({ [column]: null } as any).eq("id", estruturaId);
     onChange(null);
-    toast.success("Implantação removida");
+    toast.success("Removido");
   }
 
   return (
@@ -72,7 +83,7 @@ export function PdfImplantacaoUpload({ tipo, estruturaId, table, currentPath, on
           <Button type="button" variant="outline" size="sm" disabled={!estruturaId || uploading} asChild>
             <span>
               {uploading ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <FileUp className="h-4 w-4 mr-1.5" />}
-              {currentPath ? "Substituir PDF" : "Enviar PDF de implantação"}
+              {currentPath ? labelReplace : labelSend}
             </span>
           </Button>
         </label>
@@ -92,12 +103,12 @@ export function PdfImplantacaoUpload({ tipo, estruturaId, table, currentPath, on
       </div>
       {currentPath && signed ? (
         <div className="rounded-md border bg-muted/30 overflow-hidden">
-          <iframe src={signed} title="Implantação (PDF)" className="w-full h-[420px]" />
+          <iframe src={signed} title="PDF" className="w-full h-[420px]" />
         </div>
       ) : (
         <div className="rounded-md border border-dashed py-6 text-center text-xs text-muted-foreground flex flex-col items-center gap-1.5">
           <FileText className="h-6 w-6" />
-          Nenhum PDF de implantação enviado.
+          {labelEmpty}
         </div>
       )}
     </div>

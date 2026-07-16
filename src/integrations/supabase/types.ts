@@ -730,6 +730,8 @@ export type Database = {
           latitude: number | null
           logradouro: string | null
           longitude: number | null
+          mapa_pdf_path: string | null
+          material_completo_url: string | null
           nome: string
           numero: string | null
           numero_lotes: number | null
@@ -760,6 +762,8 @@ export type Database = {
           latitude?: number | null
           logradouro?: string | null
           longitude?: number | null
+          mapa_pdf_path?: string | null
+          material_completo_url?: string | null
           nome: string
           numero?: string | null
           numero_lotes?: number | null
@@ -790,6 +794,8 @@ export type Database = {
           latitude?: number | null
           logradouro?: string | null
           longitude?: number | null
+          mapa_pdf_path?: string | null
+          material_completo_url?: string | null
           nome?: string
           numero?: string | null
           numero_lotes?: number | null
@@ -901,6 +907,8 @@ export type Database = {
           latitude: number | null
           logradouro: string | null
           longitude: number | null
+          mapa_pdf_path: string | null
+          material_completo_url: string | null
           nome: string
           numero: string | null
           qtd_andares: number | null
@@ -931,6 +939,8 @@ export type Database = {
           latitude?: number | null
           logradouro?: string | null
           longitude?: number | null
+          mapa_pdf_path?: string | null
+          material_completo_url?: string | null
           nome: string
           numero?: string | null
           qtd_andares?: number | null
@@ -961,6 +971,8 @@ export type Database = {
           latitude?: number | null
           logradouro?: string | null
           longitude?: number | null
+          mapa_pdf_path?: string | null
+          material_completo_url?: string | null
           nome?: string
           numero?: string | null
           qtd_andares?: number | null
@@ -995,6 +1007,8 @@ export type Database = {
           latitude: number | null
           logradouro: string | null
           longitude: number | null
+          mapa_pdf_path: string | null
+          material_completo_url: string | null
           nome: string
           numero: string | null
           status_obra: Database["public"]["Enums"]["status_obra"] | null
@@ -1022,6 +1036,8 @@ export type Database = {
           latitude?: number | null
           logradouro?: string | null
           longitude?: number | null
+          mapa_pdf_path?: string | null
+          material_completo_url?: string | null
           nome: string
           numero?: string | null
           status_obra?: Database["public"]["Enums"]["status_obra"] | null
@@ -1049,6 +1065,8 @@ export type Database = {
           latitude?: number | null
           logradouro?: string | null
           longitude?: number | null
+          mapa_pdf_path?: string | null
+          material_completo_url?: string | null
           nome?: string
           numero?: string | null
           status_obra?: Database["public"]["Enums"]["status_obra"] | null
@@ -1724,6 +1742,8 @@ export type Database = {
           logradouro: string | null
           longitude: number | null
           lotes_disponiveis: number | null
+          mapa_pdf_path: string | null
+          material_completo_url: string | null
           nome: string
           numero: string | null
           observacoes: string | null
@@ -1753,6 +1773,8 @@ export type Database = {
           logradouro?: string | null
           longitude?: number | null
           lotes_disponiveis?: number | null
+          mapa_pdf_path?: string | null
+          material_completo_url?: string | null
           nome: string
           numero?: string | null
           observacoes?: string | null
@@ -1782,6 +1804,8 @@ export type Database = {
           logradouro?: string | null
           longitude?: number | null
           lotes_disponiveis?: number | null
+          mapa_pdf_path?: string | null
+          material_completo_url?: string | null
           nome?: string
           numero?: string | null
           observacoes?: string | null
