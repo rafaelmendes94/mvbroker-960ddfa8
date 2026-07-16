@@ -95,11 +95,16 @@ async function getSupabaseAdmin() {
 }
 
 async function assertAdmin(ctx: Pick<AuthedContext, "supabase" | "userId">) {
-  const { data: ok } = await ctx.supabase.rpc("has_role", {
+  const { data: isSuper } = await ctx.supabase.rpc("has_role", {
     _user_id: ctx.userId,
     _role: "super_admin",
   });
-  if (!ok) throw new Error("Acesso negado: apenas Super Admin.");
+  if (isSuper) return;
+  const { data: isSec } = await ctx.supabase.rpc("has_role", {
+    _user_id: ctx.userId,
+    _role: "secretaria",
+  });
+  if (!isSec) throw new Error("Acesso negado: apenas Super Admin ou Secretaria.");
 }
 
 function gerarSenha(len = 12) {
