@@ -114,6 +114,15 @@ export function PropertyDetailModal({ property, onClose, allProperties, brokerIn
   const [editingBlock, setEditingBlock] = useState<string | null>(null);
   const [viewingTerm, setViewingTerm] = useState(false);
 
+  // Registra visualização quando o modal abre com um imóvel real (uuid)
+  useEffect(() => {
+    if (!property?.id) return;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(property.id);
+    if (!isUuid) return;
+    logImovel(property.id, "visualizacao");
+  }, [property?.id]);
+
+
   // View tracking happens on public pages via trackPropertyView() —
   // not here, otherwise admin/broker management opens would inflate the counter.
 
