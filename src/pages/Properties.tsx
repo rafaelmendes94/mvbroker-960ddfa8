@@ -415,7 +415,7 @@ const propertiesWithCodes = initialProperties.map((p, i) => ({
 
 export default function Properties() {
   const navigate = useNavigate();
-  const { user, subscription, isSuperAdmin, isAdminStaff } = useAuth();
+  const { user, profile, subscription, isSuperAdmin, isAdminStaff } = useAuth();
   const isAdmin = isSuperAdmin || isAdminStaff;
   const [currentImoveis, setCurrentImoveis] = useState(0);
   const [importOpen, setImportOpen] = useState(false);
