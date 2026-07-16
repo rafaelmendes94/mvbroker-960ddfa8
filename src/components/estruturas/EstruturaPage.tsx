@@ -145,6 +145,13 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [view, setView] = useState<"list" | "grid">(() => {
+    if (typeof window === "undefined") return "list";
+    return (localStorage.getItem(`estrutura-view:${tipo}`) as "list" | "grid") || "list";
+  });
+  useEffect(() => {
+    if (typeof window !== "undefined") localStorage.setItem(`estrutura-view:${tipo}`, view);
+  }, [view, tipo]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
