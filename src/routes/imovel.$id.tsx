@@ -193,10 +193,6 @@ function PublicImovelPage() {
           </aside>
         </div>
       </main>
-
-      <footer className="mt-10 border-t py-6 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} MV BROKER
-      </footer>
     </div>
   );
 }
