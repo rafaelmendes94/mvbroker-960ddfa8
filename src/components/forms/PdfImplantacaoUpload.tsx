@@ -103,12 +103,12 @@ export function PdfImplantacaoUpload({
       </div>
       {currentPath && signed ? (
         <div className="rounded-md border bg-muted/30 overflow-hidden">
-          <iframe src={signed} title="Implantação (PDF)" className="w-full h-[420px]" />
+          <iframe src={signed} title="PDF" className="w-full h-[420px]" />
         </div>
       ) : (
         <div className="rounded-md border border-dashed py-6 text-center text-xs text-muted-foreground flex flex-col items-center gap-1.5">
           <FileText className="h-6 w-6" />
-          Nenhum PDF de implantação enviado.
+          {labelEmpty}
         </div>
       )}
     </div>
