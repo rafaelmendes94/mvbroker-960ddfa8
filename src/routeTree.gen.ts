@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TodosImoveisRouteImport } from './routes/todos-imoveis'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ConfiancaRouteImport } from './routes/confianca'
@@ -50,6 +51,7 @@ import { Route as AuthenticatedPortaisIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedImportacoesIndexRouteImport } from './routes/_authenticated/importacoes.index'
 import { Route as AuthenticatedImoveisIndexRouteImport } from './routes/_authenticated/imoveis.index'
 import { Route as AuthenticatedCarteirasIndexRouteImport } from './routes/_authenticated/carteiras.index'
+import { Route as ApiPublicImoveisListaRouteImport } from './routes/api/public/imoveis-lista'
 import { Route as AuthenticatedSegurancaSessoesRouteImport } from './routes/_authenticated/seguranca.sessoes'
 import { Route as AuthenticatedSegurancaPermissoesRouteImport } from './routes/_authenticated/seguranca.permissoes'
 import { Route as AuthenticatedSegurancaAlertasRouteImport } from './routes/_authenticated/seguranca.alertas'
@@ -82,6 +84,11 @@ import { Route as AuthenticatedEmpreendimentosTipoIdRouteImport } from './routes
 import { Route as ApiPublicPortalPortalSlugRouteImport } from './routes/api/public/portal/$portal/$slug'
 import { Route as ApiPublicFeedGeralIdRouteImport } from './routes/api/public/feed/geral.$id'
 
+const TodosImoveisRoute = TodosImoveisRouteImport.update({
+  id: '/todos-imoveis',
+  path: '/todos-imoveis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -303,6 +310,11 @@ const AuthenticatedCarteirasIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedCarteirasRoute,
   } as any)
+const ApiPublicImoveisListaRoute = ApiPublicImoveisListaRouteImport.update({
+  id: '/api/public/imoveis-lista',
+  path: '/api/public/imoveis-lista',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedSegurancaSessoesRoute =
   AuthenticatedSegurancaSessoesRouteImport.update({
     id: '/sessoes',
@@ -493,6 +505,7 @@ export interface FileRoutesByFullPath {
   '/confianca': typeof ConfiancaRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/todos-imoveis': typeof TodosImoveisRoute
   '/acesso-negado': typeof AuthenticatedAcessoNegadoRoute
   '/assinaturas': typeof AuthenticatedAssinaturasRouteWithChildren
   '/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -545,6 +558,7 @@ export interface FileRoutesByFullPath {
   '/seguranca/alertas': typeof AuthenticatedSegurancaAlertasRoute
   '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
+  '/api/public/imoveis-lista': typeof ApiPublicImoveisListaRoute
   '/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis/': typeof AuthenticatedImoveisIndexRoute
   '/importacoes/': typeof AuthenticatedImportacoesIndexRoute
@@ -566,6 +580,7 @@ export interface FileRoutesByTo {
   '/confianca': typeof ConfiancaRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/todos-imoveis': typeof TodosImoveisRoute
   '/acesso-negado': typeof AuthenticatedAcessoNegadoRoute
   '/assinaturas': typeof AuthenticatedAssinaturasRouteWithChildren
   '/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -611,6 +626,7 @@ export interface FileRoutesByTo {
   '/seguranca/alertas': typeof AuthenticatedSegurancaAlertasRoute
   '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
+  '/api/public/imoveis-lista': typeof ApiPublicImoveisListaRoute
   '/carteiras': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis': typeof AuthenticatedImoveisIndexRoute
   '/importacoes': typeof AuthenticatedImportacoesIndexRoute
@@ -634,6 +650,7 @@ export interface FileRoutesById {
   '/confianca': typeof ConfiancaRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/todos-imoveis': typeof TodosImoveisRoute
   '/_authenticated/acesso-negado': typeof AuthenticatedAcessoNegadoRoute
   '/_authenticated/assinaturas': typeof AuthenticatedAssinaturasRouteWithChildren
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -686,6 +703,7 @@ export interface FileRoutesById {
   '/_authenticated/seguranca/alertas': typeof AuthenticatedSegurancaAlertasRoute
   '/_authenticated/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/_authenticated/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
+  '/api/public/imoveis-lista': typeof ApiPublicImoveisListaRoute
   '/_authenticated/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/_authenticated/imoveis/': typeof AuthenticatedImoveisIndexRoute
   '/_authenticated/importacoes/': typeof AuthenticatedImportacoesIndexRoute
@@ -709,6 +727,7 @@ export interface FileRouteTypes {
     | '/confianca'
     | '/login'
     | '/reset-password'
+    | '/todos-imoveis'
     | '/acesso-negado'
     | '/assinaturas'
     | '/auditoria'
@@ -761,6 +780,7 @@ export interface FileRouteTypes {
     | '/seguranca/alertas'
     | '/seguranca/permissoes'
     | '/seguranca/sessoes'
+    | '/api/public/imoveis-lista'
     | '/carteiras/'
     | '/imoveis/'
     | '/importacoes/'
@@ -782,6 +802,7 @@ export interface FileRouteTypes {
     | '/confianca'
     | '/login'
     | '/reset-password'
+    | '/todos-imoveis'
     | '/acesso-negado'
     | '/assinaturas'
     | '/auditoria'
@@ -827,6 +848,7 @@ export interface FileRouteTypes {
     | '/seguranca/alertas'
     | '/seguranca/permissoes'
     | '/seguranca/sessoes'
+    | '/api/public/imoveis-lista'
     | '/carteiras'
     | '/imoveis'
     | '/importacoes'
@@ -849,6 +871,7 @@ export interface FileRouteTypes {
     | '/confianca'
     | '/login'
     | '/reset-password'
+    | '/todos-imoveis'
     | '/_authenticated/acesso-negado'
     | '/_authenticated/assinaturas'
     | '/_authenticated/auditoria'
@@ -901,6 +924,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seguranca/alertas'
     | '/_authenticated/seguranca/permissoes'
     | '/_authenticated/seguranca/sessoes'
+    | '/api/public/imoveis-lista'
     | '/_authenticated/carteiras/'
     | '/_authenticated/imoveis/'
     | '/_authenticated/importacoes/'
@@ -924,7 +948,9 @@ export interface RootRouteChildren {
   ConfiancaRoute: typeof ConfiancaRoute
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  TodosImoveisRoute: typeof TodosImoveisRoute
   ImovelIdRoute: typeof ImovelIdRoute
+  ApiPublicImoveisListaRoute: typeof ApiPublicImoveisListaRoute
   ApiPublicFeedSlugRoute: typeof ApiPublicFeedSlugRoute
   ApiPublicImovelIdRoute: typeof ApiPublicImovelIdRoute
   ApiPublicFeedGeralIdRoute: typeof ApiPublicFeedGeralIdRoute
@@ -933,6 +959,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/todos-imoveis': {
+      id: '/todos-imoveis'
+      path: '/todos-imoveis'
+      fullPath: '/todos-imoveis'
+      preLoaderRoute: typeof TodosImoveisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -1219,6 +1252,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/carteiras/'
       preLoaderRoute: typeof AuthenticatedCarteirasIndexRouteImport
       parentRoute: typeof AuthenticatedCarteirasRoute
+    }
+    '/api/public/imoveis-lista': {
+      id: '/api/public/imoveis-lista'
+      path: '/api/public/imoveis-lista'
+      fullPath: '/api/public/imoveis-lista'
+      preLoaderRoute: typeof ApiPublicImoveisListaRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/seguranca/sessoes': {
       id: '/_authenticated/seguranca/sessoes'
@@ -1708,7 +1748,9 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiancaRoute: ConfiancaRoute,
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  TodosImoveisRoute: TodosImoveisRoute,
   ImovelIdRoute: ImovelIdRoute,
+  ApiPublicImoveisListaRoute: ApiPublicImoveisListaRoute,
   ApiPublicFeedSlugRoute: ApiPublicFeedSlugRoute,
   ApiPublicImovelIdRoute: ApiPublicImovelIdRoute,
   ApiPublicFeedGeralIdRoute: ApiPublicFeedGeralIdRoute,
