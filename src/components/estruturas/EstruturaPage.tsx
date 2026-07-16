@@ -283,6 +283,8 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     setInfra([]);
     setSpecific({});
     setImplantacaoPdf(null);
+    setMapaPdf(null);
+    setMaterialUrl("");
   }
 
   function openCreate() { resetForm(); setOpen(true); }
