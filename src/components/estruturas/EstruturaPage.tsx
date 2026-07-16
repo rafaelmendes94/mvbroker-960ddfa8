@@ -593,28 +593,45 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                       {i.codigo_interno ? ` · Cód. ${i.codigo_interno}` : ""}
                     </p>
                   </Link>
-                  <div className="col-span-2 flex items-center justify-end gap-1 sm:col-span-1">
-                    {(i.latitude && i.longitude) || i.logradouro || i.cidade ? (
+                  <div className="col-span-2 flex flex-wrap items-center justify-end gap-1 sm:col-span-1">
+                    {tipo !== "empreendimento" && (
+                      <Button asChild size="sm" variant="outline" className="h-8">
+                        <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
+                          <LayoutGrid className="h-3.5 w-3.5 mr-1" /> Disponibilidade
+                        </Link>
+                      </Button>
+                    )}
+                    {i.material_completo_url && (
                       <Button
                         size="sm"
                         variant="outline"
                         className="h-8"
-                        onClick={() => {
-                          const q = (i.latitude && i.longitude)
-                            ? `${i.latitude},${i.longitude}`
-                            : encodeURIComponent([i.logradouro, i.numero, i.bairro, i.cidade, i.estado].filter(Boolean).join(", "));
-                          window.open(`https://www.google.com/maps?q=${q}`, "_blank", "noopener,noreferrer");
-                        }}
-                        title="Abrir no Google Maps"
+                        onClick={() => openMaterial(i.material_completo_url)}
+                        title="Material completo"
                       >
-                        <MapPin className="h-3.5 w-3.5 mr-1" /> Maps
+                        <LinkIcon className="h-3.5 w-3.5 mr-1" /> Material completo
                       </Button>
-                    ) : null}
-                    {tipo !== "empreendimento" && (
-                      <Button asChild size="sm" variant="outline" className="h-8">
-                        <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
-                          <LayoutGrid className="h-3.5 w-3.5 mr-1" /> Espelho
-                        </Link>
+                    )}
+                    {i.mapa_pdf_path && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8"
+                        onClick={() => openMapaPdf(i.mapa_pdf_path)}
+                        title="Mapa"
+                      >
+                        <MapIcon className="h-3.5 w-3.5 mr-1" /> Mapa
+                      </Button>
+                    )}
+                    {((i.latitude && i.longitude) || i.logradouro || i.cidade) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8"
+                        onClick={() => openMapsFor(i)}
+                        title="Abrir localização no Google Maps"
+                      >
+                        <MapPin className="h-3.5 w-3.5 mr-1" /> Localização
                       </Button>
                     )}
                     <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(i)}><Pencil className="h-4 w-4" /></Button>
