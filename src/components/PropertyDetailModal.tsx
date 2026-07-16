@@ -18,6 +18,7 @@ import { cn, toSlug, formatUnitParts } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client-any";
 import { useAuth } from "@/hooks/useAuth";
+import { logImovel } from "@/lib/audit";
 import { DraggableFieldGrid, type FieldConfig } from "./DraggableFieldGrid";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
