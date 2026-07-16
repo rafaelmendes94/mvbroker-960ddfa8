@@ -414,9 +414,31 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
 
       <Card>
         <CardContent className="p-4">
-          <div className="relative mb-4 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-9" placeholder="Buscar por nome, código, cidade..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div className="relative flex-1 min-w-[220px] max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input className="pl-9" placeholder="Buscar por nome, código, cidade..." value={search} onChange={(e) => setSearch(e.target.value)} />
+            </div>
+            <div className="inline-flex rounded-md border bg-background p-0.5">
+              <Button
+                size="sm"
+                variant={view === "list" ? "default" : "ghost"}
+                className="h-8 px-2.5"
+                onClick={() => setView("list")}
+                title="Visualização em lista"
+              >
+                <ListIcon className="h-4 w-4 mr-1.5" /> Lista
+              </Button>
+              <Button
+                size="sm"
+                variant={view === "grid" ? "default" : "ghost"}
+                className="h-8 px-2.5"
+                onClick={() => setView("grid")}
+                title="Visualização em blocos"
+              >
+                <LayoutGrid className="h-4 w-4 mr-1.5" /> Blocos
+              </Button>
+            </div>
           </div>
 
           {loading ? (
@@ -425,6 +447,68 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
             <div className="py-12 text-center">
               <Building2 className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
               <p className="text-sm text-muted-foreground">Nenhum registro encontrado.</p>
+            </div>
+          ) : view === "grid" ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {filtered.map((i) => (
+                <div
+                  key={i.id}
+                  className="group rounded-lg border bg-card overflow-hidden hover:border-primary transition-colors"
+                >
+                  <Link
+                    to="/empreendimentos/$id"
+                    params={{ id: i.id }}
+                    className="block aspect-video bg-muted relative"
+                  >
+                    {covers[i.id] ? (
+                      <img
+                        src={covers[i.id].url}
+                        alt={i.nome}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          const fallback = covers[i.id]?.fallbackUrl;
+                          if (fallback && e.currentTarget.src !== fallback) e.currentTarget.src = fallback;
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full grid place-items-center text-muted-foreground">
+                        <Building2 className="h-8 w-8" />
+                      </div>
+                    )}
+                    <Badge
+                      variant={i.ativo ? "default" : "secondary"}
+                      className="absolute top-2 right-2 text-[10px]"
+                    >
+                      {i.ativo ? "Ativo" : "Inativo"}
+                    </Badge>
+                  </Link>
+                  <div className="p-3 space-y-1">
+                    <Link to="/empreendimentos/$id" params={{ id: i.id }} className="block">
+                      <p className="font-medium truncate text-sm">{i.nome}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                        {[i.cidade, i.estado].filter(Boolean).join("/") || "Sem cidade"}
+                        {i.bairro ? ` · ${i.bairro}` : ""}
+                      </p>
+                    </Link>
+                    <div className="flex items-center justify-end gap-1 pt-1">
+                      {tipo !== "empreendimento" && (
+                        <Button asChild size="icon" variant="ghost" className="h-7 w-7" title="Espelho">
+                          <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
+                            <LayoutGrid className="h-3.5 w-3.5" />
+                          </Link>
+                        </Button>
+                      )}
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(i)} title="Editar">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(i.id, i.nome)} title="Excluir">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="space-y-2">
