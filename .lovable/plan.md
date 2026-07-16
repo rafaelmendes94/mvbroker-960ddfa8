@@ -1,46 +1,39 @@
-## Escopo
+## O que vou fazer
 
-Aplicar modo "só leitura" na tela de Imóveis (`src/pages/Properties.tsx`) para todos os usuários que **não são** `super_admin` nem `secretaria`. Sem migração de banco — as políticas RLS de escrita já bloqueiam servidor-side, isso só remove a UI.
+### 1. Galeria com arrastar e soltar (imóvel e empreendimentos)
+Substituir as setas ↑↓ por drag & drop usando `@dnd-kit/core` + `@dnd-kit/sortable` (leve, já padrão do stack).
 
-## Regra central
+Arquivos afetados:
+- `src/components/imoveis/ImovelGaleria.tsx` — remover botões de seta; envolver o grid num `DndContext` + `SortableContext`. Ao soltar, atualizar `ordem` de todas as imagens em lote (uma chamada `upsert`). Manter capa/excluir.
+- `src/components/forms/GaleriaUpload.tsx` — mesma mudança para as galerias de edifício/condomínio/empreendimento/loteamento (tabela `estrutura_imagens`).
 
-No topo do componente `Properties`:
+Mobile: `TouchSensor` + `PointerSensor` para funcionar no toque.
 
-```ts
-const isAdmin = isSuperAdmin || isAdminStaff;
-```
+### 2. Tela do Condomínio (`/empreendimentos/condominio/:id`) — mostrar tudo
+Hoje o `EspelhoSheet` só exibe nome, endereço e a tabela de unidades. Vou:
 
-Todo o resto deriva daí.
+- Buscar todos os campos do cadastro (descrição, infraestrutura, `tipo_condominio`, `numero_lotes`, `portaria`, `seguranca`, `area_total`, `valor_condominio`, `valor_iptu`, ativo, código interno, coordenadas).
+- Renderizar um bloco “Sobre o condomínio” com descrição + grade de campos preenchidos + chips de infraestrutura.
+- Aplicar a mesma expansão para `edificio`, `empreendimento` e `loteamento` (mesmo componente, campos por tipo vindos do `SPECIFIC` de `EstruturaPage.tsx`).
 
-## Ocultar na barra superior (quando `!isAdmin`)
+Arquivos: `src/components/empreendimentos/EspelhoSheet.tsx` (+ pequeno helper novo `src/lib/espelho-fields.ts` reaproveitando o dicionário `SPECIFIC`).
 
-- Botão **"Exportar XML"** (dropdown de portais)
-- Botão **"Importações"** (abre `setImportOpen`)
-- Botão **"Novo Imóvel"** + contador de limite
-- Mantém: Relatórios, busca, filtros, favoritar, rota, baixar fotos/Drive, WhatsApp, PDF, visualizar detalhe
+### 3. Aba “Mídia” não mostra as imagens
+Hoje é um placeholder. Vou trocar por uma galeria real (carrega de `estrutura_imagens` com URLs assinadas, mesma lógica já existente em `GaleriaUpload.load()`), com lightbox simples ao clicar.
 
-## Cards e linhas de imóvel
+### 4. Upload de Implantação em PDF
+- Migração (nova): adicionar coluna `implantacao_pdf_path text` nas 4 tabelas de estrutura (`edificios`, `condominios`, `empreendimentos`, `loteamentos`) e criar bucket privado `estrutura-arquivos` com policies (upload/read para authenticated; leitura pública via signed URL no espelho).
+- `EstruturaPage.tsx` — no formulário de cadastro/edição, adicionar campo “Implantação (PDF)” com upload/remover. Grava caminho no registro.
+- `EspelhoSheet.tsx` — aba “Implantação” exibe o PDF via `<iframe>` embutido em signed URL + botão “Abrir em nova aba / Baixar”. Fallback se não houver PDF.
 
-Passar `canManage={isAdmin}` (removendo o fallback `property.userId === user?.id`) para `PropertyCard` e `PropertyRow` — hoje o dono do imóvel conseguia editar/excluir mesmo sem ser admin; isso passa a exigir admin.
+### 5. Cards dos imóveis vinculados iguais aos de Oportunidades
+No `EspelhoSheet` (na visão “Blocos”, que é a lista de cards), substituir o `ImovelCard` interno pelo mesmo layout de `OportunidadeCard` (mesma altura, badges de vista_mar/decorado, preço em destaque, ícones de dormitórios/banheiros/vagas/área). Extrair `OportunidadeCard` para `src/components/imoveis/OportunidadeCard.tsx` e reutilizar nos dois lugares — precisará também trazer os campos extras (`bairro`, `banheiros`, `vista_mar`, `decorado`, `padrao`, `bonus`, `area_privativa`) no `IMOVEL_SELECT`.
 
-Dentro de `PropertyCard` e `PropertyRow`, envolver em `canManage &&` os elementos que hoje ficam visíveis para qualquer um:
-
-- **StatusBar** (botões Disponível / Vendido / Reservado / Alugado / Suspenso) — quando não-admin, renderiza apenas um `Badge` estático com o status atual, sem trocar.
-- **Duplicar** (ícone `Copy` na coluna de ações da PropertyRow — hoje sem `canManage`).
-- **Alterar preço inline** (`onPriceChange` / `PriceEditor`), **DealLabel**, **QuickUpdate**, **Contrato**, **Avaliação** — qualquer controle de escrita in-card.
-
-Editar e Excluir já estão gated por `canManage`, então automaticamente somem.
-
-## Ações em massa
-
-Se houver seleção múltipla com ações (excluir em lote / mudar status), esconder o toolbar quando `!isAdmin`.
-
-## Fora de escopo
-
-- Dashboard (`src/routes/_authenticated/dashboard.tsx`) não tem esses botões hoje — nada a fazer lá.
-- Rotas `/imoveis/novo` e `/imoveis/$id/editar` continuam existindo; o backend (RLS) já bloqueia gravação de não-admin. Não vou adicionar guard de rota para evitar quebrar corretor autônomo que legitimamente edita o próprio imóvel via outros fluxos — só removo os pontos de entrada da tela de Imóveis conforme pedido.
-- Sem novo papel `cliente` no enum — a restrição vale para qualquer não-admin (corretor_autonomo, imobiliaria, e qualquer outro).
-
-## Arquivos afetados
-
-- `src/pages/Properties.tsx` (único)
+### Ordem de execução
+1. Migração (nova coluna + bucket + policies) — aguardar aprovação.
+2. Instalar `@dnd-kit/core` e `@dnd-kit/sortable`.
+3. Refatorar `OportunidadeCard` para componente compartilhado.
+4. Atualizar `ImovelGaleria` e `GaleriaUpload` com drag & drop.
+5. Atualizar `EspelhoSheet` (informações completas, galeria real, PDF de implantação, cards estilo oportunidades).
+6. Atualizar `EstruturaPage` (campo de upload de PDF).
+7. Typecheck.
