@@ -262,7 +262,25 @@ export const resetarSenhaUsuario = createServerFn({ method: "POST" })
     const senha = gerarSenha(12);
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
       password: senha,
+  });
+
+// ===== Definir senha personalizada =====
+const definirSenhaSchema = tokenSchema.extend({
+  user_id: z.string().uuid(),
+  senha: z.string().min(6, "Senha deve ter ao menos 6 caracteres").max(72),
+});
+export const definirSenhaUsuario = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => definirSenhaSchema.parse(d))
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext(data._token);
+    await assertAdmin(authContext);
+    const supabaseAdmin = await getSupabaseAdmin();
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
+      password: data.senha,
     });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
     if (error) throw new Error(error.message);
     return { senha };
   });
