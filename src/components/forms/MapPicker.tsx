@@ -128,7 +128,8 @@ export function MapPicker({
       setOpen(false);
       sessionTokenRef.current = null;
     } catch (e: any) {
-      setErr(e?.message ?? String(e));
+      console.error("[MapPicker] pickSuggestion", e);
+      toast.error("Não foi possível carregar este endereço", { description: e?.message ?? String(e) });
     }
   }
 
