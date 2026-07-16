@@ -2321,7 +2321,13 @@ function PropertyCard({
             </>
           )}
           <div className="flex-1">
-            <StatusBar currentStatus={property.status} onChangeStatus={handleStatusChange} />
+            {canManage ? (
+              <StatusBar currentStatus={property.status} onChangeStatus={handleStatusChange} />
+            ) : (
+              <span className={cn("inline-flex px-2.5 py-1 rounded-md text-[11px] font-bold border", statusConfig[property.status].bg, statusConfig[property.status].color, statusConfig[property.status].border)}>
+                {statusLabels[property.status]}
+              </span>
+            )}
           </div>
         </div>
       </div>
