@@ -1529,7 +1529,7 @@ export default function Properties() {
                 onNavigateToContract={handleNavigateToContract}
                 onQuickUpdate={handleQuickUpdate}
                 onDuplicate={handleDuplicate}
-                canManage={isSuperAdmin || isAdminStaff || property.userId === user?.id}
+                canManage={isAdmin}
                 onDelete={(id) => setDeleteConfirmId(id)}
               />
             ))}
