@@ -522,14 +522,27 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                         {i.bairro ? ` · ${i.bairro}` : ""}
                       </p>
                     </Link>
-                    <div className="flex items-center justify-end gap-1 pt-1">
+                    <div className="flex flex-wrap items-center justify-end gap-1 pt-1">
                       {tipo !== "empreendimento" && (
-                        <Button asChild size="icon" variant="ghost" className="h-7 w-7" title="Espelho">
+                        <Button asChild size="icon" variant="ghost" className="h-7 w-7" title="Disponibilidade">
                           <Link to="/empreendimentos/$tipo/$id" params={{ tipo, id: i.id }}>
                             <LayoutGrid className="h-3.5 w-3.5" />
                           </Link>
                         </Button>
                       )}
+                      {i.material_completo_url && (
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openMaterial(i.material_completo_url)} title="Material completo">
+                          <LinkIcon className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                      {i.mapa_pdf_path && (
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openMapaPdf(i.mapa_pdf_path)} title="Mapa">
+                          <MapIcon className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openMapsFor(i)} title="Localização">
+                        <MapPin className="h-3.5 w-3.5" />
+                      </Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(i)} title="Editar">
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
