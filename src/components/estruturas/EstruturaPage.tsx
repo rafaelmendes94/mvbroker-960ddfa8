@@ -280,6 +280,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     setCoords({ lat: null, lng: null });
     setInfra([]);
     setSpecific({});
+    setImplantacaoPdf(null);
   }
 
   function openCreate() { resetForm(); setOpen(true); }
