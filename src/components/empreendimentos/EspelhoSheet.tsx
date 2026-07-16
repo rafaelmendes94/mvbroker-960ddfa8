@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Building2, Camera, Map as MapIcon, Table2, MapPin, Loader2,
   Plus, ExternalLink, LayoutGrid, List as ListIcon, Grid3x3,
-  BedDouble, Bath, Car, Ruler,
+  BedDouble, Car, Ruler,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
