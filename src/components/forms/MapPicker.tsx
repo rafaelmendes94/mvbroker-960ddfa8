@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { MapPin, Search, Loader2 } from "lucide-react";
 import { loadGoogleMaps } from "@/lib/googleMaps";
+import { toast } from "sonner";
 
 type Suggestion = { placeId: string; text: string };
 
