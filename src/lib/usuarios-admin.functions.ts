@@ -262,6 +262,9 @@ export const resetarSenhaUsuario = createServerFn({ method: "POST" })
     const senha = gerarSenha(12);
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
       password: senha,
+    });
+    if (error) throw new Error(error.message);
+    return { senha };
   });
 
 // ===== Definir senha personalizada =====
@@ -280,9 +283,6 @@ export const definirSenhaUsuario = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     return { ok: true };
-  });
-    if (error) throw new Error(error.message);
-    return { senha };
   });
 
 // ===== Permissões por módulo =====
