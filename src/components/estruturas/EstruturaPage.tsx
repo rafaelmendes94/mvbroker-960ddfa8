@@ -164,6 +164,8 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   const [infra, setInfra] = useState<string[]>([]);
   const [specific, setSpecific] = useState<Record<string, any>>({});
   const [implantacaoPdf, setImplantacaoPdf] = useState<string | null>(null);
+  const [mapaPdf, setMapaPdf] = useState<string | null>(null);
+  const [materialUrl, setMaterialUrl] = useState<string>("");
 
   function downloadTemplate() {
     const ws = XLSX.utils.aoa_to_sheet([
