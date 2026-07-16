@@ -73,6 +73,7 @@ import { Route as AuthenticatedConfiguracoesOpcoesRouteImport } from './routes/_
 import { Route as AuthenticatedConfiguracoesNotificacoesRouteImport } from './routes/_authenticated/configuracoes.notificacoes'
 import { Route as AuthenticatedCarteirasIdRouteImport } from './routes/_authenticated/carteiras.$id'
 import { Route as AuthenticatedAssinaturasIdRouteImport } from './routes/_authenticated/assinaturas.$id'
+import { Route as ApiPublicImovelIdRouteImport } from './routes/api/public/imovel.$id'
 import { Route as ApiPublicFeedSlugRouteImport } from './routes/api/public/feed/$slug'
 import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_authenticated/registros.$id.editar'
 import { Route as AuthenticatedImoveisIdEditarRouteImport } from './routes/_authenticated/imoveis.$id.editar'
@@ -440,6 +441,11 @@ const AuthenticatedAssinaturasIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAssinaturasRoute,
   } as any)
+const ApiPublicImovelIdRoute = ApiPublicImovelIdRouteImport.update({
+  id: '/api/public/imovel/$id',
+  path: '/api/public/imovel/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicFeedSlugRoute = ApiPublicFeedSlugRouteImport.update({
   id: '/api/public/feed/$slug',
   path: '/api/public/feed/$slug',
@@ -543,6 +549,7 @@ export interface FileRoutesByFullPath {
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
+  '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
@@ -607,6 +614,7 @@ export interface FileRoutesByTo {
   '/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
+  '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
@@ -680,6 +688,7 @@ export interface FileRoutesById {
   '/_authenticated/imoveis/$id/editar': typeof AuthenticatedImoveisIdEditarRoute
   '/_authenticated/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
+  '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
@@ -753,6 +762,7 @@ export interface FileRouteTypes {
     | '/imoveis/$id/editar'
     | '/registros/$id/editar'
     | '/api/public/feed/$slug'
+    | '/api/public/imovel/$id'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -817,6 +827,7 @@ export interface FileRouteTypes {
     | '/imoveis/$id/editar'
     | '/registros/$id/editar'
     | '/api/public/feed/$slug'
+    | '/api/public/imovel/$id'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   id:
@@ -889,6 +900,7 @@ export interface FileRouteTypes {
     | '/_authenticated/imoveis/$id/editar'
     | '/_authenticated/registros/$id/editar'
     | '/api/public/feed/$slug'
+    | '/api/public/imovel/$id'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   fileRoutesById: FileRoutesById
@@ -901,6 +913,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiPublicFeedSlugRoute: typeof ApiPublicFeedSlugRoute
+  ApiPublicImovelIdRoute: typeof ApiPublicImovelIdRoute
   ApiPublicFeedGeralIdRoute: typeof ApiPublicFeedGeralIdRoute
   ApiPublicPortalPortalSlugRoute: typeof ApiPublicPortalPortalSlugRoute
 }
@@ -1355,6 +1368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssinaturasIdRouteImport
       parentRoute: typeof AuthenticatedAssinaturasRoute
     }
+    '/api/public/imovel/$id': {
+      id: '/api/public/imovel/$id'
+      path: '/api/public/imovel/$id'
+      fullPath: '/api/public/imovel/$id'
+      preLoaderRoute: typeof ApiPublicImovelIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/feed/$slug': {
       id: '/api/public/feed/$slug'
       path: '/api/public/feed/$slug'
@@ -1669,6 +1689,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicFeedSlugRoute: ApiPublicFeedSlugRoute,
+  ApiPublicImovelIdRoute: ApiPublicImovelIdRoute,
   ApiPublicFeedGeralIdRoute: ApiPublicFeedGeralIdRoute,
   ApiPublicPortalPortalSlugRoute: ApiPublicPortalPortalSlugRoute,
 }
