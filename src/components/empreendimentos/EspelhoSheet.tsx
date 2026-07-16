@@ -241,18 +241,40 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
             <span className="text-sm font-medium text-foreground/80">
               {grupos.length} {grupos.length === 1 ? labels.grupo.toLowerCase() : labels.grupoPlural} • {stats.total} {labels.unidadePlural}
             </span>
-            <Button asChild size="sm">
-              <Link to="/imoveis/novo">
-                <Plus className="h-4 w-4 mr-1.5" /> Novo imóvel
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <div className="inline-flex rounded-md border bg-background p-0.5">
+                {([
+                  { id: "espelho" as const, Icon: Grid3x3, label: "Espelho" },
+                  { id: "lista" as const, Icon: ListIcon, label: "Lista" },
+                  { id: "blocos" as const, Icon: LayoutGrid, label: "Blocos" },
+                ]).map((v) => (
+                  <button
+                    key={v.id}
+                    onClick={() => setTabelaView(v.id)}
+                    className={cn(
+                      "flex items-center gap-1 h-8 px-2.5 rounded text-xs font-medium transition-colors",
+                      tabelaView === v.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                    )}
+                    title={v.label}
+                  >
+                    <v.Icon className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">{v.label}</span>
+                  </button>
+                ))}
+              </div>
+              <Button asChild size="sm">
+                <Link to="/imoveis/novo">
+                  <Plus className="h-4 w-4 mr-1.5" /> Novo imóvel
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {imoveis.length === 0 ? (
             <div className="p-10 text-center text-sm text-muted-foreground">
               Nenhum imóvel cadastrado neste {tipo}. Cadastre imóveis vinculando-os a este {tipo} para vê-los aqui.
             </div>
-          ) : (
+          ) : tabelaView === "espelho" ? (
             <div className="p-3 sm:p-4 space-y-3 overflow-x-auto">
               {grupos.map((g) => (
                 <div key={g.chave} className="flex items-stretch gap-2">
@@ -267,10 +289,91 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
                 </div>
               ))}
             </div>
+          ) : tabelaView === "blocos" ? (
+            <div className="p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {imoveis.map((im) => (
+                <ImovelCard key={im.id} tipo={tipo} imovel={im} imagem={imagens[im.id]} />
+              ))}
+            </div>
+          ) : (
+            <div className="p-3 sm:p-4 space-y-2">
+              {imoveis.map((im) => (
+                <ImovelRow key={im.id} tipo={tipo} imovel={im} imagem={imagens[im.id]} />
+              ))}
+            </div>
           )}
         </div>
       )}
     </div>
+  );
+}
+
+function ImovelCard({ tipo, imovel, imagem }: { tipo: EmpreendimentoTipo; imovel: ImovelEspelho; imagem?: string }) {
+  const status = statusCelula(imovel);
+  const cfg = STATUS_CONFIG[status];
+  const rotulo = rotuloCelula(tipo, imovel);
+  return (
+    <Link to="/imoveis/$id/editar" params={{ id: imovel.id }} className="group rounded-lg border bg-card overflow-hidden hover:border-primary transition-colors block">
+      <div className="aspect-video bg-muted relative">
+        {imagem ? (
+          <img src={imagem} alt={imovel.titulo || rotulo} loading="lazy" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full grid place-items-center text-muted-foreground">
+            <Building2 className="h-8 w-8" />
+          </div>
+        )}
+        <Badge className={cn("absolute top-2 right-2 text-[10px] border-0", cfg.cellClass)}>{cfg.label}</Badge>
+      </div>
+      <div className="p-3 space-y-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-mono text-muted-foreground truncate">{imovel.codigo_interno || rotulo}</span>
+          <span className="text-xs font-bold">{rotulo}</span>
+        </div>
+        <p className="font-semibold text-sm truncate">{imovel.titulo || "Imóvel"}</p>
+        <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground">
+          {imovel.dormitorios != null && <span className="flex items-center gap-0.5"><BedDouble className="h-3 w-3" />{imovel.dormitorios}</span>}
+          {imovel.vagas != null && <span className="flex items-center gap-0.5"><Car className="h-3 w-3" />{imovel.vagas}</span>}
+          {imovel.area_total != null && <span className="flex items-center gap-0.5"><Ruler className="h-3 w-3" />{imovel.area_total}m²</span>}
+        </div>
+        <p className="font-bold text-primary text-sm">{fmtBRL(imovel.preco)}</p>
+      </div>
+    </Link>
+  );
+}
+
+function ImovelRow({ tipo, imovel, imagem }: { tipo: EmpreendimentoTipo; imovel: ImovelEspelho; imagem?: string }) {
+  const status = statusCelula(imovel);
+  const cfg = STATUS_CONFIG[status];
+  const rotulo = rotuloCelula(tipo, imovel);
+  return (
+    <Link
+      to="/imoveis/$id/editar"
+      params={{ id: imovel.id }}
+      className="group grid grid-cols-[80px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border bg-card p-2 transition-colors hover:border-primary"
+    >
+      <div className="h-16 w-20 rounded-md overflow-hidden bg-muted shrink-0">
+        {imagem ? (
+          <img src={imagem} alt={imovel.titulo || rotulo} loading="lazy" className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full grid place-items-center text-muted-foreground"><Building2 className="h-5 w-5" /></div>
+        )}
+      </div>
+      <div className="min-w-0 space-y-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <p className="truncate text-sm font-semibold">{imovel.titulo || `Imóvel ${rotulo}`}</p>
+          <Badge className={cn("text-[10px] shrink-0 border-0", cfg.cellClass)}>{cfg.label}</Badge>
+        </div>
+        <p className="truncate text-xs text-muted-foreground">
+          <span className="font-mono">{imovel.codigo_interno || "—"}</span> · {rotulo}
+          {imovel.dormitorios != null && ` · ${imovel.dormitorios} dorm`}
+          {imovel.vagas != null && ` · ${imovel.vagas} vaga${imovel.vagas === 1 ? "" : "s"}`}
+          {imovel.area_total != null && ` · ${imovel.area_total} m²`}
+        </p>
+      </div>
+      <div className="text-right shrink-0">
+        <p className="font-bold text-primary text-sm">{fmtBRL(imovel.preco)}</p>
+      </div>
+    </Link>
   );
 }
 
