@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/tabela")({
   component: TabelaPage,
 });
 
-type Atual = {
+type Item = {
   id: string;
   file_path: string;
   file_name: string;
@@ -32,7 +32,7 @@ function formatBytes(b?: number | null) {
 function TabelaPage() {
   const { roles, loading: rolesLoading } = useRoles();
   const isStaff = roles.includes("super_admin") || roles.includes("secretaria");
-  const [atual, setAtual] = useState<Atual | null>(null);
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -42,10 +42,8 @@ function TabelaPage() {
     const { data } = await supabase
       .from("tabela_atual")
       .select("*")
-      .order("uploaded_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    setAtual((data as Atual | null) ?? null);
+      .order("uploaded_at", { ascending: false });
+    setItems((data as Item[] | null) ?? []);
     setLoading(false);
   };
 
@@ -60,11 +58,10 @@ function TabelaPage() {
     );
   }
 
-  const handleDownload = async () => {
-    if (!atual) return;
+  const handleDownload = async (item: Item) => {
     const { data, error } = await supabase.storage
       .from("tabela")
-      .createSignedUrl(atual.file_path, 60, { download: atual.file_name });
+      .createSignedUrl(item.file_path, 60, { download: item.file_name });
     if (error || !data?.signedUrl) {
       toast.error("Falha ao gerar link de download.");
       return;
@@ -92,33 +89,15 @@ function TabelaPage() {
         .upload(path, file, { contentType: "application/pdf", upsert: false });
       if (upErr) throw upErr;
 
-      // remove anterior
-      const previous = atual;
+      const { error: insErr } = await supabase.from("tabela_atual").insert({
+        file_path: path,
+        file_name: file.name,
+        size_bytes: file.size,
+        uploaded_by: uid ?? null,
+      });
+      if (insErr) throw insErr;
 
-      if (previous) {
-        const { error: updErr } = await supabase
-          .from("tabela_atual")
-          .update({
-            file_path: path,
-            file_name: file.name,
-            size_bytes: file.size,
-            uploaded_by: uid ?? null,
-            uploaded_at: new Date().toISOString(),
-          })
-          .eq("id", previous.id);
-        if (updErr) throw updErr;
-        await supabase.storage.from("tabela").remove([previous.file_path]).catch(() => {});
-      } else {
-        const { error: insErr } = await supabase.from("tabela_atual").insert({
-          file_path: path,
-          file_name: file.name,
-          size_bytes: file.size,
-          uploaded_by: uid ?? null,
-        });
-        if (insErr) throw insErr;
-      }
-
-      toast.success("Tabela atualizada com sucesso.");
+      toast.success("Tabela adicionada ao histórico.");
       await load();
     } catch (e) {
       console.error(e);
@@ -129,12 +108,11 @@ function TabelaPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!atual) return;
-    if (!confirm(`Excluir "${atual.file_name}"? Os clientes deixarão de ter acesso à tabela.`)) return;
+  const handleDelete = async (item: Item) => {
+    if (!confirm(`Excluir "${item.file_name}"? Os clientes deixarão de ter acesso a esta versão.`)) return;
     try {
-      await supabase.storage.from("tabela").remove([atual.file_path]).catch(() => {});
-      const { error } = await supabase.from("tabela_atual").delete().eq("id", atual.id);
+      await supabase.storage.from("tabela").remove([item.file_path]).catch(() => {});
+      const { error } = await supabase.from("tabela_atual").delete().eq("id", item.id);
       if (error) throw error;
       toast.success("Tabela excluída.");
       await load();
@@ -148,44 +126,21 @@ function TabelaPage() {
     <>
       <PageHeader
         title="Minha Tabela"
-        description="Faça upload da sua tabela em PDF. Ela ficará disponível para download no botão 'Baixar tabela em PDF' no dashboard de todos os clientes."
+        description="Envie quantas tabelas em PDF quiser. Todas ficam disponíveis para download pelos clientes."
       />
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <FileText className="h-5 w-5 text-primary" />
-            Versão atual
+            <Upload className="h-5 w-5 text-primary" />
+            Enviar nova tabela
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Carregando…</p>
-          ) : atual ? (
-            <div className="rounded-lg border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="min-w-0">
-                <p className="font-medium truncate">{atual.file_name}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Enviado em {new Date(atual.uploaded_at).toLocaleString("pt-BR")} · {formatBytes(atual.size_bytes)}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleDownload} variant="outline" className="gap-2">
-                  <Download className="h-4 w-4" /> Baixar atual
-                </Button>
-                <Button onClick={handleDelete} variant="destructive" className="gap-2">
-                  <Trash2 className="h-4 w-4" /> Excluir
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">Nenhuma tabela enviada ainda.</p>
-          )}
-
+        <CardContent>
           <div className="rounded-lg border border-dashed p-6 text-center space-y-3">
             <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
-              Enviar nova tabela em PDF (substitui a versão atual)
+              Cada envio é adicionado ao histórico e fica disponível para os clientes.
             </p>
             <input
               ref={inputRef}
@@ -202,6 +157,44 @@ function TabelaPage() {
               {uploading ? "Enviando…" : "Selecionar PDF"}
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <FileText className="h-5 w-5 text-primary" />
+            Histórico ({items.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Carregando…</p>
+          ) : items.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nenhuma tabela enviada ainda.</p>
+          ) : (
+            items.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-lg border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium truncate">{item.file_name}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enviado em {new Date(item.uploaded_at).toLocaleString("pt-BR")} · {formatBytes(item.size_bytes)}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={() => handleDownload(item)} variant="outline" size="sm" className="gap-2">
+                    <Download className="h-4 w-4" /> Baixar
+                  </Button>
+                  <Button onClick={() => handleDelete(item)} variant="destructive" size="sm" className="gap-2">
+                    <Trash2 className="h-4 w-4" /> Excluir
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </CardContent>
       </Card>
     </>
