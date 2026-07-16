@@ -1608,22 +1608,19 @@ export default function Properties() {
               <div className="flex items-center gap-2">
                 {favoritedProperties.length > 0 && (
                   <button
-                    onClick={async () => {
-                      const url = `${window.location.origin}/todos-imoveis?ids=${favoritedProperties.map(p => p.id).join(",")}`;
-                      const text = `Confira esta lista de imóveis selecionados:\n\n${favoritedProperties.map(p => `• ${p.title} - ${formatCurrency(p.price)}`).join("\n")}\n\n${url}`;
-                      if (navigator.share) {
-                        try { await navigator.share({ title: "Minha Lista de Imóveis", text, url }); return; } catch {}
-                      }
-                      try {
-                        await navigator.clipboard.writeText(url);
-                        toast.success("Link copiado!", { description: "Cole no WhatsApp ou onde quiser compartilhar." });
-                      } catch {
-                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
-                      }
+                    onClick={() => {
+                      const nome = (profile?.full_name || user?.email || "").toString().trim();
+                      const porParam = nome ? `&por=${encodeURIComponent(nome)}` : "";
+                      const url = `${window.location.origin}/todos-imoveis?ids=${favoritedProperties.map(p => p.id).join(",")}${porParam}`;
+                      const linhas = favoritedProperties.slice(0, 8).map(p => `• ${p.title} - ${formatCurrency(p.price)}`).join("\n");
+                      const extras = favoritedProperties.length > 8 ? `\n…e mais ${favoritedProperties.length - 8} imóveis` : "";
+                      const saudacao = nome ? `Olá! Segue uma seleção de imóveis feita por ${nome}:` : "Olá! Confira esta seleção de imóveis:";
+                      const text = `${saudacao}\n\n${linhas}${extras}\n\nAcesse a lista completa: ${url}`;
+                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-opacity"
                   >
-                    <Share2 className="w-4 h-4" /> Compartilhar
+                    <Share2 className="w-4 h-4" /> Compartilhar no WhatsApp
                   </button>
                 )}
                 <button onClick={() => setShowFavoritesModal(false)} className="p-2 rounded-lg hover:bg-muted transition-colors">
