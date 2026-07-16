@@ -58,8 +58,10 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
 
   const [emp, setEmp] = useState<EmpData | null>(null);
   const [imoveis, setImoveis] = useState<ImovelEspelho[]>([]);
+  const [imagens, setImagens] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [section, setSection] = useState<SectionId>("tabela");
+  const [tabelaView, setTabelaView] = useState<TabelaView>("espelho");
 
   async function loadAll() {
     setLoading(true);
@@ -89,7 +91,41 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
       .or("arquivado.is.null,arquivado.eq.false")
       .limit(5000);
     if (error) toast.error(error.message);
-    setImoveis((data as unknown as ImovelEspelho[]) ?? []);
+    const lista = (data as unknown as ImovelEspelho[]) ?? [];
+    setImoveis(lista);
+
+    // Capas dos imóveis (uma por imóvel)
+    const ids = lista.map((i) => i.id);
+    if (ids.length) {
+      const { data: fotos } = await supabase
+        .from("imovel_imagens")
+        .select("imovel_id, storage_path, url, ordem, capa")
+        .in("imovel_id", ids)
+        .order("capa", { ascending: false })
+        .order("ordem", { ascending: true });
+      const first: Record<string, string> = {};
+      const paths: string[] = [];
+      (fotos || []).forEach((f: any) => {
+        if (first[f.imovel_id]) return;
+        const p = f.storage_path || f.url;
+        if (!p) return;
+        first[f.imovel_id] = p;
+        if (!p.startsWith("http")) paths.push(p);
+      });
+      const signedMap: Record<string, string> = {};
+      if (paths.length) {
+        const { data: signed } = await supabase.storage.from("imoveis").createSignedUrls(paths, 3600);
+        (signed || []).forEach((s: any) => { if (s?.path && s?.signedUrl) signedMap[s.path] = s.signedUrl; });
+      }
+      const resolved: Record<string, string> = {};
+      Object.entries(first).forEach(([id, p]) => {
+        resolved[id] = p.startsWith("http") ? p : (signedMap[p] || "");
+      });
+      setImagens(resolved);
+    } else {
+      setImagens({});
+    }
+
     setLoading(false);
   }
 
