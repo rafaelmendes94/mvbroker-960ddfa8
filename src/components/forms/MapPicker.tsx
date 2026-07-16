@@ -193,7 +193,7 @@ export function MapPicker({
           Mapa indisponível: {err}. Use os campos de latitude/longitude acima.
         </div>
       ) : (
-        <div ref={ref} className="h-72 w-full rounded-md border bg-muted" />
+        <div ref={ref} className="h-[520px] w-full rounded-md border bg-muted" />
       )}
       <p className="text-xs text-muted-foreground">Busque pelo endereço acima, clique no mapa ou arraste o marcador para ajustar.</p>
     </div>
