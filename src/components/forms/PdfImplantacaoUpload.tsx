@@ -83,7 +83,7 @@ export function PdfImplantacaoUpload({
           <Button type="button" variant="outline" size="sm" disabled={!estruturaId || uploading} asChild>
             <span>
               {uploading ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <FileUp className="h-4 w-4 mr-1.5" />}
-              {currentPath ? "Substituir PDF" : "Enviar PDF de implantação"}
+              {currentPath ? labelReplace : labelSend}
             </span>
           </Button>
         </label>
