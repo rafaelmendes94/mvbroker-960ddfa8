@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { Building2, Loader2 } from "lucide-react";
+import { Building2, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -93,7 +94,17 @@ function AuthPage() {
                   Esqueci minha senha
                 </button>
               </div>
-              <Input id="password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} />
+              <div className="relative">
+                <Input id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} className="pr-10" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <Button type="submit" disabled={loading} className="w-full h-10">
               {loading && <Loader2 className="h-4 w-4 animate-spin" />} Entrar
