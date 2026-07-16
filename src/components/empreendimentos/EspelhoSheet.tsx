@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Building2, Camera, Map as MapIcon, Table2, MapPin, Loader2,
   Plus, ExternalLink, LayoutGrid, List as ListIcon, Grid3x3,
-  BedDouble, Car, Ruler,
+  BedDouble, Car, Ruler, FileText, X, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -22,6 +22,8 @@ import {
   agruparImoveis, rotuloCelula, statusCelula, extrairBloco, extrairAndar,
   type ImovelEspelho,
 } from "@/lib/espelho-grouping";
+import { CAMPOS_POR_TIPO, formatCampo } from "@/lib/estrutura-campos";
+import { OportunidadeCard, type OportunidadeImovel } from "@/components/imoveis/OportunidadeCard";
 
 type TabelaView = "espelho" | "lista" | "blocos";
 
@@ -30,7 +32,7 @@ interface Props {
   empreendimentoId: string;
 }
 
-type EmpData = {
+type EmpData = Record<string, any> & {
   id: string;
   nome: string;
   logradouro?: string | null;
@@ -38,11 +40,15 @@ type EmpData = {
   bairro?: string | null;
   cidade?: string | null;
   estado?: string | null;
+  descricao?: string | null;
+  codigo_interno?: string | null;
+  infraestrutura?: string[] | null;
+  implantacao_pdf_path?: string | null;
   cover_url?: string | null;
   cover_fallback_url?: string | null;
 };
 
-type SectionId = "midia" | "implantacao" | "tabela";
+type SectionId = "info" | "midia" | "implantacao" | "tabela";
 
 const FK: Record<EmpreendimentoTipo, "edificio_id" | "condominio_id" | "loteamento_id"> = {
   edificio: "edificio_id",
@@ -51,7 +57,9 @@ const FK: Record<EmpreendimentoTipo, "edificio_id" | "condominio_id" | "loteamen
 };
 
 const IMOVEL_SELECT =
-  "id, titulo, codigo_interno, quadra, lote, unidade, box, numero, preco, area_total, dormitorios, vagas, suites, status_imovel";
+  "id, titulo, codigo_interno, quadra, lote, unidade, box, numero, preco, area_total, area_privativa, dormitorios, banheiros, vagas, suites, status_imovel, bairro, cidade, vista_mar, decorado, bonus";
+
+type GaleriaImg = { id: string; url: string; fallbackUrl?: string | null };
 
 export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
   const labels = TIPO_LABELS[tipo];
@@ -59,9 +67,12 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
   const [emp, setEmp] = useState<EmpData | null>(null);
   const [imoveis, setImoveis] = useState<ImovelEspelho[]>([]);
   const [imagens, setImagens] = useState<Record<string, string>>({});
+  const [galeria, setGaleria] = useState<GaleriaImg[]>([]);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [section, setSection] = useState<SectionId>("tabela");
-  const [tabelaView, setTabelaView] = useState<TabelaView>("espelho");
+  const [section, setSection] = useState<SectionId>("info");
+  const [tabelaView, setTabelaView] = useState<TabelaView>("blocos");
+  const [lightbox, setLightbox] = useState<number | null>(null);
 
   async function loadAll() {
     setLoading(true);
@@ -71,17 +82,33 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
       .eq("id", empreendimentoId)
       .maybeSingle();
 
+    // Galeria completa
     const { data: imgs } = await supabase
       .from("estrutura_imagens")
-      .select("storage_path, url, capa, ordem")
+      .select("id, storage_path, url, capa, ordem")
       .eq("estrutura_tipo", tipo)
       .eq("estrutura_id", empreendimentoId)
       .order("capa", { ascending: false })
-      .order("ordem", { ascending: true })
-      .limit(1);
+      .order("ordem", { ascending: true });
 
-    const coverUrls = await getEstruturaImageUrls((imgs?.[0] as any)?.storage_path || (imgs?.[0] as any)?.url);
-    setEmp(e ? { ...(e as any), cover_url: coverUrls?.url ?? null, cover_fallback_url: coverUrls?.fallbackUrl ?? null } : null);
+    const resolvedGaleria: GaleriaImg[] = [];
+    for (const r of (imgs ?? []) as any[]) {
+      const urls = await getEstruturaImageUrls(r.storage_path || r.url);
+      resolvedGaleria.push({ id: r.id, url: urls?.url ?? r.url ?? "", fallbackUrl: urls?.fallbackUrl ?? null });
+    }
+    setGaleria(resolvedGaleria);
+
+    const cover = resolvedGaleria[0];
+    setEmp(e ? { ...(e as any), cover_url: cover?.url ?? null, cover_fallback_url: cover?.fallbackUrl ?? null } : null);
+
+    // PDF de implantação
+    const pdfPath = (e as any)?.implantacao_pdf_path as string | null | undefined;
+    if (pdfPath) {
+      const { data: signed } = await supabase.storage.from("estrutura-arquivos").createSignedUrl(pdfPath, 3600);
+      setPdfUrl(signed?.signedUrl ?? null);
+    } else {
+      setPdfUrl(null);
+    }
 
     const fk = FK[tipo];
     const { data, error } = await supabase
@@ -148,6 +175,9 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
 
   const grupos = useMemo(() => agruparImoveis(tipo, imoveis), [tipo, imoveis]);
 
+  const campos = CAMPOS_POR_TIPO[tipo] ?? [];
+  const camposPreenchidos = emp ? campos.filter((c) => emp[c.key] != null && emp[c.key] !== "") : [];
+
   if (loading) {
     return (
       <div className="py-20 flex justify-center">
@@ -204,9 +234,10 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
       {/* Section tabs */}
       <div className="flex flex-wrap items-center gap-2">
         {[
+          { id: "info" as const, label: "Informações", icon: Building2 },
           { id: "midia" as const, label: "Mídia", icon: Camera },
           { id: "implantacao" as const, label: "Implantação", icon: MapIcon },
-          { id: "tabela" as const, label: "Tabela", icon: Table2 },
+          { id: "tabela" as const, label: "Imóveis", icon: Table2 },
         ].map(s => (
           <button
             key={s.id}
@@ -224,17 +255,156 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
         ))}
       </div>
 
-      {/* Section content */}
+      {/* Info section */}
+      {section === "info" && (
+        <div className="space-y-4">
+          {emp.descricao && (
+            <div className="rounded-xl border bg-card p-4 sm:p-5">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">Sobre</h3>
+              <p className="text-sm text-foreground/90 whitespace-pre-line">{emp.descricao}</p>
+            </div>
+          )}
+
+          <div className="rounded-xl border bg-card p-4 sm:p-5">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-3">Dados</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3">
+              {emp.codigo_interno && <Info label="Código">{emp.codigo_interno}</Info>}
+              <Info label="Situação">{emp.ativo ? "Ativo" : "Inativo"}</Info>
+              {camposPreenchidos.map((c) => (
+                <Info key={c.key} label={c.label}>{formatCampo(emp[c.key], c.type)}</Info>
+              ))}
+              {(emp.latitude != null && emp.longitude != null) && (
+                <Info label="Coordenadas">{emp.latitude?.toFixed?.(5)}, {emp.longitude?.toFixed?.(5)}</Info>
+              )}
+            </div>
+            {camposPreenchidos.length === 0 && !emp.codigo_interno && (
+              <p className="text-xs text-muted-foreground">Nenhuma informação específica cadastrada.</p>
+            )}
+          </div>
+
+          {emp.infraestrutura && emp.infraestrutura.length > 0 && (
+            <div className="rounded-xl border bg-card p-4 sm:p-5">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-3">Infraestrutura</h3>
+              <div className="flex flex-wrap gap-1.5">
+                {emp.infraestrutura.map((it) => (
+                  <Badge key={it} variant="secondary" className="text-xs">{it}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {endereco && (
+            <div className="rounded-xl border bg-card p-4 sm:p-5">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">Endereço</h3>
+              <p className="text-sm text-foreground/90">{endereco}</p>
+              {emp.latitude != null && emp.longitude != null && (
+                <Button asChild size="sm" variant="outline" className="mt-3">
+                  <a
+                    href={`https://www.google.com/maps?q=${emp.latitude},${emp.longitude}`}
+                    target="_blank" rel="noopener noreferrer"
+                  >
+                    <MapPin className="h-3.5 w-3.5 mr-1.5" /> Abrir no Google Maps
+                  </a>
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mídia section */}
       {section === "midia" && (
-        <div className="rounded-xl border bg-card p-8 text-center text-sm text-muted-foreground">
-          Galeria de mídias é gerenciada no cadastro do {labels.grupo.toLowerCase()}.
+        <div className="rounded-xl border bg-card p-4">
+          {galeria.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-10">Nenhuma imagem cadastrada.</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {galeria.map((g, idx) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => setLightbox(idx)}
+                    className="relative aspect-video rounded-md overflow-hidden bg-muted border group"
+                  >
+                    <img
+                      src={g.url}
+                      alt=""
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        if (g.fallbackUrl && e.currentTarget.src !== g.fallbackUrl) e.currentTarget.src = g.fallbackUrl;
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {lightbox != null && galeria[lightbox] && (
+                <div
+                  className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+                  onClick={() => setLightbox(null)}
+                >
+                  <button
+                    className="absolute top-4 right-4 text-white/80 hover:text-white"
+                    onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
+                    aria-label="Fechar"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                  <button
+                    className="absolute left-4 text-white/80 hover:text-white"
+                    onClick={(e) => { e.stopPropagation(); setLightbox((i) => (i == null ? 0 : (i - 1 + galeria.length) % galeria.length)); }}
+                    aria-label="Anterior"
+                  >
+                    <ChevronLeft className="h-8 w-8" />
+                  </button>
+                  <button
+                    className="absolute right-4 text-white/80 hover:text-white"
+                    onClick={(e) => { e.stopPropagation(); setLightbox((i) => (i == null ? 0 : (i + 1) % galeria.length)); }}
+                    aria-label="Próxima"
+                  >
+                    <ChevronRight className="h-8 w-8" />
+                  </button>
+                  <img
+                    src={galeria[lightbox].url}
+                    alt=""
+                    className="max-h-[90vh] max-w-[90vw] object-contain"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
+
+      {/* Implantação section */}
       {section === "implantacao" && (
-        <div className="rounded-xl border bg-card p-8 text-center text-sm text-muted-foreground">
-          Anexe a planta de implantação na galeria do cadastro.
+        <div className="rounded-xl border bg-card p-4">
+          {pdfUrl ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-end gap-2">
+                <Button asChild size="sm" variant="outline">
+                  <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Abrir em nova aba
+                  </a>
+                </Button>
+              </div>
+              <div className="rounded-md border overflow-hidden bg-muted/30">
+                <iframe src={pdfUrl} title="Implantação" className="w-full h-[70vh]" />
+              </div>
+            </div>
+          ) : (
+            <div className="py-10 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
+              <FileText className="h-8 w-8" />
+              Nenhum PDF de implantação enviado. Anexe no cadastro deste {tipo}.
+            </div>
+          )}
         </div>
       )}
+
+      {/* Tabela section */}
       {section === "tabela" && (
         <div className="rounded-xl border bg-card overflow-hidden">
           <div className="px-4 py-3 border-b flex flex-wrap items-center justify-between gap-2 bg-muted/30">
@@ -244,9 +414,9 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
             <div className="flex items-center gap-2">
               <div className="inline-flex rounded-md border bg-background p-0.5">
                 {([
+                  { id: "blocos" as const, Icon: LayoutGrid, label: "Cards" },
                   { id: "espelho" as const, Icon: Grid3x3, label: "Espelho" },
                   { id: "lista" as const, Icon: ListIcon, label: "Lista" },
-                  { id: "blocos" as const, Icon: LayoutGrid, label: "Blocos" },
                 ]).map((v) => (
                   <button
                     key={v.id}
@@ -290,10 +460,27 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
               ))}
             </div>
           ) : tabelaView === "blocos" ? (
-            <div className="p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {imoveis.map((im) => (
-                <ImovelCard key={im.id} tipo={tipo} imovel={im} imagem={imagens[im.id]} />
-              ))}
+            <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+              {imoveis.map((im) => {
+                const op: OportunidadeImovel = {
+                  id: im.id,
+                  codigo_interno: im.codigo_interno ?? null,
+                  titulo: im.titulo ?? null,
+                  cidade: (im as any).cidade ?? null,
+                  bairro: (im as any).bairro ?? null,
+                  preco: im.preco ?? null,
+                  bonus: (im as any).bonus ?? null,
+                  vista_mar: (im as any).vista_mar ?? null,
+                  decorado: (im as any).decorado ?? null,
+                  dormitorios: im.dormitorios ?? null,
+                  banheiros: (im as any).banheiros ?? null,
+                  vagas: im.vagas ?? null,
+                  area_privativa: (im as any).area_privativa ?? null,
+                  area_total: im.area_total ?? null,
+                  capa: imagens[im.id] ?? null,
+                };
+                return <OportunidadeCard key={im.id} im={op} />;
+              })}
             </div>
           ) : (
             <div className="p-3 sm:p-4 space-y-2">
@@ -305,39 +492,6 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
         </div>
       )}
     </div>
-  );
-}
-
-function ImovelCard({ tipo, imovel, imagem }: { tipo: EmpreendimentoTipo; imovel: ImovelEspelho; imagem?: string }) {
-  const status = statusCelula(imovel);
-  const cfg = STATUS_CONFIG[status];
-  const rotulo = rotuloCelula(tipo, imovel);
-  return (
-    <Link to="/imoveis/$id/editar" params={{ id: imovel.id }} className="group rounded-lg border bg-card overflow-hidden hover:border-primary transition-colors block">
-      <div className="aspect-video bg-muted relative">
-        {imagem ? (
-          <img src={imagem} alt={imovel.titulo || rotulo} loading="lazy" className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full grid place-items-center text-muted-foreground">
-            <Building2 className="h-8 w-8" />
-          </div>
-        )}
-        <Badge className={cn("absolute top-2 right-2 text-[10px] border-0", cfg.cellClass)}>{cfg.label}</Badge>
-      </div>
-      <div className="p-3 space-y-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-mono text-muted-foreground truncate">{imovel.codigo_interno || rotulo}</span>
-          <span className="text-xs font-bold">{rotulo}</span>
-        </div>
-        <p className="font-semibold text-sm truncate">{imovel.titulo || "Imóvel"}</p>
-        <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground">
-          {imovel.dormitorios != null && <span className="flex items-center gap-0.5"><BedDouble className="h-3 w-3" />{imovel.dormitorios}</span>}
-          {imovel.vagas != null && <span className="flex items-center gap-0.5"><Car className="h-3 w-3" />{imovel.vagas}</span>}
-          {imovel.area_total != null && <span className="flex items-center gap-0.5"><Ruler className="h-3 w-3" />{imovel.area_total}m²</span>}
-        </div>
-        <p className="font-bold text-primary text-sm">{fmtBRL(imovel.preco)}</p>
-      </div>
-    </Link>
   );
 }
 
