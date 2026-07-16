@@ -156,7 +156,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const isEdit = !!editId;
 
   const [imovelId, setImovelId] = useState<string | null>(editId ?? null);
-  const DRAFT_KEY = "imovel-novo-draft";
+  const DRAFT_KEY = user?.id ? `imovel-novo-draft:${user.id}` : "imovel-novo-draft:anon";
   const [form, setForm] = useState<FormState>({
     ...INITIAL,
     ...(initial
@@ -211,11 +211,12 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         })()),
   });
 
-  // Persiste rascunho (somente no modo novo)
+  // Persiste rascunho (somente no modo novo) escopado ao usuário
   useEffect(() => {
     if (isEdit) return;
+    try { localStorage.removeItem("imovel-novo-draft"); } catch {} // limpa rascunho legado global
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(form)); } catch {}
-  }, [form, isEdit]);
+  }, [form, isEdit, DRAFT_KEY]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
