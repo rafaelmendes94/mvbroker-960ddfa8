@@ -403,6 +403,26 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     )
   );
 
+  function openMapsFor(i: any) {
+    const q = (i.latitude && i.longitude)
+      ? `${i.latitude},${i.longitude}`
+      : encodeURIComponent([i.logradouro, i.numero, i.bairro, i.cidade, i.estado].filter(Boolean).join(", "));
+    if (!q) { toast.error("Sem endereço/coordenadas cadastradas"); return; }
+    window.open(`https://www.google.com/maps?q=${q}`, "_blank", "noopener,noreferrer");
+  }
+
+  async function openMapaPdf(path: string | null | undefined) {
+    if (!path) { toast.error("Nenhum mapa cadastrado"); return; }
+    const { data, error } = await supabase.storage.from("estrutura-arquivos").createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) { toast.error("Não foi possível abrir o mapa"); return; }
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  }
+
+  function openMaterial(url: string | null | undefined) {
+    if (!url) { toast.error("Nenhum material completo cadastrado"); return; }
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
   return (
     <>
       <PageHeader
