@@ -43,7 +43,7 @@ const SECTIONS: Section[] = [
       { to: "/clientes", label: "Clientes", icon: UserSquare2 },
       { to: "/usuarios", label: "Usuários", icon: Users },
       { to: "/planos", label: "Planos", icon: Tag },
-      { to: "/relatorios-admin", label: "Relatórios Admin", icon: BarChart3 },
+      { to: "/relatorios-admin", label: "Relatórios", icon: BarChart3 },
     ],
   },
   {

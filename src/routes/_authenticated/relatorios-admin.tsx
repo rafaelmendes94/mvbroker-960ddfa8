@@ -27,8 +27,8 @@ function RelatoriosAdminLayout() {
   return (
     <RelatoriosFiltersProvider>
       <PageHeader
-        title="Relatórios Admin"
-        description="BI administrativo da plataforma — restrito ao Super Admin."
+        title="Relatórios"
+        description="BI completo da plataforma."
       />
       <Tabs
         value={current}
