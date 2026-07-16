@@ -1639,7 +1639,7 @@ export default function Properties() {
                       className="bg-background rounded-xl border border-border overflow-hidden cursor-pointer hover:shadow-md transition-shadow group"
                     >
                       <div className="relative h-36 overflow-hidden">
-                        <img src={p.images?.[0] || p.image} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={p.images?.[0] || p.image} alt={p.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         <button
                           onClick={(e) => { e.stopPropagation(); toggleFavorite(p.id); }}
                           className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 text-accent hover:bg-white transition-colors"
@@ -1991,23 +1991,40 @@ export default function Properties() {
 function ImageCarousel({ images: rawImages, alt }: { images?: string[]; alt: string }) {
   const images = rawImages && rawImages.length > 0 ? rawImages : [PLACEHOLDER_IMAGE];
   const [current, setCurrent] = useState(0);
+  const [visited, setVisited] = useState<Set<number>>(() => new Set([0]));
+
+  const go = (next: number) => {
+    setCurrent(next);
+    setVisited((v) => { if (v.has(next)) return v; const s = new Set(v); s.add(next); return s; });
+  };
 
   return (
-    <div className="relative h-48 overflow-hidden group/carousel">
-      {images.map((src, i) => (
-        <img key={i} src={src} alt={`${alt} ${i + 1}`} className={cn("absolute inset-0 w-full h-full object-cover transition-all duration-500", i === current ? "opacity-100 scale-100" : "opacity-0 scale-105")} />
-      ))}
+    <div className="relative h-48 overflow-hidden group/carousel bg-muted">
+      {images.map((src, i) => {
+        // Só carrega imagens já visitadas — evita baixar N fotos por card ao mesmo tempo.
+        if (!visited.has(i)) return null;
+        return (
+          <img
+            key={i}
+            src={src}
+            alt={`${alt} ${i + 1}`}
+            loading={i === 0 ? "eager" : "lazy"}
+            decoding="async"
+            className={cn("absolute inset-0 w-full h-full object-cover transition-opacity duration-300", i === current ? "opacity-100" : "opacity-0")}
+          />
+        );
+      })}
       {images.length > 1 && (
         <>
-          <button onClick={(e) => { e.stopPropagation(); setCurrent((c) => (c === 0 ? images.length - 1 : c - 1)); }} className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-foreground/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-foreground/80">
+          <button onClick={(e) => { e.stopPropagation(); go(current === 0 ? images.length - 1 : current - 1); }} className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-foreground/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-foreground/80">
             <ChevronLeft className="w-4 h-4 text-background" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); setCurrent((c) => (c === images.length - 1 ? 0 : c + 1)); }} className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-foreground/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-foreground/80">
+          <button onClick={(e) => { e.stopPropagation(); go(current === images.length - 1 ? 0 : current + 1); }} className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-foreground/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-foreground/80">
             <ChevronRight className="w-4 h-4 text-background" />
           </button>
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
             {images.map((_, i) => (
-              <button key={i} onClick={(e) => { e.stopPropagation(); setCurrent(i); }} className={cn("w-1.5 h-1.5 rounded-full transition-all", i === current ? "bg-background w-4" : "bg-background/50")} />
+              <button key={i} onClick={(e) => { e.stopPropagation(); go(i); }} className={cn("w-1.5 h-1.5 rounded-full transition-all", i === current ? "bg-background w-4" : "bg-background/50")} />
             ))}
           </div>
         </>
@@ -2308,19 +2325,34 @@ function PropertyCard({
 // ---- Row Carousel (compact) ----
 function RowCarousel({ images }: { images: string[] }) {
   const [current, setCurrent] = useState(0);
+  const [visited, setVisited] = useState<Set<number>>(() => new Set([0]));
+  const go = (next: number) => {
+    setCurrent(next);
+    setVisited((v) => { if (v.has(next)) return v; const s = new Set(v); s.add(next); return s; });
+  };
   return (
-    <div className="relative w-full h-full min-h-[140px] overflow-hidden group/row-carousel">
-      {images.map((src, i) => (
-        <img key={i} src={src} alt={`Foto ${i + 1}`} className={cn("absolute inset-0 w-full h-full object-cover transition-all duration-400", i === current ? "opacity-100" : "opacity-0")} />
-      ))}
+    <div className="relative w-full h-full min-h-[140px] overflow-hidden group/row-carousel bg-muted">
+      {images.map((src, i) => {
+        if (!visited.has(i)) return null;
+        return (
+          <img
+            key={i}
+            src={src}
+            alt={`Foto ${i + 1}`}
+            loading={i === 0 ? "eager" : "lazy"}
+            decoding="async"
+            className={cn("absolute inset-0 w-full h-full object-cover transition-opacity duration-300", i === current ? "opacity-100" : "opacity-0")}
+          />
+        );
+      })}
       {images.length > 1 && (
         <>
-          <button onClick={(e) => { e.stopPropagation(); setCurrent((c) => (c === 0 ? images.length - 1 : c - 1)); }}
+          <button onClick={(e) => { e.stopPropagation(); go(current === 0 ? images.length - 1 : current - 1); }}
             className="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-foreground/50 backdrop-blur-sm flex items-center justify-center opacity-100 md:opacity-0 md:group-hover/row-carousel:opacity-100 transition-opacity active:scale-95 touch-manipulation"
             aria-label="Foto anterior">
             <ChevronLeft className="w-3.5 h-3.5 text-background" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); setCurrent((c) => (c === images.length - 1 ? 0 : c + 1)); }}
+          <button onClick={(e) => { e.stopPropagation(); go(current === images.length - 1 ? 0 : current + 1); }}
             className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-foreground/50 backdrop-blur-sm flex items-center justify-center opacity-100 md:opacity-0 md:group-hover/row-carousel:opacity-100 transition-opacity active:scale-95 touch-manipulation"
             aria-label="Próxima foto">
             <ChevronRight className="w-3.5 h-3.5 text-background" />
