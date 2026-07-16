@@ -204,7 +204,11 @@ function UsuariosTab() {
 
 function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) {
   const reset = useServerFn(resetarSenhaUsuario);
+  const definir = useServerFn(definirSenhaUsuario);
   const excluir = useServerFn(excluirUsuarioAdmin);
+  const [openSenha, setOpenSenha] = useState(false);
+  const [novaSenha, setNovaSenha] = useState("");
+  const [savingSenha, setSavingSenha] = useState(false);
 
   async function handleReset() {
     try {
@@ -213,6 +217,17 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
       navigator.clipboard?.writeText(senha).catch(() => {});
       toast.success(`Nova senha: ${senha} (copiada)`);
     } catch (e: any) { toast.error(e?.message ?? "Falha"); }
+  }
+  async function handleDefinir() {
+    if (novaSenha.length < 6) { toast.error("Senha deve ter ao menos 6 caracteres"); return; }
+    setSavingSenha(true);
+    try {
+      const _token = await getToken();
+      await definir({ data: { user_id: user.id, senha: novaSenha, _token } });
+      toast.success("Senha atualizada");
+      setOpenSenha(false); setNovaSenha("");
+    } catch (e: any) { toast.error(e?.message ?? "Falha"); }
+    finally { setSavingSenha(false); }
   }
   async function handleDelete() {
     if (!confirm(`Excluir definitivamente o usuário ${user.email}?`)) return;
@@ -225,18 +240,46 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleReset}><KeyRound className="h-4 w-4 mr-2" /> Resetar senha</DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
-          <Trash2 className="h-4 w-4 mr-2" /> Excluir
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setOpenSenha(true)}><KeyRound className="h-4 w-4 mr-2" /> Trocar senha</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleReset}><KeyRound className="h-4 w-4 mr-2" /> Resetar senha (auto)</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
+            <Trash2 className="h-4 w-4 mr-2" /> Excluir
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog open={openSenha} onOpenChange={(v) => { setOpenSenha(v); if (!v) setNovaSenha(""); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Trocar senha</DialogTitle>
+            <DialogDescription>Definir nova senha para {user.email}.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Nova senha</Label>
+            <Input
+              type="text"
+              autoFocus
+              value={novaSenha}
+              onChange={(e) => setNovaSenha(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenSenha(false)}>Cancelar</Button>
+            <Button onClick={handleDefinir} disabled={savingSenha || novaSenha.length < 6}>
+              {savingSenha && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
