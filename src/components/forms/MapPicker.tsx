@@ -102,7 +102,9 @@ export function MapPicker({
         setSuggestions(list);
         setOpen(true);
       } catch (e: any) {
-        setErr(e?.message ?? String(e));
+        console.error("[MapPicker] autocomplete", e);
+        toast.error("Não foi possível buscar endereços", { description: e?.message ?? String(e) });
+        setSuggestions([]);
       } finally {
         setSearching(false);
       }
