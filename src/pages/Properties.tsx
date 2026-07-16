@@ -2325,19 +2325,34 @@ function PropertyCard({
 // ---- Row Carousel (compact) ----
 function RowCarousel({ images }: { images: string[] }) {
   const [current, setCurrent] = useState(0);
+  const [visited, setVisited] = useState<Set<number>>(() => new Set([0]));
+  const go = (next: number) => {
+    setCurrent(next);
+    setVisited((v) => { if (v.has(next)) return v; const s = new Set(v); s.add(next); return s; });
+  };
   return (
-    <div className="relative w-full h-full min-h-[140px] overflow-hidden group/row-carousel">
-      {images.map((src, i) => (
-        <img key={i} src={src} alt={`Foto ${i + 1}`} className={cn("absolute inset-0 w-full h-full object-cover transition-all duration-400", i === current ? "opacity-100" : "opacity-0")} />
-      ))}
+    <div className="relative w-full h-full min-h-[140px] overflow-hidden group/row-carousel bg-muted">
+      {images.map((src, i) => {
+        if (!visited.has(i)) return null;
+        return (
+          <img
+            key={i}
+            src={src}
+            alt={`Foto ${i + 1}`}
+            loading={i === 0 ? "eager" : "lazy"}
+            decoding="async"
+            className={cn("absolute inset-0 w-full h-full object-cover transition-opacity duration-300", i === current ? "opacity-100" : "opacity-0")}
+          />
+        );
+      })}
       {images.length > 1 && (
         <>
-          <button onClick={(e) => { e.stopPropagation(); setCurrent((c) => (c === 0 ? images.length - 1 : c - 1)); }}
+          <button onClick={(e) => { e.stopPropagation(); go(current === 0 ? images.length - 1 : current - 1); }}
             className="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-foreground/50 backdrop-blur-sm flex items-center justify-center opacity-100 md:opacity-0 md:group-hover/row-carousel:opacity-100 transition-opacity active:scale-95 touch-manipulation"
             aria-label="Foto anterior">
             <ChevronLeft className="w-3.5 h-3.5 text-background" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); setCurrent((c) => (c === images.length - 1 ? 0 : c + 1)); }}
+          <button onClick={(e) => { e.stopPropagation(); go(current === images.length - 1 ? 0 : current + 1); }}
             className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-foreground/50 backdrop-blur-sm flex items-center justify-center opacity-100 md:opacity-0 md:group-hover/row-carousel:opacity-100 transition-opacity active:scale-95 touch-manipulation"
             aria-label="Próxima foto">
             <ChevronRight className="w-3.5 h-3.5 text-background" />
