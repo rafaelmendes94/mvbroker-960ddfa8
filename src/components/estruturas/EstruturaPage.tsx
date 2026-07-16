@@ -296,6 +296,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     const spec: Record<string, any> = {};
     SPECIFIC[tipo].fields.forEach((f) => { spec[f.key] = it[f.key] ?? ""; });
     setSpecific(spec);
+    setImplantacaoPdf((it as any).implantacao_pdf_path ?? null);
     setOpen(true);
   }
 
