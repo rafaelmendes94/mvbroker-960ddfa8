@@ -203,10 +203,7 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
               {grupos.length} {grupos.length === 1 ? labels.grupo.toLowerCase() : labels.grupoPlural} • {stats.total} {labels.unidadePlural}
             </span>
             <Button asChild size="sm">
-              <Link
-                to="/imoveis/novo"
-                search={{ [FK[tipo]]: empreendimentoId } as any}
-              >
+              <Link to="/imoveis/novo">
                 <Plus className="h-4 w-4 mr-1.5" /> Novo imóvel
               </Link>
             </Button>
