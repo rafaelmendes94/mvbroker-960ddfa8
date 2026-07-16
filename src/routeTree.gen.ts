@@ -17,6 +17,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImovelIdRouteImport } from './routes/imovel.$id'
+import { Route as EmpreendimentoIdRouteImport } from './routes/empreendimento.$id'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedTabelaRouteImport } from './routes/_authenticated/tabela'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
@@ -122,6 +123,11 @@ const IndexRoute = IndexRouteImport.update({
 const ImovelIdRoute = ImovelIdRouteImport.update({
   id: '/imovel/$id',
   path: '/imovel/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpreendimentoIdRoute = EmpreendimentoIdRouteImport.update({
+  id: '/empreendimento/$id',
+  path: '/empreendimento/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
@@ -540,6 +546,7 @@ export interface FileRoutesByFullPath {
   '/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/empreendimento/$id': typeof EmpreendimentoIdRoute
   '/imovel/$id': typeof ImovelIdRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
@@ -609,6 +616,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tabela': typeof AuthenticatedTabelaRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/empreendimento/$id': typeof EmpreendimentoIdRoute
   '/imovel/$id': typeof ImovelIdRoute
   '/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
@@ -687,6 +695,7 @@ export interface FileRoutesById {
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRouteWithChildren
   '/_authenticated/tabela': typeof AuthenticatedTabelaRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/empreendimento/$id': typeof EmpreendimentoIdRoute
   '/imovel/$id': typeof ImovelIdRoute
   '/_authenticated/assinaturas/$id': typeof AuthenticatedAssinaturasIdRoute
   '/_authenticated/carteiras/$id': typeof AuthenticatedCarteirasIdRoute
@@ -765,6 +774,7 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/tabela'
     | '/usuarios'
+    | '/empreendimento/$id'
     | '/imovel/$id'
     | '/assinaturas/$id'
     | '/carteiras/$id'
@@ -834,6 +844,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/tabela'
     | '/usuarios'
+    | '/empreendimento/$id'
     | '/imovel/$id'
     | '/assinaturas/$id'
     | '/carteiras/$id'
@@ -911,6 +922,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seguranca'
     | '/_authenticated/tabela'
     | '/_authenticated/usuarios'
+    | '/empreendimento/$id'
     | '/imovel/$id'
     | '/_authenticated/assinaturas/$id'
     | '/_authenticated/carteiras/$id'
@@ -962,6 +974,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TodosImoveisRoute: typeof TodosImoveisRoute
+  EmpreendimentoIdRoute: typeof EmpreendimentoIdRoute
   ImovelIdRoute: typeof ImovelIdRoute
   ApiPublicImoveisListaRoute: typeof ApiPublicImoveisListaRoute
   ApiPublicEmpreendimentoIdRoute: typeof ApiPublicEmpreendimentoIdRoute
@@ -1027,6 +1040,13 @@ declare module '@tanstack/react-router' {
       path: '/imovel/$id'
       fullPath: '/imovel/$id'
       preLoaderRoute: typeof ImovelIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empreendimento/$id': {
+      id: '/empreendimento/$id'
+      path: '/empreendimento/$id'
+      fullPath: '/empreendimento/$id'
+      preLoaderRoute: typeof EmpreendimentoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/usuarios': {
@@ -1770,6 +1790,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TodosImoveisRoute: TodosImoveisRoute,
+  EmpreendimentoIdRoute: EmpreendimentoIdRoute,
   ImovelIdRoute: ImovelIdRoute,
   ApiPublicImoveisListaRoute: ApiPublicImoveisListaRoute,
   ApiPublicEmpreendimentoIdRoute: ApiPublicEmpreendimentoIdRoute,
