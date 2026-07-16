@@ -323,6 +323,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
       latitude: coords.lat,
       longitude: coords.lng,
       infraestrutura: infra,
+      material_completo_url: materialUrl.trim() || null,
     };
     SPECIFIC[tipo].fields.forEach((f) => {
       const v = specific[f.key];
