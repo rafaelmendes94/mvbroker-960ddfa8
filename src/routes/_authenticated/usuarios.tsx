@@ -42,7 +42,7 @@ async function getToken(): Promise<string> {
 export const Route = createFileRoute("/_authenticated/usuarios")({
   head: () => ({ meta: [{ title: "Usuários — MV Broker" }] }),
   component: () => (
-    <RoleGate allow={["super_admin"]}>
+    <RoleGate allow={["super_admin", "secretaria"]}>
       <UsuariosPage />
     </RoleGate>
   ),
