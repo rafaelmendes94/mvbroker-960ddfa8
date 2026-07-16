@@ -416,10 +416,11 @@ const propertiesWithCodes = initialProperties.map((p, i) => ({
 export default function Properties() {
   const navigate = useNavigate();
   const { user, subscription, isSuperAdmin, isAdminStaff } = useAuth();
+  const isAdmin = isSuperAdmin || isAdminStaff;
   const [currentImoveis, setCurrentImoveis] = useState(0);
   const [importOpen, setImportOpen] = useState(false);
   const maxImoveis = subscription?.plan?.max_properties ?? 0;
-  const limitReached = !isSuperAdmin && !isAdminStaff && maxImoveis > 0 && currentImoveis >= maxImoveis;
+  const limitReached = !isAdmin && maxImoveis > 0 && currentImoveis >= maxImoveis;
 
   useEffect(() => {
     if (!user) return;
