@@ -1,116 +1,46 @@
-## Objetivo
+## Escopo
 
-Fazer o espelho refletir **exatamente** o que foi cadastrado nos imóveis vinculados ao empreendimento (Qd, Lt, Bl, Un, Box, Nº), e organizar as células por:
+Aplicar modo "só leitura" na tela de Imóveis (`src/pages/Properties.tsx`) para todos os usuários que **não são** `super_admin` nem `secretaria`. Sem migração de banco — as políticas RLS de escrita já bloqueiam servidor-side, isso só remove a UI.
 
-- **Edifício** → agrupado por **Andar**
-- **Condomínio** → agrupado por **Bloco** (com fallback para Quadra quando não houver bloco)
-- **Loteamento** → agrupado por **Quadra**
+## Regra central
 
-O "Criar grade / Importar CSV / Nova unidade" da aba deixa de ser fonte de verdade. A grade é o próprio cadastro dos imóveis.
+No topo do componente `Properties`:
 
-## Como fica na tela
-
-Aba **Tabela** do empreendimento:
-
-```
-Andar 12
- ├─ [1201]  [1202]  [1203]  [1204]
-Andar 11
- ├─ [1101]  [1102]  [1103]  [1104]
-...
+```ts
+const isAdmin = isSuperAdmin || isAdminStaff;
 ```
 
-```
-Bloco A
- ├─ [A-101] [A-102] [A-103]
-Bloco B
- ├─ [B-201] [B-202]
-Sem bloco
- ├─ [Qd 3 · Lt 12]
-```
+Todo o resto deriva daí.
 
-```
-Quadra 1
- ├─ [Lt 01] [Lt 02] [Lt 03] [Lt 04]
-Quadra 2
- ├─ [Lt 01] [Lt 02]
-```
+## Ocultar na barra superior (quando `!isAdmin`)
 
-- Cada célula mostra o identificador real cadastrado no imóvel (unidade, ou "Qd X · Lt Y", ou "Box Z").
-- Cor da célula = `status_imovel` do imóvel real (disponível / reservado / vendido / indisponível).
-- Clicar abre popover com Qd, Lt, Bl, Andar, Un, Box, valor, área, dormitórios, vagas, foto de capa e botão **Abrir imóvel**.
-- Contadores no topo (Unidades / Indisponíveis / Disponíveis / Reservados / Vendidos) passam a contar os imóveis reais.
+- Botão **"Exportar XML"** (dropdown de portais)
+- Botão **"Importações"** (abre `setImportOpen`)
+- Botão **"Novo Imóvel"** + contador de limite
+- Mantém: Relatórios, busca, filtros, favoritar, rota, baixar fotos/Drive, WhatsApp, PDF, visualizar detalhe
 
-## Extração de Bloco e Andar a partir do campo `unidade`
+## Cards e linhas de imóvel
 
-Como não existem colunas dedicadas, será feita uma heurística sobre `unidade` (string livre já cadastrada):
+Passar `canManage={isAdmin}` (removendo o fallback `property.userId === user?.id`) para `PropertyCard` e `PropertyRow` — hoje o dono do imóvel conseguia editar/excluir mesmo sem ser admin; isso passa a exigir admin.
 
-**Bloco** (para condomínio):
-1. Regex de prefixo: `^(Bloco|Bl|Torre|T)\s*[-.]?\s*([A-Za-z0-9]+)` → captura o token.
-2. Separador comum: `^([A-Z0-9]{1,3})\s*[-/·]\s*\d+` → ex. `A-101`, `B/302`, `T2 · 405`.
-3. Fallback: usa `quadra` do imóvel se existir (em condomínios que numeram por quadra).
-4. Se nada bater → grupo "Sem bloco".
+Dentro de `PropertyCard` e `PropertyRow`, envolver em `canManage &&` os elementos que hoje ficam visíveis para qualquer um:
 
-**Andar** (para edifício):
-1. Regex explícito: `(\d+)\s*º?\s*(andar|and)` → pega o número.
-2. Padrão separado: `^(\d+)\s*[-/·]\s*\d+` → primeira parte é o andar.
-3. Numérico puro 3–4 dígitos (`101`, `1204`): andar = tudo menos os 2 últimos dígitos.
-4. Numérico puro com 1–2 dígitos: andar = 1 (térreo/único).
-5. Se `unidade` estiver vazia → cai no grupo "Sem andar".
+- **StatusBar** (botões Disponível / Vendido / Reservado / Alugado / Suspenso) — quando não-admin, renderiza apenas um `Badge` estático com o status atual, sem trocar.
+- **Duplicar** (ícone `Copy` na coluna de ações da PropertyRow — hoje sem `canManage`).
+- **Alterar preço inline** (`onPriceChange` / `PriceEditor`), **DealLabel**, **QuickUpdate**, **Contrato**, **Avaliação** — qualquer controle de escrita in-card.
 
-Toda a lógica fica isolada em `src/lib/espelho-grouping.ts` para poder ser ajustada depois sem tocar no componente.
+Editar e Excluir já estão gated por `canManage`, então automaticamente somem.
 
-## Alterações de código
+## Ações em massa
 
-### Novo arquivo: `src/lib/espelho-grouping.ts`
-- Tipos `ImovelEspelho` (subset de `imoveis`) e `GrupoEspelho` (`{ chave, label, ordem, imoveis }`).
-- Funções puras:
-  - `extrairBloco(unidade, quadraFallback)`
-  - `extrairAndar(unidade)`
-  - `agruparImoveis(tipo, imoveis)` — devolve `GrupoEspelho[]` já ordenado (desc para andares, alfabético para blocos, numérico para quadras).
-  - `rotuloCelula(tipo, imovel)` — monta o texto da célula ("1201", "A-101", "Lt 03", "Qd 2 · Lt 05", "Box 12").
-  - `statusCelula(imovel)` — mapeia `status_imovel` para `UnitStatus` reusando o `STATUS_CONFIG` já existente.
+Se houver seleção múltipla com ações (excluir em lote / mudar status), esconder o toolbar quando `!isAdmin`.
 
-### `src/components/empreendimentos/EspelhoSheet.tsx`
-- Trocar a query de `espelho_unidades` por:
-  ```
-  supabase.from("imoveis")
-    .select("id, titulo, codigo_interno, quadra, lote, unidade, box, numero, preco, area_total, dormitorios, vagas, suites, status_imovel, foto_capa_url, <fk>_id")
-    .eq("<fk>_id", empreendimentoId)
-    .or("arquivado.is.null,arquivado.eq.false")
-  ```
-  onde `<fk>` = `edificio` / `condominio` / `loteamento`.
-- Alimentar `stats` a partir da nova lista.
-- Substituir `byGroup` (que hoje usa `grupo` inteiro) por `agruparImoveis(tipo, imoveis)`.
-- No render de cada grupo, usar `grupo.label` ("Andar 12", "Bloco A", "Quadra 1", "Sem bloco").
-- Remover a toolbar admin (`CriarGradeDialog`, `ImportarCsvDialog`, `NovaUnidadeDialog`) da aba Tabela. Manter apenas botão **+ Novo imóvel** que leva para `/imoveis/novo` já com o empreendimento pré-selecionado (via query string).
-- Célula (`UnitCell`) simplifica: recebe `ImovelEspelho`, mostra rótulo, status colorido; popover exibe todos os campos reais e link **Abrir imóvel** (`/imoveis/$id/editar`).
-- Remover `saveUnit` / `deleteUnit` / `ImovelLinkSection` (não fazem mais sentido — edita-se no cadastro do imóvel).
-- Estado vazio: "Nenhum imóvel cadastrado neste {edifício/condomínio/loteamento}. Cadastre imóveis para vê-los aqui."
+## Fora de escopo
 
-### `src/lib/espelho.ts`
-- Manter `STATUS_CONFIG`, `TIPO_LABELS`, `fmtBRL` (ainda usados).
-- Marcar `generateSkeleton`, `parseEspelhoCSV`, `CSV_TEMPLATE`, `CSV_HEADERS` como legado (deixar para não quebrar `EstruturaPage` que ainda chama `generateSkeleton` no auto-gera de edifício). Não remover neste plano.
+- Dashboard (`src/routes/_authenticated/dashboard.tsx`) não tem esses botões hoje — nada a fazer lá.
+- Rotas `/imoveis/novo` e `/imoveis/$id/editar` continuam existindo; o backend (RLS) já bloqueia gravação de não-admin. Não vou adicionar guard de rota para evitar quebrar corretor autônomo que legitimamente edita o próprio imóvel via outros fluxos — só removo os pontos de entrada da tela de Imóveis conforme pedido.
+- Sem novo papel `cliente` no enum — a restrição vale para qualquer não-admin (corretor_autonomo, imobiliaria, e qualquer outro).
 
-### `src/components/estruturas/EstruturaPage.tsx`
-- Nenhuma mudança de comportamento. O botão "Espelho" continua levando para `/empreendimentos/$tipo/$id` que agora mostra a nova visão.
+## Arquivos afetados
 
-### Banco de dados
-- **Nenhuma migração**. Continua usando `imoveis` como está.
-- A trigger `fn_espelho_sync_imovel` permanece funcionando (mantém `espelho_unidades` populado como dado secundário), mas o front deixa de consumi-la — não precisamos mexer para essa entrega.
-
-## Detalhes técnicos
-
-- Query única por render (sem N+1). A `foto_capa_url` já está materializada no imóvel na maioria dos casos; se não, o popover cai no ícone genérico (evita cascata de signed URLs).
-- Ordenação dentro do grupo: numérico natural sobre a `unidade` ou `lote` (usar `localeCompare(..., "pt-BR", { numeric: true })`).
-- Ordem dos grupos:
-  - Andar: `desc` (maior no topo, mantém padrão atual).
-  - Bloco: alfabético asc; "Sem bloco" por último.
-  - Quadra: numérico asc; "Sem quadra" por último.
-- Popover reaproveita o layout atual de `Info` / `fmtBRL`.
-
-## Fora do escopo
-
-- Adicionar colunas `bloco`/`andar` ao cadastro (usuário optou pela extração via `unidade`).
-- Refazer os fluxos de "Criar grade" / "Importar CSV" para outro contexto — hoje serão apenas ocultos.
-- Editar dados do imóvel direto no popover (continua sendo pelo cadastro `/imoveis/$id/editar`).
+- `src/pages/Properties.tsx` (único)
