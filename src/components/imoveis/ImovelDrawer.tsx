@@ -31,7 +31,7 @@ export function ImovelDrawer({ id, open, onOpenChange }: { id: string | null; op
       const urlMap = await getImageUrls(paths, "imoveis");
       setImagens(list.map((x: any) => ({ ...x, url: urlMap.get(x.storage_path) ?? "" })));
       setLoading(false);
-      logImovel(id, "visualizado");
+      logImovel(id, "visualizacao");
     })();
     return () => { cancelled = true; };
   }, [id, open]);

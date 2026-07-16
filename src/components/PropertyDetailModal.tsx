@@ -18,6 +18,7 @@ import { cn, toSlug, formatUnitParts } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client-any";
 import { useAuth } from "@/hooks/useAuth";
+import { logImovel } from "@/lib/audit";
 import { DraggableFieldGrid, type FieldConfig } from "./DraggableFieldGrid";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -112,6 +113,15 @@ export function PropertyDetailModal({ property, onClose, allProperties, brokerIn
   const [hasChanges, setHasChanges] = useState(false);
   const [editingBlock, setEditingBlock] = useState<string | null>(null);
   const [viewingTerm, setViewingTerm] = useState(false);
+
+  // Registra visualização quando o modal abre com um imóvel real (uuid)
+  useEffect(() => {
+    if (!property?.id) return;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(property.id);
+    if (!isUuid) return;
+    logImovel(property.id, "visualizacao");
+  }, [property?.id]);
+
 
   // View tracking happens on public pages via trackPropertyView() —
   // not here, otherwise admin/broker management opens would inflate the counter.
