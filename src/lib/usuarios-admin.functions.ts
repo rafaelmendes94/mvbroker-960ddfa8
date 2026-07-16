@@ -95,11 +95,16 @@ async function getSupabaseAdmin() {
 }
 
 async function assertAdmin(ctx: Pick<AuthedContext, "supabase" | "userId">) {
-  const { data: ok } = await ctx.supabase.rpc("has_role", {
+  const { data: isSuper } = await ctx.supabase.rpc("has_role", {
     _user_id: ctx.userId,
     _role: "super_admin",
   });
-  if (!ok) throw new Error("Acesso negado: apenas Super Admin.");
+  if (isSuper) return;
+  const { data: isSec } = await ctx.supabase.rpc("has_role", {
+    _user_id: ctx.userId,
+    _role: "secretaria",
+  });
+  if (!isSec) throw new Error("Acesso negado: apenas Super Admin ou Secretaria.");
 }
 
 function gerarSenha(len = 12) {
@@ -260,6 +265,24 @@ export const resetarSenhaUsuario = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     return { senha };
+  });
+
+// ===== Definir senha personalizada =====
+const definirSenhaSchema = tokenSchema.extend({
+  user_id: z.string().uuid(),
+  senha: z.string().min(6, "Senha deve ter ao menos 6 caracteres").max(72),
+});
+export const definirSenhaUsuario = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => definirSenhaSchema.parse(d))
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext(data._token);
+    await assertAdmin(authContext);
+    const supabaseAdmin = await getSupabaseAdmin();
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
+      password: data.senha,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 // ===== Permissões por módulo =====
