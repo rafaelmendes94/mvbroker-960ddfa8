@@ -77,18 +77,12 @@ function PublicImovelPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-          <a href="/" className="flex items-center gap-2 text-sm font-semibold">
-            <ArrowLeft className="w-4 h-4" /> MV BROKER
-          </a>
+      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        <div className="flex justify-end">
           <button onClick={share} className="inline-flex items-center gap-2 text-sm px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90">
             <Share2 className="w-4 h-4" /> Compartilhar
           </button>
         </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Gallery */}
         <div className="relative w-full aspect-[16/10] bg-muted rounded-2xl overflow-hidden">
           <img src={images[idx]} alt={im.titulo || "Imóvel"} className="w-full h-full object-cover" />
