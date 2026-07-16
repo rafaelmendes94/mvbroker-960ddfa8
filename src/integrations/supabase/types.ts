@@ -725,6 +725,7 @@ export type Database = {
           espelho_por_grupo: number | null
           estado: string | null
           id: string
+          implantacao_pdf_path: string | null
           infraestrutura: string[]
           latitude: number | null
           logradouro: string | null
@@ -754,6 +755,7 @@ export type Database = {
           espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
+          implantacao_pdf_path?: string | null
           infraestrutura?: string[]
           latitude?: number | null
           logradouro?: string | null
@@ -783,6 +785,7 @@ export type Database = {
           espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
+          implantacao_pdf_path?: string | null
           infraestrutura?: string[]
           latitude?: number | null
           logradouro?: string | null
@@ -893,6 +896,7 @@ export type Database = {
           espelho_por_grupo: number | null
           estado: string | null
           id: string
+          implantacao_pdf_path: string | null
           infraestrutura: string[]
           latitude: number | null
           logradouro: string | null
@@ -922,6 +926,7 @@ export type Database = {
           espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
+          implantacao_pdf_path?: string | null
           infraestrutura?: string[]
           latitude?: number | null
           logradouro?: string | null
@@ -951,6 +956,7 @@ export type Database = {
           espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
+          implantacao_pdf_path?: string | null
           infraestrutura?: string[]
           latitude?: number | null
           logradouro?: string | null
@@ -983,6 +989,7 @@ export type Database = {
           descricao: string | null
           estado: string | null
           id: string
+          implantacao_pdf_path: string | null
           incorporadora: string | null
           infraestrutura: string[]
           latitude: number | null
@@ -1009,6 +1016,7 @@ export type Database = {
           descricao?: string | null
           estado?: string | null
           id?: string
+          implantacao_pdf_path?: string | null
           incorporadora?: string | null
           infraestrutura?: string[]
           latitude?: number | null
@@ -1035,6 +1043,7 @@ export type Database = {
           descricao?: string | null
           estado?: string | null
           id?: string
+          implantacao_pdf_path?: string | null
           incorporadora?: string | null
           infraestrutura?: string[]
           latitude?: number | null
@@ -1709,6 +1718,7 @@ export type Database = {
           espelho_por_grupo: number | null
           estado: string | null
           id: string
+          implantacao_pdf_path: string | null
           infraestrutura: Json | null
           latitude: number | null
           logradouro: string | null
@@ -1737,6 +1747,7 @@ export type Database = {
           espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
+          implantacao_pdf_path?: string | null
           infraestrutura?: Json | null
           latitude?: number | null
           logradouro?: string | null
@@ -1765,6 +1776,7 @@ export type Database = {
           espelho_por_grupo?: number | null
           estado?: string | null
           id?: string
+          implantacao_pdf_path?: string | null
           infraestrutura?: Json | null
           latitude?: number | null
           logradouro?: string | null

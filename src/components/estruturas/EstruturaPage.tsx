@@ -21,6 +21,7 @@ import { CepAutoFill, emptyEndereco, type Endereco } from "@/components/forms/Ce
 import { MapPicker } from "@/components/forms/MapPicker";
 import { InfraestruturaSelect } from "@/components/forms/InfraestruturaSelect";
 import { GaleriaUpload, type EstruturaTipo } from "@/components/forms/GaleriaUpload";
+import { PdfImplantacaoUpload } from "@/components/forms/PdfImplantacaoUpload";
 import { logAudit } from "@/lib/audit";
 import { useAuth } from "@/hooks/use-auth";
 import { getEstruturaImageUrls, type EstruturaImageUrls } from "@/lib/estrutura-images";
@@ -162,6 +163,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
   const [infra, setInfra] = useState<string[]>([]);
   const [specific, setSpecific] = useState<Record<string, any>>({});
+  const [implantacaoPdf, setImplantacaoPdf] = useState<string | null>(null);
 
   function downloadTemplate() {
     const ws = XLSX.utils.aoa_to_sheet([
@@ -278,6 +280,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     setCoords({ lat: null, lng: null });
     setInfra([]);
     setSpecific({});
+    setImplantacaoPdf(null);
   }
 
   function openCreate() { resetForm(); setOpen(true); }
@@ -293,6 +296,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
     const spec: Record<string, any> = {};
     SPECIFIC[tipo].fields.forEach((f) => { spec[f.key] = it[f.key] ?? ""; });
     setSpecific(spec);
+    setImplantacaoPdf((it as any).implantacao_pdf_path ?? null);
     setOpen(true);
   }
 
@@ -662,6 +666,16 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
 
             <Section title="Galeria">
               <GaleriaUpload tipo={tipo} estruturaId={editing?.id ?? null} />
+            </Section>
+
+            <Section title="Implantação (PDF)">
+              <PdfImplantacaoUpload
+                tipo={tipo}
+                estruturaId={editing?.id ?? null}
+                table={table}
+                currentPath={implantacaoPdf}
+                onChange={setImplantacaoPdf}
+              />
             </Section>
           </div>
 
