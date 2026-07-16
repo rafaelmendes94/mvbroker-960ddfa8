@@ -21,6 +21,7 @@ import { CepAutoFill, emptyEndereco, type Endereco } from "@/components/forms/Ce
 import { MapPicker } from "@/components/forms/MapPicker";
 import { InfraestruturaSelect } from "@/components/forms/InfraestruturaSelect";
 import { GaleriaUpload, type EstruturaTipo } from "@/components/forms/GaleriaUpload";
+import { PdfImplantacaoUpload } from "@/components/forms/PdfImplantacaoUpload";
 import { logAudit } from "@/lib/audit";
 import { useAuth } from "@/hooks/use-auth";
 import { getEstruturaImageUrls, type EstruturaImageUrls } from "@/lib/estrutura-images";
