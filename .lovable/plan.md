@@ -1,68 +1,116 @@
-## Diagnóstico da lentidão
+## Objetivo
 
-Investigando o carregamento, achei 4 gargalos claros — os 3 primeiros afetam **tanto Lovable quanto VPS**:
+Fazer o espelho refletir **exatamente** o que foi cadastrado nos imóveis vinculados ao empreendimento (Qd, Lt, Bl, Un, Box, Nº), e organizar as células por:
 
-### 1. Bucket `imoveis` é privado → tudo usa signed URL
-Cada tela de imóveis (galeria, drawer, tabela, home) faz:
-- 1 SELECT em `imovel_imagens`
-- **N chamadas HTTP** ao Storage (`createSignedUrl`, uma por foto) para gerar URL temporária de 1h
-- URLs assinadas **não são cacheáveis** pelo browser/CDN entre sessões, e expiram
+- **Edifício** → agrupado por **Andar**
+- **Condomínio** → agrupado por **Bloco** (com fallback para Quadra quando não houver bloco)
+- **Loteamento** → agrupado por **Quadra**
 
-Só a home dispara 6 signed URLs em série a cada visita. Uma galeria com 20 fotos = 20 round-trips extras antes do primeiro pixel.
+O "Criar grade / Importar CSV / Nova unidade" da aba deixa de ser fonte de verdade. A grade é o próprio cadastro dos imóveis.
 
-### 2. Fotos originais servidas em qualquer tamanho
-Upload comprime para WebP mas mantém **até 2000px** no maior lado. Essas mesmas fotos gigantes são servidas em cards de ~300px na home e listagem → megabytes desnecessários por card.
+## Como fica na tela
 
-Não existe versão "thumb" nem "medium" salva para imóveis (só o FileUploader genérico gera, mas ele não é usado no fluxo de fotos de imóveis).
+Aba **Tabela** do empreendimento:
 
-### 3. Landing (`/`) está com URL de imagem quebrada
-Em `src/routes/index.tsx` linha ~182, o `capa` é preenchido com `im.url` — que na tabela `imovel_imagens` é só o **path bruto do storage** (`uuid/1781...jpg`), não uma URL. O `<img src>` cai em 404 silencioso e fica só o mock do Unsplash aparecendo (o que explica por que "os imóveis reais quase não aparecem").
+```
+Andar 12
+ ├─ [1201]  [1202]  [1203]  [1204]
+Andar 11
+ ├─ [1101]  [1102]  [1103]  [1104]
+...
+```
 
-### 4. Hero da landing sem preload
-`bg-mv.png` e `bg-mobilemv.png` são pintados via CSS `background-image` inline, sem `<link rel="preload">` — LCP demora.
+```
+Bloco A
+ ├─ [A-101] [A-102] [A-103]
+Bloco B
+ ├─ [B-201] [B-202]
+Sem bloco
+ ├─ [Qd 3 · Lt 12]
+```
 
----
+```
+Quadra 1
+ ├─ [Lt 01] [Lt 02] [Lt 03] [Lt 04]
+Quadra 2
+ ├─ [Lt 01] [Lt 02]
+```
 
-## Plano de correção (rápido, sem quebrar nada)
+- Cada célula mostra o identificador real cadastrado no imóvel (unidade, ou "Qd X · Lt Y", ou "Box Z").
+- Cor da célula = `status_imovel` do imóvel real (disponível / reservado / vendido / indisponível).
+- Clicar abre popover com Qd, Lt, Bl, Andar, Un, Box, valor, área, dormitórios, vagas, foto de capa e botão **Abrir imóvel**.
+- Contadores no topo (Unidades / Indisponíveis / Disponíveis / Reservados / Vendidos) passam a contar os imóveis reais.
 
-### Passo 1 — Home: usar URL pública correta + preload do hero
-- Trocar `im.url` cru por `supabase.storage.from("imoveis").getPublicUrl(path).data.publicUrl` **em uma única chamada local** (é só string, não faz HTTP).
-- Como o bucket é privado, também preciso liberar leitura pública das fotos **só** pela política existente ou expor via signed URL longa em cache. Solução mais simples e segura: **tornar o bucket `imoveis` público** (o path já é UUID imprevisível; é o padrão do mercado para fotos de anúncio) e passar a usar `getPublicUrl` em todos os call sites.
-- Adicionar `<link rel="preload" as="image" href={bgDesktop} fetchpriority="high">` no `head()` do `/`.
+## Extração de Bloco e Andar a partir do campo `unidade`
 
-### Passo 2 — Trocar signed URL por URL pública nos 4 call sites
-Arquivos afetados:
-- `src/routes/index.tsx` (home)
-- `src/components/imoveis/ImovelDrawer.tsx` (linha 38)
-- `src/components/imoveis/ImovelGaleria.tsx` (linha 29–34, o `Promise.all` de N HTTP calls)
-- `src/lib/storage.ts` (helper `getSignedUrl` fica para documentos privados)
+Como não existem colunas dedicadas, será feita uma heurística sobre `unidade` (string livre já cadastrada):
 
-Ganho: **1 request de rede a menos por foto** em toda tela que lista imagens. Galeria de 20 fotos abre imediata.
+**Bloco** (para condomínio):
+1. Regex de prefixo: `^(Bloco|Bl|Torre|T)\s*[-.]?\s*([A-Za-z0-9]+)` → captura o token.
+2. Separador comum: `^([A-Z0-9]{1,3})\s*[-/·]\s*\d+` → ex. `A-101`, `B/302`, `T2 · 405`.
+3. Fallback: usa `quadra` do imóvel se existir (em condomínios que numeram por quadra).
+4. Se nada bater → grupo "Sem bloco".
 
-### Passo 3 — Gerar thumb + medium no upload de fotos do imóvel
-Alterar `ImovelGaleria.handleUpload` para gerar 3 versões (thumb 400px, medium 1200px, full 2000px) e salvar `storage_path_thumb` / `storage_path_medium` na tabela `imovel_imagens`. Migration adiciona as duas colunas (nullable, back-compat).
+**Andar** (para edifício):
+1. Regex explícito: `(\d+)\s*º?\s*(andar|and)` → pega o número.
+2. Padrão separado: `^(\d+)\s*[-/·]\s*\d+` → primeira parte é o andar.
+3. Numérico puro 3–4 dígitos (`101`, `1204`): andar = tudo menos os 2 últimos dígitos.
+4. Numérico puro com 1–2 dígitos: andar = 1 (térreo/único).
+5. Se `unidade` estiver vazia → cai no grupo "Sem andar".
 
-Depois, usar `thumb` em listagens/cards e `medium` em drawer/preview; `full` só no lightbox.
+Toda a lógica fica isolada em `src/lib/espelho-grouping.ts` para poder ser ajustada depois sem tocar no componente.
 
-### Passo 4 — Cache HTTP forte
-Bucket público do Supabase já serve com `Cache-Control: max-age=3600`. Aumentar para `31536000, immutable` no upload (`cacheControl: "31536000"`). O path já contém timestamp, então nunca precisa invalidar.
+## Alterações de código
 
-### Passo 5 (VPS) — Cache no Traefik
-Adicionar middleware de cache no `traefik/dynamic/app.yml` para as rotas `/storage/v1/object/public/imoveis/*` (assets imutáveis, TTL longo). Impacto forte no self-hosted onde não tem CDN na frente.
+### Novo arquivo: `src/lib/espelho-grouping.ts`
+- Tipos `ImovelEspelho` (subset de `imoveis`) e `GrupoEspelho` (`{ chave, label, ordem, imoveis }`).
+- Funções puras:
+  - `extrairBloco(unidade, quadraFallback)`
+  - `extrairAndar(unidade)`
+  - `agruparImoveis(tipo, imoveis)` — devolve `GrupoEspelho[]` já ordenado (desc para andares, alfabético para blocos, numérico para quadras).
+  - `rotuloCelula(tipo, imovel)` — monta o texto da célula ("1201", "A-101", "Lt 03", "Qd 2 · Lt 05", "Box 12").
+  - `statusCelula(imovel)` — mapeia `status_imovel` para `UnitStatus` reusando o `STATUS_CONFIG` já existente.
 
----
+### `src/components/empreendimentos/EspelhoSheet.tsx`
+- Trocar a query de `espelho_unidades` por:
+  ```
+  supabase.from("imoveis")
+    .select("id, titulo, codigo_interno, quadra, lote, unidade, box, numero, preco, area_total, dormitorios, vagas, suites, status_imovel, foto_capa_url, <fk>_id")
+    .eq("<fk>_id", empreendimentoId)
+    .or("arquivado.is.null,arquivado.eq.false")
+  ```
+  onde `<fk>` = `edificio` / `condominio` / `loteamento`.
+- Alimentar `stats` a partir da nova lista.
+- Substituir `byGroup` (que hoje usa `grupo` inteiro) por `agruparImoveis(tipo, imoveis)`.
+- No render de cada grupo, usar `grupo.label` ("Andar 12", "Bloco A", "Quadra 1", "Sem bloco").
+- Remover a toolbar admin (`CriarGradeDialog`, `ImportarCsvDialog`, `NovaUnidadeDialog`) da aba Tabela. Manter apenas botão **+ Novo imóvel** que leva para `/imoveis/novo` já com o empreendimento pré-selecionado (via query string).
+- Célula (`UnitCell`) simplifica: recebe `ImovelEspelho`, mostra rótulo, status colorido; popover exibe todos os campos reais e link **Abrir imóvel** (`/imoveis/$id/editar`).
+- Remover `saveUnit` / `deleteUnit` / `ImovelLinkSection` (não fazem mais sentido — edita-se no cadastro do imóvel).
+- Estado vazio: "Nenhum imóvel cadastrado neste {edifício/condomínio/loteamento}. Cadastre imóveis para vê-los aqui."
 
-## Ordem de execução sugerida
+### `src/lib/espelho.ts`
+- Manter `STATUS_CONFIG`, `TIPO_LABELS`, `fmtBRL` (ainda usados).
+- Marcar `generateSkeleton`, `parseEspelhoCSV`, `CSV_TEMPLATE`, `CSV_HEADERS` como legado (deixar para não quebrar `EstruturaPage` que ainda chama `generateSkeleton` no auto-gera de edifício). Não remover neste plano.
 
-1. **Passo 1 + 2 juntos** (uma única leva de edits) — resolve 80% da lentidão percebida sem migration.
-2. **Passo 4** (uma linha em cada `upload`) — grátis, só afeta uploads novos.
-3. **Passo 3** (thumb/medium) — melhoria maior mas exige migration + reprocessar fotos antigas (opcional: script one-off que roda no primeiro load).
-4. **Passo 5** (VPS) — mexe em `infra/`; me confirma antes que aí eu edito.
+### `src/components/estruturas/EstruturaPage.tsx`
+- Nenhuma mudança de comportamento. O botão "Espelho" continua levando para `/empreendimentos/$tipo/$id` que agora mostra a nova visão.
 
----
+### Banco de dados
+- **Nenhuma migração**. Continua usando `imoveis` como está.
+- A trigger `fn_espelho_sync_imovel` permanece funcionando (mantém `espelho_unidades` populado como dado secundário), mas o front deixa de consumi-la — não precisamos mexer para essa entrega.
 
-## Perguntas antes de executar
+## Detalhes técnicos
 
-1. Posso tornar o bucket `imoveis` **público**? (Recomendado — é o padrão para fotos de anúncio, o path é UUID e nada muda de segurança real. Se preferir manter privado, faço com signed URLs longas em cache local no lugar.)
-2. Quer que eu inclua o Passo 3 (thumb/medium) agora ou deixamos para depois? Ele exige migration e reprocessamento das fotos existentes.
-3. Passo 5 (Traefik/VPS) — mexo agora nos arquivos de `infra/`? (Você tem memória "nunca modificar `infra/`", por isso pergunto.)
+- Query única por render (sem N+1). A `foto_capa_url` já está materializada no imóvel na maioria dos casos; se não, o popover cai no ícone genérico (evita cascata de signed URLs).
+- Ordenação dentro do grupo: numérico natural sobre a `unidade` ou `lote` (usar `localeCompare(..., "pt-BR", { numeric: true })`).
+- Ordem dos grupos:
+  - Andar: `desc` (maior no topo, mantém padrão atual).
+  - Bloco: alfabético asc; "Sem bloco" por último.
+  - Quadra: numérico asc; "Sem quadra" por último.
+- Popover reaproveita o layout atual de `Info` / `fmtBRL`.
+
+## Fora do escopo
+
+- Adicionar colunas `bloco`/`andar` ao cadastro (usuário optou pela extração via `unidade`).
+- Refazer os fluxos de "Criar grade" / "Importar CSV" para outro contexto — hoje serão apenas ocultos.
+- Editar dados do imóvel direto no popover (continua sendo pelo cadastro `/imoveis/$id/editar`).
