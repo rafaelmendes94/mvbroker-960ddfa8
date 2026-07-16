@@ -163,6 +163,7 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
   const [infra, setInfra] = useState<string[]>([]);
   const [specific, setSpecific] = useState<Record<string, any>>({});
+  const [implantacaoPdf, setImplantacaoPdf] = useState<string | null>(null);
 
   function downloadTemplate() {
     const ws = XLSX.utils.aoa_to_sheet([
