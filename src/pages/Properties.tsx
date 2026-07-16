@@ -416,10 +416,11 @@ const propertiesWithCodes = initialProperties.map((p, i) => ({
 export default function Properties() {
   const navigate = useNavigate();
   const { user, subscription, isSuperAdmin, isAdminStaff } = useAuth();
+  const isAdmin = isSuperAdmin || isAdminStaff;
   const [currentImoveis, setCurrentImoveis] = useState(0);
   const [importOpen, setImportOpen] = useState(false);
   const maxImoveis = subscription?.plan?.max_properties ?? 0;
-  const limitReached = !isSuperAdmin && !isAdminStaff && maxImoveis > 0 && currentImoveis >= maxImoveis;
+  const limitReached = !isAdmin && maxImoveis > 0 && currentImoveis >= maxImoveis;
 
   useEffect(() => {
     if (!user) return;
@@ -1007,56 +1008,62 @@ export default function Properties() {
               >
                 <BarChart3 className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Relatórios</span><span className="sm:hidden">Rel.</span>
               </button>
-              <div className="relative" ref={xmlMenuRef}>
-                <button
-                  onClick={() => setShowXmlMenu(!showXmlMenu)}
-                  className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg bg-card border border-input text-foreground text-[11px] sm:text-xs font-medium hover:bg-muted transition-colors"
-                >
-                  <FileCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Exportar</span> XML <ChevronDown className="w-3 h-3" />
-                </button>
-                {showXmlMenu && (
-                  <div className="absolute right-0 top-full mt-1 w-56 max-w-[calc(100vw-2rem)] bg-card border border-border rounded-lg shadow-xl z-50 py-1 animate-scale-in">
-                    <p className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Selecione o portal</p>
-                    {xmlPortals.map((portal) => (
-                      <button key={portal.name} onClick={() => handleExportXml(portal.name)} className="w-full text-left px-3 py-2 hover:bg-muted transition-colors">
-                        <span className="text-sm font-medium text-foreground block">{portal.name}</span>
-                        <span className="text-[11px] text-muted-foreground">{portal.description}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => setImportOpen(true)}
-                className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
-                title="Importações"
-              >
-                <FolderDown className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Importações</span><span className="sm:hidden">Import.</span>
-              </button>
-              <div className="flex flex-col items-end gap-0.5 ml-auto sm:ml-0">
-                <button
-                  onClick={() => {
-                    if (limitReached) {
-                      toast.error(`Limite de ${maxImoveis} imóveis atingido. Faça upgrade do plano.`);
-                      return;
-                    }
-                    navigate("/imoveis/novo");
-                  }}
-                  disabled={limitReached}
-                  className={cn(
-                    "flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold transition-opacity",
-                    limitReached ? "bg-muted text-muted-foreground cursor-not-allowed" : "gradient-gold text-primary hover:opacity-90"
+              {isAdmin && (
+                <div className="relative" ref={xmlMenuRef}>
+                  <button
+                    onClick={() => setShowXmlMenu(!showXmlMenu)}
+                    className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg bg-card border border-input text-foreground text-[11px] sm:text-xs font-medium hover:bg-muted transition-colors"
+                  >
+                    <FileCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Exportar</span> XML <ChevronDown className="w-3 h-3" />
+                  </button>
+                  {showXmlMenu && (
+                    <div className="absolute right-0 top-full mt-1 w-56 max-w-[calc(100vw-2rem)] bg-card border border-border rounded-lg shadow-xl z-50 py-1 animate-scale-in">
+                      <p className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Selecione o portal</p>
+                      {xmlPortals.map((portal) => (
+                        <button key={portal.name} onClick={() => handleExportXml(portal.name)} className="w-full text-left px-3 py-2 hover:bg-muted transition-colors">
+                          <span className="text-sm font-medium text-foreground block">{portal.name}</span>
+                          <span className="text-[11px] text-muted-foreground">{portal.description}</span>
+                        </button>
+                      ))}
+                    </div>
                   )}
-                  title={limitReached ? "Limite atingido — faça upgrade" : "Novo imóvel"}
+                </div>
+              )}
+              {isAdmin && (
+                <button
+                  onClick={() => setImportOpen(true)}
+                  className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                  title="Importações"
                 >
-                  <Plus className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Novo</span> Imóvel
+                  <FolderDown className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Importações</span><span className="sm:hidden">Import.</span>
                 </button>
-                {maxImoveis > 0 && (
-                  <span className={cn("text-[10px] font-medium", limitReached ? "text-destructive" : "text-muted-foreground")}>
-                    {currentImoveis} de {maxImoveis} imóveis
-                  </span>
-                )}
-              </div>
+              )}
+              {isAdmin && (
+                <div className="flex flex-col items-end gap-0.5 ml-auto sm:ml-0">
+                  <button
+                    onClick={() => {
+                      if (limitReached) {
+                        toast.error(`Limite de ${maxImoveis} imóveis atingido. Faça upgrade do plano.`);
+                        return;
+                      }
+                      navigate("/imoveis/novo");
+                    }}
+                    disabled={limitReached}
+                    className={cn(
+                      "flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold transition-opacity",
+                      limitReached ? "bg-muted text-muted-foreground cursor-not-allowed" : "gradient-gold text-primary hover:opacity-90"
+                    )}
+                    title={limitReached ? "Limite atingido — faça upgrade" : "Novo imóvel"}
+                  >
+                    <Plus className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Novo</span> Imóvel
+                  </button>
+                  {maxImoveis > 0 && (
+                    <span className={cn("text-[10px] font-medium", limitReached ? "text-destructive" : "text-muted-foreground")}>
+                      {currentImoveis} de {maxImoveis} imóveis
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -1495,7 +1502,7 @@ export default function Properties() {
                 onFilterByTitle={(title) => { setSearch(title.split(" ").slice(0, 2).join(" ")); setActiveCategory("todos"); }}
                 onFilterByCondition={(cond) => { setFilterCondition(cond); setShowFilters(true); setActiveCategory("todos"); }}
                 onFilterByOwner={(owner) => { setFilterOwner(owner); setShowFilters(true); setActiveCategory("todos"); }}
-                canManage={isSuperAdmin || isAdminStaff || property.userId === user?.id}
+                canManage={isAdmin}
                 onDelete={(id) => setDeleteConfirmId(id)}
               />
             ))}
@@ -1522,7 +1529,7 @@ export default function Properties() {
                 onNavigateToContract={handleNavigateToContract}
                 onQuickUpdate={handleQuickUpdate}
                 onDuplicate={handleDuplicate}
-                canManage={isSuperAdmin || isAdminStaff || property.userId === user?.id}
+                canManage={isAdmin}
                 onDelete={(id) => setDeleteConfirmId(id)}
               />
             ))}
@@ -2314,7 +2321,13 @@ function PropertyCard({
             </>
           )}
           <div className="flex-1">
-            <StatusBar currentStatus={property.status} onChangeStatus={handleStatusChange} />
+            {canManage ? (
+              <StatusBar currentStatus={property.status} onChangeStatus={handleStatusChange} />
+            ) : (
+              <span className={cn("inline-flex px-2.5 py-1 rounded-md text-[11px] font-bold border", statusConfig[property.status].bg, statusConfig[property.status].color, statusConfig[property.status].border)}>
+                {statusLabels[property.status]}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -2877,30 +2890,39 @@ function PropertyRow({
             <div className="flex items-center justify-between gap-1">
               <span className="flex items-center gap-0.5"><CalendarClock className="w-3 h-3" /> Atualização</span>
               <div className="flex items-center gap-1.5">
-                <button
-                  onClick={(e) => { e.stopPropagation(); onQuickUpdate?.(property.id); }}
-                  title="Atualizar data agora"
-                  className="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center hover:bg-emerald-500/30 transition-colors border border-emerald-500/30"
-                >
-                  <RefreshCw className="w-3 h-3" />
-                </button>
+                {canManage && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onQuickUpdate?.(property.id); }}
+                    title="Atualizar data agora"
+                    className="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center hover:bg-emerald-500/30 transition-colors border border-emerald-500/30"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                  </button>
+                )}
                 <span className={cn("font-semibold", updateColor)}>{updatedFormatted}</span>
               </div>
             </div>
           </div>
           {/* Quick status selector */}
           <div className="flex items-center gap-0.5 flex-wrap mt-0.5">
-            {allStatuses.map((s) => {
-              const cfg = statusConfig[s];
-              const active = s === property.status;
-              return (
-                <button key={s} onClick={() => handleStatusChange(s)}
-                  className={cn("px-1 py-0.5 rounded text-[7px] font-bold uppercase tracking-wide transition-all",
-                    active ? `${cfg.bg} ${cfg.color} ${cfg.border} border` : "text-muted-foreground hover:bg-muted"
-                  )}
-                >{statusLabels[s]}</button>
-              );
-            })}
+            {canManage ? (
+              allStatuses.map((s) => {
+                const cfg = statusConfig[s];
+                const active = s === property.status;
+                return (
+                  <button key={s} onClick={() => handleStatusChange(s)}
+                    className={cn("px-1 py-0.5 rounded text-[7px] font-bold uppercase tracking-wide transition-all",
+                      active ? `${cfg.bg} ${cfg.color} ${cfg.border} border` : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >{statusLabels[s]}</button>
+                );
+              })
+            ) : (
+              <span className={cn("px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide border",
+                statusConfig[property.status].bg, statusConfig[property.status].color, statusConfig[property.status].border)}>
+                {statusLabels[property.status]}
+              </span>
+            )}
           </div>
         </div>
 
@@ -2956,10 +2978,12 @@ function PropertyRow({
             }}
             className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center hover:bg-muted transition-colors" title="Compartilhar no WhatsApp"
           ><Share2 className="w-3.5 h-3.5 text-foreground" /></button>
-          <button
-            onClick={() => onDuplicate?.(property.id)}
-            className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center hover:bg-muted transition-colors" title="Duplicar imóvel"
-          ><Copy className="w-3.5 h-3.5 text-foreground" /></button>
+          {canManage && (
+            <button
+              onClick={() => onDuplicate?.(property.id)}
+              className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center hover:bg-muted transition-colors" title="Duplicar imóvel"
+            ><Copy className="w-3.5 h-3.5 text-foreground" /></button>
+          )}
           {canManage && (
             <button
               onClick={() => onDelete?.(property.id)}
