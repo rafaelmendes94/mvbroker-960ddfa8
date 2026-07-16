@@ -10,6 +10,11 @@ type Props = {
   table: "edificios" | "condominios" | "empreendimentos" | "loteamentos";
   currentPath: string | null;
   onChange: (path: string | null) => void;
+  column?: "implantacao_pdf_path" | "mapa_pdf_path";
+  labelSend?: string;
+  labelReplace?: string;
+  labelEmpty?: string;
+  fileSlug?: string;
 };
 
 export function PdfImplantacaoUpload({ tipo, estruturaId, table, currentPath, onChange }: Props) {
