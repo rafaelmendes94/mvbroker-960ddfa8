@@ -50,11 +50,29 @@ export const ROUTE_ACCESS: Record<string, AppRole[]> = {
 
 export const WRITE_IMOVEL_ROLES: AppRole[] = ["super_admin", "secretaria"];
 
+// Secretária vê apenas cadastros essenciais (imóveis, empreendimentos, tabela, imagens).
+const SECRETARIA_ALLOW = new Set<string>([
+  "/imoveis",
+  "/edificios",
+  "/condominios",
+  "/loteamentos",
+  "/biblioteca",
+  "/tabela",
+  "/perfil",
+  "/notificacoes",
+  "/favoritos",
+]);
+
 export function canAccess(path: string, roles: AppRole[]): boolean {
+  // Se for secretária (e não for também super_admin), aplica allowlist estrita.
+  if (roles.includes("secretaria") && !roles.includes("super_admin")) {
+    return SECRETARIA_ALLOW.has(path);
+  }
   const allowed = ROUTE_ACCESS[path];
   if (!allowed || allowed.length === 0) return true;
   return roles.some((r) => allowed.includes(r));
 }
+
 
 export function canWriteImovel(roles: AppRole[]): boolean {
   return roles.some((r) => WRITE_IMOVEL_ROLES.includes(r));

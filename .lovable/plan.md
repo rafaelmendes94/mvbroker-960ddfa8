@@ -1,25 +1,19 @@
-## XML "Foto + Vídeo" automático
+## Restringir menu da Secretária
 
-Novo feed único e público (mesmo link para admin e usuários) que inclui automaticamente todos os imóveis que **tenham pelo menos 1 foto cadastrada** E **tenham `link_video` preenchido** E estejam com `exportacao_liberada = true` e não arquivados. Não precisa seleção manual — o sistema detecta.
+A **Secretária** só verá/acessará: **Imóveis**, **Empreendimentos** (Condomínios / Edifícios / Loteamentos), **Banco de Imagens** e **Tabela** (+ Perfil e Notificações).
 
-### Backend
+Ficam **ocultos** para ela: Dashboard, Oportunidades, Relatórios, Relatórios Admin, Clientes, Usuários, Planos, Assinaturas, Exportação, Feeds XML, Portais, Auditoria, Segurança, Configurações, Importações.
 
-**Novo arquivo:** `src/routes/api/public/feed/foto-video.xml.ts`
-- Rota pública `GET /api/public/feed/foto-video.xml`
-- Reaproveita helpers/geradores de XML já usados em `geral.$id.ts` (mesmo formato de saída)
-- Query base em `imoveis` com filtros:
-  - `arquivado = false`
-  - `exportacao_liberada = true`
-  - `link_video` não nulo e diferente de `''`
-  - `EXISTS (select 1 from imovel_imagens where imovel_id = imoveis.id)` (garante ≥ 1 foto)
-- Retorna `Content-Type: application/xml`
+### Alterações
 
-### Frontend
+**`src/lib/permissions.ts`**
+- Adicionar lista `SECRETARIA_ALLOW` com apenas as rotas permitidas:
+  `/imoveis`, `/edificios`, `/condominios`, `/loteamentos`, `/biblioteca`, `/tabela`, `/perfil`, `/notificacoes`, `/favoritos`.
+- Ajustar `canAccess(path, roles)`: se o papel principal for `secretaria`, permitir apenas caminhos dessa lista (ignora `ROUTE_ACCESS` para ela).
+- Ajustar `primaryRole` se necessário para garantir que secretaria seja detectada corretamente.
 
-**`src/pages/Properties.tsx`** — na toolbar de XML, adicionar um botão/link **"XML Foto + Vídeo"** visível para todos os roles, ao lado dos botões existentes (XML Geral / Meu XML). Mostra a URL pública `.../api/public/feed/foto-video.xml` com botões "Copiar link" e "Baixar".
+Isso já filtra automaticamente:
+- **Sidebar** (`AppSidebar.tsx`) — só mostra itens/seções permitidos (usa `canAccess`).
+- **Guardas de rota** em `_authenticated/*` que usam `canAccess`.
 
-Reaproveita o mesmo componente/dialog de exibição de URL já usado no `MeuXmlDialog` (só sem o seletor de imóveis, pois a seleção é automática).
-
-### Sem migração
-
-Não precisa alterar banco — usa colunas e tabela já existentes (`imoveis.link_video`, `imovel_imagens`).
+Não mexer em nada de UI além de esconder — a lógica é toda no `permissions.ts`.
