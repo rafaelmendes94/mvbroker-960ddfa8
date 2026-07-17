@@ -1,38 +1,25 @@
-## Objetivo
-Cada usuário monta o próprio XML escolhendo quais imóveis exportar na tela de listagem. O link/URL do XML é exclusivo dele — nunca mistura com o de outros usuários.
+## XML "Foto + Vídeo" automático
 
-## Base
-O sistema já tem `carteiras` + rota pública `/api/public/feed/{slug}.xml` (uma por carteira, com `carteira_imoveis` guardando os IDs escolhidos). Vou reutilizar essa base em vez de criar tabela nova — assim aproveita RLS, logs de leitura, portais etc. que já existem.
+Novo feed único e público (mesmo link para admin e usuários) que inclui automaticamente todos os imóveis que **tenham pelo menos 1 foto cadastrada** E **tenham `link_video` preenchido** E estejam com `exportacao_liberada = true` e não arquivados. Não precisa seleção manual — o sistema detecta.
 
-## Mudanças
+### Backend
 
-### 1. Carteira pessoal "Meu XML" por usuário
-- Ao entrar na tela de Imóveis, garantir (server fn) que o usuário logado tenha uma carteira própria com `slug` único (`meu-xml-{userId curto}`), criada sob demanda se não existir. Ninguém mais tem acesso — RLS já isola por `usuario_id`.
+**Novo arquivo:** `src/routes/api/public/feed/foto-video.xml.ts`
+- Rota pública `GET /api/public/feed/foto-video.xml`
+- Reaproveita helpers/geradores de XML já usados em `geral.$id.ts` (mesmo formato de saída)
+- Query base em `imoveis` com filtros:
+  - `arquivado = false`
+  - `exportacao_liberada = true`
+  - `link_video` não nulo e diferente de `''`
+  - `EXISTS (select 1 from imovel_imagens where imovel_id = imoveis.id)` (garante ≥ 1 foto)
+- Retorna `Content-Type: application/xml`
 
-### 2. Modo seleção na listagem `src/pages/Properties.tsx`
-- Botão "Selecionar para XML" ativa modo de seleção.
-- Checkbox em cada card + barra fixa no rodapé mostrando quantos selecionados, com ações:
-  - **Adicionar ao meu XML** / **Remover do meu XML** (usa `addCarteiraItems` / `removeCarteiraItems` da carteira pessoal).
-  - **Selecionar todos filtrados** / **Limpar seleção**.
-- Cards mostram um selo discreto "no meu XML" quando já incluídos.
+### Frontend
 
-### 3. Painel "Meu XML" (drawer/modal aberto por botão no topo da lista)
-- Mostra:
-  - URL pública: `${origin}/api/public/feed/{slug}.xml` — botão copiar e abrir.
-  - Botão **Baixar XML** (usa `DownloadXmlButton` existente).
-  - Contagem de imóveis inclusos + lista rápida com remover.
-- Disponível para todos os papéis (admin e cliente) — cada um vê o seu.
+**`src/pages/Properties.tsx`** — na toolbar de XML, adicionar um botão/link **"XML Foto + Vídeo"** visível para todos os roles, ao lado dos botões existentes (XML Geral / Meu XML). Mostra a URL pública `.../api/public/feed/foto-video.xml` com botões "Copiar link" e "Baixar".
 
-### 4. Ajustes de acesso
-- Feed `/api/public/feed/$slug.ts` já é público por slug — nada a mudar lá.
-- Remover exposição do "Feed Geral" (`geral.$id`) da UI do cliente para não confundir com o feed pessoal (endpoint continua no ar para quem já usa).
+Reaproveita o mesmo componente/dialog de exibição de URL já usado no `MeuXmlDialog` (só sem o seletor de imóveis, pois a seleção é automática).
 
-### Detalhes técnicos
-- Novo server fn `ensureMinhaCarteiraXml()` em `src/lib/carteiras.functions.ts` (middleware `requireSupabaseAuth`): faz upsert de carteira `tipo='pessoal'`, `visibilidade='privada'`, `slug` derivado do user id, retorna `{ id, slug }`.
-- Reaproveitar `addCarteiraItems` / `removeCarteiraItems` / `listCarteiraItems` já existentes.
-- Feed já respeita `exportacao_liberada` via `tg_exportacao_check_liberada` — mantém.
+### Sem migração
 
-## Fora do escopo
-- Não altero schema (nenhuma migration).
-- Não mexo em portais nem no Feed Geral.
-- Não altero a página `/carteiras` — o "Meu XML" é atalho direto na listagem de imóveis.
+Não precisa alterar banco — usa colunas e tabela já existentes (`imoveis.link_video`, `imovel_imagens`).

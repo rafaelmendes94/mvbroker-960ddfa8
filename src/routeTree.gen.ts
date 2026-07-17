@@ -78,6 +78,7 @@ import { Route as AuthenticatedConfiguracoesNotificacoesRouteImport } from './ro
 import { Route as AuthenticatedCarteirasIdRouteImport } from './routes/_authenticated/carteiras.$id'
 import { Route as AuthenticatedAssinaturasIdRouteImport } from './routes/_authenticated/assinaturas.$id'
 import { Route as ApiPublicImovelIdRouteImport } from './routes/api/public/imovel.$id'
+import { Route as ApiPublicFeedFotoVideoDotxmlRouteImport } from './routes/api/public/feed/foto-video[.]xml'
 import { Route as ApiPublicFeedSlugRouteImport } from './routes/api/public/feed/$slug'
 import { Route as ApiPublicEmpreendimentoIdRouteImport } from './routes/api/public/empreendimento.$id'
 import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_authenticated/registros.$id.editar'
@@ -471,6 +472,12 @@ const ApiPublicImovelIdRoute = ApiPublicImovelIdRouteImport.update({
   path: '/api/public/imovel/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFeedFotoVideoDotxmlRoute =
+  ApiPublicFeedFotoVideoDotxmlRouteImport.update({
+    id: '/api/public/feed/foto-video.xml',
+    path: '/api/public/feed/foto-video.xml',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicFeedSlugRoute = ApiPublicFeedSlugRouteImport.update({
   id: '/api/public/feed/$slug',
   path: '/api/public/feed/$slug',
@@ -585,6 +592,7 @@ export interface FileRoutesByFullPath {
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/empreendimento/$id': typeof ApiPublicEmpreendimentoIdRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
+  '/api/public/feed/foto-video.xml': typeof ApiPublicFeedFotoVideoDotxmlRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
@@ -655,6 +663,7 @@ export interface FileRoutesByTo {
   '/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/empreendimento/$id': typeof ApiPublicEmpreendimentoIdRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
+  '/api/public/feed/foto-video.xml': typeof ApiPublicFeedFotoVideoDotxmlRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
@@ -734,6 +743,7 @@ export interface FileRoutesById {
   '/_authenticated/registros/$id/editar': typeof AuthenticatedRegistrosIdEditarRoute
   '/api/public/empreendimento/$id': typeof ApiPublicEmpreendimentoIdRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
+  '/api/public/feed/foto-video.xml': typeof ApiPublicFeedFotoVideoDotxmlRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
@@ -813,6 +823,7 @@ export interface FileRouteTypes {
     | '/registros/$id/editar'
     | '/api/public/empreendimento/$id'
     | '/api/public/feed/$slug'
+    | '/api/public/feed/foto-video.xml'
     | '/api/public/imovel/$id'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
@@ -883,6 +894,7 @@ export interface FileRouteTypes {
     | '/registros/$id/editar'
     | '/api/public/empreendimento/$id'
     | '/api/public/feed/$slug'
+    | '/api/public/feed/foto-video.xml'
     | '/api/public/imovel/$id'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
@@ -961,6 +973,7 @@ export interface FileRouteTypes {
     | '/_authenticated/registros/$id/editar'
     | '/api/public/empreendimento/$id'
     | '/api/public/feed/$slug'
+    | '/api/public/feed/foto-video.xml'
     | '/api/public/imovel/$id'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
@@ -979,6 +992,7 @@ export interface RootRouteChildren {
   ApiPublicImoveisListaRoute: typeof ApiPublicImoveisListaRoute
   ApiPublicEmpreendimentoIdRoute: typeof ApiPublicEmpreendimentoIdRoute
   ApiPublicFeedSlugRoute: typeof ApiPublicFeedSlugRoute
+  ApiPublicFeedFotoVideoDotxmlRoute: typeof ApiPublicFeedFotoVideoDotxmlRoute
   ApiPublicImovelIdRoute: typeof ApiPublicImovelIdRoute
   ApiPublicFeedGeralIdRoute: typeof ApiPublicFeedGeralIdRoute
   ApiPublicPortalPortalSlugRoute: typeof ApiPublicPortalPortalSlugRoute
@@ -1469,6 +1483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicImovelIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/feed/foto-video.xml': {
+      id: '/api/public/feed/foto-video.xml'
+      path: '/api/public/feed/foto-video.xml'
+      fullPath: '/api/public/feed/foto-video.xml'
+      preLoaderRoute: typeof ApiPublicFeedFotoVideoDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/feed/$slug': {
       id: '/api/public/feed/$slug'
       path: '/api/public/feed/$slug'
@@ -1795,6 +1816,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicImoveisListaRoute: ApiPublicImoveisListaRoute,
   ApiPublicEmpreendimentoIdRoute: ApiPublicEmpreendimentoIdRoute,
   ApiPublicFeedSlugRoute: ApiPublicFeedSlugRoute,
+  ApiPublicFeedFotoVideoDotxmlRoute: ApiPublicFeedFotoVideoDotxmlRoute,
   ApiPublicImovelIdRoute: ApiPublicImovelIdRoute,
   ApiPublicFeedGeralIdRoute: ApiPublicFeedGeralIdRoute,
   ApiPublicPortalPortalSlugRoute: ApiPublicPortalPortalSlugRoute,
