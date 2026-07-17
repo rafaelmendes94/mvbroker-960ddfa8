@@ -26,6 +26,8 @@ import { toast } from "sonner";
 import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useAuth } from "@/hooks/useAuth";
 import { ImportacoesModal } from "@/components/ImportacoesModal";
+import { MeuXmlDialog } from "@/components/feeds/MeuXmlDialog";
+
 
 // Broker info
 const brokerInfo: Record<string, { photo: string; whatsapp: string }> = {
