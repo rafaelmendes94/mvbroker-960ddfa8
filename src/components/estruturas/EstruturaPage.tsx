@@ -24,6 +24,7 @@ import { GaleriaUpload, type EstruturaTipo } from "@/components/forms/GaleriaUpl
 import { PdfImplantacaoUpload } from "@/components/forms/PdfImplantacaoUpload";
 import { logAudit } from "@/lib/audit";
 import { useAuth } from "@/hooks/use-auth";
+import { useRoles } from "@/hooks/use-roles";
 import { getEstruturaImageUrls, type EstruturaImageUrls } from "@/lib/estrutura-images";
 
 function parseBRL(v: unknown): number | null {
@@ -143,6 +144,8 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   const table = TABLE[tipo];
   const meta = LABELS[tipo];
   const { user } = useAuth();
+  const { roles } = useRoles();
+  const isAdmin = roles.includes("super_admin") || roles.includes("secretaria");
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -430,15 +433,19 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
         description={meta.description}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={downloadTemplate}>
-              <Download className="h-4 w-4 mr-1.5" /> Modelo Excel
-            </Button>
-            <Button variant="outline" disabled={importing} onClick={() => fileInputRef.current?.click()}>
-              {importing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Upload className="h-4 w-4 mr-1.5" />}
-              Importar Excel
-            </Button>
-            <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleImport} className="hidden" />
-            <Button onClick={openCreate}><Plus className="h-4 w-4 mr-1.5" /> Novo {meta.singular}</Button>
+            {isAdmin && (
+              <>
+                <Button variant="outline" onClick={downloadTemplate}>
+                  <Download className="h-4 w-4 mr-1.5" /> Modelo Excel
+                </Button>
+                <Button variant="outline" disabled={importing} onClick={() => fileInputRef.current?.click()}>
+                  {importing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Upload className="h-4 w-4 mr-1.5" />}
+                  Importar Excel
+                </Button>
+                <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleImport} className="hidden" />
+                <Button onClick={openCreate}><Plus className="h-4 w-4 mr-1.5" /> Novo {meta.singular}</Button>
+              </>
+            )}
           </div>
         }
       />
@@ -543,12 +550,16 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openMapsFor(i)} title="Localização">
                         <MapPin className="h-3.5 w-3.5" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(i)} title="Editar">
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(i.id, i.nome)} title="Excluir">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      {isAdmin && (
+                        <>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(i)} title="Editar">
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(i.id, i.nome)} title="Excluir">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -634,8 +645,12 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                         <MapPin className="h-3.5 w-3.5 mr-1" /> Localização
                       </Button>
                     )}
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(i)}><Pencil className="h-4 w-4" /></Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => remove(i.id, i.nome)}><Trash2 className="h-4 w-4" /></Button>
+                    {isAdmin && (
+                      <>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(i)}><Pencil className="h-4 w-4" /></Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => remove(i.id, i.nome)}><Trash2 className="h-4 w-4" /></Button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
