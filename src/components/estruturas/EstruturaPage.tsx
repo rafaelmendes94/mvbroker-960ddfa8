@@ -24,6 +24,7 @@ import { GaleriaUpload, type EstruturaTipo } from "@/components/forms/GaleriaUpl
 import { PdfImplantacaoUpload } from "@/components/forms/PdfImplantacaoUpload";
 import { logAudit } from "@/lib/audit";
 import { useAuth } from "@/hooks/use-auth";
+import { useRoles } from "@/hooks/use-roles";
 import { getEstruturaImageUrls, type EstruturaImageUrls } from "@/lib/estrutura-images";
 
 function parseBRL(v: unknown): number | null {
