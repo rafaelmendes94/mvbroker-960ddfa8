@@ -421,6 +421,8 @@ export default function Properties() {
   const isAdmin = isSuperAdmin || isAdminStaff;
   const [currentImoveis, setCurrentImoveis] = useState(0);
   const [importOpen, setImportOpen] = useState(false);
+  const [meuXmlOpen, setMeuXmlOpen] = useState(false);
+
   const maxImoveis = subscription?.plan?.max_properties ?? 0;
   const limitReached = !isAdmin && maxImoveis > 0 && currentImoveis >= maxImoveis;
 
