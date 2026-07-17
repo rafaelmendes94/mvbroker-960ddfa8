@@ -1023,7 +1023,7 @@ export default function Properties() {
                 onClick={() => {
                   const url = `${window.location.origin}/api/public/feed/foto-video.xml`;
                   navigator.clipboard?.writeText(url).catch(() => {});
-                  toast({ title: "Link copiado", description: url });
+                  toast.success("Link copiado", { description: url });
                   window.open(url, "_blank");
                 }}
                 className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg bg-card border border-input text-foreground text-[11px] sm:text-xs font-medium hover:bg-muted transition-colors"
