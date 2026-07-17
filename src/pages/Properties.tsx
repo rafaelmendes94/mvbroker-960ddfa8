@@ -26,6 +26,8 @@ import { toast } from "sonner";
 import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useAuth } from "@/hooks/useAuth";
 import { ImportacoesModal } from "@/components/ImportacoesModal";
+import { MeuXmlDialog } from "@/components/feeds/MeuXmlDialog";
+
 
 // Broker info
 const brokerInfo: Record<string, { photo: string; whatsapp: string }> = {
@@ -419,6 +421,8 @@ export default function Properties() {
   const isAdmin = isSuperAdmin || isAdminStaff;
   const [currentImoveis, setCurrentImoveis] = useState(0);
   const [importOpen, setImportOpen] = useState(false);
+  const [meuXmlOpen, setMeuXmlOpen] = useState(false);
+
   const maxImoveis = subscription?.plan?.max_properties ?? 0;
   const limitReached = !isAdmin && maxImoveis > 0 && currentImoveis >= maxImoveis;
 
@@ -1008,8 +1012,16 @@ export default function Properties() {
               >
                 <BarChart3 className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Relatórios</span><span className="sm:hidden">Rel.</span>
               </button>
+              <button
+                onClick={() => setMeuXmlOpen(true)}
+                className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg bg-card border border-input text-foreground text-[11px] sm:text-xs font-medium hover:bg-muted transition-colors"
+                title="Selecione os imóveis do seu XML pessoal"
+              >
+                <FileCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Meu</span> XML
+              </button>
               {isAdmin && (
                 <div className="relative" ref={xmlMenuRef}>
+
                   <button
                     onClick={() => setShowXmlMenu(!showXmlMenu)}
                     className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg bg-card border border-input text-foreground text-[11px] sm:text-xs font-medium hover:bg-muted transition-colors"
@@ -1813,6 +1825,13 @@ export default function Properties() {
         open={importOpen}
         onClose={() => setImportOpen(false)}
       />
+
+      <MeuXmlDialog
+        open={meuXmlOpen}
+        onOpenChange={setMeuXmlOpen}
+        properties={propertyList as any}
+      />
+
 
 
       {/* Property Detail Modal */}

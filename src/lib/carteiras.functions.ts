@@ -11,6 +11,36 @@ function slugify(s: string) {
     .slice(0, 60);
 }
 
+export const ensureMinhaCarteiraXml = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const slug = `meu-xml-${context.userId.replace(/-/g, "").slice(0, 12)}`;
+    const { data: existing } = await context.supabase
+      .from("carteiras")
+      .select("id, slug, nome")
+      .eq("usuario_id", context.userId)
+      .eq("slug", slug)
+      .maybeSingle();
+    if (existing) return existing;
+    const { data: created, error } = await context.supabase
+      .from("carteiras")
+      .insert({
+        usuario_id: context.userId,
+        nome: "Meu XML",
+        descricao: "Feed pessoal de imóveis selecionados para exportação",
+        slug,
+        status: "ativa",
+        visibilidade: "privada",
+        atualizacao_intervalo: "on_demand",
+      })
+      .select("id, slug, nome")
+      .single();
+    if (error) throw error;
+    return created;
+  });
+
+
+
 export const getFeedGeralInfo = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
