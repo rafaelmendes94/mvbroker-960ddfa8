@@ -1826,6 +1826,13 @@ export default function Properties() {
         onClose={() => setImportOpen(false)}
       />
 
+      <MeuXmlDialog
+        open={meuXmlOpen}
+        onOpenChange={setMeuXmlOpen}
+        properties={propertyList as any}
+      />
+
+
 
       {/* Property Detail Modal */}
       <PropertyDetailModal
