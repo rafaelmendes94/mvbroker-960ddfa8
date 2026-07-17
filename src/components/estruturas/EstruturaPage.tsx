@@ -433,15 +433,19 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
         description={meta.description}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={downloadTemplate}>
-              <Download className="h-4 w-4 mr-1.5" /> Modelo Excel
-            </Button>
-            <Button variant="outline" disabled={importing} onClick={() => fileInputRef.current?.click()}>
-              {importing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Upload className="h-4 w-4 mr-1.5" />}
-              Importar Excel
-            </Button>
-            <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleImport} className="hidden" />
-            <Button onClick={openCreate}><Plus className="h-4 w-4 mr-1.5" /> Novo {meta.singular}</Button>
+            {isAdmin && (
+              <>
+                <Button variant="outline" onClick={downloadTemplate}>
+                  <Download className="h-4 w-4 mr-1.5" /> Modelo Excel
+                </Button>
+                <Button variant="outline" disabled={importing} onClick={() => fileInputRef.current?.click()}>
+                  {importing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Upload className="h-4 w-4 mr-1.5" />}
+                  Importar Excel
+                </Button>
+                <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleImport} className="hidden" />
+                <Button onClick={openCreate}><Plus className="h-4 w-4 mr-1.5" /> Novo {meta.singular}</Button>
+              </>
+            )}
           </div>
         }
       />
