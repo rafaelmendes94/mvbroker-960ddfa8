@@ -4,7 +4,7 @@ import { IMOVEL_PUBLIC_COLUMNS } from "@/lib/db-columns";
 
 // Feed automático: imóveis com pelo menos 1 foto E link_video preenchido.
 // URL única e pública, mesma pra admin e usuários.
-export const Route = createFileRoute("/api/public/feed/foto-video/xml")({
+export const Route = createFileRoute("/api/public/feed/foto-video.xml")({
   server: {
     handlers: {
       GET: async () => {
