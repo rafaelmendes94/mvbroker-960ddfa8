@@ -25,10 +25,12 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
             return new Response("Bad Request", { status: 400 });
           }
 
+          // Feed geral traz TODOS os imóveis do sistema liberados para exportação.
+          // O $id é mantido apenas como identificador único da URL (por usuário/imobiliária),
+          // mas o conteúdo é o mesmo catálogo completo para admins e clientes.
           const { data: imovData, error: imErr } = await supabase
             .from("imoveis")
             .select(IMOVEL_PUBLIC_COLUMNS)
-            .or(`created_by.eq.${id},imobiliaria_id.eq.${id}`)
             .eq("arquivado", false)
             .eq("exportacao_liberada", true);
 
