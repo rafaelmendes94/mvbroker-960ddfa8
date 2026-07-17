@@ -144,6 +144,8 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
   const table = TABLE[tipo];
   const meta = LABELS[tipo];
   const { user } = useAuth();
+  const { roles } = useRoles();
+  const isAdmin = roles.includes("super_admin") || roles.includes("secretaria");
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
