@@ -1019,6 +1019,19 @@ export default function Properties() {
               >
                 <FileCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Meu</span> XML
               </button>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/api/public/feed/foto-video.xml`;
+                  navigator.clipboard?.writeText(url).catch(() => {});
+                  toast({ title: "Link copiado", description: url });
+                  window.open(url, "_blank");
+                }}
+                className="flex items-center gap-1 px-2 py-1.5 sm:px-3 rounded-lg bg-card border border-input text-foreground text-[11px] sm:text-xs font-medium hover:bg-muted transition-colors"
+                title="XML automático de imóveis com foto e vídeo"
+              >
+                <FileCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Foto+</span>Vídeo
+              </button>
+
               {isAdmin && (
                 <div className="relative" ref={xmlMenuRef}>
 
