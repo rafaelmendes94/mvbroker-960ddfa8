@@ -645,8 +645,12 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
                         <MapPin className="h-3.5 w-3.5 mr-1" /> Localização
                       </Button>
                     )}
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(i)}><Pencil className="h-4 w-4" /></Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => remove(i.id, i.nome)}><Trash2 className="h-4 w-4" /></Button>
+                    {isAdmin && (
+                      <>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(i)}><Pencil className="h-4 w-4" /></Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => remove(i.id, i.nome)}><Trash2 className="h-4 w-4" /></Button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
