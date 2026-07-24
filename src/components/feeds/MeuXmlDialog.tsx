@@ -13,6 +13,7 @@ import {
   removeCarteiraItems,
 } from "@/lib/carteiras.functions";
 import { DownloadXmlButton } from "@/components/feeds/DownloadXmlButton";
+import { supabase } from "@/integrations/supabase/client";
 
 type PropLike = {
   id: string;
@@ -26,10 +27,10 @@ type PropLike = {
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  properties: PropLike[];
+  properties?: PropLike[];
 };
 
-export function MeuXmlDialog({ open, onOpenChange, properties }: Props) {
+export function MeuXmlDialog({ open, onOpenChange }: Props) {
   const fnEnsure = useServerFn(ensureMinhaCarteiraXml);
   const fnList = useServerFn(listCarteiraItems);
   const fnAdd = useServerFn(addCarteiraItems);
@@ -41,6 +42,7 @@ export function MeuXmlDialog({ open, onOpenChange, properties }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [initial, setInitial] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
+  const [properties, setProperties] = useState<PropLike[]>([]);
 
   useEffect(() => {
     if (!open) return;
@@ -49,10 +51,19 @@ export function MeuXmlDialog({ open, onOpenChange, properties }: Props) {
       try {
         const c = await fnEnsure();
         setCarteira({ id: c.id, slug: c.slug });
-        const items = await fnList({ data: { carteira_id: c.id } });
+        const [items, imoveisRes] = await Promise.all([
+          fnList({ data: { carteira_id: c.id } }),
+          supabase
+            .from("imoveis")
+            .select("id, codigo_interno, titulo, cidade, bairro, preco")
+            .or("arquivado.is.null,arquivado.eq.false")
+            .order("codigo_interno", { ascending: true })
+            .limit(5000),
+        ]);
         const ids = new Set((items ?? []).map((i: any) => i.imovel_id));
         setSelected(new Set(ids));
         setInitial(new Set(ids));
+        setProperties((imoveisRes.data ?? []) as PropLike[]);
       } catch (e: any) {
         toast.error(e?.message ?? "Erro ao carregar Meu XML");
       } finally {
@@ -60,6 +71,7 @@ export function MeuXmlDialog({ open, onOpenChange, properties }: Props) {
       }
     })();
   }, [open]);
+
 
   const feedUrl = useMemo(
     () => (carteira ? `${window.location.origin}/api/public/feed/${carteira.slug}.xml` : ""),
