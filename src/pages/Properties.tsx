@@ -2235,17 +2235,20 @@ function PropertyCard({
         {/* Owner type badge */}
         {property.ownerType && (() => {
           const ownerColors: Record<string, string> = {
-            Construtora: "bg-blue-600 text-white border-blue-700",
-            Investidor: "bg-amber-500 text-white border-amber-600",
-            Particular: "bg-emerald-500 text-white border-emerald-600",
-            "Adm Comercial": "bg-purple-500 text-white border-purple-600",
+            Construtora: "bg-blue-800 text-white border-blue-900",
+            Investidor: "bg-green-800 text-white border-green-900",
+            Particular: "bg-red-700 text-white border-red-800",
+            "Adm Comercial": "bg-purple-800 text-white border-purple-900",
+            Exclusividade: "bg-blue-900 text-white border-blue-950",
           };
           const ownerIcons: Record<string, typeof User> = {
             Construtora: Building2,
             Investidor: DollarSign,
             Particular: User,
             "Adm Comercial": ShieldCheck,
+            Exclusividade: FileCheck,
           };
+
           const OwnerIcon = ownerIcons[property.ownerType] || User;
           return (
             <span className={cn("absolute top-3 left-3 z-20 px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-lg border flex items-center gap-1.5", ownerColors[property.ownerType] || "bg-muted text-foreground border-border")}>
