@@ -633,6 +633,7 @@ export default function Properties() {
         };
       });
 
+      propertyListCache = mapped;
       setPropertyList(mapped);
     };
 
