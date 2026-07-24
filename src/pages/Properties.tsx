@@ -415,6 +415,8 @@ const propertiesWithCodes = initialProperties.map((p, i) => ({
   code: p.code || `MV${String(i + 1).padStart(2, "0")}`,
 }));
 
+let propertyListCache: Property[] = [];
+
 export default function Properties() {
   const navigate = useNavigate();
   const { user, profile, subscription, isSuperAdmin, isAdminStaff } = useAuth();
