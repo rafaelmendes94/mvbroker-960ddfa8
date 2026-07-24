@@ -528,7 +528,7 @@ function ImovelRow({ tipo, imovel, imagem }: { tipo: EmpreendimentoTipo; imovel:
       <div className="text-right shrink-0">
         <p className="font-bold text-primary text-sm">{fmtBRL(imovel.preco)}</p>
       </div>
-    </Link>
+    </a>
   );
 }
 
