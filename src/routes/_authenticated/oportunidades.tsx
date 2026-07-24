@@ -155,12 +155,9 @@ function OportunidadesPage() {
 
       <Secao titulo="Recém Cadastrados" icon={Sparkles} accent="text-blue-600" items={novos} loading={loading} />
       <Secao titulo="Atualizações Recentes" icon={RefreshCw} accent="text-emerald-600" items={atualizados} loading={loading} />
-      <Secao titulo="Exclusividades" icon={Flame} accent="text-orange-600" badge={{ label: "Exclusivo", className: "bg-orange-500" }} items={exclusivos} loading={loading} />
-      <Secao titulo="Imóveis com Bônus" icon={Coins} accent="text-amber-600" badge={{ label: "Bônus", className: "bg-amber-500" }} items={bonus} loading={loading} mostraBonus />
       <Secao titulo="Destaques" icon={Star} accent="text-violet-600" items={destaques} loading={loading} />
       <Secao titulo="Vista Mar" icon={Waves} accent="text-cyan-600" items={vistaMar} loading={loading} />
       <Secao titulo="Decorados" icon={Building2} accent="text-rose-600" items={decorados} loading={loading} />
-      <Secao titulo="Alto Padrão" icon={Crown} accent="text-yellow-600" items={altoPadrao} loading={loading} />
     </div>
   );
 }
