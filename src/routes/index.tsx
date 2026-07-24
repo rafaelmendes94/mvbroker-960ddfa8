@@ -165,23 +165,42 @@ function LandingPage() {
 
   useEffect(() => {
     (async () => {
-      // Landing: mesmos imóveis de Oportunidades > "Recém Cadastrados".
-      // Últimos 6 não arquivados que tenham ao menos 1 imagem (inner join).
+      // Landing: imóveis marcados como Destaque (destaque_home=true),
+      // não arquivados, que tenham ao menos 1 imagem (inner join).
       const { data } = await supabase
         .from("imoveis")
         .select(
           "id, titulo, cidade, bairro, preco, dormitorios, banheiros, vagas, area_privativa, area_total, destaque_home, exclusividade, exclusivo, bonus, updated_at, created_at, imovel_imagens!inner(imovel_id)"
         )
         .or("arquivado.is.null,arquivado.eq.false")
-        .order("created_at", { ascending: false })
+        .eq("destaque_home", true)
+        .order("updated_at", { ascending: false })
         .limit(30);
       // Dedup (inner join pode repetir) e corta em 6.
       const seen = new Set<string>();
-      const items = (data ?? []).filter((i: any) => {
+      let items = (data ?? []).filter((i: any) => {
         if (seen.has(i.id)) return false;
         seen.add(i.id);
         return true;
       }).slice(0, 6);
+
+      // Fallback: se não houver destaques, mostra os mais recentes com foto.
+      if (!items.length) {
+        const { data: fallback } = await supabase
+          .from("imoveis")
+          .select(
+            "id, titulo, cidade, bairro, preco, dormitorios, banheiros, vagas, area_privativa, area_total, destaque_home, exclusividade, exclusivo, bonus, updated_at, created_at, imovel_imagens!inner(imovel_id)"
+          )
+          .or("arquivado.is.null,arquivado.eq.false")
+          .order("created_at", { ascending: false })
+          .limit(30);
+        const seen2 = new Set<string>();
+        items = (fallback ?? []).filter((i: any) => {
+          if (seen2.has(i.id)) return false;
+          seen2.add(i.id);
+          return true;
+        }).slice(0, 6);
+      }
 
       if (!items.length) return;
       const ids = items.map((i: any) => i.id);
