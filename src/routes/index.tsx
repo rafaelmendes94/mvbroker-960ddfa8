@@ -165,14 +165,25 @@ function LandingPage() {
 
   useEffect(() => {
     (async () => {
+      // "Oportunidades" com foto: não arquivado, prioriza destaque/exclusivo e mais recentes,
+      // exige pelo menos 1 imagem via inner join em imovel_imagens.
       const { data } = await supabase
         .from("imoveis")
-        .select("id, titulo, cidade, bairro, preco, dormitorios, banheiros, vagas, area_privativa, area_total")
-        .eq("destaque_home", true)
+        .select(
+          "id, titulo, cidade, bairro, preco, dormitorios, banheiros, vagas, area_privativa, area_total, destaque_home, exclusividade, exclusivo, bonus, updated_at, created_at, imovel_imagens!inner(imovel_id)"
+        )
         .or("arquivado.is.null,arquivado.eq.false")
-        .order("updated_at", { ascending: false })
-        .limit(6);
-      const items = data ?? [];
+        .order("destaque_home", { ascending: false })
+        .order("exclusividade", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(30);
+      // Dedup (inner join pode repetir) e corta em 6.
+      const seen = new Set<string>();
+      const items = (data ?? []).filter((i: any) => {
+        if (seen.has(i.id)) return false;
+        seen.add(i.id);
+        return true;
+      }).slice(0, 6);
       if (!items.length) return;
       const ids = items.map((i: any) => i.id);
       const { data: imgs } = await supabase
@@ -185,14 +196,15 @@ function LandingPage() {
       (imgs ?? []).forEach((im: any) => {
         if (!map.has(im.imovel_id) && im.url) map.set(im.imovel_id, im.url);
       });
-      // Assina em lote com cache — evita N HTTP calls.
       const paths = Array.from(map.values());
       const urlMap = await getImageUrls(paths, "imoveis");
       setDestaques(
-        items.map((i: any) => {
-          const path = map.get(i.id) ?? null;
-          return { ...i, capa: path ? urlMap.get(path) ?? null : null };
-        })
+        items
+          .map((i: any) => {
+            const path = map.get(i.id) ?? null;
+            return { ...i, capa: path ? urlMap.get(path) ?? null : null };
+          })
+          .filter((i: any) => !!i.capa) // só entra com foto renderizável
       );
     })();
   }, []);
