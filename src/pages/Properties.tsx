@@ -862,22 +862,63 @@ export default function Properties() {
     toast.success("Data de atualização renovada!");
   };
 
-  const handleDuplicate = (id: string) => {
-    const original = propertyList.find(p => p.id === id);
-    if (!original) return;
-    const newId = `dup-${Date.now()}`;
-    const newCode = `MV${String(propertyList.length + 1).padStart(2, "0")}`;
-    const duplicate: Property = {
-      ...original,
-      id: newId,
-      code: newCode,
-      title: `${original.title} (Cópia)`,
-      status: "Disponível",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+  const handleDuplicate = async (id: string) => {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (!isUuid) {
+      toast.error("Este imóvel não pode ser duplicado.");
+      return;
+    }
+    const { data: row, error: fetchErr } = await supabase
+      .from("imoveis")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (fetchErr || !row) {
+      toast.error("Não foi possível carregar o imóvel para duplicar.");
+      return;
+    }
+    // Remove campos gerenciados pelo banco/triggers
+    const { id: _oldId, codigo_interno: _codigo, created_at: _ca, updated_at: _ua, created_by: _cb, ...rest } = row as any;
+    const payload = {
+      ...rest,
+      titulo: `${row.titulo || "Imóvel"} (Cópia)`,
+      status_imovel: "disponivel",
+      arquivado: false,
+      data_venda: null,
+      plataforma_venda: null,
     };
-    setPropertyList((prev: any) => [duplicate, ...prev]);
+    const { data: userRes } = await supabase.auth.getUser();
+    if (userRes?.user?.id) (payload as any).created_by = userRes.user.id;
+
+    const { data: inserted, error: insErr } = await supabase
+      .from("imoveis")
+      .insert(payload as any)
+      .select("id")
+      .single();
+    if (insErr || !inserted) {
+      toast.error("Erro ao duplicar imóvel: " + (insErr?.message || ""));
+      return;
+    }
+
+    // Duplica imagens vinculadas (apenas referências ao mesmo storage_path)
+    const { data: imgs } = await supabase
+      .from("imovel_imagens")
+      .select("storage_path, url, ordem, capa")
+      .eq("imovel_id", id);
+    if (imgs && imgs.length) {
+      const rows = imgs.map((im: any) => ({
+        imovel_id: inserted.id,
+        storage_path: im.storage_path,
+        url: im.url,
+        ordem: im.ordem,
+        capa: im.capa,
+      }));
+      await supabase.from("imovel_imagens").insert(rows as any);
+    }
+
     toast.success("Imóvel duplicado com sucesso!");
+    // Recarrega a lista pra refletir o registro real do banco
+    if (typeof window !== "undefined") window.location.reload();
   };
 
   const cities = useMemo(() => [...new Set(propertyList.map(p => p.city))].sort(), [propertyList]);
