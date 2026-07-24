@@ -500,9 +500,10 @@ function ImovelRow({ tipo, imovel, imagem }: { tipo: EmpreendimentoTipo; imovel:
   const cfg = STATUS_CONFIG[status];
   const rotulo = rotuloCelula(tipo, imovel);
   return (
-    <Link
-      to="/imoveis/$id/editar"
-      params={{ id: imovel.id }}
+    <a
+      href={`/imovel/${imovel.id}`}
+      target="_blank"
+      rel="noopener noreferrer"
       className="group grid grid-cols-[80px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border bg-card p-2 transition-colors hover:border-primary"
     >
       <div className="h-16 w-20 rounded-md overflow-hidden bg-muted shrink-0">
