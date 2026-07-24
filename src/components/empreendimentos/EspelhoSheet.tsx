@@ -234,10 +234,10 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
       {/* Section tabs */}
       <div className="flex flex-wrap items-center gap-2">
         {[
+          { id: "tabela" as const, label: "Imóveis", icon: Table2 },
           { id: "info" as const, label: "Informações", icon: Building2 },
           { id: "midia" as const, label: "Mídia", icon: Camera },
           { id: "implantacao" as const, label: "Implantação", icon: MapIcon },
-          { id: "tabela" as const, label: "Imóveis", icon: Table2 },
         ].map(s => (
           <button
             key={s.id}
