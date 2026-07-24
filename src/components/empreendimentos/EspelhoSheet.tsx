@@ -70,7 +70,7 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
   const [galeria, setGaleria] = useState<GaleriaImg[]>([]);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [section, setSection] = useState<SectionId>("info");
+  const [section, setSection] = useState<SectionId>("tabela");
   const [tabelaView, setTabelaView] = useState<TabelaView>("blocos");
   const [lightbox, setLightbox] = useState<number | null>(null);
 
