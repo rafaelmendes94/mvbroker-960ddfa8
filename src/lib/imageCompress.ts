@@ -10,8 +10,8 @@ export type CompressOptions = {
 };
 
 const DEFAULTS: Required<CompressOptions> = {
-  maxDim: 2000,
-  quality: 0.85,
+  maxDim: 1600,
+  quality: 0.72,
   minBytes: 80 * 1024,
 };
 
