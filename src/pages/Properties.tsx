@@ -433,7 +433,7 @@ export default function Properties() {
   }, [user, subscription?.id]);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [propertyList, setPropertyList] = useState<Property[]>([]);
+  const [propertyList, setPropertyList] = useState<Property[]>(() => propertyListCache);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category>("todos");
   const [view, setView] = useState<"grid" | "list" | "map">("list");
