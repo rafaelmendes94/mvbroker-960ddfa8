@@ -70,7 +70,7 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
   const [galeria, setGaleria] = useState<GaleriaImg[]>([]);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [section, setSection] = useState<SectionId>("info");
+  const [section, setSection] = useState<SectionId>("tabela");
   const [tabelaView, setTabelaView] = useState<TabelaView>("blocos");
   const [lightbox, setLightbox] = useState<number | null>(null);
 
@@ -234,10 +234,10 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
       {/* Section tabs */}
       <div className="flex flex-wrap items-center gap-2">
         {[
+          { id: "tabela" as const, label: "Imóveis", icon: Table2 },
           { id: "info" as const, label: "Informações", icon: Building2 },
           { id: "midia" as const, label: "Mídia", icon: Camera },
           { id: "implantacao" as const, label: "Implantação", icon: MapIcon },
-          { id: "tabela" as const, label: "Imóveis", icon: Table2 },
         ].map(s => (
           <button
             key={s.id}
