@@ -500,9 +500,10 @@ function ImovelRow({ tipo, imovel, imagem }: { tipo: EmpreendimentoTipo; imovel:
   const cfg = STATUS_CONFIG[status];
   const rotulo = rotuloCelula(tipo, imovel);
   return (
-    <Link
-      to="/imoveis/$id/editar"
-      params={{ id: imovel.id }}
+    <a
+      href={`/imovel/${imovel.id}`}
+      target="_blank"
+      rel="noopener noreferrer"
       className="group grid grid-cols-[80px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border bg-card p-2 transition-colors hover:border-primary"
     >
       <div className="h-16 w-20 rounded-md overflow-hidden bg-muted shrink-0">
@@ -527,7 +528,7 @@ function ImovelRow({ tipo, imovel, imagem }: { tipo: EmpreendimentoTipo; imovel:
       <div className="text-right shrink-0">
         <p className="font-bold text-primary text-sm">{fmtBRL(imovel.preco)}</p>
       </div>
-    </Link>
+    </a>
   );
 }
 
@@ -587,9 +588,9 @@ function UnitCell({ tipo, imovel }: { tipo: EmpreendimentoTipo; imovel: ImovelEs
           </div>
 
           <Button asChild size="sm" variant="outline" className="w-full">
-            <Link to="/imoveis/$id/editar" params={{ id: imovel.id }}>
+            <a href={`/imovel/${imovel.id}`} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Abrir imóvel
-            </Link>
+            </a>
           </Button>
         </div>
       </PopoverContent>
