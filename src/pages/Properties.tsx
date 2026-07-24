@@ -415,6 +415,8 @@ const propertiesWithCodes = initialProperties.map((p, i) => ({
   code: p.code || `MV${String(i + 1).padStart(2, "0")}`,
 }));
 
+let propertyListCache: Property[] = [];
+
 export default function Properties() {
   const navigate = useNavigate();
   const { user, profile, subscription, isSuperAdmin, isAdminStaff } = useAuth();
@@ -433,7 +435,7 @@ export default function Properties() {
   }, [user, subscription?.id]);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [propertyList, setPropertyList] = useState<Property[]>([]);
+  const [propertyList, setPropertyList] = useState<Property[]>(() => propertyListCache);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category>("todos");
   const [view, setView] = useState<"grid" | "list" | "map">("list");
@@ -523,7 +525,7 @@ export default function Properties() {
         return;
       }
 
-      // Imagens (tabela separada imovel_imagens) — bucket privado, gerar signed URLs
+      // Imagens (tabela separada imovel_imagens) — bucket privado, usa cache batch de 7 dias
       const ids = (data || []).map((r: any) => r.id);
       const imagesById: Record<string, string[]> = {};
       if (ids.length) {
@@ -534,19 +536,14 @@ export default function Properties() {
           .order("capa", { ascending: false })
           .order("ordem", { ascending: true });
         const rows = imgs || [];
-        const paths = rows.map((im: any) => im.storage_path || im.url).filter(Boolean);
-        const signedMap: Record<string, string> = {};
-        if (paths.length) {
-          const { data: signed } = await supabase.storage
-            .from("imoveis")
-            .createSignedUrls(paths, 3600);
-          (signed || []).forEach((s: any) => {
-            if (s?.path && s?.signedUrl) signedMap[s.path] = s.signedUrl;
-          });
-        }
+        const paths = rows
+          .map((im: any) => im.storage_path || im.url)
+          .filter((p: any) => p && !String(p).startsWith("http"));
+        const { getImageUrls } = await import("@/lib/imageUrl");
+        const signedMap = await getImageUrls(paths, "imoveis");
         rows.forEach((im: any) => {
           const p = im.storage_path || im.url;
-          const u = signedMap[p] || (p?.startsWith("http") ? p : "");
+          const u = signedMap.get(p) || (p?.startsWith("http") ? p : "");
           if (!u) return;
           if (!imagesById[im.imovel_id]) imagesById[im.imovel_id] = [];
           imagesById[im.imovel_id].push(u);
@@ -636,6 +633,7 @@ export default function Properties() {
         };
       });
 
+      propertyListCache = mapped;
       setPropertyList(mapped);
     };
 
