@@ -156,6 +156,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const isEdit = !!editId;
 
   const [imovelId, setImovelId] = useState<string | null>(editId ?? null);
+  const [andar, setAndar] = useState<string>("");
   const DRAFT_KEY = user?.id ? `imovel-novo-draft:${user.id}` : "imovel-novo-draft:anon";
   const [form, setForm] = useState<FormState>({
     ...INITIAL,
