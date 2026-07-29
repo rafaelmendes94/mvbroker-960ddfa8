@@ -685,18 +685,26 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
                   empreendimentoId={form.edificio_id || form.condominio_id || form.loteamento_id}
                   currentImovelId={imovelId}
                   valueNumero={(form.loteamento_id || form.condominio_id) ? form.lote : form.unidade}
-                  valueGrupo={form.quadra}
+                  valueGrupo={form.edificio_id ? andar : form.quadra}
                   onPick={({ grupo, numero }) => {
-                    if (form.loteamento_id || form.condominio_id) { set("lote", numero); set("quadra", grupo); }
-                    else { set("unidade", numero); if (grupo) set("quadra", grupo); }
+                    if (form.loteamento_id || form.condominio_id) {
+                      set("lote", numero);
+                      set("quadra", grupo);
+                    } else {
+                      // edifício: andar é local, não persiste em quadra
+                      set("unidade", numero);
+                      setAndar(grupo);
+                    }
                   }}
                 />
               )}
-              {form.condominio_id ? (
+              {(form.condominio_id || form.loteamento_id) ? (
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1.5"><Label className="text-xs">Quadra</Label><Input value={form.quadra} onChange={(e) => set("quadra", e.target.value)} /></div>
                   <div className="space-y-1.5"><Label className="text-xs">Lote</Label><Input value={form.lote} onChange={(e) => set("lote", e.target.value)} /></div>
                 </div>
+              ) : form.edificio_id ? (
+                <div className="space-y-1.5"><Label className="text-xs">Unidade</Label><Input value={form.unidade} onChange={(e) => set("unidade", e.target.value)} /></div>
               ) : (
                 <div className="grid grid-cols-3 gap-2">
                   <div className="space-y-1.5"><Label className="text-xs">Unidade</Label><Input value={form.unidade} onChange={(e) => set("unidade", e.target.value)} /></div>
