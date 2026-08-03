@@ -991,7 +991,7 @@ export function PropertyDetailModal({ property, onClose, allProperties, brokerIn
                 ) : <span className="text-sm font-medium text-foreground">{property.ownerType || "—"}</span> },
                 { id: "keysLocation", label: "Chaves do Imóvel", render: () => editingBlock === "proprietario" ? <EditableField field="keysLocation" value={property.keysLocation || ""} label="chaves" /> : <span className="text-sm font-medium text-foreground">{property.keysLocation || "—"}</span> },
                 { id: "exclusivity", label: "Exclusividade", render: () => editingBlock === "proprietario" ? <EditableField field="exclusivityTerm" value={property.exclusivityTerm || ""} label="exclusividade" /> : <span className="text-sm font-medium text-foreground">{property.exclusivityTerm || "—"}</span> },
-                { id: "broker", label: "Corretor", render: () => editingBlock === "proprietario" ? <EditableField field="broker" value={property.broker} label="corretor" /> : <span className="text-sm font-medium text-foreground">{property.broker}</span> },
+                { id: "broker", label: "Responsável pelo cadastro", render: () => editingBlock === "proprietario" ? <EditableField field="broker" value={property.broker} label="responsável pelo cadastro" /> : <span className="text-sm font-medium text-foreground">{property.broker}</span> },
               ];
 
               return blockWrapper("proprietario",
@@ -1218,7 +1218,7 @@ export function PropertyDetailModal({ property, onClose, allProperties, brokerIn
                 <img src={broker.photo} alt={property.broker} className="w-12 h-12 rounded-full object-cover border-2 border-primary" />
                 <div>
                   <p className="text-sm font-bold text-primary hover:underline">{property.broker}</p>
-                  <p className="text-[11px] text-muted-foreground/70">Corretor(a) responsável</p>
+                  <p className="text-[11px] text-muted-foreground/70">Responsável pelo cadastro</p>
                 </div>
               </Link>
             ) : (
