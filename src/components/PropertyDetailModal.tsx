@@ -1218,7 +1218,7 @@ export function PropertyDetailModal({ property, onClose, allProperties, brokerIn
                 <img src={broker.photo} alt={property.broker} className="w-12 h-12 rounded-full object-cover border-2 border-primary" />
                 <div>
                   <p className="text-sm font-bold text-primary hover:underline">{property.broker}</p>
-                  <p className="text-[11px] text-muted-foreground/70">Corretor(a) responsável</p>
+                  <p className="text-[11px] text-muted-foreground/70">Responsável pelo cadastro</p>
                 </div>
               </Link>
             ) : (
