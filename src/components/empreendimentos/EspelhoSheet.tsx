@@ -489,7 +489,7 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
                   area_total: im.area_total ?? null,
                   capa: imagens[im.id] ?? null,
                 };
-                return <OportunidadeCard key={im.id} im={op} />;
+                return <OportunidadeCard key={im.id} im={op} to="/imovel/$id" />;
               })}
             </div>
           ) : (

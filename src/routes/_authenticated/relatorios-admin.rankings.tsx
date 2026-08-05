@@ -187,7 +187,7 @@ function RankingsPage() {
                   {imoveis.map((i, idx) => (
                     <Link
                       key={i.imovel_id}
-                      to="/imoveis/$id"
+                      to="/imovel/$id"
                       params={{ id: i.imovel_id }}
                       className="flex items-center gap-3 p-3 hover:bg-muted/40 transition-colors"
                     >
