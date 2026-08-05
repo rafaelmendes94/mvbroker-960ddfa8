@@ -596,6 +596,7 @@ export default function Properties() {
         brokerPhoto: owner?.avatar_url || undefined,
         brokerWhatsapp: "",
         owner: row.responsavel_nome || "",
+        keysLocation: row.local_chaves || chavesById[row.id] || "",
         ownerPhone: row.responsavel_telefone || "",
         image: imgs[0] || PLACEHOLDER_IMAGE,
         images: imgs,
