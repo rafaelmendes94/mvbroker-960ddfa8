@@ -8,7 +8,7 @@
 export const IMOVEL_PUBLIC_COLUMNS = [
   "id", "codigo_interno", "titulo", "unidade", "box", "quadra", "lote",
   "tipo_imovel", "status_imovel",
-  "dormitorios", "banheiros", "lavabo", "vagas", "elevadores",
+  "dormitorios", "suites", "banheiros", "lavabo", "vagas", "elevadores",
   "area_privativa", "area_total",
   "edificio_id", "condominio_id", "empreendimento_id",
   "imobiliaria_id", "corretor_id",
