@@ -563,6 +563,15 @@ export default function Properties() {
         });
       }
 
+      // Local das chaves (campo interno — via RPC SECURITY DEFINER, uma chamada só)
+      const chavesById: Record<string, string> = {};
+      {
+        const { data: chaves } = await (supabase as any).rpc("get_imoveis_chaves");
+        (chaves || []).forEach((c: any) => {
+          if (c?.id && c?.local_chaves) chavesById[c.id] = c.local_chaves;
+        });
+      }
+
       const mapped: Property[] = (data || []).map((row: any, index: number) => {
         const owner = profilesById[(row as any).created_by];
         const imgs = imagesById[row.id] || [];
@@ -587,6 +596,7 @@ export default function Properties() {
         brokerPhoto: owner?.avatar_url || undefined,
         brokerWhatsapp: "",
         owner: row.responsavel_nome || "",
+        keysLocation: row.local_chaves || chavesById[row.id] || "",
         ownerPhone: row.responsavel_telefone || "",
         image: imgs[0] || PLACEHOLDER_IMAGE,
         images: imgs,
