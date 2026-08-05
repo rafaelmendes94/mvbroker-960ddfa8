@@ -2344,6 +2344,13 @@ export type Database = {
           telefone: string
         }[]
       }
+      get_imoveis_chaves: {
+        Args: never
+        Returns: {
+          id: string
+          local_chaves: string
+        }[]
+      }
       get_imovel_internal: {
         Args: { p_imovel_id: string }
         Returns: {
