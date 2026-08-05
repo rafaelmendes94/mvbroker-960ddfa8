@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getImageUrls } from "@/lib/imageUrl";
 import {
@@ -27,6 +27,8 @@ import {
   Facebook,
   Instagram,
   Linkedin,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 const bgDesktop = { url: "/img/bg-mv.png" };
@@ -571,6 +573,85 @@ function LandingPage() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function ImoveisCarousel({ titulo, itens }: { titulo: string; itens: any[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const scrollBy = (dir: number) => {
+    const el = ref.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-4">
+        <h3 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">{titulo}</h3>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            aria-label="Anterior"
+            onClick={() => scrollBy(-1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 ring-1 ring-slate-200 transition hover:bg-[#10b981] hover:text-white"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Próximo"
+            onClick={() => scrollBy(1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 ring-1 ring-slate-200 transition hover:bg-[#10b981] hover:text-white"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <div
+        ref={ref}
+        className="mt-5 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {itens.map((im, idx) => {
+          const inner = (
+            <div className="group h-full overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:shadow-lg">
+              <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                <img
+                  src={im.img}
+                  alt={im.titulo}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+              <div className="space-y-2 p-5">
+                <h4 className="line-clamp-2 text-base font-bold text-slate-900">{im.titulo}</h4>
+                <p className="flex items-center gap-1 text-xs text-slate-500">
+                  <MapPin className="h-3 w-3" />
+                  {[im.cidade, im.bairro].filter(Boolean).join(", ")}
+                </p>
+                <div className="flex flex-wrap gap-3 pt-1 text-xs text-slate-600">
+                  {im.dorm ? <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" />{im.dorm}</span> : null}
+                  {im.banh ? <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5" />{im.banh}</span> : null}
+                  {im.vagas ? <span className="flex items-center gap-1"><Car className="h-3.5 w-3.5" />{im.vagas}</span> : null}
+                  {im.area ? <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{im.area}m²</span> : null}
+                </div>
+                {im.valor > 0 && <p className="pt-1 text-lg font-bold text-[#10b981]">{fmtBRL(im.valor)}</p>}
+              </div>
+            </div>
+          );
+          const cls = "w-[80%] shrink-0 snap-start sm:w-[48%] lg:w-[calc(25%-18px)]";
+          return im.id ? (
+            <Link key={im.id} to="/imovel/$id" params={{ id: im.id }} className={cls}>
+              {inner}
+            </Link>
+          ) : (
+            <div key={idx} className={cls}>
+              {inner}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
