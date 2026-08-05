@@ -165,44 +165,23 @@ function LandingPage() {
 
   useEffect(() => {
     (async () => {
-      // Landing: imóveis marcados como Destaque (destaque_home=true),
-      // não arquivados, que tenham ao menos 1 imagem (inner join).
+      const cols =
+        "id, titulo, cidade, bairro, preco, dormitorios, banheiros, vagas, area_privativa, area_total, destaque_home, vista_mar, decorado, tipo_imovel, condominio_id, loteamento_id, edificio_id, created_at, updated_at, imovel_imagens!inner(imovel_id)";
       const { data } = await supabase
         .from("imoveis")
-        .select(
-          "id, titulo, cidade, bairro, preco, dormitorios, banheiros, vagas, area_privativa, area_total, destaque_home, exclusividade, exclusivo, bonus, updated_at, created_at, imovel_imagens!inner(imovel_id)"
-        )
+        .select(cols)
         .or("arquivado.is.null,arquivado.eq.false")
-        .eq("destaque_home", true)
-        .order("updated_at", { ascending: false })
-        .limit(30);
-      // Dedup (inner join pode repetir) e corta em 6.
+        .order("created_at", { ascending: false })
+        .limit(120);
+
       const seen = new Set<string>();
-      let items = (data ?? []).filter((i: any) => {
+      const items = (data ?? []).filter((i: any) => {
         if (seen.has(i.id)) return false;
         seen.add(i.id);
         return true;
-      }).slice(0, 6);
-
-      // Fallback: se não houver destaques, mostra os mais recentes com foto.
-      if (!items.length) {
-        const { data: fallback } = await supabase
-          .from("imoveis")
-          .select(
-            "id, titulo, cidade, bairro, preco, dormitorios, banheiros, vagas, area_privativa, area_total, destaque_home, exclusividade, exclusivo, bonus, updated_at, created_at, imovel_imagens!inner(imovel_id)"
-          )
-          .or("arquivado.is.null,arquivado.eq.false")
-          .order("created_at", { ascending: false })
-          .limit(30);
-        const seen2 = new Set<string>();
-        items = (fallback ?? []).filter((i: any) => {
-          if (seen2.has(i.id)) return false;
-          seen2.add(i.id);
-          return true;
-        }).slice(0, 6);
-      }
-
+      });
       if (!items.length) return;
+
       const ids = items.map((i: any) => i.id);
       const { data: imgs } = await supabase
         .from("imovel_imagens")
@@ -214,18 +193,19 @@ function LandingPage() {
       (imgs ?? []).forEach((im: any) => {
         if (!map.has(im.imovel_id) && im.url) map.set(im.imovel_id, im.url);
       });
-      const paths = Array.from(map.values());
-      const urlMap = await getImageUrls(paths, "imoveis");
-      setDestaques(
-        items
-          .map((i: any) => {
-            const path = map.get(i.id) ?? null;
-            return { ...i, capa: path ? urlMap.get(path) ?? null : null };
-          })
-          .filter((i: any) => !!i.capa) // só entra com foto renderizável
-      );
+      const urlMap = await getImageUrls(Array.from(map.values()), "imoveis");
+      const withCapa = items
+        .map((i: any) => {
+          const path = map.get(i.id) ?? null;
+          return { ...i, capa: path ? urlMap.get(path) ?? null : null };
+        })
+        .filter((i: any) => !!i.capa);
+
+      setTodos(withCapa);
+      setDestaques(withCapa.filter((i: any) => i.destaque_home).slice(0, 6));
     })();
   }, []);
+
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
