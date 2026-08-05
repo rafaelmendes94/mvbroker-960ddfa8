@@ -338,50 +338,12 @@ function LandingPage() {
             Imóveis em Destaque
           </h2>
 
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {(destaques.length > 0
-              ? destaques.map((d: any, idx: number) => ({
-                  titulo: d.titulo ?? "Imóvel em destaque",
-                  cidade: d.cidade ?? "",
-                  bairro: d.bairro ?? "",
-                  valor: Number(d.preco) || 0,
-                  dorm: d.dormitorios ?? undefined,
-                  banh: d.banheiros ?? undefined,
-                  vagas: d.vagas ?? undefined,
-                  area: Number(d.area_privativa ?? d.area_total ?? 0),
-                  img: d.capa ?? MOCK_IMAGES[idx % MOCK_IMAGES.length],
-                }))
-              : IMOVEIS.map((im, idx) => ({ ...im, img: MOCK_IMAGES[idx] }))
-            ).map((im, idx) => (
-              <div key={idx} className="group overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:shadow-lg">
-                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-                  <img
-                    src={im.img}
-                    alt={im.titulo}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span className="absolute right-3 top-3 rounded-md bg-[#10b981] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                    Destaque
-                  </span>
-                </div>
-                <div className="space-y-2 p-5">
-                  <h3 className="line-clamp-2 text-base font-bold text-slate-900">{im.titulo}</h3>
-                  <p className="flex items-center gap-1 text-xs text-slate-500">
-                    <MapPin className="h-3 w-3" />
-                    {[im.cidade, im.bairro].filter(Boolean).join(", ")}
-                  </p>
-                  <div className="flex flex-wrap gap-3 pt-1 text-xs text-slate-600">
-                    {im.dorm ? <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" />{im.dorm}</span> : null}
-                    {im.banh ? <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5" />{im.banh}</span> : null}
-                    {im.vagas ? <span className="flex items-center gap-1"><Car className="h-3.5 w-3.5" />{im.vagas}</span> : null}
-                    {im.area ? <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{im.area}m²</span> : null}
-                  </div>
-                  {im.valor > 0 && <p className="pt-1 text-lg font-bold text-[#10b981]">{fmtBRL(im.valor)}</p>}
-                </div>
-              </div>
+          <div className="mt-10 space-y-14">
+            {grupos.map((g) => (
+              <ImoveisCarousel key={g.titulo} titulo={g.titulo} itens={g.itens} />
             ))}
           </div>
+
 
         </div>
       </section>
