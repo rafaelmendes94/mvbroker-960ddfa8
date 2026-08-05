@@ -263,7 +263,7 @@ function generateChavesNaMaoXml(properties: Property[]): string {
       <area_util>${(p.privateArea || p.area).toFixed(2)}</area_util>
       <conservacao></conservacao>
       <quartos>${p.bedrooms}</quartos>
-      <suites>0</suites>
+      <suites>${p.suites ?? 0}</suites>
       <garagem>${p.parking}</garagem>
       <banheiro>${p.bathrooms}</banheiro>
       <closet></closet>
