@@ -53,6 +53,27 @@ export function QuickCreateEntityModal({
       return;
     }
     setSaving(true);
+
+    const SELECT_COLS =
+      "id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura";
+
+    // Evita duplicados: reutiliza registro existente com o mesmo nome
+    const existente = await findExistingByNome(supabase, table, nome.trim());
+    if (existente) {
+      const { data: reuse } = await supabase
+        .from(table as any)
+        .select(SELECT_COLS)
+        .eq("id", existente.id)
+        .maybeSingle();
+      setSaving(false);
+      if (reuse) {
+        toast.info(`${LABELS[table]} já existente — vinculado`);
+        onCreated(reuse as any);
+        onClose();
+        return;
+      }
+    }
+
     const payload: any = {
       nome: nome.trim(),
       cidade: cidade.trim() || null,
@@ -62,8 +83,9 @@ export function QuickCreateEntityModal({
     const { data, error } = await supabase
       .from(table as any)
       .insert(payload)
-      .select("id, nome, cep, logradouro, numero, complemento, bairro, cidade, estado, latitude, longitude, infraestrutura")
+      .select(SELECT_COLS)
       .single();
+
     setSaving(false);
     if (error) {
       toast.error(error.message);
