@@ -2352,6 +2352,7 @@ function PropertyCard({
 
         <div className="flex items-center gap-4 text-xs text-muted-foreground py-2 border-y border-border">
           {property.bedrooms > 0 && <span className="flex items-center gap-1"><BedDouble className="w-3.5 h-3.5" /> {property.bedrooms}</span>}
+          {(property.suites ?? 0) > 0 && <span className="flex items-center gap-1"><BedDouble className="w-3.5 h-3.5" /> {property.suites} st.</span>}
           {property.bathrooms > 0 && <span className="flex items-center gap-1"><Bath className="w-3.5 h-3.5" /> {property.bathrooms}</span>}
           {property.parking > 0 && <span className="flex items-center gap-1"><Car className="w-3.5 h-3.5" /> {property.parking}</span>}
           <span className="flex items-center gap-1"><Scan className="w-3.5 h-3.5" /> {property.area}m² t.</span>
