@@ -208,6 +208,41 @@ function LandingPage() {
     })();
   }, []);
 
+  const toCard = (d: any, idx: number) => ({
+    id: d.id,
+    titulo: d.titulo ?? "Imóvel",
+    cidade: d.cidade ?? "",
+    bairro: d.bairro ?? "",
+    valor: Number(d.preco) || 0,
+    dorm: d.dormitorios ?? undefined,
+    banh: d.banheiros ?? undefined,
+    vagas: d.vagas ?? undefined,
+    area: Number(d.area_privativa ?? d.area_total ?? 0),
+    img: d.capa ?? MOCK_IMAGES[idx % MOCK_IMAGES.length],
+  });
+
+  const mock = IMOVEIS.map((im, idx) => ({ ...im, id: undefined, img: MOCK_IMAGES[idx] })).slice(0, 4);
+
+  const pick = (fn: (i: any) => boolean) =>
+    todos.filter(fn).slice(0, 4).map(toCard);
+
+  const grupos = [
+    { titulo: "Últimos cadastrados", itens: todos.slice(0, 4).map(toCard) },
+    { titulo: "Vista para o mar", itens: pick((i) => !!i.vista_mar) },
+    { titulo: "Decorados", itens: pick((i) => !!i.decorado) },
+    {
+      titulo: "Casa em condomínio",
+      itens: pick(
+        (i) =>
+          ["Casa", "Sobrado"].includes(String(i.tipo_imovel ?? "")) &&
+          (!!i.condominio_id || !!i.loteamento_id)
+      ),
+    },
+  ]
+    .map((g) => ({ ...g, itens: g.itens.length ? g.itens : mock }))
+    .filter((g) => g.itens.length > 0);
+
+
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
