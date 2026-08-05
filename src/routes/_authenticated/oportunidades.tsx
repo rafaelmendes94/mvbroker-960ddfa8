@@ -129,7 +129,7 @@ function OportunidadesPage() {
       setResumo(Array.isArray(r) ? (r[0] as Resumo) : (r as unknown as Resumo));
 
       const [a, b, c, d, e, f, g, h] = await Promise.all([
-        fetchImoveis((q) => q, 12),
+        fetchImoveis((q) => q, 4),
         fetchImoveis((q) => q.gt("updated_at", new Date(Date.now() - 7 * 86400000).toISOString()), 12),
         fetchImoveis((q) => q.or("exclusividade.eq.true,exclusivo.eq.true"), 12),
         fetchImoveis((q) => q.not("bonus", "is", null).neq("bonus", ""), 12),
