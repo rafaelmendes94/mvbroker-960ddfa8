@@ -986,7 +986,7 @@ export default function Properties() {
       // Search (includes code)
       if (search) {
         const s = search.toLowerCase();
-        if (!p.title.toLowerCase().includes(s) && !p.address.toLowerCase().includes(s) && !p.city.toLowerCase().includes(s) && !p.broker.toLowerCase().includes(s) && !(p.code || "").toLowerCase().includes(s)) return false;
+        if (!p.title.toLowerCase().includes(s) && !p.address.toLowerCase().includes(s) && !p.city.toLowerCase().includes(s) && !p.broker.toLowerCase().includes(s) && !(p.code || "").toLowerCase().includes(s) && !(p.empreendimento || "").toLowerCase().includes(s) && !(p.neighborhood || "").toLowerCase().includes(s)) return false;
       }
 
       // Advanced filters
