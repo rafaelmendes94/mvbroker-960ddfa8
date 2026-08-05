@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getEstruturaImageUrls } from "@/lib/estrutura-images";
+import { getIdsMesmoNome } from "@/lib/empreendimento-dedupe";
+
 
 import {
   STATUS_CONFIG, TIPO_LABELS, fmtBRL,
