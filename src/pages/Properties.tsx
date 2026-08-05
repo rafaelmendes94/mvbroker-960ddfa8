@@ -2766,6 +2766,7 @@ function PropertyRow({
           {/* Row 3: Type + Specs (inline) */}
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
             {property.bedrooms > 0 && <span className="flex items-center gap-0.5 whitespace-nowrap"><BedDouble className="w-3 h-3" />{property.bedrooms}</span>}
+            {(property.suites ?? 0) > 0 && <span className="flex items-center gap-0.5 whitespace-nowrap"><BedDouble className="w-3 h-3" />{property.suites} st.</span>}
             {property.bathrooms > 0 && <span className="flex items-center gap-0.5 whitespace-nowrap"><Bath className="w-3 h-3" />{property.bathrooms}</span>}
             {property.parking > 0 && <span className="flex items-center gap-0.5 whitespace-nowrap"><Car className="w-3 h-3" />{property.parking}</span>}
             <span className="flex items-center gap-0.5 font-semibold whitespace-nowrap"><Scan className="w-3 h-3" />{property.area}m² t.</span>
