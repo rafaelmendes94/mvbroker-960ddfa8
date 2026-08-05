@@ -263,7 +263,7 @@ function generateChavesNaMaoXml(properties: Property[]): string {
       <area_util>${(p.privateArea || p.area).toFixed(2)}</area_util>
       <conservacao></conservacao>
       <quartos>${p.bedrooms}</quartos>
-      <suites>0</suites>
+      <suites>${p.suites ?? 0}</suites>
       <garagem>${p.parking}</garagem>
       <banheiro>${p.bathrooms}</banheiro>
       <closet></closet>
@@ -2352,6 +2352,7 @@ function PropertyCard({
 
         <div className="flex items-center gap-4 text-xs text-muted-foreground py-2 border-y border-border">
           {property.bedrooms > 0 && <span className="flex items-center gap-1"><BedDouble className="w-3.5 h-3.5" /> {property.bedrooms}</span>}
+          {(property.suites ?? 0) > 0 && <span className="flex items-center gap-1"><BedDouble className="w-3.5 h-3.5" /> {property.suites} st.</span>}
           {property.bathrooms > 0 && <span className="flex items-center gap-1"><Bath className="w-3.5 h-3.5" /> {property.bathrooms}</span>}
           {property.parking > 0 && <span className="flex items-center gap-1"><Car className="w-3.5 h-3.5" /> {property.parking}</span>}
           <span className="flex items-center gap-1"><Scan className="w-3.5 h-3.5" /> {property.area}m² t.</span>
@@ -2765,6 +2766,7 @@ function PropertyRow({
           {/* Row 3: Type + Specs (inline) */}
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
             {property.bedrooms > 0 && <span className="flex items-center gap-0.5 whitespace-nowrap"><BedDouble className="w-3 h-3" />{property.bedrooms}</span>}
+            {(property.suites ?? 0) > 0 && <span className="flex items-center gap-0.5 whitespace-nowrap"><BedDouble className="w-3 h-3" />{property.suites} st.</span>}
             {property.bathrooms > 0 && <span className="flex items-center gap-0.5 whitespace-nowrap"><Bath className="w-3 h-3" />{property.bathrooms}</span>}
             {property.parking > 0 && <span className="flex items-center gap-0.5 whitespace-nowrap"><Car className="w-3 h-3" />{property.parking}</span>}
             <span className="flex items-center gap-0.5 font-semibold whitespace-nowrap"><Scan className="w-3 h-3" />{property.area}m² t.</span>
