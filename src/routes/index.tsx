@@ -153,6 +153,8 @@ function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [waNumero, setWaNumero] = useState(WHATSAPP_FALLBACK);
   const [destaques, setDestaques] = useState<any[]>([]);
+  const [todos, setTodos] = useState<any[]>([]);
+
 
   useEffect(() => {
     supabase
