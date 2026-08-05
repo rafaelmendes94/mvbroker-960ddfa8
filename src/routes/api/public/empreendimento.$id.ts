@@ -88,13 +88,21 @@ export const Route = createFileRoute("/api/public/empreendimento/$id")({
             implantacaoPdfUrl = data?.signedUrl ?? null;
           }
 
-          // Imóveis vinculados (disponíveis)
+          // Imóveis vinculados (agrupa empreendimentos duplicados pelo mesmo nome)
+          const { getIdsMesmoNome } = await import("@/lib/empreendimento-dedupe");
+          const idsMesmoNome = await getIdsMesmoNome(
+            supabase,
+            resolved.table,
+            empreendimento?.nome,
+            id,
+          );
           const { data: imoveis } = await supabase
             .from("imoveis")
             .select(IMOVEL_COLS)
-            .eq(resolved.fk, id)
+            .in(resolved.fk, idsMesmoNome)
             .or("arquivado.is.null,arquivado.eq.false")
             .limit(2000);
+
 
           return new Response(
             JSON.stringify({
