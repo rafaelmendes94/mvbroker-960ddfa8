@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getEstruturaImageUrls } from "@/lib/estrutura-images";
+import { getIdsMesmoNome } from "@/lib/empreendimento-dedupe";
+
 
 import {
   STATUS_CONFIG, TIPO_LABELS, fmtBRL,
@@ -111,12 +113,20 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
     }
 
     const fk = FK[tipo];
+    // Empreendimentos duplicados com o mesmo nome contam como um só
+    const idsMesmoNome = await getIdsMesmoNome(
+      supabase,
+      labels.table as any,
+      (e as any)?.nome,
+      empreendimentoId,
+    );
     const { data, error } = await supabase
       .from("imoveis")
       .select(IMOVEL_SELECT)
-      .eq(fk, empreendimentoId)
+      .in(fk, idsMesmoNome)
       .or("arquivado.is.null,arquivado.eq.false")
       .limit(5000);
+
     if (error) toast.error(error.message);
     const lista = (data as unknown as ImovelEspelho[]) ?? [];
     setImoveis(lista);

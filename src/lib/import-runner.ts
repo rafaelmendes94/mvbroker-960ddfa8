@@ -178,9 +178,30 @@ export async function importBatch(
   let inserted = 0;
   let failed = 0;
   const errors: ImportError[] = [];
+
+  // Empreendimentos: nunca duplicar pelo mesmo nome
+  if (["edificios", "condominios", "loteamentos", "empreendimentos"].includes(table)) {
+    const { normalizeNome } = await import("@/lib/empreendimento-dedupe");
+    const { data: existentes } = await (supabase as any)
+      .from(table)
+      .select("id, nome")
+      .limit(5000);
+    const vistos = new Set<string>(
+      ((existentes ?? []) as any[]).map((r) => normalizeNome(r.nome)).filter(Boolean),
+    );
+    records = records.filter((r) => {
+      const n = normalizeNome(r?.nome);
+      if (!n) return true;
+      if (vistos.has(n)) return false;
+      vistos.add(n);
+      return true;
+    });
+  }
+
   for (let i = 0; i < records.length; i += batchSize) {
     const batch = records.slice(i, i + batchSize);
     const { error, data } = await supabase.from(table as any).insert(batch).select("id");
+
     if (error) {
       // tenta um por um para isolar
       for (let j = 0; j < batch.length; j++) {
