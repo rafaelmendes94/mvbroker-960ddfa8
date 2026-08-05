@@ -111,12 +111,20 @@ export function EspelhoSheet({ tipo, empreendimentoId }: Props) {
     }
 
     const fk = FK[tipo];
+    // Empreendimentos duplicados com o mesmo nome contam como um só
+    const idsMesmoNome = await getIdsMesmoNome(
+      supabase,
+      labels.table as any,
+      (e as any)?.nome,
+      empreendimentoId,
+    );
     const { data, error } = await supabase
       .from("imoveis")
       .select(IMOVEL_SELECT)
-      .eq(fk, empreendimentoId)
+      .in(fk, idsMesmoNome)
       .or("arquivado.is.null,arquivado.eq.false")
       .limit(5000);
+
     if (error) toast.error(error.message);
     const lista = (data as unknown as ImovelEspelho[]) ?? [];
     setImoveis(lista);
