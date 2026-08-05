@@ -150,7 +150,8 @@ const INITIAL: FormState = {
 };
 
 export function ImovelForm({ initial }: { initial?: any | null }) {
-  const { user, profile, isSuperAdmin } = useAuth();
+  const { user, profile, isSuperAdmin, isAdminStaff } = useAuth();
+  const canPublish = isSuperAdmin || isAdminStaff;
   const navigate = useNavigate();
   const editId: string | undefined = initial?.id;
   const isEdit = !!editId;
