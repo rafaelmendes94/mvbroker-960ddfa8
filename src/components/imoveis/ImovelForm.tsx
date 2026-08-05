@@ -1032,7 +1032,7 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-6 mb-4 py-3 px-3 sm:px-4 bg-muted/50 rounded-lg">
             <label className="flex items-center gap-2"><Switch checked={inFeedPersonalizado} onCheckedChange={setInFeedPersonalizado} /><span className="text-xs font-semibold">⭐ Feed Personalizado</span></label>
 
-            {isSuperAdmin && (
+            {canPublish && (
               <>
                 <label className="flex items-center gap-2"><Switch checked={form.ativo_site} onCheckedChange={(v) => set("ativo_site", v)} /><span className="text-xs font-semibold">🌐 Site</span></label>
                 <label className="flex items-center gap-2"><Switch checked={form.publicar_xml} onCheckedChange={(v) => set("publicar_xml", v)} /><span className="text-xs font-semibold">📡 Portais (XML)</span></label>
