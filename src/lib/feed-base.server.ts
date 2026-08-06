@@ -97,8 +97,8 @@ export async function buildFeedResponse(opts: {
       ? candidatos.filter((im: any) => (byImovel.get(im.id)?.length ?? 0) > 0)
       : candidatos;
 
-    const edifIds = Array.from(new Set(imoveis.map((i: any) => i.edificio_id).filter(Boolean)));
-    const condIds = Array.from(new Set(imoveis.map((i: any) => i.condominio_id).filter(Boolean)));
+    const edifIds = Array.from(new Set(imoveis.map((i: any) => i.edificio_id).filter(Boolean))) as string[];
+    const condIds = Array.from(new Set(imoveis.map((i: any) => i.condominio_id).filter(Boolean))) as string[];
     const [edifRes, condRes] = await Promise.all([
       edifIds.length ? supabase.from("edificios").select("id, nome").in("id", edifIds) : Promise.resolve({ data: [] as any[] }),
       condIds.length ? supabase.from("condominios").select("id, nome").in("id", condIds) : Promise.resolve({ data: [] as any[] }),
