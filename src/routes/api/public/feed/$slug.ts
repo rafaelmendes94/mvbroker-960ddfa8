@@ -79,7 +79,7 @@ export const Route = createFileRoute("/api/public/feed/$slug")({
           const xml = buildFeedXML({
             carteira: { nome: carteira.nome, slug: carteira.slug, updated_at: carteira.updated_at },
             imoveis: enriched,
-            storageBaseUrl: `${process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL}/storage/v1/object/public/imoveis`,
+            storageBaseUrl: `${new URL(request.url).origin}/api/public/img/imoveis`,
           });
 
 

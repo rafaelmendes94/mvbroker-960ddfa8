@@ -59,6 +59,7 @@ export const Route = createFileRoute("/api/public/portal/$portal/$slug")({
           carteira: { nome: carteira.nome, slug: carteira.slug, updated_at: carteira.updated_at },
           imoveis: enriched,
           portal: { slug: portal.slug, nome: portal.nome, formato_xml: portal.formato_xml },
+          storageBaseUrl: `${new URL(request.url).origin}/api/public/img/imoveis`,
         });
 
         const ua = request.headers.get("user-agent") ?? null;
