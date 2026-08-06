@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, ExternalLink, Rss, Star, ArrowRight } from "lucide-react";
+import { Copy, ExternalLink, Rss, Star, ArrowRight, Image as ImageIcon, Home } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { getFeedGeralInfo } from "@/lib/carteiras.functions";
 import { getFeedPersonalizado } from "@/lib/feed-personalizado.functions";
 import { DownloadXmlButton } from "@/components/feeds/DownloadXmlButton";
+import { FeedFiltroCard } from "@/components/feeds/FeedFiltroCard";
 
 export const Route = createFileRoute("/_authenticated/carteiras/")({
   head: () => ({ meta: [{ title: "Feeds XML — MV Broker" }] }),
@@ -90,6 +91,31 @@ function FeedsXmlPage() {
             </Card>
           )}
 
+          {/* Feed Fotos */}
+          <FeedFixoCard
+            icon={<ImageIcon className="h-5 w-5 text-sky-500" />}
+            title="XML Fotos"
+            description="Somente imóveis que possuem ao menos 1 foto."
+            url={`${origin}/api/public/feed/fotos.xml`}
+            filename="feed-fotos.xml"
+            onCopy={copy}
+          />
+
+          {/* Feed Casa em Condomínio */}
+          <FeedFixoCard
+            icon={<Home className="h-5 w-5 text-emerald-600" />}
+            title="XML Casa em Condomínio"
+            description="Somente casas em condomínio ou loteamento."
+            url={`${origin}/api/public/feed/casa-condominio.xml`}
+            filename="feed-casa-condominio.xml"
+            onCopy={copy}
+          />
+
+          {/* Montar meu XML */}
+          <FeedFiltroCard />
+
+
+
           {/* Feed Personalizado */}
           {personalizado && (
             <Card className="border-amber-400/40 bg-amber-500/5">
@@ -138,3 +164,49 @@ function FeedsXmlPage() {
     </>
   );
 }
+
+function FeedFixoCard({
+  icon,
+  title,
+  description,
+  url,
+  filename,
+  onCopy,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  url: string;
+  filename: string;
+  onCopy: (url: string) => void;
+}) {
+  return (
+    <Card>
+      <CardContent className="p-4 sm:p-5 space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="rounded-lg bg-muted p-2">{icon}</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold">{title}</h3>
+              <Badge variant="secondary">Automático</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+          </div>
+        </div>
+        <code className="block rounded bg-background border px-3 py-2 text-[11px] font-mono break-all">{url}</code>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={() => onCopy(url)}>
+            <Copy className="h-3.5 w-3.5 mr-1" />Copiar URL
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-3.5 w-3.5 mr-1" />Abrir
+            </a>
+          </Button>
+          <DownloadXmlButton url={url} filename={filename} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
