@@ -91,6 +91,31 @@ function FeedsXmlPage() {
             </Card>
           )}
 
+          {/* Feed Fotos */}
+          <FeedFixoCard
+            icon={<ImageIcon className="h-5 w-5 text-sky-500" />}
+            title="XML Fotos"
+            description="Somente imóveis que possuem ao menos 1 foto."
+            url={`${origin}/api/public/feed/fotos.xml`}
+            filename="feed-fotos.xml"
+            onCopy={copy}
+          />
+
+          {/* Feed Casa em Condomínio */}
+          <FeedFixoCard
+            icon={<Home className="h-5 w-5 text-emerald-600" />}
+            title="XML Casa em Condomínio"
+            description="Somente casas em condomínio ou loteamento."
+            url={`${origin}/api/public/feed/casa-condominio.xml`}
+            filename="feed-casa-condominio.xml"
+            onCopy={copy}
+          />
+
+          {/* Montar meu XML */}
+          <FeedFiltroCard />
+
+
+
           {/* Feed Personalizado */}
           {personalizado && (
             <Card className="border-amber-400/40 bg-amber-500/5">
