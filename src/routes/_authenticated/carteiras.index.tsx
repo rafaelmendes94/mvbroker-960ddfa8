@@ -164,3 +164,49 @@ function FeedsXmlPage() {
     </>
   );
 }
+
+function FeedFixoCard({
+  icon,
+  title,
+  description,
+  url,
+  filename,
+  onCopy,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  url: string;
+  filename: string;
+  onCopy: (url: string) => void;
+}) {
+  return (
+    <Card>
+      <CardContent className="p-4 sm:p-5 space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="rounded-lg bg-muted p-2">{icon}</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold">{title}</h3>
+              <Badge variant="secondary">Automático</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+          </div>
+        </div>
+        <code className="block rounded bg-background border px-3 py-2 text-[11px] font-mono break-all">{url}</code>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={() => onCopy(url)}>
+            <Copy className="h-3.5 w-3.5 mr-1" />Copiar URL
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-3.5 w-3.5 mr-1" />Abrir
+            </a>
+          </Button>
+          <DownloadXmlButton url={url} filename={filename} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
