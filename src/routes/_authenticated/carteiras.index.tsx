@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, ExternalLink, Rss, Star, ArrowRight } from "lucide-react";
+import { Copy, ExternalLink, Rss, Star, ArrowRight, Image as ImageIcon, Home } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { getFeedGeralInfo } from "@/lib/carteiras.functions";
 import { getFeedPersonalizado } from "@/lib/feed-personalizado.functions";
 import { DownloadXmlButton } from "@/components/feeds/DownloadXmlButton";
+import { FeedFiltroCard } from "@/components/feeds/FeedFiltroCard";
 
 export const Route = createFileRoute("/_authenticated/carteiras/")({
   head: () => ({ meta: [{ title: "Feeds XML — MV Broker" }] }),
