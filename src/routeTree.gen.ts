@@ -79,6 +79,7 @@ import { Route as AuthenticatedCarteirasIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAssinaturasIdRouteImport } from './routes/_authenticated/assinaturas.$id'
 import { Route as ApiPublicImovelIdRouteImport } from './routes/api/public/imovel.$id'
 import { Route as ApiPublicImgSplatRouteImport } from './routes/api/public/img/$'
+import { Route as ApiPublicFeedFotosDotxmlRouteImport } from './routes/api/public/feed/fotos[.]xml'
 import { Route as ApiPublicFeedFotoVideoDotxmlRouteImport } from './routes/api/public/feed/foto-video[.]xml'
 import { Route as ApiPublicFeedSlugRouteImport } from './routes/api/public/feed/$slug'
 import { Route as ApiPublicEmpreendimentoIdRouteImport } from './routes/api/public/empreendimento.$id'
@@ -478,6 +479,12 @@ const ApiPublicImgSplatRoute = ApiPublicImgSplatRouteImport.update({
   path: '/api/public/img/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFeedFotosDotxmlRoute =
+  ApiPublicFeedFotosDotxmlRouteImport.update({
+    id: '/api/public/feed/fotos.xml',
+    path: '/api/public/feed/fotos.xml',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicFeedFotoVideoDotxmlRoute =
   ApiPublicFeedFotoVideoDotxmlRouteImport.update({
     id: '/api/public/feed/foto-video.xml',
@@ -599,6 +606,7 @@ export interface FileRoutesByFullPath {
   '/api/public/empreendimento/$id': typeof ApiPublicEmpreendimentoIdRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
   '/api/public/feed/foto-video.xml': typeof ApiPublicFeedFotoVideoDotxmlRoute
+  '/api/public/feed/fotos.xml': typeof ApiPublicFeedFotosDotxmlRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
@@ -671,6 +679,7 @@ export interface FileRoutesByTo {
   '/api/public/empreendimento/$id': typeof ApiPublicEmpreendimentoIdRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
   '/api/public/feed/foto-video.xml': typeof ApiPublicFeedFotoVideoDotxmlRoute
+  '/api/public/feed/fotos.xml': typeof ApiPublicFeedFotosDotxmlRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
@@ -752,6 +761,7 @@ export interface FileRoutesById {
   '/api/public/empreendimento/$id': typeof ApiPublicEmpreendimentoIdRoute
   '/api/public/feed/$slug': typeof ApiPublicFeedSlugRoute
   '/api/public/feed/foto-video.xml': typeof ApiPublicFeedFotoVideoDotxmlRoute
+  '/api/public/feed/fotos.xml': typeof ApiPublicFeedFotosDotxmlRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
@@ -833,6 +843,7 @@ export interface FileRouteTypes {
     | '/api/public/empreendimento/$id'
     | '/api/public/feed/$slug'
     | '/api/public/feed/foto-video.xml'
+    | '/api/public/feed/fotos.xml'
     | '/api/public/img/$'
     | '/api/public/imovel/$id'
     | '/api/public/feed/geral/$id'
@@ -905,6 +916,7 @@ export interface FileRouteTypes {
     | '/api/public/empreendimento/$id'
     | '/api/public/feed/$slug'
     | '/api/public/feed/foto-video.xml'
+    | '/api/public/feed/fotos.xml'
     | '/api/public/img/$'
     | '/api/public/imovel/$id'
     | '/api/public/feed/geral/$id'
@@ -985,6 +997,7 @@ export interface FileRouteTypes {
     | '/api/public/empreendimento/$id'
     | '/api/public/feed/$slug'
     | '/api/public/feed/foto-video.xml'
+    | '/api/public/feed/fotos.xml'
     | '/api/public/img/$'
     | '/api/public/imovel/$id'
     | '/api/public/feed/geral/$id'
@@ -1005,6 +1018,7 @@ export interface RootRouteChildren {
   ApiPublicEmpreendimentoIdRoute: typeof ApiPublicEmpreendimentoIdRoute
   ApiPublicFeedSlugRoute: typeof ApiPublicFeedSlugRoute
   ApiPublicFeedFotoVideoDotxmlRoute: typeof ApiPublicFeedFotoVideoDotxmlRoute
+  ApiPublicFeedFotosDotxmlRoute: typeof ApiPublicFeedFotosDotxmlRoute
   ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
   ApiPublicImovelIdRoute: typeof ApiPublicImovelIdRoute
   ApiPublicFeedGeralIdRoute: typeof ApiPublicFeedGeralIdRoute
@@ -1503,6 +1517,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicImgSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/feed/fotos.xml': {
+      id: '/api/public/feed/fotos.xml'
+      path: '/api/public/feed/fotos.xml'
+      fullPath: '/api/public/feed/fotos.xml'
+      preLoaderRoute: typeof ApiPublicFeedFotosDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/feed/foto-video.xml': {
       id: '/api/public/feed/foto-video.xml'
       path: '/api/public/feed/foto-video.xml'
@@ -1837,6 +1858,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicEmpreendimentoIdRoute: ApiPublicEmpreendimentoIdRoute,
   ApiPublicFeedSlugRoute: ApiPublicFeedSlugRoute,
   ApiPublicFeedFotoVideoDotxmlRoute: ApiPublicFeedFotoVideoDotxmlRoute,
+  ApiPublicFeedFotosDotxmlRoute: ApiPublicFeedFotosDotxmlRoute,
   ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,
   ApiPublicImovelIdRoute: ApiPublicImovelIdRoute,
   ApiPublicFeedGeralIdRoute: ApiPublicFeedGeralIdRoute,
@@ -1845,13 +1867,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
