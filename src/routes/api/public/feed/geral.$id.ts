@@ -7,7 +7,7 @@ import { IMOVEL_PUBLIC_COLUMNS } from "@/lib/db-columns";
 export const Route = createFileRoute("/api/public/feed/geral/$id")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ params, request }) => {
         try {
           const { getFeedSupabase } = await import("@/lib/feed-supabase.server");
           const { client: supabase, error: envErr } = await getFeedSupabase();
@@ -86,7 +86,7 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
               updated_at: new Date().toISOString(),
             },
             imoveis: enriched,
-            storageBaseUrl: `${process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL}/storage/v1/object/public/imoveis`,
+            storageBaseUrl: `${new URL(request.url).origin}/api/public/img/imoveis`,
           });
 
 

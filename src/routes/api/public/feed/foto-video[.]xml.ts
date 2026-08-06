@@ -7,7 +7,7 @@ import { IMOVEL_PUBLIC_COLUMNS } from "@/lib/db-columns";
 export const Route = createFileRoute("/api/public/feed/foto-video.xml")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
         try {
           const { getFeedSupabase } = await import("@/lib/feed-supabase.server");
           const { client: supabase, error: envErr } = await getFeedSupabase();
@@ -82,7 +82,7 @@ export const Route = createFileRoute("/api/public/feed/foto-video.xml")({
               updated_at: new Date().toISOString(),
             },
             imoveis: enriched,
-            storageBaseUrl: `${process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL}/storage/v1/object/public/imoveis`,
+            storageBaseUrl: `${new URL(request.url).origin}/api/public/img/imoveis`,
           });
 
           return new Response(xml, {
