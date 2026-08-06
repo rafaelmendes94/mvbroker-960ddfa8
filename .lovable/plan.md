@@ -1,19 +1,35 @@
-## Restringir menu da Secretária
+# Feeds XML: Geral, Fotos e Casa em Condomínio (com seleção)
 
-A **Secretária** só verá/acessará: **Imóveis**, **Empreendimentos** (Condomínios / Edifícios / Loteamentos), **Banco de Imagens** e **Tabela** (+ Perfil e Notificações).
+## O que muda
 
-Ficam **ocultos** para ela: Dashboard, Oportunidades, Relatórios, Relatórios Admin, Clientes, Usuários, Planos, Assinaturas, Exportação, Feeds XML, Portais, Auditoria, Segurança, Configurações, Importações.
+Na tela **Feeds XML** (menu lateral), passam a existir 4 feeds prontos, disponíveis tanto para o perfil **Admin** quanto **Secretária**:
 
-### Alterações
+1. **XML Geral** — todos os imóveis liberados para exportação (já existe).
+2. **XML Fotos** — somente imóveis que tenham pelo menos 1 foto.
+3. **XML Casa em Condomínio** — somente imóveis de casa em condomínio/loteamento.
+4. **XML Personalizado** — seleção manual de imóveis (já existe).
 
-**`src/lib/permissions.ts`**
-- Adicionar lista `SECRETARIA_ALLOW` com apenas as rotas permitidas:
-  `/imoveis`, `/edificios`, `/condominios`, `/loteamentos`, `/biblioteca`, `/tabela`, `/perfil`, `/notificacoes`, `/favoritos`.
-- Ajustar `canAccess(path, roles)`: se o papel principal for `secretaria`, permitir apenas caminhos dessa lista (ignora `ROUTE_ACCESS` para ela).
-- Ajustar `primaryRole` se necessário para garantir que secretaria seja detectada corretamente.
+Cada card mostra a URL pública, com botões **Copiar URL**, **Abrir** e **Baixar XML**.
 
-Isso já filtra automaticamente:
-- **Sidebar** (`AppSidebar.tsx`) — só mostra itens/seções permitidos (usa `canAccess`).
-- **Guardas de rota** em `_authenticated/*` que usam `canAccess`.
+## Seleção por condições
 
-Não mexer em nada de UI além de esconder — a lógica é toda no `permissions.ts`.
+Acima dos cards entra um bloco **"Montar meu XML"** com caixas de seleção:
+
+- Somente com fotos
+- Somente com vídeo
+- Somente casa em condomínio
+- Somente exclusivos
+- Somente disponíveis
+
+Ao marcar/desmarcar, a URL do feed é montada na hora (ex.: `.../api/public/feed/filtro.xml?fotos=1&casa_condominio=1`) e ficam disponíveis os mesmos botões Copiar / Abrir / Baixar. Sem nenhuma marcação, equivale ao XML Geral.
+
+## Detalhes técnicos
+
+- Novas rotas públicas:
+  - `src/routes/api/public/feed/fotos[.]xml.ts` — imóveis não arquivados, `exportacao_liberada = true`, status disponível/reservado, com ao menos 1 registro em `imovel_imagens`.
+  - `src/routes/api/public/feed/casa-condominio[.]xml.ts` — mesmo filtro base + imóvel de casa em condomínio.
+  - `src/routes/api/public/feed/filtro[.]xml.ts` — mesma base, aplicando os parâmetros de query (`fotos`, `video`, `casa_condominio`, `exclusivo`, `disponivel`).
+- Regra "casa em condomínio": `tipo_imovel` contendo "cond" (ex.: Casa de Condomínio / casa_condominio) **ou** `tipo_imovel` do grupo casa/sobrado com `condominio_id` ou `loteamento_id` preenchido.
+- Para evitar 3 cópias do mesmo código, a lógica comum (buscar imóveis, imagens, nomes de edifício/condomínio, montar XML) vai para um helper `src/lib/feed-base.server.ts` reutilizado pelas rotas novas e pela `foto-video.xml`. As fotos continuam saindo pelo proxy público `/api/public/img/imoveis/...`.
+- UI: `src/routes/_authenticated/carteiras.index.tsx` ganha os novos cards e o bloco de seleção (componente `src/components/feeds/FeedFiltroCard.tsx`).
+- Acesso: `/carteiras` já é liberado para `super_admin` e `secretaria` em `src/lib/permissions.ts` — nenhuma mudança de permissão necessária.
