@@ -32,10 +32,28 @@ function Favoritos() {
     })();
   }, [fav.ids]);
 
+  async function compartilharLista() {
+    const ids = Array.from(fav.ids);
+    if (!ids.length) return;
+    const url = `${window.location.origin}/lista?t=${encodeURIComponent("Imóveis selecionados")}&ids=${ids.join(",")}`;
+    if ((navigator as any).share) {
+      try { await (navigator as any).share({ title: "Imóveis selecionados", url }); return; } catch {}
+    }
+    try { await navigator.clipboard.writeText(url); toast.success("Link público copiado"); }
+    catch { window.open(url, "_blank"); }
+  }
+
   return (
     <>
       <PageHeader title="Meus favoritos" description={`${fav.count} imóvel(is) favoritados.`}
-        actions={<Button asChild variant="outline"><Link to="/imoveis">Voltar aos Imóveis</Link></Button>} />
+        actions={
+          <div className="flex gap-2">
+            <Button variant="default" onClick={compartilharLista} disabled={fav.count === 0}>
+              <Share2 className="h-4 w-4 mr-1.5" /> Compartilhar lista
+            </Button>
+            <Button asChild variant="outline"><Link to="/imoveis">Voltar aos Imóveis</Link></Button>
+          </div>
+        } />
 
       {fav.count === 0 ? (
         <Card><CardContent className="py-16 text-center">
