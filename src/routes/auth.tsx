@@ -24,7 +24,10 @@ function AuthPage() {
   const [tab, setTab] = useState<"login" | "cadastro">("login");
 
   // Cadastro
+  const [suTipo, setSuTipo] = useState<"corretor" | "imobiliaria">("corretor");
   const [suNome, setSuNome] = useState("");
+  const [suRazao, setSuRazao] = useState("");
+  const [suCnpj, setSuCnpj] = useState("");
   const [suEmail, setSuEmail] = useState("");
   const [suTelefone, setSuTelefone] = useState("");
   const [suCreci, setSuCreci] = useState("");
@@ -32,6 +35,15 @@ function AuthPage() {
   const [suSenha, setSuSenha] = useState("");
   const [suSenha2, setSuSenha2] = useState("");
   const [suLoading, setSuLoading] = useState(false);
+
+  // Pré-seleção via link dos planos: /auth?tab=cadastro&tipo=imobiliaria
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const t = sp.get("tipo");
+    if (t === "imobiliaria" || t === "corretor") setSuTipo(t);
+    if (sp.get("tab") === "cadastro" || t) setTab("cadastro");
+  }, []);
+
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
