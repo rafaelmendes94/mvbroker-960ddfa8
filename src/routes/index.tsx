@@ -479,11 +479,20 @@ function LandingPage() {
                     ))}
                   </ul>
                 </div>
-                <a href={waLink(waNumero, p.name)} target="_blank" rel="noreferrer">
-                  <button className="w-full py-3.5 text-sm font-semibold bg-[#10b981] text-white hover:bg-[#059669] transition-colors">
-                    {p.cta}
-                  </button>
-                </a>
+                {p.name === "Premium" ? (
+                  <a href={waLink(waNumero, p.name)} target="_blank" rel="noreferrer">
+                    <button className="w-full py-3.5 text-sm font-semibold bg-[#10b981] text-white hover:bg-[#059669] transition-colors">
+                      {p.cta}
+                    </button>
+                  </a>
+                ) : (
+                  <a href={`/auth?tab=cadastro&tipo=${p.name === "Imobiliária" ? "imobiliaria" : "corretor"}`}>
+                    <button className="w-full py-3.5 text-sm font-semibold bg-[#10b981] text-white hover:bg-[#059669] transition-colors">
+                      {p.cta}
+                    </button>
+                  </a>
+                )}
+
               </div>
             ))}
           </div>

@@ -1,21 +1,34 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const signupSchema = z.object({
-  nome: z.string().trim().min(3).max(200),
-  email: z.string().trim().email().max(255),
-  telefone: z.string().trim().min(8).max(40),
-  creci: z.string().trim().min(2).max(40),
-  cidade: z.string().trim().min(2).max(120),
-  senha: z.string().min(8).max(72),
-});
+const signupSchema = z
+  .object({
+    tipo: z.enum(["corretor", "imobiliaria"]).default("corretor"),
+    nome: z.string().trim().min(3).max(200),
+    email: z.string().trim().email().max(255),
+    telefone: z.string().trim().min(8).max(40),
+    creci: z.string().trim().max(40).optional().default(""),
+    cidade: z.string().trim().min(2).max(120),
+    cnpj: z.string().trim().max(30).optional().default(""),
+    razao_social: z.string().trim().max(200).optional().default(""),
+    senha: z.string().min(8).max(72),
+  })
+  .refine((d) => d.tipo === "imobiliaria" || d.creci.length >= 2, {
+    message: "Informe o CRECI.",
+    path: ["creci"],
+  })
+  .refine((d) => d.tipo === "corretor" || d.cnpj.length >= 11, {
+    message: "Informe o CNPJ.",
+    path: ["cnpj"],
+  });
 
-// Cadastro público de corretor — conta criada em estado "pendente", sem plano.
+// Cadastro público (corretor ou imobiliária) — conta em estado "pendente", sem plano.
 export const signupCorretor = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => signupSchema.parse(d))
   .handler(async ({ data }) => {
     const { getSupabaseAdmin } = await import("./solicitacoes.server");
     const admin = await getSupabaseAdmin();
+    const isImob = data.tipo === "imobiliaria";
 
     const { data: created, error } = await admin.auth.admin.createUser({
       email: data.email,
@@ -34,25 +47,40 @@ export const signupCorretor = createServerFn({ method: "POST" })
 
     await admin.from("profiles").upsert({ id: userId, full_name: data.nome });
 
-    // O trigger de novo usuário já concede corretor_autonomo; garantimos idempotência.
-    const { data: roles } = await admin.from("user_roles").select("role").eq("user_id", userId);
-    if (!roles || roles.length === 0) {
-      await admin.from("user_roles").insert({ user_id: userId, role: "corretor_autonomo" });
+    // Papel conforme o tipo escolhido no cadastro.
+    const role = isImob ? "imobiliaria" : "corretor_autonomo";
+    await admin.from("user_roles").delete().eq("user_id", userId);
+    await admin.from("user_roles").insert({ user_id: userId, role });
+
+    if (isImob) {
+      await admin.from("imobiliarias").insert({
+        owner_id: userId,
+        nome_fantasia: data.nome,
+        razao_social: data.razao_social || null,
+        cnpj: data.cnpj || null,
+        email: data.email,
+        telefone: data.telefone,
+        status: "pendente",
+      });
     }
 
     const { error: solErr } = await admin.from("solicitacoes_cadastro").insert({
       user_id: userId,
+      tipo: data.tipo,
       nome: data.nome,
       email: data.email,
       telefone: data.telefone,
-      creci: data.creci,
+      creci: data.creci || null,
       cidade: data.cidade,
+      cnpj: data.cnpj || null,
+      razao_social: data.razao_social || null,
       status: "pendente",
     });
     if (solErr) throw new Error(solErr.message);
 
     return { ok: true };
   });
+
 
 const tokenSchema = z.object({ _token: z.string().min(1) });
 

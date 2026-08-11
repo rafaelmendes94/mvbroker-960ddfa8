@@ -112,9 +112,13 @@ export function SolicitacoesTab() {
                 <TableCell>
                   <div className="font-medium">{r.nome}</div>
                   <div className="text-xs text-muted-foreground">
+                    {(r as any).tipo === "imobiliaria" ? "Imobiliária" : "Corretor"}
+                    {(r as any).cnpj ? ` · CNPJ ${(r as any).cnpj}` : ""}
+                    {" · "}
                     {new Date(r.created_at).toLocaleDateString("pt-BR")}
                   </div>
                 </TableCell>
+
                 <TableCell className="text-sm">
                   <div>{r.email}</div>
                   <div className="text-muted-foreground">{r.telefone}</div>

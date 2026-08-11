@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { Building2, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
@@ -24,7 +24,10 @@ function AuthPage() {
   const [tab, setTab] = useState<"login" | "cadastro">("login");
 
   // Cadastro
+  const [suTipo, setSuTipo] = useState<"corretor" | "imobiliaria">("corretor");
   const [suNome, setSuNome] = useState("");
+  const [suRazao, setSuRazao] = useState("");
+  const [suCnpj, setSuCnpj] = useState("");
   const [suEmail, setSuEmail] = useState("");
   const [suTelefone, setSuTelefone] = useState("");
   const [suCreci, setSuCreci] = useState("");
@@ -32,6 +35,15 @@ function AuthPage() {
   const [suSenha, setSuSenha] = useState("");
   const [suSenha2, setSuSenha2] = useState("");
   const [suLoading, setSuLoading] = useState(false);
+
+  // Pré-seleção via link dos planos: /auth?tab=cadastro&tipo=imobiliaria
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const t = sp.get("tipo");
+    if (t === "imobiliaria" || t === "corretor") setSuTipo(t);
+    if (sp.get("tab") === "cadastro" || t) setTab("cadastro");
+  }, []);
+
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -52,13 +64,17 @@ function AuthPage() {
     try {
       await signupCorretor({
         data: {
+          tipo: suTipo,
           nome: suNome.trim(),
           email: suEmail.trim(),
           telefone: suTelefone.trim(),
           creci: suCreci.trim(),
           cidade: suCidade.trim(),
+          cnpj: suCnpj.trim(),
+          razao_social: suRazao.trim(),
           senha: suSenha,
         },
+
       });
       const { error } = await supabase.auth.signInWithPassword({
         email: suEmail.trim(),
@@ -167,15 +183,52 @@ function AuthPage() {
             </TabsContent>
 
             <TabsContent value="cadastro">
-              <h2 className="text-2xl font-bold tracking-tight mt-6">Criar conta de corretor</h2>
+              <h2 className="text-2xl font-bold tracking-tight mt-6">
+                {suTipo === "imobiliaria" ? "Criar conta de imobiliária" : "Criar conta de corretor"}
+              </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Preencha seus dados. Após o envio, sua conta passa por aprovação da nossa equipe.
+                Preencha os dados. Após o envio, sua conta passa por aprovação da nossa equipe.
               </p>
+
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                {([
+                  { v: "corretor", l: "Sou corretor" },
+                  { v: "imobiliaria", l: "Sou imobiliária" },
+                ] as const).map((o) => (
+                  <button
+                    key={o.v}
+                    type="button"
+                    onClick={() => setSuTipo(o.v)}
+                    className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+                      suTipo === o.v
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-input hover:bg-muted"
+                    }`}
+                  >
+                    {o.l}
+                  </button>
+                ))}
+              </div>
+
               <form onSubmit={handleSignup} className="mt-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="su-nome">Nome completo</Label>
+                  <Label htmlFor="su-nome">
+                    {suTipo === "imobiliaria" ? "Nome fantasia da imobiliária" : "Nome completo"}
+                  </Label>
                   <Input id="su-nome" required maxLength={200} value={suNome} onChange={e => setSuNome(e.target.value)} />
                 </div>
+                {suTipo === "imobiliaria" && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="su-razao">Razão social</Label>
+                      <Input id="su-razao" required maxLength={200} value={suRazao} onChange={e => setSuRazao(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="su-cnpj">CNPJ</Label>
+                      <Input id="su-cnpj" required maxLength={30} placeholder="00.000.000/0000-00" value={suCnpj} onChange={e => setSuCnpj(e.target.value)} />
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="su-email">E-mail</Label>
                   <Input id="su-email" type="email" autoComplete="email" required maxLength={255} value={suEmail} onChange={e => setSuEmail(e.target.value)} />
@@ -186,14 +239,15 @@ function AuthPage() {
                     <Input id="su-tel" inputMode="tel" required maxLength={40} placeholder="(51) 99999-9999" value={suTelefone} onChange={e => setSuTelefone(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="su-creci">CRECI</Label>
-                    <Input id="su-creci" required maxLength={40} value={suCreci} onChange={e => setSuCreci(e.target.value)} />
+                    <Label htmlFor="su-creci">CRECI {suTipo === "imobiliaria" ? "(jurídico)" : ""}</Label>
+                    <Input id="su-creci" required={suTipo === "corretor"} maxLength={40} value={suCreci} onChange={e => setSuCreci(e.target.value)} />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="su-cidade">Cidade</Label>
                   <Input id="su-cidade" required maxLength={120} value={suCidade} onChange={e => setSuCidade(e.target.value)} />
                 </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="su-senha">Senha</Label>
