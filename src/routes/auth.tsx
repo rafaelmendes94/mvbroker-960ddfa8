@@ -64,13 +64,17 @@ function AuthPage() {
     try {
       await signupCorretor({
         data: {
+          tipo: suTipo,
           nome: suNome.trim(),
           email: suEmail.trim(),
           telefone: suTelefone.trim(),
           creci: suCreci.trim(),
           cidade: suCidade.trim(),
+          cnpj: suCnpj.trim(),
+          razao_social: suRazao.trim(),
           senha: suSenha,
         },
+
       });
       const { error } = await supabase.auth.signInWithPassword({
         email: suEmail.trim(),
