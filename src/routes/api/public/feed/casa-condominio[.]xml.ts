@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/public/feed/casa-condominio.xml")({
           request,
           nome: "Feed Casa em Condomínio",
           slug: "casa-condominio",
-          filters: { casaCondominio: true },
+          filters: { manualSlug: "casa-condominio", todos: true },
           logTag: "feed/casa-condominio",
         });
       },

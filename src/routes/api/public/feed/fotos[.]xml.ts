@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/public/feed/fotos.xml")({
           request,
           nome: "Feed Fotos",
           slug: "fotos",
-          filters: { fotos: true },
+          filters: { manualSlug: "fotos", todos: true },
           logTag: "feed/fotos",
         });
       },
