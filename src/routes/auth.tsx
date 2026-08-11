@@ -127,39 +127,102 @@ function AuthPage() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold tracking-tight">Bem-vindo de volta</h2>
-          <p className="text-sm text-muted-foreground mt-1">Acesse sua conta para continuar.</p>
-          <form onSubmit={handleLogin} className="mt-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Senha</Label>
-                <button type="button" onClick={handleForgot} className="text-xs text-primary hover:underline">
-                  Esqueci minha senha
-                </button>
-              </div>
-              <div className="relative">
-                <Input id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} className="pr-10" />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-            <Button type="submit" disabled={loading} className="w-full h-10">
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />} Entrar
-            </Button>
-          </form>
+          <Tabs value={tab} onValueChange={(v) => setTab(v as "login" | "cadastro")}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Entrar</TabsTrigger>
+              <TabsTrigger value="cadastro">Criar conta</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="login">
+              <h2 className="text-2xl font-bold tracking-tight mt-6">Bem-vindo de volta</h2>
+              <p className="text-sm text-muted-foreground mt-1">Acesse sua conta para continuar.</p>
+              <form onSubmit={handleLogin} className="mt-6 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input id="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Senha</Label>
+                    <button type="button" onClick={handleForgot} className="text-xs text-primary hover:underline">
+                      Esqueci minha senha
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Input id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} className="pr-10" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <Button type="submit" disabled={loading} className="w-full h-10">
+                  {loading && <Loader2 className="h-4 w-4 animate-spin" />} Entrar
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="cadastro">
+              <h2 className="text-2xl font-bold tracking-tight mt-6">Criar conta de corretor</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Preencha seus dados. Após o envio, sua conta passa por aprovação da nossa equipe.
+              </p>
+              <form onSubmit={handleSignup} className="mt-6 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="su-nome">Nome completo</Label>
+                  <Input id="su-nome" required maxLength={200} value={suNome} onChange={e => setSuNome(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="su-email">E-mail</Label>
+                  <Input id="su-email" type="email" autoComplete="email" required maxLength={255} value={suEmail} onChange={e => setSuEmail(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="su-tel">Telefone / WhatsApp</Label>
+                    <Input id="su-tel" inputMode="tel" required maxLength={40} placeholder="(51) 99999-9999" value={suTelefone} onChange={e => setSuTelefone(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="su-creci">CRECI</Label>
+                    <Input id="su-creci" required maxLength={40} value={suCreci} onChange={e => setSuCreci(e.target.value)} />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="su-cidade">Cidade</Label>
+                  <Input id="su-cidade" required maxLength={120} value={suCidade} onChange={e => setSuCidade(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="su-senha">Senha</Label>
+                    <div className="relative">
+                      <Input id="su-senha" type={showPassword ? "text" : "password"} autoComplete="new-password" required minLength={8} maxLength={72} value={suSenha} onChange={e => setSuSenha(e.target.value)} className="pr-10" />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="su-senha2">Confirmar senha</Label>
+                    <Input id="su-senha2" type={showPassword ? "text" : "password"} autoComplete="new-password" required minLength={8} maxLength={72} value={suSenha2} onChange={e => setSuSenha2(e.target.value)} />
+                  </div>
+                </div>
+                <Button type="submit" disabled={suLoading} className="w-full h-10">
+                  {suLoading && <Loader2 className="h-4 w-4 animate-spin" />} Enviar cadastro
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
 
           <p className="mt-6 rounded-md border border-border bg-muted/40 p-3 text-center text-xs text-muted-foreground">
-            Não tem conta? O acesso é liberado pelo nosso time comercial.{" "}
+            Dúvidas sobre o acesso? Fale com nosso time comercial.{" "}
             <a
               href="https://wa.me/5551983282535"
               target="_blank"
@@ -173,6 +236,7 @@ function AuthPage() {
             </a>
             .
           </p>
+
 
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
