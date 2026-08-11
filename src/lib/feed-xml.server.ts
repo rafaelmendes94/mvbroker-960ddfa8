@@ -18,41 +18,114 @@ function cdata(s: unknown): string {
 type ImovelRow = Record<string, any>;
 type ImagemRow = { url: string | null; storage_path: string; ordem: number; capa: boolean };
 
+// Normaliza rótulos vindos do cadastro ("Casa de Condomínio", "Sala Comercial",
+// "APARTAMENTO"...) para uma chave estável.
+function slugTipo(t?: string | null): string {
+  return String(t ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 const TIPO_MAP_VRSYNC: Record<string, string> = {
   apartamento: "Residential / Apartment",
-  cobertura: "Residential / Apartment",
+  apto: "Residential / Apartment",
+  cobertura: "Residential / Penthouse",
+  duplex: "Residential / Apartment",
+  triplex: "Residential / Apartment",
+  studio: "Residential / Apartment",
+  kitnet: "Residential / Apartment",
+  flat: "Residential / Apartment",
+  loft: "Residential / Apartment",
   casa: "Residential / Home",
-  casa_condominio: "Residential / Home",
-  terreno: "Land / Lot",
-  loteamento: "Land / Lot",
-  comercial: "Commercial / Office",
-  sala_comercial: "Commercial / Office",
-  galpao: "Commercial / Warehouse",
-  loja: "Commercial / Storefront",
+  sobrado: "Residential / Home",
+  casa_de_condominio: "Residential / Condo",
+  casa_condominio: "Residential / Condo",
+  casa_em_condominio: "Residential / Condo",
+  terreno: "Residential / Land Lot",
+  lote: "Residential / Land Lot",
+  terreno_comercial: "Commercial / Land Lot",
+  loteamento: "Residential / Land Lot",
+  chacara: "Residential / Country House",
+  sitio: "Farm / Ranch",
+  fazenda: "Farm / Ranch",
   rural: "Farm / Ranch",
+  comercial: "Commercial / Building",
+  sala_comercial: "Commercial / Office",
+  sala: "Commercial / Office",
+  conjunto_comercial: "Commercial / Office",
+  ponto_comercial: "Commercial / Business",
+  galpao: "Commercial / Industrial",
+  barracao: "Commercial / Industrial",
+  loja: "Commercial / Business",
+  predio: "Commercial / Building",
+  hotel: "Commercial / Hotel",
+  pousada: "Commercial / Hotel",
+  garagem: "Commercial / Parking Lot",
+  box: "Commercial / Parking Lot",
 };
 
 const TIPO_MAP_PT: Record<string, string> = {
   apartamento: "Apartamento",
+  apto: "Apartamento",
   casa: "Casa",
+  sobrado: "Sobrado",
+  casa_de_condominio: "Casa de Condomínio",
   casa_condominio: "Casa de Condomínio",
+  casa_em_condominio: "Casa de Condomínio",
   cobertura: "Cobertura",
+  duplex: "Duplex",
+  triplex: "Triplex",
+  studio: "Studio",
+  kitnet: "Kitnet",
+  flat: "Flat",
+  loft: "Loft",
   terreno: "Terreno",
+  lote: "Terreno",
+  loteamento: "Terreno",
+  chacara: "Chácara",
+  sitio: "Sítio",
+  fazenda: "Fazenda",
   comercial: "Comercial",
   sala_comercial: "Sala Comercial",
+  conjunto_comercial: "Sala Comercial",
+  ponto_comercial: "Ponto Comercial",
   galpao: "Galpão",
+  barracao: "Galpão",
   loja: "Loja",
-  rural: "Fazenda / Sítio",
+  predio: "Prédio",
+  hotel: "Hotel",
+  pousada: "Pousada",
+  garagem: "Garagem",
+  box: "Box / Garagem",
+  rural: "Rural",
 };
 
 function mapTipoVRSync(t?: string | null): string {
-  if (!t) return "Residential / Apartment";
-  return TIPO_MAP_VRSYNC[t] ?? "Residential / Apartment";
+  const k = slugTipo(t);
+  if (!k) return "Residential / Home";
+  if (TIPO_MAP_VRSYNC[k]) return TIPO_MAP_VRSYNC[k];
+  // heurísticas por palavra-chave
+  if (/condominio/.test(k) && /casa/.test(k)) return "Residential / Condo";
+  if (/apart|apto|cobert/.test(k)) return "Residential / Apartment";
+  if (/casa|sobrado|residenc/.test(k)) return "Residential / Home";
+  if (/terreno|lote|area/.test(k)) return "Residential / Land Lot";
+  if (/sala|escritorio|conjunto/.test(k)) return "Commercial / Office";
+  if (/galpao|barracao|industri/.test(k)) return "Commercial / Industrial";
+  if (/loja|ponto|comercial/.test(k)) return "Commercial / Business";
+  if (/sitio|chacara|fazenda|rural/.test(k)) return "Farm / Ranch";
+  return "Residential / Home";
 }
 
 function mapTipoPT(t?: string | null): string {
-  if (!t) return "Outros";
-  return TIPO_MAP_PT[t] ?? t.charAt(0).toUpperCase() + t.slice(1);
+  const k = slugTipo(t);
+  if (!k) return "Outros";
+  if (TIPO_MAP_PT[k]) return TIPO_MAP_PT[k];
+  const raw = String(t).trim();
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 
 function transactionType(condicao?: string | null): "For Sale" | "For Rent" {
