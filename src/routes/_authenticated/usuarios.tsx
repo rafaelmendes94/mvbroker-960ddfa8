@@ -73,15 +73,20 @@ function UsuariosPage() {
       <Tabs defaultValue="usuarios" className="mt-2">
         <TabsList>
           <TabsTrigger value="usuarios"><UsersIcon className="h-4 w-4 mr-2" />Usuários</TabsTrigger>
+          <TabsTrigger value="solicitacoes"><UserPlus className="h-4 w-4 mr-2" />Solicitações</TabsTrigger>
           <TabsTrigger value="papeis"><Shield className="h-4 w-4 mr-2" />Papéis & Permissões</TabsTrigger>
         </TabsList>
         <TabsContent value="usuarios" className="pt-4">
           <UsuariosTab />
         </TabsContent>
+        <TabsContent value="solicitacoes" className="pt-4">
+          <SolicitacoesTab />
+        </TabsContent>
         <TabsContent value="papeis" className="pt-4">
           <PapeisPermissoesTab />
         </TabsContent>
       </Tabs>
+
     </>
   );
 }
