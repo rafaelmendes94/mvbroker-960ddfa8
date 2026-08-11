@@ -8,6 +8,7 @@ export type FeedFilters = {
   casaCondominio?: boolean;
   exclusivo?: boolean;
   somenteDisponiveis?: boolean;
+  vistaMar?: boolean;
 };
 
 export function parseFeedFilters(url: URL): FeedFilters {
@@ -18,6 +19,7 @@ export function parseFeedFilters(url: URL): FeedFilters {
     casaCondominio: on("casa_condominio"),
     exclusivo: on("exclusivo"),
     somenteDisponiveis: on("disponivel"),
+    vistaMar: on("vista_mar"),
   };
 }
 
