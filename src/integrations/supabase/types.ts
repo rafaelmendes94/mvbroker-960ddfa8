@@ -2147,14 +2147,17 @@ export type Database = {
           aprovado_em: string | null
           aprovado_por: string | null
           cidade: string | null
+          cnpj: string | null
           created_at: string
           creci: string | null
           email: string
           id: string
           motivo_recusa: string | null
           nome: string
+          razao_social: string | null
           status: string
           telefone: string | null
+          tipo: string
           updated_at: string
           user_id: string
         }
@@ -2162,14 +2165,17 @@ export type Database = {
           aprovado_em?: string | null
           aprovado_por?: string | null
           cidade?: string | null
+          cnpj?: string | null
           created_at?: string
           creci?: string | null
           email: string
           id?: string
           motivo_recusa?: string | null
           nome: string
+          razao_social?: string | null
           status?: string
           telefone?: string | null
+          tipo?: string
           updated_at?: string
           user_id: string
         }
@@ -2177,14 +2183,17 @@ export type Database = {
           aprovado_em?: string | null
           aprovado_por?: string | null
           cidade?: string | null
+          cnpj?: string | null
           created_at?: string
           creci?: string | null
           email?: string
           id?: string
           motivo_recusa?: string | null
           nome?: string
+          razao_social?: string | null
           status?: string
           telefone?: string | null
+          tipo?: string
           updated_at?: string
           user_id?: string
         }
