@@ -58,10 +58,13 @@ const SECRETARIA_ALLOW = new Set<string>([
   "/loteamentos",
   "/biblioteca",
   "/tabela",
+  "/carteiras",
+  "/imoveis/exportacao",
   "/perfil",
   "/notificacoes",
   "/favoritos",
 ]);
+
 
 export function canAccess(path: string, roles: AppRole[]): boolean {
   // Se for secretária (e não for também super_admin), aplica allowlist estrita.
