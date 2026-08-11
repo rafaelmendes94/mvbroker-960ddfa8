@@ -152,7 +152,7 @@ export const statusFeedsSistema = createServerFn({ method: "POST" })
     return {
       elegivel,
       feeds: [
-        { slug: "geral", nome: "XML Geral", url: "/api/public/feed/geral.xml", incluido: elegivel },
+        { slug: "geral", nome: "XML Geral", url: "/api/public/feed/filtro.xml", incluido: elegivel },
         { slug: "fotos", nome: "XML com Fotos", url: "/api/public/feed/fotos.xml", incluido: elegivel && (count ?? 0) > 0 },
         { slug: "vista-mar", nome: "XML Vista para o Mar", url: "/api/public/feed/vista-mar.xml", incluido: elegivel && im.vista_mar === true },
         { slug: "casa-condominio", nome: "XML Casa em Condomínio", url: "/api/public/feed/casa-condominio.xml", incluido: elegivel && casaCond },
