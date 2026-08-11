@@ -9,6 +9,10 @@ export type FeedFilters = {
   exclusivo?: boolean;
   somenteDisponiveis?: boolean;
   vistaMar?: boolean;
+  /** Slug do feed do sistema com seleção manual (imovel_feeds_sistema). */
+  manualSlug?: string;
+  /** Ignora o filtro de exportação liberada (feed geral: todos os imóveis). */
+  todos?: boolean;
 };
 
 export function parseFeedFilters(url: URL): FeedFilters {
@@ -55,8 +59,8 @@ export async function buildFeedResponse(opts: {
     let q: any = supabase
       .from("imoveis")
       .select(`${IMOVEL_PUBLIC_COLUMNS}, loteamento_id`)
-      .eq("arquivado", false)
-      .eq("exportacao_liberada", true);
+      .eq("arquivado", false);
+    if (!filters.todos) q = q.eq("exportacao_liberada", true);
 
     if (filters.video) q = q.not("link_video", "is", null).neq("link_video", "");
     if (filters.exclusivo) q = q.eq("exclusivo", true);
@@ -78,6 +82,15 @@ export async function buildFeedResponse(opts: {
     });
 
     if (filters.casaCondominio) candidatos = candidatos.filter(isCasaCondominio);
+
+    if (filters.manualSlug) {
+      const { data: marcados } = await supabase
+        .from("imovel_feeds_sistema")
+        .select("imovel_id")
+        .eq("slug", filters.manualSlug);
+      const set = new Set((marcados ?? []).map((m: any) => m.imovel_id));
+      candidatos = candidatos.filter((im: any) => set.has(im.id));
+    }
 
     let imagens: any[] = [];
     if (candidatos.length) {
