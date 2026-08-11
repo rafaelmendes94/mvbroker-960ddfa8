@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Plus, Rss } from "lucide-react";
+import { Check, Copy, Loader2, Minus, Plus, Rss } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,15 +11,18 @@ import {
   listFeedsDoImovel,
   toggleImovelNoFeed,
   criarFeedNoEscopo,
+  statusFeedsSistema,
 } from "@/lib/feeds-imovel.functions";
 
 type Feed = { id: string; nome: string; slug: string; checked: boolean };
+type FeedSistema = { slug: string; nome: string; url: string; incluido: boolean };
 
 /** Botão no card do imóvel: marca em quais feeds XML o imóvel está. */
 export function XmlFeedsButton({ imovelId, className }: { imovelId: string; className?: string }) {
   const fnList = useServerFn(listFeedsDoImovel);
   const fnToggle = useServerFn(toggleImovelNoFeed);
   const fnCreate = useServerFn(criarFeedNoEscopo);
+  const fnSistema = useServerFn(statusFeedsSistema);
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,13 +31,18 @@ export function XmlFeedsButton({ imovelId, className }: { imovelId: string; clas
   const [escopo, setEscopo] = useState<"equipe" | "privada">("privada");
   const [novo, setNovo] = useState("");
   const [criando, setCriando] = useState(false);
+  const [sistema, setSistema] = useState<FeedSistema[]>([]);
 
   async function carregar() {
     setLoading(true);
     try {
-      const res = await fnList({ data: { imovel_id: imovelId } });
+      const [res, sys] = await Promise.all([
+        fnList({ data: { imovel_id: imovelId } }),
+        fnSistema({ data: { imovel_id: imovelId } }),
+      ]);
       setFeeds(res.feeds as Feed[]);
       setEscopo(res.escopo);
+      setSistema(sys.feeds as FeedSistema[]);
     } catch (e: any) {
       toast.error(e?.message ?? "Erro ao carregar os feeds XML.");
     } finally {
@@ -72,7 +80,13 @@ export function XmlFeedsButton({ imovelId, className }: { imovelId: string; clas
     }
   }
 
-  const marcados = feeds.filter((f) => f.checked).length;
+  const marcados = feeds.filter((f) => f.checked).length + sistema.filter((f) => f.incluido).length;
+
+  function copiar(url: string) {
+    const full = `${window.location.origin}${url}`;
+    navigator.clipboard.writeText(full);
+    toast.success("Link do XML copiado.");
+  }
 
   return (
     <Popover
@@ -99,8 +113,49 @@ export function XmlFeedsButton({ imovelId, className }: { imovelId: string; clas
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-72 p-3" onClick={(e) => e.stopPropagation()}>
-        <div className="text-xs font-semibold text-foreground">Feeds XML</div>
+      <PopoverContent align="end" className="w-80 p-3" onClick={(e) => e.stopPropagation()}>
+        <div className="text-xs font-semibold text-foreground">Feeds XML do sistema</div>
+        <div className="text-[11px] text-muted-foreground mb-2">
+          Automáticos — o imóvel entra conforme o cadastro.
+        </div>
+
+        {loading ? (
+          <div className="py-4 flex justify-center">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {sistema.map((f) => (
+              <div key={f.slug} className="flex items-center gap-2 rounded-md px-1.5 py-1">
+                <span
+                  className={cn(
+                    "h-4 w-4 rounded-full flex items-center justify-center shrink-0",
+                    f.incluido ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {f.incluido ? <Check className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+                </span>
+                <span
+                  className={cn("text-xs truncate flex-1", !f.incluido && "text-muted-foreground")}
+                  title={f.incluido ? "Incluído neste feed" : "Não se enquadra neste feed"}
+                >
+                  {f.nome}
+                </span>
+                <button
+                  onClick={() => copiar(f.url)}
+                  title="Copiar link do XML"
+                  className="p-1 rounded hover:bg-muted text-muted-foreground"
+                >
+                  <Copy className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-3 border-t border-border pt-2.5 text-xs font-semibold text-foreground">
+          Feeds personalizados
+        </div>
         <div className="text-[11px] text-muted-foreground mb-2">
           {escopo === "equipe" ? "Feeds da equipe (compartilhados)" : "Seus feeds pessoais"}
         </div>

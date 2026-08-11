@@ -8,6 +8,7 @@ export type FeedFilters = {
   casaCondominio?: boolean;
   exclusivo?: boolean;
   somenteDisponiveis?: boolean;
+  vistaMar?: boolean;
 };
 
 export function parseFeedFilters(url: URL): FeedFilters {
@@ -18,6 +19,7 @@ export function parseFeedFilters(url: URL): FeedFilters {
     casaCondominio: on("casa_condominio"),
     exclusivo: on("exclusivo"),
     somenteDisponiveis: on("disponivel"),
+    vistaMar: on("vista_mar"),
   };
 }
 
@@ -58,6 +60,7 @@ export async function buildFeedResponse(opts: {
 
     if (filters.video) q = q.not("link_video", "is", null).neq("link_video", "");
     if (filters.exclusivo) q = q.eq("exclusivo", true);
+    if (filters.vistaMar) q = q.eq("vista_mar", true);
 
     const { data: imovData, error: imErr } = await q.limit(5000);
     if (imErr) {
