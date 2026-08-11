@@ -2536,6 +2536,7 @@ export type Database = {
           usados: number
         }[]
       }
+      is_admin_staff: { Args: { _uid: string }; Returns: boolean }
       is_carteira_owner: {
         Args: { _carteira_id: string; _user_id: string }
         Returns: boolean

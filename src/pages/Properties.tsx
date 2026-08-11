@@ -27,6 +27,8 @@ import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useAuth } from "@/hooks/useAuth";
 import { ImportacoesModal } from "@/components/ImportacoesModal";
 import { MeuXmlDialog } from "@/components/feeds/MeuXmlDialog";
+import { XmlFeedsButton } from "@/components/feeds/XmlFeedsButton";
+
 
 
 // Broker info
@@ -2383,6 +2385,8 @@ function PropertyCard({
 
         {/* Edit + Delete + Status */}
         <div className="flex items-center gap-2 pt-2 border-t border-border">
+          <XmlFeedsButton imovelId={property.id} />
+
           {canManage && (
             <>
               <Link
@@ -3011,6 +3015,8 @@ function PropertyRow({
 
         {/* ── COL 5: Ações (ícones) ── */}
         <div className="w-full md:w-[52px] flex-shrink-0 flex flex-row md:flex-col items-center justify-start gap-1.5 py-2 px-3 md:px-0" onClick={(e: any) => e.stopPropagation()}>
+          <XmlFeedsButton imovelId={property.id} />
+
           {canManage && (
             <button
               onClick={() => window.location.href = `/imoveis/${property.id}/editar`}
