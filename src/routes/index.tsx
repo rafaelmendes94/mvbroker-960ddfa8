@@ -486,7 +486,7 @@ function LandingPage() {
                     </button>
                   </a>
                 ) : (
-                  <a href={`/auth?tab=cadastro&tipo=${p.name === "Imobiliária" ? "imobiliaria" : "corretor"}`}>
+                  <a href={`/cadastro?tipo=${p.name === "Imobiliária" ? "imobiliaria" : "corretor"}`}>
                     <button className="w-full py-3.5 text-sm font-semibold bg-[#10b981] text-white hover:bg-[#059669] transition-colors">
                       {p.cta}
                     </button>
