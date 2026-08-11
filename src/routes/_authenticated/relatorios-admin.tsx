@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { RelatoriosFiltersProvider } from "@/hooks/use-rel-filters";
+import { RoleGate } from "@/components/RoleGate";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Users, Building2, Home, Download, Trophy } from "lucide-react";
