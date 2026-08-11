@@ -221,6 +221,7 @@ export function buildVRSyncXML(opts: BuildOpts): string {
   <Status>Active</Status>
   <Details>
     <PropertyType>${esc(tipo)}</PropertyType>
+    <PropertyTypeName>${cdata(mapTipoPT(im.tipo_imovel ?? im.tipo))}</PropertyTypeName>
     <Description>${cdata(im.descricao)}</Description>
     ${detalhes.join("\n    ")}
     ${preco}
