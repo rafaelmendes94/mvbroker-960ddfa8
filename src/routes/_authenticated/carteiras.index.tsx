@@ -71,7 +71,7 @@ function FeedsXmlPage() {
                       <Badge variant="secondary">Automático</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Todos os imóveis liberados para exportação. Atualizado automaticamente — não precisa selecionar manualmente.
+                      Todos os imóveis do sistema. Automático — não precisa marcar nada.
                     </p>
                   </div>
                 </div>
@@ -95,7 +95,7 @@ function FeedsXmlPage() {
           <FeedFixoCard
             icon={<ImageIcon className="h-5 w-5 text-sky-500" />}
             title="XML Fotos"
-            description="Somente imóveis que possuem ao menos 1 foto."
+            description="Somente imóveis marcados neste feed (no cadastro ou pelo atalho no card)."
             url={`${origin}/api/public/feed/fotos.xml`}
             filename="feed-fotos.xml"
             onCopy={copy}
@@ -105,9 +105,19 @@ function FeedsXmlPage() {
           <FeedFixoCard
             icon={<Home className="h-5 w-5 text-emerald-600" />}
             title="XML Casa em Condomínio"
-            description="Somente casas em condomínio ou loteamento."
+            description="Somente imóveis marcados neste feed (no cadastro ou pelo atalho no card)."
             url={`${origin}/api/public/feed/casa-condominio.xml`}
             filename="feed-casa-condominio.xml"
+            onCopy={copy}
+          />
+
+          {/* Feed Vista para o Mar */}
+          <FeedFixoCard
+            icon={<Rss className="h-5 w-5 text-blue-500" />}
+            title="XML Vista para o Mar"
+            description="Somente imóveis marcados neste feed (no cadastro ou pelo atalho no card)."
+            url={`${origin}/api/public/feed/vista-mar.xml`}
+            filename="feed-vista-mar.xml"
             onCopy={copy}
           />
 
