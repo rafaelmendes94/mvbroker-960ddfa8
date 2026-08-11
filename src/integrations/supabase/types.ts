@@ -2142,6 +2142,54 @@ export type Database = {
         }
         Relationships: []
       }
+      solicitacoes_cadastro: {
+        Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
+          cidade: string | null
+          created_at: string
+          creci: string | null
+          email: string
+          id: string
+          motivo_recusa: string | null
+          nome: string
+          status: string
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          cidade?: string | null
+          created_at?: string
+          creci?: string | null
+          email: string
+          id?: string
+          motivo_recusa?: string | null
+          nome: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          cidade?: string | null
+          created_at?: string
+          creci?: string | null
+          email?: string
+          id?: string
+          motivo_recusa?: string | null
+          nome?: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       system_options: {
         Row: {
           ativo: boolean
@@ -2378,6 +2426,14 @@ export type Database = {
           status: string
           titular: string
           valor: number
+        }[]
+      }
+      get_minha_solicitacao: {
+        Args: never
+        Returns: {
+          created_at: string
+          motivo_recusa: string
+          status: string
         }[]
       }
       get_minhas_permissoes_efetivas: {

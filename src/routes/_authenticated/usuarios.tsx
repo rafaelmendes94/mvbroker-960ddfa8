@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Search, MoreHorizontal, Trash2, KeyRound, ShieldCheck, Loader2, Users as UsersIcon, Shield } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Trash2, KeyRound, ShieldCheck, Loader2, Users as UsersIcon, Shield, UserPlus } from "lucide-react";
+import { SolicitacoesTab } from "@/components/usuarios/SolicitacoesTab";
+
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,15 +75,20 @@ function UsuariosPage() {
       <Tabs defaultValue="usuarios" className="mt-2">
         <TabsList>
           <TabsTrigger value="usuarios"><UsersIcon className="h-4 w-4 mr-2" />Usuários</TabsTrigger>
+          <TabsTrigger value="solicitacoes"><UserPlus className="h-4 w-4 mr-2" />Solicitações</TabsTrigger>
           <TabsTrigger value="papeis"><Shield className="h-4 w-4 mr-2" />Papéis & Permissões</TabsTrigger>
         </TabsList>
         <TabsContent value="usuarios" className="pt-4">
           <UsuariosTab />
         </TabsContent>
+        <TabsContent value="solicitacoes" className="pt-4">
+          <SolicitacoesTab />
+        </TabsContent>
         <TabsContent value="papeis" className="pt-4">
           <PapeisPermissoesTab />
         </TabsContent>
       </Tabs>
+
     </>
   );
 }
