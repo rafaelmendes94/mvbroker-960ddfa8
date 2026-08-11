@@ -6,7 +6,11 @@ import { Activity, Users, Building2, Home, Download, Trophy } from "lucide-react
 
 export const Route = createFileRoute("/_authenticated/relatorios-admin")({
   head: () => ({ meta: [{ title: "Relatórios Admin — MV Broker" }] }),
-  component: RelatoriosAdminLayout,
+  component: () => (
+    <RoleGate allow={["super_admin"]}>
+      <RelatoriosAdminLayout />
+    </RoleGate>
+  ),
 });
 
 const TABS = [
