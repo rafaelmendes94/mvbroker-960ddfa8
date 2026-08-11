@@ -1620,6 +1620,41 @@ export type Database = {
           },
         ]
       }
+      imovel_feeds_sistema: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          imovel_id: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          imovel_id: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          imovel_id?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imovel_feeds_sistema_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       imovel_imagens: {
         Row: {
           capa: boolean
