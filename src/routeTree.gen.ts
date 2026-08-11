@@ -33,6 +33,7 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedNotificacoesRouteImport } from './routes/_authenticated/notificacoes'
+import { Route as AuthenticatedMeusCorretoresRouteImport } from './routes/_authenticated/meus-corretores'
 import { Route as AuthenticatedLoteamentosRouteImport } from './routes/_authenticated/loteamentos'
 import { Route as AuthenticatedImportacoesRouteImport } from './routes/_authenticated/importacoes'
 import { Route as AuthenticatedImoveisRouteImport } from './routes/_authenticated/imoveis'
@@ -214,6 +215,12 @@ const AuthenticatedNotificacoesRoute =
   AuthenticatedNotificacoesRouteImport.update({
     id: '/notificacoes',
     path: '/notificacoes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMeusCorretoresRoute =
+  AuthenticatedMeusCorretoresRouteImport.update({
+    id: '/meus-corretores',
+    path: '/meus-corretores',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedLoteamentosRoute =
@@ -581,6 +588,7 @@ export interface FileRoutesByFullPath {
   '/imoveis': typeof AuthenticatedImoveisRouteWithChildren
   '/importacoes': typeof AuthenticatedImportacoesRouteWithChildren
   '/loteamentos': typeof AuthenticatedLoteamentosRoute
+  '/meus-corretores': typeof AuthenticatedMeusCorretoresRoute
   '/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -662,6 +670,7 @@ export interface FileRoutesByTo {
   '/edificios': typeof AuthenticatedEdificiosRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/loteamentos': typeof AuthenticatedLoteamentosRoute
+  '/meus-corretores': typeof AuthenticatedMeusCorretoresRoute
   '/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -744,6 +753,7 @@ export interface FileRoutesById {
   '/_authenticated/imoveis': typeof AuthenticatedImoveisRouteWithChildren
   '/_authenticated/importacoes': typeof AuthenticatedImportacoesRouteWithChildren
   '/_authenticated/loteamentos': typeof AuthenticatedLoteamentosRoute
+  '/_authenticated/meus-corretores': typeof AuthenticatedMeusCorretoresRoute
   '/_authenticated/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
@@ -830,6 +840,7 @@ export interface FileRouteTypes {
     | '/imoveis'
     | '/importacoes'
     | '/loteamentos'
+    | '/meus-corretores'
     | '/notificacoes'
     | '/oportunidades'
     | '/pagamentos'
@@ -911,6 +922,7 @@ export interface FileRouteTypes {
     | '/edificios'
     | '/favoritos'
     | '/loteamentos'
+    | '/meus-corretores'
     | '/notificacoes'
     | '/oportunidades'
     | '/pagamentos'
@@ -992,6 +1004,7 @@ export interface FileRouteTypes {
     | '/_authenticated/imoveis'
     | '/_authenticated/importacoes'
     | '/_authenticated/loteamentos'
+    | '/_authenticated/meus-corretores'
     | '/_authenticated/notificacoes'
     | '/_authenticated/oportunidades'
     | '/_authenticated/pagamentos'
@@ -1247,6 +1260,13 @@ declare module '@tanstack/react-router' {
       path: '/notificacoes'
       fullPath: '/notificacoes'
       preLoaderRoute: typeof AuthenticatedNotificacoesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meus-corretores': {
+      id: '/_authenticated/meus-corretores'
+      path: '/meus-corretores'
+      fullPath: '/meus-corretores'
+      preLoaderRoute: typeof AuthenticatedMeusCorretoresRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/loteamentos': {
@@ -1871,6 +1891,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedImoveisRoute: typeof AuthenticatedImoveisRouteWithChildren
   AuthenticatedImportacoesRoute: typeof AuthenticatedImportacoesRouteWithChildren
   AuthenticatedLoteamentosRoute: typeof AuthenticatedLoteamentosRoute
+  AuthenticatedMeusCorretoresRoute: typeof AuthenticatedMeusCorretoresRoute
   AuthenticatedNotificacoesRoute: typeof AuthenticatedNotificacoesRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
@@ -1903,6 +1924,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedImoveisRoute: AuthenticatedImoveisRouteWithChildren,
   AuthenticatedImportacoesRoute: AuthenticatedImportacoesRouteWithChildren,
   AuthenticatedLoteamentosRoute: AuthenticatedLoteamentosRoute,
+  AuthenticatedMeusCorretoresRoute: AuthenticatedMeusCorretoresRoute,
   AuthenticatedNotificacoesRoute: AuthenticatedNotificacoesRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
@@ -1954,13 +1976,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

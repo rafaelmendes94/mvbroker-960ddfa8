@@ -41,6 +41,7 @@ const SECTIONS: Section[] = [
     section: "Gestão",
     entries: [
       { to: "/clientes", label: "Clientes", icon: UserSquare2 },
+      { to: "/meus-corretores", label: "Meus Corretores", icon: Users },
       { to: "/usuarios", label: "Usuários", icon: Users },
       { to: "/planos", label: "Planos", icon: Tag },
       { to: "/relatorios-admin", label: "Relatórios", icon: BarChart3 },
