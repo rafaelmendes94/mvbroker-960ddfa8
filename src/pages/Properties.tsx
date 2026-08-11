@@ -2383,6 +2383,8 @@ function PropertyCard({
 
         {/* Edit + Delete + Status */}
         <div className="flex items-center gap-2 pt-2 border-t border-border">
+          <XmlFeedsButton imovelId={property.id} />
+
           {canManage && (
             <>
               <Link
