@@ -205,7 +205,7 @@ function AnalisarDialog({
       toast.success(
         res?.emailEnviado
           ? "Conta aprovada e e-mail enviado."
-          : "Conta aprovada. (E-mail de aviso ainda não configurado.)",
+          : "Conta aprovada. (E-mail de aviso não enviado.)",
       );
       onDone();
     } catch (e: any) {
