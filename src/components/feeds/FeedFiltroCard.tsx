@@ -10,6 +10,7 @@ import { DownloadXmlButton } from "@/components/feeds/DownloadXmlButton";
 const OPCOES = [
   { key: "fotos", label: "Somente com fotos" },
   { key: "video", label: "Somente com vídeo" },
+  { key: "vista_mar", label: "Somente vista para o mar" },
   { key: "casa_condominio", label: "Somente casa em condomínio" },
   { key: "exclusivo", label: "Somente exclusivos" },
   { key: "disponivel", label: "Somente disponíveis" },
