@@ -6,7 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { logAudit } from "@/lib/audit";
+import { signupCorretor } from "@/lib/solicitacoes.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — MV Broker" }] }),
@@ -19,6 +21,17 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [tab, setTab] = useState<"login" | "cadastro">("login");
+
+  // Cadastro
+  const [suNome, setSuNome] = useState("");
+  const [suEmail, setSuEmail] = useState("");
+  const [suTelefone, setSuTelefone] = useState("");
+  const [suCreci, setSuCreci] = useState("");
+  const [suCidade, setSuCidade] = useState("");
+  const [suSenha, setSuSenha] = useState("");
+  const [suSenha2, setSuSenha2] = useState("");
+  const [suLoading, setSuLoading] = useState(false);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -31,7 +44,40 @@ function AuthPage() {
     navigate({ to: "/dashboard" });
   }
 
-
+  async function handleSignup(e: React.FormEvent) {
+    e.preventDefault();
+    if (suSenha !== suSenha2) return toast.error("As senhas não conferem.");
+    if (suSenha.length < 8) return toast.error("A senha deve ter ao menos 8 caracteres.");
+    setSuLoading(true);
+    try {
+      await signupCorretor({
+        data: {
+          nome: suNome.trim(),
+          email: suEmail.trim(),
+          telefone: suTelefone.trim(),
+          creci: suCreci.trim(),
+          cidade: suCidade.trim(),
+          senha: suSenha,
+        },
+      });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: suEmail.trim(),
+        password: suSenha,
+      });
+      if (error) {
+        toast.success("Cadastro enviado! Faça login para acompanhar a aprovação.");
+        setTab("login");
+        setEmail(suEmail.trim());
+      } else {
+        toast.success("Cadastro enviado! Sua conta está em análise.");
+        navigate({ to: "/dashboard" });
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? "Não foi possível concluir o cadastro.");
+    } finally {
+      setSuLoading(false);
+    }
+  }
 
   async function handleForgot() {
     if (!email) return toast.error("Informe o e-mail primeiro.");
@@ -41,6 +87,7 @@ function AuthPage() {
     if (error) return toast.error(error.message);
     toast.success("Enviamos um link de recuperação para o seu e-mail.");
   }
+
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
