@@ -60,6 +60,7 @@ export async function buildFeedResponse(opts: {
 
     if (filters.video) q = q.not("link_video", "is", null).neq("link_video", "");
     if (filters.exclusivo) q = q.eq("exclusivo", true);
+    if (filters.vistaMar) q = q.eq("vista_mar", true);
 
     const { data: imovData, error: imErr } = await q.limit(5000);
     if (imErr) {
