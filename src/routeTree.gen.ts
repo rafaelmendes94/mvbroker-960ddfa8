@@ -13,6 +13,7 @@ import { Route as TodosImoveisRouteImport } from './routes/todos-imoveis'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ConfiancaRouteImport } from './routes/confianca'
+import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -109,6 +110,11 @@ const LoginRoute = LoginRouteImport.update({
 const ConfiancaRoute = ConfiancaRouteImport.update({
   id: '/confianca',
   path: '/confianca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -549,6 +555,7 @@ const ApiPublicFeedGeralIdRoute = ApiPublicFeedGeralIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cadastro': typeof CadastroRoute
   '/confianca': typeof ConfiancaRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -631,6 +638,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cadastro': typeof CadastroRoute
   '/confianca': typeof ConfiancaRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -708,6 +716,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
+  '/cadastro': typeof CadastroRoute
   '/confianca': typeof ConfiancaRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -792,6 +801,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/cadastro'
     | '/confianca'
     | '/login'
     | '/reset-password'
@@ -874,6 +884,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/cadastro'
     | '/confianca'
     | '/login'
     | '/reset-password'
@@ -950,6 +961,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/cadastro'
     | '/confianca'
     | '/login'
     | '/reset-password'
@@ -1034,6 +1046,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CadastroRoute: typeof CadastroRoute
   ConfiancaRoute: typeof ConfiancaRoute
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -1081,6 +1094,13 @@ declare module '@tanstack/react-router' {
       path: '/confianca'
       fullPath: '/confianca'
       preLoaderRoute: typeof ConfiancaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -1890,6 +1910,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
+  CadastroRoute: CadastroRoute,
   ConfiancaRoute: ConfiancaRoute,
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
