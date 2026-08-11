@@ -15,6 +15,7 @@ import {
   listFeedPersonalizadoIds,
   setImovelInFeedPersonalizado,
 } from "@/lib/feed-personalizado.functions";
+import { FEEDS_SISTEMA, statusFeedsSistema, toggleFeedSistema } from "@/lib/feeds-imovel.functions";
 import { logAudit, logImovel } from "@/lib/audit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -275,6 +276,17 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const fnListFeed = useServerFn(listFeedPersonalizadoIds);
   const fnSetFeed = useServerFn(setImovelInFeedPersonalizado);
   const [inFeedPersonalizado, setInFeedPersonalizado] = useState(false);
+  const fnStatusSis = useServerFn(statusFeedsSistema);
+  const fnToggleSis = useServerFn(toggleFeedSistema);
+  const [feedsSis, setFeedsSis] = useState<string[]>([]);
+
+  // Carrega os feeds XML do sistema marcados para este imóvel
+  useEffect(() => {
+    if (!imovelId) return;
+    fnStatusSis({ data: { imovel_id: imovelId } })
+      .then((r: any) => setFeedsSis((r?.feeds ?? []).filter((f: any) => !f.automatico && f.incluido).map((f: any) => f.slug)))
+      .catch(() => {});
+  }, [imovelId]);
 
   // Carrega estado do feed personalizado para este imóvel
   useEffect(() => {
@@ -626,6 +638,16 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           await fnSetFeed({ data: { imovel_id: savedId, incluir: inFeedPersonalizado } });
         } catch (err) {
           console.warn("Falha ao sincronizar Feed Personalizado", err);
+        }
+      }
+      // Sincroniza feeds XML do sistema (seleção manual)
+      if (savedId) {
+        for (const f of FEEDS_SISTEMA) {
+          try {
+            await fnToggleSis({ data: { imovel_id: savedId, slug: f.slug, incluir: feedsSis.includes(f.slug) } });
+          } catch (err) {
+            console.warn("Falha ao sincronizar feed do sistema", f.slug, err);
+          }
         }
       }
       // Espelho de vendas: sincronização agora é feita por trigger no banco
@@ -1031,6 +1053,17 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
 
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-6 mb-4 py-3 px-3 sm:px-4 bg-muted/50 rounded-lg">
             <label className="flex items-center gap-2"><Switch checked={inFeedPersonalizado} onCheckedChange={setInFeedPersonalizado} /><span className="text-xs font-semibold">⭐ Feed Personalizado</span></label>
+            {FEEDS_SISTEMA.map((f) => (
+              <label key={f.slug} className="flex items-center gap-2">
+                <Switch
+                  checked={feedsSis.includes(f.slug)}
+                  onCheckedChange={(v) =>
+                    setFeedsSis((prev) => (v ? [...prev, f.slug] : prev.filter((x) => x !== f.slug)))
+                  }
+                />
+                <span className="text-xs font-semibold">📡 {f.nome.replace("XML ", "")}</span>
+              </label>
+            ))}
 
             {canPublish && (
               <>
