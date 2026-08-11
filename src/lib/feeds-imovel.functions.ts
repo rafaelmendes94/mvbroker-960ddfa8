@@ -124,38 +124,52 @@ export const criarFeedNoEscopo = createServerFn({ method: "POST" })
     return created;
   });
 
-/** Feeds fixos do sistema (por filtro automático) e se o imóvel se enquadra. */
+export const FEEDS_SISTEMA = [
+  { slug: "fotos", nome: "XML com Fotos", url: "/api/public/feed/fotos.xml" },
+  { slug: "vista-mar", nome: "XML Vista para o Mar", url: "/api/public/feed/vista-mar.xml" },
+  { slug: "casa-condominio", nome: "XML Casa em Condomínio", url: "/api/public/feed/casa-condominio.xml" },
+];
+
+/** Feeds fixos do sistema: o Geral é automático; os demais são por seleção manual. */
 export const statusFeedsSistema = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { imovel_id: string }) => input)
   .handler(async ({ data, context }) => {
-    const { data: im, error } = await context.supabase
-      .from("imoveis")
-      .select("id, tipo_imovel, condominio_id, loteamento_id, vista_mar, arquivado, exportacao_liberada, status_imovel")
-      .eq("id", data.imovel_id)
-      .maybeSingle();
-    if (error) throw error;
-    if (!im) throw new Error("Imóvel não encontrado.");
-
-    const { count } = await context.supabase
-      .from("imovel_imagens")
-      .select("id", { count: "exact", head: true })
+    const { data: marcados, error } = await context.supabase
+      .from("imovel_feeds_sistema")
+      .select("slug")
       .eq("imovel_id", data.imovel_id);
-
-    const t = String(im.tipo_imovel ?? "")
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    const casaCond = t.includes("cond") || (/casa|sobrado|residencia/.test(t) && (!!im.condominio_id || !!im.loteamento_id));
-
-    const st = String(im.status_imovel ?? "").toLowerCase();
-    const elegivel = !im.arquivado && im.exportacao_liberada === true && ["disponivel", "reservado"].includes(st);
+    if (error) throw error;
+    const set = new Set((marcados ?? []).map((m: any) => m.slug));
 
     return {
-      elegivel,
       feeds: [
-        { slug: "geral", nome: "XML Geral", url: "/api/public/feed/filtro.xml", incluido: elegivel },
-        { slug: "fotos", nome: "XML com Fotos", url: "/api/public/feed/fotos.xml", incluido: elegivel && (count ?? 0) > 0 },
-        { slug: "vista-mar", nome: "XML Vista para o Mar", url: "/api/public/feed/vista-mar.xml", incluido: elegivel && im.vista_mar === true },
-        { slug: "casa-condominio", nome: "XML Casa em Condomínio", url: "/api/public/feed/casa-condominio.xml", incluido: elegivel && casaCond },
+        { slug: "geral", nome: "XML Geral", url: "/api/public/feed/filtro.xml", incluido: true, automatico: true },
+        ...FEEDS_SISTEMA.map((f) => ({ ...f, incluido: set.has(f.slug), automatico: false })),
       ],
     };
+  });
+
+/** Inclui/remove o imóvel de um feed do sistema (seleção manual). */
+export const toggleFeedSistema = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { imovel_id: string; slug: string; incluir: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    if (data.incluir) {
+      const { error } = await context.supabase
+        .from("imovel_feeds_sistema")
+        .upsert(
+          { imovel_id: data.imovel_id, slug: data.slug, created_by: context.userId },
+          { onConflict: "imovel_id,slug", ignoreDuplicates: true },
+        );
+      if (error) throw error;
+    } else {
+      const { error } = await context.supabase
+        .from("imovel_feeds_sistema")
+        .delete()
+        .eq("imovel_id", data.imovel_id)
+        .eq("slug", data.slug);
+      if (error) throw error;
+    }
+    return { ok: true, incluir: data.incluir };
   });
