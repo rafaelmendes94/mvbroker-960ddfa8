@@ -27,6 +27,8 @@ import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useAuth } from "@/hooks/useAuth";
 import { ImportacoesModal } from "@/components/ImportacoesModal";
 import { MeuXmlDialog } from "@/components/feeds/MeuXmlDialog";
+import { XmlFeedsButton } from "@/components/feeds/XmlFeedsButton";
+
 
 
 // Broker info
