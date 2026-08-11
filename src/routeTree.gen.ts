@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TodosImoveisRouteImport } from './routes/todos-imoveis'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ListaRouteImport } from './routes/lista'
 import { Route as ConfiancaRouteImport } from './routes/confianca'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -105,6 +106,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListaRoute = ListaRouteImport.update({
+  id: '/lista',
+  path: '/lista',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiancaRoute = ConfiancaRouteImport.update({
@@ -557,6 +563,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cadastro': typeof CadastroRoute
   '/confianca': typeof ConfiancaRoute
+  '/lista': typeof ListaRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/todos-imoveis': typeof TodosImoveisRoute
@@ -640,6 +647,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cadastro': typeof CadastroRoute
   '/confianca': typeof ConfiancaRoute
+  '/lista': typeof ListaRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/todos-imoveis': typeof TodosImoveisRoute
@@ -718,6 +726,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cadastro': typeof CadastroRoute
   '/confianca': typeof ConfiancaRoute
+  '/lista': typeof ListaRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/todos-imoveis': typeof TodosImoveisRoute
@@ -803,6 +812,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cadastro'
     | '/confianca'
+    | '/lista'
     | '/login'
     | '/reset-password'
     | '/todos-imoveis'
@@ -886,6 +896,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cadastro'
     | '/confianca'
+    | '/lista'
     | '/login'
     | '/reset-password'
     | '/todos-imoveis'
@@ -963,6 +974,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cadastro'
     | '/confianca'
+    | '/lista'
     | '/login'
     | '/reset-password'
     | '/todos-imoveis'
@@ -1048,6 +1060,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CadastroRoute: typeof CadastroRoute
   ConfiancaRoute: typeof ConfiancaRoute
+  ListaRoute: typeof ListaRoute
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TodosImoveisRoute: typeof TodosImoveisRoute
@@ -1087,6 +1100,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lista': {
+      id: '/lista'
+      path: '/lista'
+      fullPath: '/lista'
+      preLoaderRoute: typeof ListaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confianca': {
@@ -1912,6 +1932,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CadastroRoute: CadastroRoute,
   ConfiancaRoute: ConfiancaRoute,
+  ListaRoute: ListaRoute,
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TodosImoveisRoute: TodosImoveisRoute,
