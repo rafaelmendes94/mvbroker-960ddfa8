@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, Loader2, Minus, Plus, Rss } from "lucide-react";
+import { Check, Copy, Loader2, Plus, Rss } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,10 +12,11 @@ import {
   toggleImovelNoFeed,
   criarFeedNoEscopo,
   statusFeedsSistema,
+  toggleFeedSistema,
 } from "@/lib/feeds-imovel.functions";
 
 type Feed = { id: string; nome: string; slug: string; checked: boolean };
-type FeedSistema = { slug: string; nome: string; url: string; incluido: boolean };
+type FeedSistema = { slug: string; nome: string; url: string; incluido: boolean; automatico: boolean };
 
 /** Botão no card do imóvel: marca em quais feeds XML o imóvel está. */
 export function XmlFeedsButton({ imovelId, className }: { imovelId: string; className?: string }) {
@@ -23,6 +24,7 @@ export function XmlFeedsButton({ imovelId, className }: { imovelId: string; clas
   const fnToggle = useServerFn(toggleImovelNoFeed);
   const fnCreate = useServerFn(criarFeedNoEscopo);
   const fnSistema = useServerFn(statusFeedsSistema);
+  const fnToggleSistema = useServerFn(toggleFeedSistema);
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,6 +61,22 @@ export function XmlFeedsButton({ imovelId, className }: { imovelId: string; clas
       toast.success(incluir ? `Incluído em "${f.nome}"` : `Removido de "${f.nome}"`);
     } catch (e: any) {
       setFeeds((prev) => prev.map((x) => (x.id === f.id ? { ...x, checked: !incluir } : x)));
+      toast.error(e?.message ?? "Não foi possível atualizar o feed.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function toggleSis(f: FeedSistema) {
+    if (f.automatico) return;
+    const incluir = !f.incluido;
+    setBusy(f.slug);
+    setSistema((prev) => prev.map((x) => (x.slug === f.slug ? { ...x, incluido: incluir } : x)));
+    try {
+      await fnToggleSistema({ data: { imovel_id: imovelId, slug: f.slug, incluir } });
+      toast.success(incluir ? `Incluído em "${f.nome}"` : `Removido de "${f.nome}"`);
+    } catch (e: any) {
+      setSistema((prev) => prev.map((x) => (x.slug === f.slug ? { ...x, incluido: !incluir } : x)));
       toast.error(e?.message ?? "Não foi possível atualizar o feed.");
     } finally {
       setBusy(null);
@@ -116,7 +134,7 @@ export function XmlFeedsButton({ imovelId, className }: { imovelId: string; clas
       <PopoverContent align="end" className="w-80 p-3" onClick={(e) => e.stopPropagation()}>
         <div className="text-xs font-semibold text-foreground">Feeds XML do sistema</div>
         <div className="text-[11px] text-muted-foreground mb-2">
-          Automáticos — o imóvel entra conforme o cadastro.
+          O Feed Geral é automático. Marque os demais para incluir este imóvel.
         </div>
 
         {loading ? (
@@ -126,21 +144,20 @@ export function XmlFeedsButton({ imovelId, className }: { imovelId: string; clas
         ) : (
           <div className="space-y-1">
             {sistema.map((f) => (
-              <div key={f.slug} className="flex items-center gap-2 rounded-md px-1.5 py-1">
-                <span
-                  className={cn(
-                    "h-4 w-4 rounded-full flex items-center justify-center shrink-0",
-                    f.incluido ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {f.incluido ? <Check className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
-                </span>
-                <span
-                  className={cn("text-xs truncate flex-1", !f.incluido && "text-muted-foreground")}
-                  title={f.incluido ? "Incluído neste feed" : "Não se enquadra neste feed"}
-                >
-                  {f.nome}
-                </span>
+              <div key={f.slug} className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-muted">
+                {f.automatico ? (
+                  <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                    <Check className="h-3 w-3" />
+                  </span>
+                ) : (
+                  <Checkbox
+                    checked={f.incluido}
+                    disabled={busy === f.slug}
+                    onCheckedChange={() => void toggleSis(f)}
+                  />
+                )}
+                <span className="text-xs truncate flex-1">{f.nome}</span>
+                {f.automatico && <span className="text-[10px] text-muted-foreground shrink-0">automático</span>}
                 <button
                   onClick={() => copiar(f.url)}
                   title="Copiar link do XML"

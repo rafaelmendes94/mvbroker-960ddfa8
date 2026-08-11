@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/public/feed/vista-mar.xml")({
           request,
           nome: "Feed Vista para o Mar",
           slug: "vista-mar",
-          filters: { vistaMar: true },
+          filters: { manualSlug: "vista-mar", todos: true },
           logTag: "feed/vista-mar",
         });
       },

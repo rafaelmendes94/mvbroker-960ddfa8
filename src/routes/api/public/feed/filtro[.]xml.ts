@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/public/feed/filtro.xml")({
       GET: async ({ request }) => {
         const { buildFeedResponse, parseFeedFilters } = await import("@/lib/feed-base.server");
         const url = new URL(request.url);
-        const filters = parseFeedFilters(url);
+        const filters = { ...parseFeedFilters(url), todos: true };
         return buildFeedResponse({
           request,
           nome: "Feed Filtrado",
