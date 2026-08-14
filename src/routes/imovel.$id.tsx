@@ -50,6 +50,16 @@ function formatBRL(n: number | null | undefined) {
   } catch { return `R$ ${n}`; }
 }
 
+function toEmbedUrl(raw?: string | null): string | null {
+  const u = (raw || "").trim();
+  if (!u) return null;
+  const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const vm = u.match(/vimeo\.com\/(\d+)/i);
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
+  return null;
+}
+
 function PublicImovelPage() {
   const { id } = Route.useParams();
   const [data, setData] = useState<{ imovel: Imovel; images: string[] } | null>(null);
