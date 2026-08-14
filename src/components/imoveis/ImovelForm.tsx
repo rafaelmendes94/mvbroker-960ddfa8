@@ -1188,10 +1188,35 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         <div key="midia" className="bg-card border border-border rounded-xl p-4 sm:p-5">
           <SectionHeader icon={Play} title="Vídeo e Material" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs flex items-center gap-1"><Play className="w-3.5 h-3.5" /> Link do Vídeo</Label>
-              <Input value={form.link_video} onChange={(e) => set("link_video", e.target.value)} placeholder="https://youtube.com/..." />
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label className="text-xs flex items-center gap-1"><Play className="w-3.5 h-3.5" /> Links de Vídeo</Label>
+              {(() => {
+                const links = form.link_video ? form.link_video.split("\n") : [""];
+                const commit = (arr: string[]) => set("link_video", arr.filter((v, i) => v.trim() !== "" || i === 0).join("\n").trim());
+                return (
+                  <div className="space-y-2">
+                    {links.map((l, i) => (
+                      <div key={i} className="flex gap-2">
+                        <Input
+                          value={l}
+                          onChange={(e) => { const arr = [...links]; arr[i] = e.target.value; set("link_video", arr.join("\n")); }}
+                          placeholder="https://youtube.com/..."
+                        />
+                        {links.length > 1 && (
+                          <Button type="button" variant="outline" size="icon" onClick={() => { const arr = links.filter((_, j) => j !== i); commit(arr.length ? arr : [""]); }}>
+                            ×
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    <Button type="button" variant="outline" size="sm" onClick={() => set("link_video", [...links, ""].join("\n"))}>
+                      + Adicionar vídeo
+                    </Button>
+                  </div>
+                );
+              })()}
             </div>
+
             <div className="space-y-1.5">
               <Label className="text-xs flex items-center gap-1"><FolderDown className="w-3.5 h-3.5" /> Drive de Fotos</Label>
               <Input value={form.link_drive_fotos} onChange={(e) => set("link_drive_fotos", e.target.value)} placeholder="https://drive.google.com/..." />
