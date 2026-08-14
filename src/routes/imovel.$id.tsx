@@ -98,11 +98,12 @@ function PublicImovelPage() {
   const im = data.imovel;
   const images = data.images.length ? data.images : ["/img/bg-mv.png"];
   const endereco = [im.logradouro, im.numero, im.bairro, im.cidade, im.estado].filter(Boolean).join(", ");
-  const videos = (im.link_video || "")
+  const videos: { raw: string; embed: string | null }[] = String(im.link_video || "")
     .split(/[\n,;]+/)
-    .map((s) => s.trim())
+    .map((s: string) => s.trim())
     .filter(Boolean)
-    .map((raw) => ({ raw, embed: toEmbedUrl(raw) }));
+    .map((raw: string) => ({ raw, embed: toEmbedUrl(raw) }));
+
 
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/imovel/${id}` : "";
   const specs = [
