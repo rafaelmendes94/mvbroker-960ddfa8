@@ -22,7 +22,7 @@ export function getGoogleMapsBrowserKey(): Promise<string | null> {
       const { data, error } = await supabase
         .from("integration_settings")
         .select("value")
-        .eq("key", "google_maps_api_key")
+        .eq("key", "google_maps_browser_key")
         .maybeSingle();
 
         if (error) {
