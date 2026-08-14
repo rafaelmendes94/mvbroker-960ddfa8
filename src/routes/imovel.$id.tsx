@@ -98,7 +98,13 @@ function PublicImovelPage() {
   const im = data.imovel;
   const images = data.images.length ? data.images : ["/img/bg-mv.png"];
   const endereco = [im.logradouro, im.numero, im.bairro, im.cidade, im.estado].filter(Boolean).join(", ");
-  const videoUrl = toEmbedUrl(im.link_video);
+  const videos: { raw: string; embed: string | null }[] = String(im.link_video || "")
+    .split(/[\n,;]+/)
+    .map((s: string) => s.trim())
+    .filter(Boolean)
+    .map((raw: string) => ({ raw, embed: toEmbedUrl(raw) }));
+
+
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/imovel/${id}` : "";
   const specs = [
     im.dormitorios ? `🛏 ${im.dormitorios} dorm.` : null,
@@ -194,27 +200,32 @@ function PublicImovelPage() {
               </section>
             )}
 
-            {(videoUrl || im.link_video) && (
+            {videos.length > 0 && (
               <section>
-                <h2 className="text-lg font-semibold mb-2">Vídeo</h2>
-                {videoUrl ? (
-                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-muted">
-                    <iframe
-                      src={videoUrl}
-                      title="Vídeo do imóvel"
-                      className="absolute inset-0 w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      loading="lazy"
-                    />
-                  </div>
-                ) : (
-                  <a href={im.link_video!} target="_blank" rel="noopener noreferrer" className="text-primary underline text-sm">
-                    Assistir ao vídeo
-                  </a>
-                )}
+                <h2 className="text-lg font-semibold mb-2">Vídeos {videos.length > 1 && <span className="text-sm text-muted-foreground">({videos.length})</span>}</h2>
+                <div className={videos.length > 1 ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : ""}>
+                  {videos.map((v, i) => (
+                    v.embed ? (
+                      <div key={i} className="relative w-full aspect-video rounded-2xl overflow-hidden bg-muted">
+                        <iframe
+                          src={v.embed}
+                          title={`Vídeo ${i + 1} do imóvel`}
+                          className="absolute inset-0 w-full h-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          loading="lazy"
+                        />
+                      </div>
+                    ) : (
+                      <a key={i} href={v.raw} target="_blank" rel="noopener noreferrer" className="flex items-center px-3 py-2 rounded-lg bg-muted/50 text-primary underline text-sm">
+                        Assistir vídeo {i + 1}
+                      </a>
+                    )
+                  ))}
+                </div>
               </section>
             )}
+
 
             <div className="text-xs text-muted-foreground">Código: {im.codigo_interno || im.id}</div>
           </div>
