@@ -213,13 +213,8 @@ function PublicImovelPage() {
               </button>
             </div>
 
-            {(im.responsavel_nome || im.responsavel_email) && (
-              <div className="rounded-2xl border p-5 bg-card">
-                <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Responsável</div>
-                {im.responsavel_nome && <div className="font-semibold">{im.responsavel_nome}</div>}
-                {im.responsavel_email && <div className="text-sm text-muted-foreground">{im.responsavel_email}</div>}
-              </div>
-            )}
+
+
           </aside>
         </div>
       </main>
