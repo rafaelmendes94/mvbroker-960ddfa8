@@ -7,7 +7,14 @@ import {
 import { getImovelPreview } from "@/lib/imovel-publico.functions";
 
 export const Route = createFileRoute("/imovel/$id")({
-  loader: ({ params }) => getImovelPreview({ data: { id: params.id } }),
+  loader: async ({ params }) => {
+    // Nunca deixar o preview derrubar a página pública
+    try {
+      return await getImovelPreview({ data: { id: params.id } });
+    } catch {
+      return null;
+    }
+  },
   head: ({ loaderData }) => {
     const p = loaderData;
     const title = p?.titulo || "Imóvel — MV BROKER";
