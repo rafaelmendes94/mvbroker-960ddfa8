@@ -12,6 +12,7 @@ import { useRoles } from "@/hooks/use-roles";
 type Row = { key: string; value: string | null };
 
 const KEYS = [
+  "google_maps_browser_key",
   "google_maps_api_key",
   "gemini_api_key",
   "resend_api_key",
