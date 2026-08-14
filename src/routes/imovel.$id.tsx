@@ -50,6 +50,16 @@ function formatBRL(n: number | null | undefined) {
   } catch { return `R$ ${n}`; }
 }
 
+function toEmbedUrl(raw?: string | null): string | null {
+  const u = (raw || "").trim();
+  if (!u) return null;
+  const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const vm = u.match(/vimeo\.com\/(\d+)/i);
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
+  return null;
+}
+
 function PublicImovelPage() {
   const { id } = Route.useParams();
   const [data, setData] = useState<{ imovel: Imovel; images: string[] } | null>(null);
@@ -88,7 +98,7 @@ function PublicImovelPage() {
   const im = data.imovel;
   const images = data.images.length ? data.images : ["/img/bg-mv.png"];
   const endereco = [im.logradouro, im.numero, im.bairro, im.cidade, im.estado].filter(Boolean).join(", ");
-  const whats = (im.responsavel_whatsapp || im.responsavel_telefone || "").replace(/\D/g, "");
+  const videoUrl = toEmbedUrl(im.link_video);
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/imovel/${id}` : "";
   const specs = [
     im.dormitorios ? `🛏 ${im.dormitorios} dorm.` : null,
@@ -184,6 +194,28 @@ function PublicImovelPage() {
               </section>
             )}
 
+            {(videoUrl || im.link_video) && (
+              <section>
+                <h2 className="text-lg font-semibold mb-2">Vídeo</h2>
+                {videoUrl ? (
+                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-muted">
+                    <iframe
+                      src={videoUrl}
+                      title="Vídeo do imóvel"
+                      className="absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
+                    />
+                  </div>
+                ) : (
+                  <a href={im.link_video!} target="_blank" rel="noopener noreferrer" className="text-primary underline text-sm">
+                    Assistir ao vídeo
+                  </a>
+                )}
+              </section>
+            )}
+
             <div className="text-xs text-muted-foreground">Código: {im.codigo_interno || im.id}</div>
           </div>
 
@@ -194,32 +226,18 @@ function PublicImovelPage() {
               {im.bonus && <div className="mt-1 text-sm text-emerald-600">Bônus: {im.bonus}</div>}
               {im.condicoes_pagamento && <div className="mt-2 text-sm text-muted-foreground">{im.condicoes_pagamento}</div>}
 
-              {whats ? (
-                <a
-                  href={`https://wa.me/${whats.startsWith("55") ? whats : "55" + whats}?text=${encodeURIComponent(`Olá! Tenho interesse no imóvel ${im.titulo || im.codigo_interno || ""}. ${shareUrl}`)}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 font-semibold"
-                >
-                  <Phone className="w-4 h-4" /> Falar no WhatsApp
-                </a>
-              ) : (
-                <a href="/" className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-3 font-semibold">
-                  Entrar em contato
-                </a>
-              )}
+              <a href="/" className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-3 font-semibold">
+                Entrar em contato
+              </a>
+
 
               <button onClick={share} className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm hover:bg-muted">
                 <Share2 className="w-4 h-4" /> Compartilhar
               </button>
             </div>
 
-            {(im.responsavel_nome || im.responsavel_email) && (
-              <div className="rounded-2xl border p-5 bg-card">
-                <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Responsável</div>
-                {im.responsavel_nome && <div className="font-semibold">{im.responsavel_nome}</div>}
-                {im.responsavel_email && <div className="text-sm text-muted-foreground">{im.responsavel_email}</div>}
-              </div>
-            )}
+
+
           </aside>
         </div>
       </main>
