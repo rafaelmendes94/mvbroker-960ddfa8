@@ -4,6 +4,7 @@ import {
   BedDouble, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
   Share2, Phone,
 } from "lucide-react";
+import { getImovelPreview } from "@/lib/imovel-publico.functions";
 
 export const Route = createFileRoute("/imovel/$id")({
   loader: ({ params }) => getImovelPreview({ data: { id: params.id } }),
