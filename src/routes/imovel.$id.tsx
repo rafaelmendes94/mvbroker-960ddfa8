@@ -88,7 +88,7 @@ function PublicImovelPage() {
   const im = data.imovel;
   const images = data.images.length ? data.images : ["/img/bg-mv.png"];
   const endereco = [im.logradouro, im.numero, im.bairro, im.cidade, im.estado].filter(Boolean).join(", ");
-  const whats = (im.responsavel_whatsapp || im.responsavel_telefone || "").replace(/\D/g, "");
+  const videoUrl = toEmbedUrl(im.link_video);
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/imovel/${id}` : "";
   const specs = [
     im.dormitorios ? `🛏 ${im.dormitorios} dorm.` : null,
