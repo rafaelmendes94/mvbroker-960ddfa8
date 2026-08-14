@@ -194,19 +194,10 @@ function PublicImovelPage() {
               {im.bonus && <div className="mt-1 text-sm text-emerald-600">Bônus: {im.bonus}</div>}
               {im.condicoes_pagamento && <div className="mt-2 text-sm text-muted-foreground">{im.condicoes_pagamento}</div>}
 
-              {whats ? (
-                <a
-                  href={`https://wa.me/${whats.startsWith("55") ? whats : "55" + whats}?text=${encodeURIComponent(`Olá! Tenho interesse no imóvel ${im.titulo || im.codigo_interno || ""}. ${shareUrl}`)}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 font-semibold"
-                >
-                  <Phone className="w-4 h-4" /> Falar no WhatsApp
-                </a>
-              ) : (
-                <a href="/" className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-3 font-semibold">
-                  Entrar em contato
-                </a>
-              )}
+              <a href="/" className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-3 font-semibold">
+                Entrar em contato
+              </a>
+
 
               <button onClick={share} className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm hover:bg-muted">
                 <Share2 className="w-4 h-4" /> Compartilhar
