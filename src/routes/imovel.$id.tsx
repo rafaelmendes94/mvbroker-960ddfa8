@@ -82,8 +82,14 @@ function PublicImovelPage() {
   const images = data.images.length ? data.images : ["/img/bg-mv.png"];
   const endereco = [im.logradouro, im.numero, im.bairro, im.cidade, im.estado].filter(Boolean).join(", ");
   const whats = (im.responsavel_whatsapp || im.responsavel_telefone || "").replace(/\D/g, "");
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const shareText = `${im.titulo || "Imóvel"} — ${formatBRL(im.preco)}\n${endereco}\n${shareUrl}`;
+  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/imovel/${id}` : "";
+  const specs = [
+    im.dormitorios ? `🛏 ${im.dormitorios} dorm.` : null,
+    im.banheiros ? `🚿 ${im.banheiros} banh.` : null,
+    im.vagas ? `🚗 ${im.vagas} vaga(s)` : null,
+    im.area_privativa || im.area_total ? `📐 ${im.area_privativa || im.area_total} m²` : null,
+  ].filter(Boolean).join(" | ");
+  const shareText = `🏠 *${im.titulo || "Imóvel"}*\n💰 ${formatBRL(im.preco)}${endereco ? `\n📍 ${endereco}` : ""}${specs ? `\n${specs}` : ""}\n\n🔗 ${shareUrl}`;
 
   const share = async () => {
     if (typeof navigator !== "undefined" && (navigator as any).share) {
