@@ -65,6 +65,7 @@ export function IntegracoesCard() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [values, setValues] = useState<Record<IntegrationKey, string>>({
+    google_maps_browser_key: "",
     google_maps_api_key: "",
     gemini_api_key: "",
     resend_api_key: "",
