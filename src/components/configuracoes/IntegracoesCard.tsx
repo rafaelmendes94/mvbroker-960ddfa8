@@ -143,7 +143,22 @@ export function IntegracoesCard() {
             <MapPin className="h-4 w-4 text-primary" /> Google Maps
           </div>
           <div className="space-y-2">
-            <Label htmlFor="gmaps">API Key (Browser / Maps JavaScript API)</Label>
+            <Label htmlFor="gmaps-browser">Chave de navegador (Maps JavaScript API)</Label>
+            <SecretInput
+              id="gmaps-browser"
+              value={values.google_maps_browser_key}
+              onChange={(v) => set("google_maps_browser_key", v)}
+              disabled={loading}
+              placeholder="AIza..."
+            />
+            <p className="text-xs text-muted-foreground">
+              Esta chave é entregue ao navegador dos usuários logados — use uma chave
+              restrita por referrer aos seus domínios. Habilite: Maps JavaScript API,
+              Places API (New) e Geocoding API.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="gmaps">Chave de servidor (uso interno)</Label>
             <SecretInput
               id="gmaps"
               value={values.google_maps_api_key}
@@ -152,8 +167,8 @@ export function IntegracoesCard() {
               placeholder="AIza..."
             />
             <p className="text-xs text-muted-foreground">
-              Use uma chave restrita por referrer aos seus domínios. Habilite: Maps
-              JavaScript API, Places API (New) e Geocoding API.
+              Usada apenas em chamadas internas. Visível somente para super
+              administradores — não use a mesma chave do navegador.
             </p>
           </div>
         </section>
