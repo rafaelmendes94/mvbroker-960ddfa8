@@ -4,16 +4,33 @@ import {
   BedDouble, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
   Share2, Phone,
 } from "lucide-react";
+import { getImovelPreview } from "@/lib/imovel-publico.functions";
 
 export const Route = createFileRoute("/imovel/$id")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `Imóvel ${params.id.slice(0, 8)} — MV BROKER` },
-      { name: "description", content: "Confira os detalhes deste imóvel." },
-      { property: "og:title", content: "Imóvel — MV BROKER" },
-      { property: "og:description", content: "Confira os detalhes deste imóvel." },
-    ],
-  }),
+  loader: ({ params }) => getImovelPreview({ data: { id: params.id } }),
+  head: ({ loaderData }) => {
+    const p = loaderData;
+    const title = p?.titulo || "Imóvel — MV BROKER";
+    const desc = p?.descricao || "Confira os detalhes deste imóvel.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:type", content: "article" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        ...(p?.url ? [{ property: "og:url", content: p.url }] : []),
+        ...(p?.image
+          ? [
+              { property: "og:image", content: p.image },
+              { name: "twitter:image", content: p.image },
+              { name: "twitter:card", content: "summary_large_image" },
+            ]
+          : [{ name: "twitter:card", content: "summary" }]),
+      ],
+      links: p?.url ? [{ rel: "canonical", href: p.url }] : [],
+    };
+  },
   component: PublicImovelPage,
 });
 
@@ -65,8 +82,14 @@ function PublicImovelPage() {
   const images = data.images.length ? data.images : ["/img/bg-mv.png"];
   const endereco = [im.logradouro, im.numero, im.bairro, im.cidade, im.estado].filter(Boolean).join(", ");
   const whats = (im.responsavel_whatsapp || im.responsavel_telefone || "").replace(/\D/g, "");
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const shareText = `${im.titulo || "Imóvel"} — ${formatBRL(im.preco)}\n${endereco}\n${shareUrl}`;
+  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/imovel/${id}` : "";
+  const specs = [
+    im.dormitorios ? `🛏 ${im.dormitorios} dorm.` : null,
+    im.banheiros ? `🚿 ${im.banheiros} banh.` : null,
+    im.vagas ? `🚗 ${im.vagas} vaga(s)` : null,
+    im.area_privativa || im.area_total ? `📐 ${im.area_privativa || im.area_total} m²` : null,
+  ].filter(Boolean).join(" | ");
+  const shareText = `🏠 *${im.titulo || "Imóvel"}*\n💰 ${formatBRL(im.preco)}${endereco ? `\n📍 ${endereco}` : ""}${specs ? `\n${specs}` : ""}\n\n🔗 ${shareUrl}`;
 
   const share = async () => {
     if (typeof navigator !== "undefined" && (navigator as any).share) {
