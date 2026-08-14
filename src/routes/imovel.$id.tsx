@@ -6,14 +6,30 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/imovel/$id")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `Imóvel ${params.id.slice(0, 8)} — MV BROKER` },
-      { name: "description", content: "Confira os detalhes deste imóvel." },
-      { property: "og:title", content: "Imóvel — MV BROKER" },
-      { property: "og:description", content: "Confira os detalhes deste imóvel." },
-    ],
-  }),
+  loader: ({ params }) => getImovelPreview({ data: { id: params.id } }),
+  head: ({ loaderData }) => {
+    const p = loaderData;
+    const title = p?.titulo || "Imóvel — MV BROKER";
+    const desc = p?.descricao || "Confira os detalhes deste imóvel.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:type", content: "article" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        ...(p?.url ? [{ property: "og:url", content: p.url }] : []),
+        ...(p?.image
+          ? [
+              { property: "og:image", content: p.image },
+              { name: "twitter:image", content: p.image },
+              { name: "twitter:card", content: "summary_large_image" },
+            ]
+          : [{ name: "twitter:card", content: "summary" }]),
+      ],
+      links: p?.url ? [{ rel: "canonical", href: p.url }] : [],
+    };
+  },
   component: PublicImovelPage,
 });
 
