@@ -194,6 +194,28 @@ function PublicImovelPage() {
               </section>
             )}
 
+            {(videoUrl || im.link_video) && (
+              <section>
+                <h2 className="text-lg font-semibold mb-2">Vídeo</h2>
+                {videoUrl ? (
+                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-muted">
+                    <iframe
+                      src={videoUrl}
+                      title="Vídeo do imóvel"
+                      className="absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
+                    />
+                  </div>
+                ) : (
+                  <a href={im.link_video!} target="_blank" rel="noopener noreferrer" className="text-primary underline text-sm">
+                    Assistir ao vídeo
+                  </a>
+                )}
+              </section>
+            )}
+
             <div className="text-xs text-muted-foreground">Código: {im.codigo_interno || im.id}</div>
           </div>
 
