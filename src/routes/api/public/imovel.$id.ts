@@ -29,7 +29,7 @@ export const Route = createFileRoute("/api/public/imovel/$id")({
             .from("imoveis")
             .select(IMOVEL_PUBLIC_COLUMNS + ", edificios(nome), condominios(nome), empreendimentos(nome)")
             .eq("id", id)
-            .eq("arquivado", false)
+            .or("arquivado.is.null,arquivado.eq.false")
             .maybeSingle();
 
           if (error) {
