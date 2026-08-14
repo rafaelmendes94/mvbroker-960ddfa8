@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   BedDouble, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
-  Share2, Phone,
+  Share2,
 } from "lucide-react";
 import { getImovelPreview } from "@/lib/imovel-publico.functions";
 
@@ -237,9 +237,6 @@ function PublicImovelPage() {
               {im.bonus && <div className="mt-1 text-sm text-emerald-600">Bônus: {im.bonus}</div>}
               {im.condicoes_pagamento && <div className="mt-2 text-sm text-muted-foreground">{im.condicoes_pagamento}</div>}
 
-              <a href="/" className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-3 font-semibold">
-                Entrar em contato
-              </a>
 
 
               <button onClick={share} className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm hover:bg-muted">
