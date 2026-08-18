@@ -92,8 +92,15 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         await maps.importLibrary("marker").catch(() => null);
       }
 
-      const center = properties.length > 0
-        ? { lat: properties[0].lat, lng: properties[0].lng }
+      const valid = properties.filter(
+        (p) =>
+          Number.isFinite(p.lat) && Number.isFinite(p.lng) &&
+          Math.abs(p.lat) > 0.001 && Math.abs(p.lng) > 0.001 &&
+          Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180,
+      );
+
+      const center = valid.length > 0
+        ? { lat: valid[0].lat, lng: valid[0].lng }
         : { lat: -23.55, lng: -46.63 };
 
       const map = new MapCtor(mapRef.current, {
@@ -110,7 +117,7 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
       markersRef.current.forEach(clearMarker);
       markersRef.current = [];
 
-      properties.forEach((property) => {
+      valid.forEach((property) => {
       const cfg = typeConfig[property.type] || defaultCfg;
       const shortPrice = formatShortPrice(property.price);
       const marker = createMarker(maps, map, property, cfg, shortPrice);
@@ -151,10 +158,12 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
       markersRef.current.push(marker);
     });
 
-      if (properties.length > 1) {
+      if (valid.length > 1) {
         const bounds = new maps.LatLngBounds();
-        properties.forEach((p) => bounds.extend({ lat: p.lat, lng: p.lng }));
+        valid.forEach((p) => bounds.extend({ lat: p.lat, lng: p.lng }));
         map.fitBounds(bounds, 40);
+      } else if (valid.length === 1) {
+        map.setZoom(15);
       }
     })();
 
@@ -185,13 +194,18 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
   }
 
   const activeTypes = [...new Set(properties.map((p) => p.type))];
+  const mappedCount = properties.filter(
+    (p) =>
+      Number.isFinite(p.lat) && Number.isFinite(p.lng) &&
+      Math.abs(p.lat) > 0.001 && Math.abs(p.lng) > 0.001,
+  ).length;
 
   return (
     <div className="space-y-3">
       <div className="rounded-xl overflow-hidden relative border border-border shadow-sm h-[400px] sm:h-[600px]">
         <div className="absolute top-4 left-4 z-10">
           <div className="bg-card/95 backdrop-blur-sm rounded-lg shadow-lg px-3 py-2 border border-border flex items-center gap-2">
-            <span className="text-[11px] font-bold text-foreground">{properties.length}</span>
+            <span className="text-[11px] font-bold text-foreground">{mappedCount}</span>
             <span className="text-[10px] text-muted-foreground">imóveis no mapa</span>
           </div>
         </div>
