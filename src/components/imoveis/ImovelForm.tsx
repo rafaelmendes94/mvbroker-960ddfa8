@@ -896,6 +896,8 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
               Arraste o pin no mapa para ajustar a posição — o endereço acima será atualizado automaticamente.
             </p>
             <MapPicker
+              address={[form.logradouro, form.numero, form.bairro, form.cidade, form.estado, form.cep]
+                .filter(Boolean).join(", ")}
               latitude={form.latitude}
               longitude={form.longitude}
               onChange={async (lat, lng) => {
