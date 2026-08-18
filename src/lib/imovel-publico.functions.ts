@@ -20,8 +20,11 @@ export const getImovelPreview = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<ImovelPreview> => {
     const req = getRequest();
     const url = new URL(req.url);
-    const proto = req.headers.get("x-forwarded-proto") || url.protocol.replace(":", "");
     const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || url.host;
+    const isLocal = host.startsWith("localhost") || host.startsWith("127.0.0.1");
+    const proto = isLocal
+      ? req.headers.get("x-forwarded-proto") || url.protocol.replace(":", "")
+      : "https";
     const origin = `${proto}://${host}`;
     const pageUrl = `${origin}/imovel/${data.id}`;
 
