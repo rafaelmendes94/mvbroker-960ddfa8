@@ -12,20 +12,26 @@ export function MapPicker({
   latitude,
   longitude,
   onChange,
+  address,
 }: {
   latitude: number | null;
   longitude: number | null;
   onChange: (lat: number | null, lng: number | null) => void;
+  /** Endereço completo do formulário — usado para buscar as coordenadas automaticamente */
+  address?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const sessionTokenRef = useRef<any>(null);
   const debounceRef = useRef<any>(null);
+  const geoDebounceRef = useRef<any>(null);
+  const lastGeoRef = useRef<string>("");
   const [err, setErr] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [searching, setSearching] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
   const [open, setOpen] = useState(false);
 
   function placeMarker(lat: number, lng: number) {
