@@ -158,10 +158,12 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
       markersRef.current.push(marker);
     });
 
-      if (properties.length > 1) {
+      if (valid.length > 1) {
         const bounds = new maps.LatLngBounds();
-        properties.forEach((p) => bounds.extend({ lat: p.lat, lng: p.lng }));
+        valid.forEach((p) => bounds.extend({ lat: p.lat, lng: p.lng }));
         map.fitBounds(bounds, 40);
+      } else if (valid.length === 1) {
+        map.setZoom(15);
       }
     })();
 
