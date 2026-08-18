@@ -160,10 +160,10 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
   const [imovelId, setImovelId] = useState<string | null>(editId ?? null);
   const [andar, setAndar] = useState<string>("");
   const DRAFT_KEY = user?.id ? `imovel-novo-draft:${user.id}` : "imovel-novo-draft:anon";
-  const [form, setForm] = useState<FormState>({
-    ...INITIAL,
-    ...(initial
+  const [form, setForm] = useState<FormState>(
+    initial
       ? {
+          ...INITIAL,
           titulo: initial.titulo ?? "",
           tipo_imovel: initial.tipo_imovel ?? "",
           status_imovel: initial.status_imovel ?? "disponivel",
@@ -205,14 +205,17 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
           tour_360: initial.tour_360 ?? "", link_drive_fotos: initial.link_drive_fotos ?? "",
           pdf_comercial_path: initial.pdf_comercial_path ?? "",
         }
-      : (() => {
-          if (typeof window === "undefined") return {};
-          try {
-            const raw = localStorage.getItem(DRAFT_KEY);
-            return raw ? JSON.parse(raw) : {};
-          } catch { return {}; }
-        })()),
-  });
+      : INITIAL,
+  );
+
+  // Recupera rascunho (somente no modo novo) para restaurar preenchimento não salvo
+  useEffect(() => {
+    if (isEdit || typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) setForm((prev) => ({ ...INITIAL, ...JSON.parse(raw) }));
+    } catch {}
+  }, [isEdit, DRAFT_KEY]);
 
   // Persiste rascunho (somente no modo novo) escopado ao usuário
   useEffect(() => {
@@ -220,6 +223,9 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
     try { localStorage.removeItem("imovel-novo-draft"); } catch {} // limpa rascunho legado global
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(form)); } catch {}
   }, [form, isEdit, DRAFT_KEY]);
+
+
+
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -630,7 +636,11 @@ export function ImovelForm({ initial }: { initial?: any | null }) {
         await logImovel(data.id, "criado", `Imóvel criado: ${data.titulo}`);
         toast.success(`Imóvel criado — ${data.codigo_interno}`);
         try { localStorage.removeItem(DRAFT_KEY); } catch {}
+        try { localStorage.removeItem("imovel-novo-draft"); } catch {}
+        setForm(INITIAL);
+        setAndar("");
       }
+
 
       // Sincroniza Feed Personalizado
       if (savedId) {
