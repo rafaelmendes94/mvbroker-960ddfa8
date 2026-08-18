@@ -12,20 +12,26 @@ export function MapPicker({
   latitude,
   longitude,
   onChange,
+  address,
 }: {
   latitude: number | null;
   longitude: number | null;
   onChange: (lat: number | null, lng: number | null) => void;
+  /** Endereço completo do formulário — usado para buscar as coordenadas automaticamente */
+  address?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const sessionTokenRef = useRef<any>(null);
   const debounceRef = useRef<any>(null);
+  const geoDebounceRef = useRef<any>(null);
+  const lastGeoRef = useRef<string>("");
   const [err, setErr] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [searching, setSearching] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
   const [open, setOpen] = useState(false);
 
   function placeMarker(lat: number, lng: number) {
@@ -133,6 +139,58 @@ export function MapPicker({
     }
   }
 
+  /** Busca as coordenadas a partir do endereço digitado no formulário */
+  async function geocodeAddress(addr: string, silent = false) {
+    const q = addr.trim();
+    if (q.length < 8) {
+      if (!silent) toast.error("Preencha o endereço (rua, número, cidade) antes de buscar.");
+      return;
+    }
+    try {
+      setGeocoding(true);
+      await loadGoogleMaps();
+      const { Place } = await window.google.maps.importLibrary("places");
+      const { places } = await Place.searchByText({
+        textQuery: q,
+        fields: ["location", "formattedAddress"],
+        language: "pt-BR",
+        region: "br",
+        maxResultCount: 1,
+      });
+      const loc = places?.[0]?.location;
+      if (!loc) {
+        if (!silent) toast.error("Não encontramos coordenadas para esse endereço.");
+        return;
+      }
+      const lat = typeof loc.lat === "function" ? loc.lat() : loc.lat;
+      const lng = typeof loc.lng === "function" ? loc.lng() : loc.lng;
+      mapRef.current?.panTo({ lat, lng });
+      mapRef.current?.setZoom(17);
+      placeMarker(lat, lng);
+      if (!silent) toast.success("Coordenadas encontradas pelo endereço.");
+    } catch (e: any) {
+      console.error("[MapPicker] geocodeAddress", e);
+      if (!silent) toast.error("Não foi possível localizar o endereço", { description: e?.message ?? String(e) });
+    } finally {
+      setGeocoding(false);
+    }
+  }
+
+  // Auto-geocodifica quando o endereço muda e ainda não há coordenadas
+  useEffect(() => {
+    const addr = (address ?? "").trim();
+    if (!addr || addr.length < 8) return;
+    if (latitude && longitude) return;
+    if (lastGeoRef.current === addr) return;
+    if (geoDebounceRef.current) clearTimeout(geoDebounceRef.current);
+    geoDebounceRef.current = setTimeout(() => {
+      lastGeoRef.current = addr;
+      geocodeAddress(addr, true);
+    }, 1200);
+    return () => geoDebounceRef.current && clearTimeout(geoDebounceRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, latitude, longitude]);
+
   return (
     <div className="space-y-3">
       <div className="relative">
@@ -183,7 +241,17 @@ export function MapPicker({
             onChange={(e) => onChange(latitude, e.target.value ? Number(e.target.value) : null)}
           />
         </div>
-        <div className="flex items-end">
+        <div className="flex items-end gap-2">
+          {address !== undefined && (
+            <Button
+              type="button" variant="secondary" size="sm"
+              disabled={geocoding}
+              onClick={() => geocodeAddress(address ?? "")}
+            >
+              {geocoding ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Search className="h-4 w-4 mr-1.5" />}
+              Usar endereço
+            </Button>
+          )}
           <Button
             type="button" variant="outline" size="sm"
             onClick={() => { onChange(null, null); if (markerRef.current) { markerRef.current.setMap(null); markerRef.current = null; } setSearch(""); setSuggestions([]); }}
