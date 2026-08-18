@@ -92,8 +92,15 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         await maps.importLibrary("marker").catch(() => null);
       }
 
-      const center = properties.length > 0
-        ? { lat: properties[0].lat, lng: properties[0].lng }
+      const valid = properties.filter(
+        (p) =>
+          Number.isFinite(p.lat) && Number.isFinite(p.lng) &&
+          Math.abs(p.lat) > 0.001 && Math.abs(p.lng) > 0.001 &&
+          Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180,
+      );
+
+      const center = valid.length > 0
+        ? { lat: valid[0].lat, lng: valid[0].lng }
         : { lat: -23.55, lng: -46.63 };
 
       const map = new MapCtor(mapRef.current, {
@@ -110,7 +117,7 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
       markersRef.current.forEach(clearMarker);
       markersRef.current = [];
 
-      properties.forEach((property) => {
+      valid.forEach((property) => {
       const cfg = typeConfig[property.type] || defaultCfg;
       const shortPrice = formatShortPrice(property.price);
       const marker = createMarker(maps, map, property, cfg, shortPrice);
