@@ -2247,8 +2247,8 @@ function PropertyCard({
         {/* Owner type badge */}
         {property.ownerType && (() => {
           const ownerColors: Record<string, string> = {
-            Construtora: "bg-blue-800 text-white border-blue-900",
-            Investidor: "bg-green-800 text-white border-green-900",
+            Construtora: "bg-green-700 text-white border-green-800",
+            Investidor: "bg-emerald-900 text-white border-emerald-950",
             Particular: "bg-red-700 text-white border-red-800",
             "Adm Comercial": "bg-purple-800 text-white border-purple-900",
             Exclusividade: "bg-blue-900 text-white border-blue-950",
