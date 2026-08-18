@@ -30,6 +30,11 @@ export const Route = createFileRoute("/imovel/$id")({
         ...(p?.image
           ? [
               { property: "og:image", content: p.image },
+              { property: "og:image:secure_url", content: p.image },
+              { property: "og:image:type", content: "image/jpeg" },
+              { property: "og:image:width", content: "1200" },
+              { property: "og:image:height", content: "630" },
+              { property: "og:image:alt", content: title },
               { name: "twitter:image", content: p.image },
               { name: "twitter:card", content: "summary_large_image" },
             ]
