@@ -241,7 +241,17 @@ export function MapPicker({
             onChange={(e) => onChange(latitude, e.target.value ? Number(e.target.value) : null)}
           />
         </div>
-        <div className="flex items-end">
+        <div className="flex items-end gap-2">
+          {address !== undefined && (
+            <Button
+              type="button" variant="secondary" size="sm"
+              disabled={geocoding}
+              onClick={() => geocodeAddress(address ?? "")}
+            >
+              {geocoding ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Search className="h-4 w-4 mr-1.5" />}
+              Usar endereço
+            </Button>
+          )}
           <Button
             type="button" variant="outline" size="sm"
             onClick={() => { onChange(null, null); if (markerRef.current) { markerRef.current.setMap(null); markerRef.current = null; } setSearch(""); setSuggestions([]); }}
