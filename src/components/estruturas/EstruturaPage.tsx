@@ -690,6 +690,8 @@ export function EstruturaPage({ tipo }: { tipo: EstruturaTipo }) {
 
             <Section title="Localização">
               <MapPicker
+                address={[endereco.logradouro, endereco.numero, endereco.bairro, endereco.cidade, endereco.estado, endereco.cep]
+                  .filter(Boolean).join(", ")}
                 latitude={coords.lat}
                 longitude={coords.lng}
                 onChange={(lat, lng) => setCoords({ lat, lng })}
