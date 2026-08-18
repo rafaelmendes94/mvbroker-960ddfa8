@@ -194,13 +194,18 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
   }
 
   const activeTypes = [...new Set(properties.map((p) => p.type))];
+  const mappedCount = properties.filter(
+    (p) =>
+      Number.isFinite(p.lat) && Number.isFinite(p.lng) &&
+      Math.abs(p.lat) > 0.001 && Math.abs(p.lng) > 0.001,
+  ).length;
 
   return (
     <div className="space-y-3">
       <div className="rounded-xl overflow-hidden relative border border-border shadow-sm h-[400px] sm:h-[600px]">
         <div className="absolute top-4 left-4 z-10">
           <div className="bg-card/95 backdrop-blur-sm rounded-lg shadow-lg px-3 py-2 border border-border flex items-center gap-2">
-            <span className="text-[11px] font-bold text-foreground">{properties.length}</span>
+            <span className="text-[11px] font-bold text-foreground">{mappedCount}</span>
             <span className="text-[10px] text-muted-foreground">imóveis no mapa</span>
           </div>
         </div>
