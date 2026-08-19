@@ -1,31 +1,18 @@
-// Roteador interno da API v1. Um único ponto de dispatch usado tanto por
-// /api/v1/* (consumo interno) quanto por /api/public/v1/* (integrações externas).
+// Roteador da API MV Broker v1 (modelo Órulo: Developer → Building → Typology → Unit).
+// Um único ponto de dispatch, usado por /api/v1/* (interno) e /api/public/v1/* (integrações).
 import { ApiError, JSON_HEADERS, fail, ok } from "./response";
 import { requireScope, resolvePrincipal, type Principal } from "./auth.server";
-import * as svc from "./services.server";
+import * as catalog from "./catalog.server";
 import { buildOpenApiSpec } from "./openapi";
-
-// Rate limit simples por credencial (janela deslizante de 1 minuto, por instância).
-const rateBuckets = new Map<string, { count: number; resetAt: number }>();
-
-function enforceRateLimit(principal: Principal) {
-  const key = principal.apiKeyId ?? principal.userId;
-  if (!key || principal.kind !== "integration") return;
-  const now = Date.now();
-  const bucket = rateBuckets.get(key);
-  if (!bucket || bucket.resetAt < now) {
-    rateBuckets.set(key, { count: 1, resetAt: now + 60_000 });
-    return;
-  }
-  bucket.count += 1;
-  if (bucket.count > 600) throw new ApiError("RATE_LIMITED", "Limite de requisições por minuto excedido");
-}
-
+import { checkRateLimit, logApiRequest, newRequestId } from "./ratelimit.server";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const PUBLIC_ID_RE = /^(dev|bld|typ|unt|med|led)_[A-Za-z0-9]{6,}$/;
 
-function assertUuid(value: string, label: string) {
-  if (!UUID_RE.test(value)) throw new ApiError("VALIDATION_ERROR", `${label} inválido`);
+function assertId(value: string, label: string) {
+  if (!UUID_RE.test(value) && !PUBLIC_ID_RE.test(value)) {
+    throw new ApiError("VALIDATION_ERROR", `${label} inválido`);
+  }
 }
 
 async function readBody(request: Request): Promise<Record<string, unknown>> {
@@ -41,159 +28,222 @@ async function readBody(request: Request): Promise<Record<string, unknown>> {
   }
 }
 
+function rateHeaders(info: { limit: number; remaining: number; reset: number }): Record<string, string> {
+  return {
+    "X-RateLimit-Limit": String(info.limit),
+    "X-RateLimit-Remaining": String(info.remaining),
+    "X-RateLimit-Reset": String(info.reset),
+  };
+}
+
+async function dispatch(
+  request: Request,
+  url: URL,
+  segments: string[],
+  principal: Principal,
+  extraHeaders: Record<string, string>,
+): Promise<Response> {
+  const method = request.method.toUpperCase();
+  const [resource, id, sub] = segments;
+  const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for");
+  const send = (data: unknown, meta?: any, status = 200) => {
+    const res = ok(data, meta, status);
+    for (const [k, v] of Object.entries(extraHeaders)) res.headers.set(k, v);
+    return res;
+  };
+  const notAllowed = () => {
+    throw new ApiError("METHOD_NOT_ALLOWED", `${method} não suportado nesta rota`);
+  };
+
+  // ---------- developers ----------
+  if (resource === "developers") {
+    if (!id) {
+      if (method !== "GET") notAllowed();
+      requireScope(principal, "developers:read");
+      const { data, meta } = await catalog.listDevelopers(url, principal);
+      return send(data, meta);
+    }
+    assertId(id, "developer_id");
+    if (sub === "buildings") {
+      if (method !== "GET") notAllowed();
+      requireScope(principal, "buildings:read");
+      const developer: any = await catalog.getDeveloper(id, principal);
+      const { data, meta } = await catalog.listBuildings(url, principal, { developerId: developer.internal_id ?? developer.id });
+      return send(data, meta);
+    }
+    if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
+    if (method !== "GET") notAllowed();
+    requireScope(principal, "developers:read");
+    return send(await catalog.getDeveloper(id, principal));
+  }
+
+  // ---------- buildings (aceita o alias legado "developments") ----------
+  if (resource === "buildings" || resource === "developments") {
+    if (!id) {
+      if (method !== "GET") notAllowed();
+      requireScope(principal, "buildings:read");
+      const { data, meta } = await catalog.listBuildings(url, principal);
+      return send(data, meta);
+    }
+    assertId(id, "building_id");
+    if (sub === "typologies") {
+      if (method !== "GET") notAllowed();
+      requireScope(principal, "typologies:read");
+      const building = await catalog.getBuildingRow(id, principal);
+      const { data, meta } = await catalog.listTypologies(url, principal, building.id);
+      return send(data, meta);
+    }
+    if (sub === "units") {
+      if (method !== "GET") notAllowed();
+      requireScope(principal, "units:read");
+      const building = await catalog.getBuildingRow(id, principal);
+      const { data, meta } = await catalog.listUnits(url, principal, { buildingId: building.id });
+      return send(data, meta);
+    }
+    if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
+    if (method !== "GET") notAllowed();
+    requireScope(principal, "buildings:read");
+    return send(await catalog.getBuilding(id, principal));
+  }
+
+  // ---------- typologies ----------
+  if (resource === "typologies") {
+    if (!id) {
+      if (method !== "GET") notAllowed();
+      requireScope(principal, "typologies:read");
+      const buildingParam = url.searchParams.get("building_id") ?? url.searchParams.get("development_id");
+      const buildingId = buildingParam ? (await catalog.getBuildingRow(buildingParam, principal)).id : undefined;
+      const { data, meta } = await catalog.listTypologies(url, principal, buildingId);
+      return send(data, meta);
+    }
+    assertId(id, "typology_id");
+    if (sub === "units") {
+      if (method !== "GET") notAllowed();
+      requireScope(principal, "units:read");
+      const typology = await catalog.getTypologyRow(id, principal);
+      const { data, meta } = await catalog.listUnits(url, principal, { typologyId: typology.id });
+      return send(data, meta);
+    }
+    if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
+    if (method !== "GET") notAllowed();
+    requireScope(principal, "typologies:read");
+    return send(await catalog.getTypology(id, principal));
+  }
+
+  // ---------- units (também exposto como "properties") ----------
+  if (resource === "units" || resource === "properties") {
+    if (!id) {
+      if (method === "GET") {
+        requireScope(principal, "units:read");
+        const { data, meta } = await catalog.listUnits(url, principal);
+        return send(data, meta);
+      }
+      if (method === "POST") {
+        requireScope(principal, "units:write");
+        return send(await catalog.createUnit(await readBody(request), principal), undefined, 201);
+      }
+      notAllowed();
+    }
+    assertId(id!, "unit_id");
+    if (sub === "media") {
+      if (method !== "GET") notAllowed();
+      requireScope(principal, "media:read");
+      return send(await catalog.listUnitMedia(id!, principal));
+    }
+    if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
+    if (method === "GET") {
+      requireScope(principal, "units:read");
+      return send(await catalog.getUnit(id!, principal));
+    }
+    if (method === "PATCH" || method === "PUT") {
+      requireScope(principal, "units:write");
+      return send(await catalog.updateUnit(id!, await readBody(request), principal));
+    }
+    if (method === "DELETE") {
+      requireScope(principal, "units:write");
+      return send(await catalog.archiveUnit(id!, principal));
+    }
+    notAllowed();
+  }
+
+  // ---------- leads ----------
+  if (resource === "leads" && !id) {
+    if (method === "POST") {
+      requireScope(principal, "leads:write");
+      return send(await catalog.createLead(await readBody(request), principal, ip), undefined, 201);
+    }
+    if (method === "GET") {
+      requireScope(principal, "leads:read");
+      const { data, meta } = await catalog.listLeads(url, principal);
+      return send(data, meta);
+    }
+    notAllowed();
+  }
+
+  throw new ApiError("NOT_FOUND", "Rota não encontrada");
+}
+
 export async function handleApiV1(request: Request, splat: string): Promise<Response> {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: JSON_HEADERS });
 
+  const startedAt = Date.now();
+  const requestId = newRequestId();
   const url = new URL(request.url);
   const segments = (splat ?? "").split("/").filter(Boolean);
-  const method = request.method.toUpperCase();
+  const endpoint = `/${segments.join("/")}`;
+  let principal: Principal | null = null;
+  let response: Response;
+  let errorCode: string | null = null;
 
   try {
+    // Rotas abertas (sem credencial)
     if (segments.length === 0) {
-      return ok({ name: "MV Broker API", version: "v1", resources: ["developments", "typologies", "units", "offers", "properties"] });
-    }
-    if (segments[0] === "health") return ok({ status: "ok", time: new Date().toISOString() });
-    if (segments[0] === "openapi.json") {
-      return new Response(JSON.stringify(buildOpenApiSpec(url.origin)), {
+      response = ok({
+        name: "MV Broker API",
+        version: "v1",
+        docs: `${url.origin}/api/public/v1/openapi.json`,
+        resources: ["developers", "buildings", "typologies", "units", "leads"],
+      });
+    } else if (segments[0] === "health") {
+      response = ok({ status: "ok", time: new Date().toISOString() });
+    } else if (segments[0] === "openapi.json") {
+      response = new Response(JSON.stringify(buildOpenApiSpec(url.origin)), {
         status: 200,
         headers: { ...JSON_HEADERS, "Cache-Control": "public, max-age=300" },
       });
+    } else {
+      principal = await resolvePrincipal(request);
+      const rate = await checkRateLimit(principal);
+      const headers = { ...rateHeaders(rate), "X-Request-Id": requestId };
+      if (rate.remaining <= 0) {
+        throw Object.assign(new ApiError("RATE_LIMITED", "Limite de requisições excedido"), { headers });
+      }
+      response = await dispatch(request, url, segments, principal, headers);
     }
-
-    const principal = await resolvePrincipal(request);
-    enforceRateLimit(principal);
-    const [resource, id, sub] = segments;
-
-    // ---------- developments ----------
-    if (resource === "developments") {
-      if (!id) {
-        if (method === "GET") {
-          requireScope(principal, "developments:read");
-          const { data, meta } = await svc.listDevelopments(url, principal);
-          return ok(data, meta);
-        }
-        if (method === "POST") {
-          requireScope(principal, "developments:write");
-          return ok(await svc.createDevelopment(await readBody(request), principal), undefined, 201);
-        }
-        throw new ApiError("METHOD_NOT_ALLOWED", `${method} não suportado`);
-      }
-      assertUuid(id, "development_id");
-      if (sub === "typologies" && method === "GET") {
-        requireScope(principal, "typologies:read");
-        await svc.getDevelopment(id, principal);
-        const { data, meta } = await svc.listTypologies(url, principal, id);
-        return ok(data, meta);
-      }
-      if (sub === "units" && method === "GET") {
-        requireScope(principal, "units:read");
-        await svc.getDevelopment(id, principal);
-        const { data, meta } = await svc.listUnits(url, principal, { developmentId: id });
-        return ok(data, meta);
-      }
-      if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
-      if (method === "GET") {
-        requireScope(principal, "developments:read");
-        return ok(await svc.getDevelopment(id, principal));
-      }
-      if (method === "PATCH" || method === "PUT") {
-        requireScope(principal, "developments:write");
-        return ok(await svc.updateDevelopment(id, await readBody(request), principal));
-      }
-      throw new ApiError("METHOD_NOT_ALLOWED", `${method} não suportado`);
+  } catch (e: any) {
+    if (e instanceof ApiError) {
+      errorCode = e.code;
+      response = fail(e.code, e.message, e.details, { "X-Request-Id": requestId, ...(e.headers ?? {}) });
+    } else {
+      errorCode = "INTERNAL_ERROR";
+      console.error("[api/v1]", requestId, e);
+      response = fail("INTERNAL_ERROR", "Erro interno", undefined, { "X-Request-Id": requestId });
     }
-
-    // ---------- typologies ----------
-    if (resource === "typologies") {
-      if (!id) {
-        if (method === "GET") {
-          requireScope(principal, "typologies:read");
-          const { data, meta } = await svc.listTypologies(url, principal, url.searchParams.get("development_id") ?? undefined);
-          return ok(data, meta);
-        }
-        if (method === "POST") {
-          requireScope(principal, "typologies:write");
-          return ok(await svc.createTypology(await readBody(request), principal), undefined, 201);
-        }
-        throw new ApiError("METHOD_NOT_ALLOWED", `${method} não suportado`);
-      }
-      assertUuid(id, "typology_id");
-      if (sub === "units" && method === "GET") {
-        requireScope(principal, "units:read");
-        const { data, meta } = await svc.listUnits(url, principal, { typologyId: id });
-        return ok(data, meta);
-      }
-      if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
-      if (method === "GET") {
-        requireScope(principal, "typologies:read");
-        return ok(await svc.getTypology(id));
-      }
-      if (method === "PATCH" || method === "PUT") {
-        requireScope(principal, "typologies:write");
-        return ok(await svc.updateTypology(id, await readBody(request), principal));
-      }
-      throw new ApiError("METHOD_NOT_ALLOWED", `${method} não suportado`);
-    }
-
-    // ---------- units ----------
-    if (resource === "units") {
-      if (!id) {
-        if (method === "GET") {
-          requireScope(principal, "units:read");
-          const { data, meta } = await svc.listUnits(url, principal);
-          return ok(data, meta);
-        }
-        if (method === "POST") {
-          requireScope(principal, "units:write");
-          return ok(await svc.createUnit(await readBody(request), principal), undefined, 201);
-        }
-        throw new ApiError("METHOD_NOT_ALLOWED", `${method} não suportado`);
-      }
-      assertUuid(id, "unit_id");
-      if (sub === "offers") {
-        if (method === "GET") {
-          requireScope(principal, "offers:read");
-          return ok(await svc.listOffers(id, principal));
-        }
-        if (method === "POST") {
-          requireScope(principal, "offers:write");
-          return ok(await svc.createOffer(id, await readBody(request), principal), undefined, 201);
-        }
-        throw new ApiError("METHOD_NOT_ALLOWED", `${method} não suportado`);
-      }
-      if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
-      if (method === "GET") {
-        requireScope(principal, "units:read");
-        return ok(await svc.getUnit(id, principal));
-      }
-      if (method === "PATCH" || method === "PUT") {
-        requireScope(principal, "units:write");
-        return ok(await svc.updateUnit(id, await readBody(request), principal));
-      }
-      throw new ApiError("METHOD_NOT_ALLOWED", `${method} não suportado`);
-    }
-
-    // ---------- offers ----------
-    if (resource === "offers" && id) {
-      assertUuid(id, "offer_id");
-      if (method === "PATCH" || method === "PUT") {
-        requireScope(principal, "offers:write");
-        return ok(await svc.updateOffer(id, await readBody(request), principal));
-      }
-      throw new ApiError("METHOD_NOT_ALLOWED", `${method} não suportado`);
-    }
-
-    // ---------- properties (visão agregada) ----------
-    if (resource === "properties" && !id && method === "GET") {
-      requireScope(principal, "units:read");
-      const { data, meta } = await svc.listProperties(url, principal);
-      return ok(data, meta);
-    }
-
-    throw new ApiError("NOT_FOUND", "Rota não encontrada");
-  } catch (e) {
-    if (e instanceof ApiError) return fail(e.code, e.message, e.details);
-    console.error("[api/v1]", e);
-    return fail("INTERNAL_ERROR", "Erro interno");
   }
+
+  response.headers.set("X-Request-Id", requestId);
+
+  await logApiRequest({
+    requestId,
+    principal,
+    endpoint,
+    method: request.method.toUpperCase(),
+    statusCode: response.status,
+    errorCode,
+    ip: request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for"),
+    userAgent: request.headers.get("user-agent"),
+    responseTimeMs: Date.now() - startedAt,
+  });
+
+  return response;
 }
