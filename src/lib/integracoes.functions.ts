@@ -1,15 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-/** Resolve a imobiliária do usuário (null = credencial global de administrador). */
-async function resolveAgency(supabase: any, userId: string) {
-  const [{ data: roleRows }, { data: owned }] = await Promise.all([
-    supabase.from("user_roles").select("role").eq("user_id", userId),
-    supabase.from("imobiliarias").select("id").eq("owner_id", userId).maybeSingle(),
-  ]);
+/** Verifica se o usuário é super_admin. A API é exclusiva do administrador do sistema. */
+async function requireAdmin(supabase: any, userId: string) {
+  const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   const roles: string[] = (roleRows ?? []).map((r: any) => r.role);
-  return { isAdmin: roles.includes("super_admin"), agencyId: owned?.id ?? null };
+  if (!roles.includes("super_admin")) {
+    throw new Error("Acesso restrito ao administrador do sistema.");
+  }
+  return { userId, roles };
 }
+
 
 // ============ API KEYS ============
 export const listApiKeys = createServerFn({ method: "GET" })
