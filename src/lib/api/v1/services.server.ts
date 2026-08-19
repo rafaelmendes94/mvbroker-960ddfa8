@@ -3,6 +3,7 @@
 import { getFeedSupabase } from "@/lib/feed-supabase.server";
 import { ApiError, paginationMeta, parsePagination, type Meta } from "./response";
 import { assertCanWriteAgency, scopeToTenant, type Principal } from "./auth.server";
+import { emitWebhook } from "./webhooks.server";
 
 function db(): any {
   const { client, error } = getFeedSupabase();
@@ -71,6 +72,7 @@ export async function createDevelopment(body: Record<string, unknown>, principal
   payload.created_by = principal.userId;
   const { data, error } = await db().from("developments").insert(payload).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("development.created", data, data.agency_id);
   return data;
 }
 
@@ -80,6 +82,7 @@ export async function updateDevelopment(id: string, body: Record<string, unknown
   const payload = pick(body, DEVELOPMENT_FIELDS);
   const { data, error } = await db().from("developments").update(payload).eq("id", id).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("development.updated", data, data.agency_id);
   return data;
 }
 
@@ -179,6 +182,7 @@ export async function createUnit(body: Record<string, unknown>, principal: Princ
   payload.created_by = principal.userId;
   const { data, error } = await db().from("units").insert(payload).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("unit.created", data, data.agency_id);
   return data;
 }
 
@@ -188,6 +192,10 @@ export async function updateUnit(id: string, body: Record<string, unknown>, prin
   const payload = pick(body, UNIT_FIELDS);
   const { data, error } = await db().from("units").update(payload).eq("id", id).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("unit.updated", data, data.agency_id);
+  if (payload.status && payload.status !== current.status) {
+    await emitWebhook("unit.status_changed", { id: data.id, from: current.status, to: data.status }, data.agency_id);
+  }
   return data;
 }
 
@@ -229,6 +237,7 @@ export async function createOffer(unitId: string, body: Record<string, unknown>,
   payload.created_by = principal.userId;
   const { data, error } = await db().from("offers").insert(payload).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("offer.created", data, data.agency_id);
   return data;
 }
 
@@ -241,6 +250,14 @@ export async function updateOffer(id: string, body: Record<string, unknown>, pri
   delete payload.unit_id;
   const { data, error } = await db().from("offers").update(payload).eq("id", id).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("offer.updated", data, data.agency_id);
+  if (payload.sale_price !== undefined && Number(payload.sale_price) !== Number(current.sale_price)) {
+    await emitWebhook(
+      "offer.price_changed",
+      { id: data.id, unit_id: data.unit_id, from: current.sale_price, to: data.sale_price },
+      data.agency_id,
+    );
+  }
   return data;
 }
 
