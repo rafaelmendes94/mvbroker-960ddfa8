@@ -80,6 +80,7 @@ import { Route as AuthenticatedSegurancaAlertasRouteImport } from './routes/_aut
 import { Route as AuthenticatedSegurancaPermissoesRouteImport } from './routes/_authenticated/seguranca.permissoes'
 import { Route as AuthenticatedSegurancaSessoesRouteImport } from './routes/_authenticated/seguranca.sessoes'
 import { Route as ApiPublicImoveisListaRouteImport } from './routes/api/public/imoveis-lista'
+import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as AuthenticatedEmpreendimentosTipoIdRouteImport } from './routes/_authenticated/empreendimentos.$tipo.$id'
 import { Route as AuthenticatedImoveisIdEditarRouteImport } from './routes/_authenticated/imoveis.$id.editar'
 import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_authenticated/registros.$id.editar'
@@ -491,6 +492,11 @@ const ApiPublicImoveisListaRoute = ApiPublicImoveisListaRouteImport.update({
   path: '/api/public/imoveis-lista',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV1SplatRoute = ApiV1SplatRouteImport.update({
+  id: '/api/v1/$',
+  path: '/api/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedEmpreendimentosTipoIdRoute =
   AuthenticatedEmpreendimentosTipoIdRouteImport.update({
     id: '/empreendimentos/$tipo/$id',
@@ -636,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/api/public/imoveis-lista': typeof ApiPublicImoveisListaRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis/': typeof AuthenticatedImoveisIndexRoute
   '/importacoes/': typeof AuthenticatedImportacoesIndexRoute
@@ -715,6 +722,7 @@ export interface FileRoutesByTo {
   '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/api/public/imoveis-lista': typeof ApiPublicImoveisListaRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/carteiras': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis': typeof AuthenticatedImoveisIndexRoute
   '/importacoes': typeof AuthenticatedImportacoesIndexRoute
@@ -803,6 +811,7 @@ export interface FileRoutesById {
   '/_authenticated/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/_authenticated/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/api/public/imoveis-lista': typeof ApiPublicImoveisListaRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/_authenticated/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/_authenticated/imoveis/': typeof AuthenticatedImoveisIndexRoute
   '/_authenticated/importacoes/': typeof AuthenticatedImportacoesIndexRoute
@@ -891,6 +900,7 @@ export interface FileRouteTypes {
     | '/seguranca/permissoes'
     | '/seguranca/sessoes'
     | '/api/public/imoveis-lista'
+    | '/api/v1/$'
     | '/carteiras/'
     | '/imoveis/'
     | '/importacoes/'
@@ -970,6 +980,7 @@ export interface FileRouteTypes {
     | '/seguranca/permissoes'
     | '/seguranca/sessoes'
     | '/api/public/imoveis-lista'
+    | '/api/v1/$'
     | '/carteiras'
     | '/imoveis'
     | '/importacoes'
@@ -1057,6 +1068,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seguranca/permissoes'
     | '/_authenticated/seguranca/sessoes'
     | '/api/public/imoveis-lista'
+    | '/api/v1/$'
     | '/_authenticated/carteiras/'
     | '/_authenticated/imoveis/'
     | '/_authenticated/importacoes/'
@@ -1093,6 +1105,7 @@ export interface RootRouteChildren {
   EmpreendimentoIdRoute: typeof EmpreendimentoIdRoute
   ImovelIdRoute: typeof ImovelIdRoute
   ApiPublicImoveisListaRoute: typeof ApiPublicImoveisListaRoute
+  ApiV1SplatRoute: typeof ApiV1SplatRoute
   ApiPublicEmpreendimentoIdRoute: typeof ApiPublicEmpreendimentoIdRoute
   ApiPublicFeedSlugRoute: typeof ApiPublicFeedSlugRoute
   ApiPublicFeedCasaCondominioDotxmlRoute: typeof ApiPublicFeedCasaCondominioDotxmlRoute
@@ -1605,6 +1618,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicImoveisListaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v1/$': {
+      id: '/api/v1/$'
+      path: '/api/v1/$'
+      fullPath: '/api/v1/$'
+      preLoaderRoute: typeof ApiV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/empreendimentos/$tipo/$id': {
       id: '/_authenticated/empreendimentos/$tipo/$id'
       path: '/empreendimentos/$tipo/$id'
@@ -1982,6 +2002,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentoIdRoute: EmpreendimentoIdRoute,
   ImovelIdRoute: ImovelIdRoute,
   ApiPublicImoveisListaRoute: ApiPublicImoveisListaRoute,
+  ApiV1SplatRoute: ApiV1SplatRoute,
   ApiPublicEmpreendimentoIdRoute: ApiPublicEmpreendimentoIdRoute,
   ApiPublicFeedSlugRoute: ApiPublicFeedSlugRoute,
   ApiPublicFeedCasaCondominioDotxmlRoute:
