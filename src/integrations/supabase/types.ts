@@ -149,13 +149,44 @@ export type Database = {
         }
         Relationships: []
       }
+      api_key_scopes: {
+        Row: {
+          api_key_id: string
+          created_at: string
+          id: string
+          scope: string
+        }
+        Insert: {
+          api_key_id: string
+          created_at?: string
+          id?: string
+          scope: string
+        }
+        Update: {
+          api_key_id?: string
+          created_at?: string
+          id?: string
+          scope?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_key_scopes_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           active: boolean
           agency_id: string | null
           created_at: string
           created_by: string | null
+          environment: string
           expires_at: string | null
+          field_scope: string[]
           id: string
           key_hash: string
           key_prefix: string
@@ -163,6 +194,9 @@ export type Database = {
           name: string
           permissions: string[]
           rate_limit: number
+          rate_limit_per_hour: number
+          request_count: number
+          suspended: boolean
           updated_at: string
         }
         Insert: {
@@ -170,7 +204,9 @@ export type Database = {
           agency_id?: string | null
           created_at?: string
           created_by?: string | null
+          environment?: string
           expires_at?: string | null
+          field_scope?: string[]
           id?: string
           key_hash: string
           key_prefix: string
@@ -178,6 +214,9 @@ export type Database = {
           name: string
           permissions?: string[]
           rate_limit?: number
+          rate_limit_per_hour?: number
+          request_count?: number
+          suspended?: boolean
           updated_at?: string
         }
         Update: {
@@ -185,7 +224,9 @@ export type Database = {
           agency_id?: string | null
           created_at?: string
           created_by?: string | null
+          environment?: string
           expires_at?: string | null
+          field_scope?: string[]
           id?: string
           key_hash?: string
           key_prefix?: string
@@ -193,6 +234,9 @@ export type Database = {
           name?: string
           permissions?: string[]
           rate_limit?: number
+          rate_limit_per_hour?: number
+          request_count?: number
+          suspended?: boolean
           updated_at?: string
         }
         Relationships: [
@@ -201,6 +245,72 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_logs: {
+        Row: {
+          agency_id: string | null
+          api_key_id: string | null
+          created_at: string
+          endpoint: string
+          environment: string
+          error_code: string | null
+          id: string
+          ip: string | null
+          method: string
+          request_id: string
+          response_time_ms: number | null
+          status_code: number
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agency_id?: string | null
+          api_key_id?: string | null
+          created_at?: string
+          endpoint: string
+          environment?: string
+          error_code?: string | null
+          id?: string
+          ip?: string | null
+          method: string
+          request_id: string
+          response_time_ms?: number | null
+          status_code: number
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agency_id?: string | null
+          api_key_id?: string | null
+          created_at?: string
+          endpoint?: string
+          environment?: string
+          error_code?: string | null
+          id?: string
+          ip?: string | null
+          method?: string
+          request_id?: string
+          response_time_ms?: number | null
+          status_code?: number
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_logs_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_logs_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
             referencedColumns: ["id"]
           },
         ]
@@ -941,6 +1051,80 @@ export type Database = {
         }
         Relationships: []
       }
+      developers: {
+        Row: {
+          agency_id: string | null
+          city: string | null
+          cnpj: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          email: string | null
+          external_id: string | null
+          external_source: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          phone: string | null
+          public_id: string
+          slug: string | null
+          state: string | null
+          status: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          agency_id?: string | null
+          city?: string | null
+          cnpj?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          email?: string | null
+          external_id?: string | null
+          external_source?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          public_id?: string
+          slug?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          agency_id?: string | null
+          city?: string | null
+          cnpj?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          email?: string | null
+          external_id?: string | null
+          external_source?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          public_id?: string
+          slug?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developers_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       developments: {
         Row: {
           address: string | null
@@ -957,6 +1141,7 @@ export type Database = {
           delivery_date: string | null
           description: string | null
           developer: string | null
+          developer_id: string | null
           external_id: string | null
           external_source: string | null
           id: string
@@ -970,6 +1155,7 @@ export type Database = {
           name: string
           neighborhood: string | null
           number: string | null
+          public_id: string | null
           slug: string | null
           state: string | null
           status: string
@@ -995,6 +1181,7 @@ export type Database = {
           delivery_date?: string | null
           description?: string | null
           developer?: string | null
+          developer_id?: string | null
           external_id?: string | null
           external_source?: string | null
           id?: string
@@ -1008,6 +1195,7 @@ export type Database = {
           name: string
           neighborhood?: string | null
           number?: string | null
+          public_id?: string | null
           slug?: string | null
           state?: string | null
           status?: string
@@ -1033,6 +1221,7 @@ export type Database = {
           delivery_date?: string | null
           description?: string | null
           developer?: string | null
+          developer_id?: string | null
           external_id?: string | null
           external_source?: string | null
           id?: string
@@ -1046,6 +1235,7 @@ export type Database = {
           name?: string
           neighborhood?: string | null
           number?: string | null
+          public_id?: string | null
           slug?: string | null
           state?: string | null
           status?: string
@@ -1062,6 +1252,13 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "developments_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
             referencedColumns: ["id"]
           },
         ]
@@ -1936,6 +2133,99 @@ export type Database = {
         }
         Relationships: []
       }
+      leads: {
+        Row: {
+          agency_id: string | null
+          agent_id: string | null
+          api_key_id: string | null
+          created_at: string
+          development_id: string | null
+          email: string | null
+          id: string
+          ip: string | null
+          message: string | null
+          name: string
+          phone: string | null
+          public_id: string
+          source: string
+          status: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id?: string | null
+          agent_id?: string | null
+          api_key_id?: string | null
+          created_at?: string
+          development_id?: string | null
+          email?: string | null
+          id?: string
+          ip?: string | null
+          message?: string | null
+          name: string
+          phone?: string | null
+          public_id?: string
+          source?: string
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string | null
+          agent_id?: string | null
+          api_key_id?: string | null
+          created_at?: string
+          development_id?: string | null
+          email?: string | null
+          id?: string
+          ip?: string | null
+          message?: string | null
+          name?: string
+          phone?: string | null
+          public_id?: string
+          source?: string
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "corretores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_development_id_fkey"
+            columns: ["development_id"]
+            isOneToOne: false
+            referencedRelation: "developments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loteamentos: {
         Row: {
           area_total_m2: number | null
@@ -2636,6 +2926,7 @@ export type Database = {
           parking_spaces: number | null
           private_area: number | null
           property_type: string | null
+          public_id: string | null
           suites: number | null
           total_area: number | null
           updated_at: string
@@ -2657,6 +2948,7 @@ export type Database = {
           parking_spaces?: number | null
           private_area?: number | null
           property_type?: string | null
+          public_id?: string | null
           suites?: number | null
           total_area?: number | null
           updated_at?: string
@@ -2678,6 +2970,7 @@ export type Database = {
           parking_spaces?: number | null
           private_area?: number | null
           property_type?: string | null
+          public_id?: string | null
           suites?: number | null
           total_area?: number | null
           updated_at?: string
@@ -2699,108 +2992,307 @@ export type Database = {
           },
         ]
       }
+      unit_features: {
+        Row: {
+          created_at: string
+          feature: string
+          id: string
+          unit_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature: string
+          id?: string
+          unit_id: string
+        }
+        Update: {
+          created_at?: string
+          feature?: string
+          id?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_features_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unit_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          field_changed: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          source: string
+          unit_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          field_changed: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          source?: string
+          unit_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          field_changed?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          source?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_history_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unit_media: {
+        Row: {
+          agency_id: string | null
+          created_at: string
+          id: string
+          is_cover: boolean
+          kind: string
+          position: number
+          public_id: string
+          storage_path: string | null
+          title: string | null
+          unit_id: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          agency_id?: string | null
+          created_at?: string
+          id?: string
+          is_cover?: boolean
+          kind?: string
+          position?: number
+          public_id?: string
+          storage_path?: string | null
+          title?: string | null
+          unit_id: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          agency_id?: string | null
+          created_at?: string
+          id?: string
+          is_cover?: boolean
+          kind?: string
+          position?: number
+          public_id?: string
+          storage_path?: string | null
+          title?: string | null
+          unit_id?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_media_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unit_media_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       units: {
         Row: {
           agency_id: string | null
+          agent_id: string | null
+          archived_at: string | null
           bathrooms: number | null
           bedrooms: number | null
           block: string | null
           box: string | null
           built_area: number | null
+          city: string | null
           created_at: string
           created_by: string | null
+          currency: string
           decorated: boolean
           delivery_date: string | null
+          description: string | null
+          developer_id: string | null
           development_id: string | null
+          exclusive: boolean
           external_id: string | null
           external_source: string | null
           floor: number | null
+          front_sea: boolean
           furnished: boolean
           id: string
           land_area: number | null
           last_sync_at: string | null
+          latitude: number | null
           legacy_imovel_id: string | null
+          longitude: number | null
           lot: string | null
+          neighborhood: string | null
           orientation: string | null
           parking_spaces: number | null
+          postal_code: string | null
+          price: number | null
           private_area: number | null
+          property_type: string | null
+          public_id: string | null
+          reference: string | null
+          sea_view: boolean
+          sharing_scope: string
           solar_position: string | null
+          state: string | null
           status: Database["public"]["Enums"]["unit_status"]
           storage: boolean
+          street: string | null
+          street_number: string | null
           suites: number | null
           sync_status: string | null
+          title: string | null
           total_area: number | null
           tower: string | null
+          transaction_type: string
           typology_id: string | null
           unit_number: string | null
           updated_at: string
         }
         Insert: {
           agency_id?: string | null
+          agent_id?: string | null
+          archived_at?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           block?: string | null
           box?: string | null
           built_area?: number | null
+          city?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
           decorated?: boolean
           delivery_date?: string | null
+          description?: string | null
+          developer_id?: string | null
           development_id?: string | null
+          exclusive?: boolean
           external_id?: string | null
           external_source?: string | null
           floor?: number | null
+          front_sea?: boolean
           furnished?: boolean
           id?: string
           land_area?: number | null
           last_sync_at?: string | null
+          latitude?: number | null
           legacy_imovel_id?: string | null
+          longitude?: number | null
           lot?: string | null
+          neighborhood?: string | null
           orientation?: string | null
           parking_spaces?: number | null
+          postal_code?: string | null
+          price?: number | null
           private_area?: number | null
+          property_type?: string | null
+          public_id?: string | null
+          reference?: string | null
+          sea_view?: boolean
+          sharing_scope?: string
           solar_position?: string | null
+          state?: string | null
           status?: Database["public"]["Enums"]["unit_status"]
           storage?: boolean
+          street?: string | null
+          street_number?: string | null
           suites?: number | null
           sync_status?: string | null
+          title?: string | null
           total_area?: number | null
           tower?: string | null
+          transaction_type?: string
           typology_id?: string | null
           unit_number?: string | null
           updated_at?: string
         }
         Update: {
           agency_id?: string | null
+          agent_id?: string | null
+          archived_at?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           block?: string | null
           box?: string | null
           built_area?: number | null
+          city?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
           decorated?: boolean
           delivery_date?: string | null
+          description?: string | null
+          developer_id?: string | null
           development_id?: string | null
+          exclusive?: boolean
           external_id?: string | null
           external_source?: string | null
           floor?: number | null
+          front_sea?: boolean
           furnished?: boolean
           id?: string
           land_area?: number | null
           last_sync_at?: string | null
+          latitude?: number | null
           legacy_imovel_id?: string | null
+          longitude?: number | null
           lot?: string | null
+          neighborhood?: string | null
           orientation?: string | null
           parking_spaces?: number | null
+          postal_code?: string | null
+          price?: number | null
           private_area?: number | null
+          property_type?: string | null
+          public_id?: string | null
+          reference?: string | null
+          sea_view?: boolean
+          sharing_scope?: string
           solar_position?: string | null
+          state?: string | null
           status?: Database["public"]["Enums"]["unit_status"]
           storage?: boolean
+          street?: string | null
+          street_number?: string | null
           suites?: number | null
           sync_status?: string | null
+          title?: string | null
           total_area?: number | null
           tower?: string | null
+          transaction_type?: string
           typology_id?: string | null
           unit_number?: string | null
           updated_at?: string
@@ -2811,6 +3303,20 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "corretores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
             referencedColumns: ["id"]
           },
           {
@@ -3061,6 +3567,7 @@ export type Database = {
         }
         Returns: string
       }
+      gen_public_id: { Args: { p_prefix: string }; Returns: string }
       get_contato_publico: { Args: { p_slug: string }; Returns: string }
       get_corretor_contato: {
         Args: { p_corretor_id: string }
@@ -3290,7 +3797,14 @@ export type Database = {
       offer_status: "available" | "reserved" | "sold" | "rented" | "suspended"
       offer_transaction_type: "sale" | "rent" | "sale_rent" | "season"
       status_obra: "lancamento" | "em_obras" | "pronto" | "entregue"
-      unit_status: "available" | "reserved" | "sold" | "rented" | "unavailable"
+      unit_status:
+        | "available"
+        | "reserved"
+        | "sold"
+        | "rented"
+        | "unavailable"
+        | "inactive"
+        | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3462,7 +3976,15 @@ export const Constants = {
       offer_status: ["available", "reserved", "sold", "rented", "suspended"],
       offer_transaction_type: ["sale", "rent", "sale_rent", "season"],
       status_obra: ["lancamento", "em_obras", "pronto", "entregue"],
-      unit_status: ["available", "reserved", "sold", "rented", "unavailable"],
+      unit_status: [
+        "available",
+        "reserved",
+        "sold",
+        "rented",
+        "unavailable",
+        "inactive",
+        "archived",
+      ],
     },
   },
 } as const

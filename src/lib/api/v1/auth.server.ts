@@ -1,31 +1,17 @@
 // Resolução do "principal" da API v1.
 // Aceita dois tipos de credencial no header Authorization:
-//   1. Bearer <JWT do usuário logado>
-//   2. Bearer <API Key mvb_live_...>  (habilitado na Fase 5)
-import { createHash } from "crypto";
+//   1. Bearer <JWT do usuário logado>            → API interna (/api/v1)
+//   2. Bearer <mvb_live_... | mvb_test_...>      → API pública (/api/public/v1)
+import { createHash, randomBytes } from "crypto";
 import { getFeedSupabase } from "@/lib/feed-supabase.server";
 import { ApiError } from "./response";
+import { READ_SCOPES, SCOPES, normalizeScopes, type Scope } from "./scopes";
+
+export type { Scope } from "./scopes";
+export const ALL_SCOPES: Scope[] = [...SCOPES];
 
 export type ApiRole = "ADMIN" | "GESTOR" | "CORRETOR" | "INTEGRATION";
-
-export type Scope =
-  | "developments:read" | "developments:write"
-  | "typologies:read" | "typologies:write"
-  | "units:read" | "units:write"
-  | "offers:read" | "offers:write"
-  | "brokers:read" | "brokers:write"
-  | "catalogs:read" | "catalogs:write";
-
-export const ALL_SCOPES: Scope[] = [
-  "developments:read", "developments:write",
-  "typologies:read", "typologies:write",
-  "units:read", "units:write",
-  "offers:read", "offers:write",
-  "brokers:read", "brokers:write",
-  "catalogs:read", "catalogs:write",
-];
-
-const READ_SCOPES: Scope[] = ALL_SCOPES.filter((s) => s.endsWith(":read"));
+export type ApiEnvironment = "live" | "test";
 
 export type Principal = {
   kind: "user" | "integration";
@@ -35,11 +21,21 @@ export type Principal = {
   /** true quando o principal pode enxergar/editar dados de todas as imobiliárias */
   crossTenant: boolean;
   scopes: Scope[];
+  environment: ApiEnvironment;
   apiKeyId?: string;
+  rateLimitPerHour: number;
+  /** lista branca de campos que essa credencial pode receber (vazia = todos os públicos) */
+  fieldScope: string[];
 };
 
 export function hashApiKey(raw: string): string {
   return createHash("sha256").update(raw).digest("hex");
+}
+
+/** Gera uma nova API Key. O valor cru é retornado uma única vez. */
+export function generateApiKey(environment: ApiEnvironment = "live") {
+  const raw = `mvb_${environment}_${randomBytes(24).toString("base64url")}`;
+  return { raw, hash: hashApiKey(raw), prefix: raw.slice(0, 16) };
 }
 
 function bearerFrom(request: Request): string | null {
@@ -81,12 +77,13 @@ export async function resolvePrincipal(request: Request): Promise<Principal> {
 
   // --- API Key ---
   if (token.startsWith("mvb_")) {
+    const environment: ApiEnvironment = token.startsWith("mvb_test_") ? "test" : "live";
     const keyHash = hashApiKey(token);
     let row: any = null;
     try {
       const { data } = await db
         .from("api_keys")
-        .select("id, agency_id, permissions, active, expires_at")
+        .select("id, agency_id, permissions, active, suspended, expires_at, environment, rate_limit_per_hour, field_scope")
         .eq("key_hash", keyHash)
         .maybeSingle();
       row = data ?? null;
@@ -94,21 +91,25 @@ export async function resolvePrincipal(request: Request): Promise<Principal> {
       row = null;
     }
     if (!row || row.active === false) throw new ApiError("UNAUTHORIZED", "API Key inválida");
+    if (row.suspended === true) throw new ApiError("FORBIDDEN", "API Key suspensa");
     if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) {
       throw new ApiError("UNAUTHORIZED", "API Key expirada");
     }
-    try {
-      await db.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", row.id);
-    } catch { /* não bloqueia a requisição */ }
+
+    const scopes = normalizeScopes(row.permissions);
+    if (scopes.length === 0) throw new ApiError("FORBIDDEN_SCOPE", "API Key sem escopos configurados");
 
     return {
       kind: "integration",
       role: "INTEGRATION",
       userId: null,
       agencyId: row.agency_id ?? null,
-      crossTenant: !row.agency_id,
-      scopes: (row.permissions ?? READ_SCOPES) as Scope[],
+      crossTenant: false, // nenhuma integração enxerga a base inteira por padrão
+      scopes,
+      environment: (row.environment as ApiEnvironment) ?? environment,
       apiKeyId: row.id,
+      rateLimitPerHour: Number(row.rate_limit_per_hour ?? 1000),
+      fieldScope: Array.isArray(row.field_scope) ? row.field_scope : [],
     };
   }
 
@@ -142,6 +143,9 @@ export async function resolvePrincipal(request: Request): Promise<Principal> {
     userId,
     agencyId,
     crossTenant: isStaff,
-    scopes: canWrite ? ALL_SCOPES : READ_SCOPES,
+    scopes: canWrite ? [...SCOPES] : [...READ_SCOPES],
+    environment: "live",
+    rateLimitPerHour: 100000,
+    fieldScope: [],
   };
 }
