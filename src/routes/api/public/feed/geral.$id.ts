@@ -92,7 +92,7 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
 
           const xml = buildFeedXML({
             carteira: {
-              nome: "Feed Geral",
+              nome: feedNome,
               slug: `geral-${id}`,
               updated_at: new Date().toISOString(),
             },
