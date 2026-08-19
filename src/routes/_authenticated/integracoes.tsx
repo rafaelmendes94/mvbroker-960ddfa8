@@ -53,7 +53,7 @@ function copy(value: string) {
 
 function IntegracoesPage() {
   return (
-    <RoleGate allow={["super_admin", "imobiliaria"]}>
+    <RoleGate allow={["super_admin"]}>
       <PageHeader title="Integrações e API" description="Chaves de acesso, webhooks e documentação da API MV Broker." />
       <Tabs defaultValue="keys" className="space-y-4">
         <TabsList>
