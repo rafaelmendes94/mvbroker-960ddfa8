@@ -53,8 +53,15 @@ export async function handleApiV1(request: Request, splat: string): Promise<Resp
       return ok({ name: "MV Broker API", version: "v1", resources: ["developments", "typologies", "units", "offers", "properties"] });
     }
     if (segments[0] === "health") return ok({ status: "ok", time: new Date().toISOString() });
+    if (segments[0] === "openapi.json") {
+      return new Response(JSON.stringify(buildOpenApiSpec(url.origin)), {
+        status: 200,
+        headers: { ...JSON_HEADERS, "Cache-Control": "public, max-age=300" },
+      });
+    }
 
     const principal = await resolvePrincipal(request);
+    enforceRateLimit(principal);
     const [resource, id, sub] = segments;
 
     // ---------- developments ----------
