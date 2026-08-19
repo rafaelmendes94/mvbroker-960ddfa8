@@ -182,6 +182,7 @@ export async function createUnit(body: Record<string, unknown>, principal: Princ
   payload.created_by = principal.userId;
   const { data, error } = await db().from("units").insert(payload).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("unit.created", data, data.agency_id);
   return data;
 }
 
