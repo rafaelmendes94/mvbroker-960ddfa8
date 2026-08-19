@@ -82,6 +82,7 @@ export async function updateDevelopment(id: string, body: Record<string, unknown
   const payload = pick(body, DEVELOPMENT_FIELDS);
   const { data, error } = await db().from("developments").update(payload).eq("id", id).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("development.updated", data, data.agency_id);
   return data;
 }
 
