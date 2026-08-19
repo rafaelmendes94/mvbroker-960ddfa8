@@ -16,6 +16,7 @@ async function requireAdmin(supabase: any, userId: string) {
 export const listApiKeys = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { data, error } = await (context.supabase as any)
       .from("api_keys")
       .select("id, name, key_prefix, permissions, active, expires_at, last_used_at, rate_limit, agency_id, created_at")
