@@ -1,20 +1,22 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-/** Resolve a imobiliária do usuário (null = credencial global de administrador). */
-async function resolveAgency(supabase: any, userId: string) {
-  const [{ data: roleRows }, { data: owned }] = await Promise.all([
-    supabase.from("user_roles").select("role").eq("user_id", userId),
-    supabase.from("imobiliarias").select("id").eq("owner_id", userId).maybeSingle(),
-  ]);
+/** Verifica se o usuário é super_admin. A API é exclusiva do administrador do sistema. */
+async function requireAdmin(supabase: any, userId: string) {
+  const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   const roles: string[] = (roleRows ?? []).map((r: any) => r.role);
-  return { isAdmin: roles.includes("super_admin"), agencyId: owned?.id ?? null };
+  if (!roles.includes("super_admin")) {
+    throw new Error("Acesso restrito ao administrador do sistema.");
+  }
+  return { userId, roles };
 }
+
 
 // ============ API KEYS ============
 export const listApiKeys = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { data, error } = await (context.supabase as any)
       .from("api_keys")
       .select("id, name, key_prefix, permissions, active, expires_at, last_used_at, rate_limit, agency_id, created_at")
@@ -31,8 +33,7 @@ export const createApiKey = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { randomBytes, createHash } = await import("crypto");
-    const { agencyId, isAdmin } = await resolveAgency(context.supabase, context.userId);
-    if (!isAdmin && !agencyId) throw new Error("Somente administradores ou imobiliárias podem criar chaves");
+    await requireAdmin(context.supabase, context.userId);
 
     const raw = `mvb_live_${randomBytes(24).toString("hex")}`;
     const keyHash = createHash("sha256").update(raw).digest("hex");
@@ -40,7 +41,7 @@ export const createApiKey = createServerFn({ method: "POST" })
     const { data: row, error } = await (context.supabase as any)
       .from("api_keys")
       .insert({
-        agency_id: agencyId,
+        agency_id: null,
         name: data.name.trim(),
         key_prefix: raw.slice(0, 16),
         key_hash: keyHash,
@@ -60,6 +61,7 @@ export const setApiKeyActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string; active: boolean }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { error } = await (context.supabase as any).from("api_keys").update({ active: data.active }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -69,6 +71,7 @@ export const deleteApiKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { error } = await (context.supabase as any).from("api_keys").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -78,6 +81,7 @@ export const deleteApiKey = createServerFn({ method: "POST" })
 export const listWebhooks = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { data, error } = await (context.supabase as any)
       .from("webhooks")
       .select("id, name, url, events, active, last_delivery_at, failure_count, secret, agency_id, created_at")
@@ -96,13 +100,12 @@ export const createWebhook = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { randomBytes } = await import("crypto");
-    const { agencyId, isAdmin } = await resolveAgency(context.supabase, context.userId);
-    if (!isAdmin && !agencyId) throw new Error("Sem permissão para criar webhooks");
+    await requireAdmin(context.supabase, context.userId);
 
     const { data: row, error } = await (context.supabase as any)
       .from("webhooks")
       .insert({
-        agency_id: agencyId,
+        agency_id: null,
         name: data.name.trim(),
         url: data.url.trim(),
         events: data.events,
@@ -119,6 +122,7 @@ export const setWebhookActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string; active: boolean }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { error } = await (context.supabase as any).from("webhooks").update({ active: data.active }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -128,6 +132,7 @@ export const deleteWebhook = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { error } = await (context.supabase as any).from("webhooks").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -137,6 +142,7 @@ export const testWebhook = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     // Confirma que o usuário enxerga este webhook (RLS) antes de disparar.
     const { data: row } = await (context.supabase as any).from("webhooks").select("id").eq("id", data.id).maybeSingle();
     if (!row) throw new Error("Webhook não encontrado");
@@ -148,6 +154,7 @@ export const listWebhookDeliveries = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { webhook_id: string }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { data: rows, error } = await (context.supabase as any)
       .from("webhook_deliveries")
       .select("id, event, status, attempts, response_status, error, created_at")
