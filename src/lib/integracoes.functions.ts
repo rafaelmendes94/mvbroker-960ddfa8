@@ -32,8 +32,7 @@ export const createApiKey = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { randomBytes, createHash } = await import("crypto");
-    const { agencyId, isAdmin } = await resolveAgency(context.supabase, context.userId);
-    if (!isAdmin && !agencyId) throw new Error("Somente administradores ou imobiliárias podem criar chaves");
+    await requireAdmin(context.supabase, context.userId);
 
     const raw = `mvb_live_${randomBytes(24).toString("hex")}`;
     const keyHash = createHash("sha256").update(raw).digest("hex");
@@ -41,7 +40,7 @@ export const createApiKey = createServerFn({ method: "POST" })
     const { data: row, error } = await (context.supabase as any)
       .from("api_keys")
       .insert({
-        agency_id: agencyId,
+        agency_id: null,
         name: data.name.trim(),
         key_prefix: raw.slice(0, 16),
         key_hash: keyHash,
