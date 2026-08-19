@@ -71,6 +71,7 @@ export async function createDevelopment(body: Record<string, unknown>, principal
   payload.created_by = principal.userId;
   const { data, error } = await db().from("developments").insert(payload).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("development.created", data, data.agency_id);
   return data;
 }
 
