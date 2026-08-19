@@ -314,6 +314,7 @@ export function buildOLXXML(opts: BuildOpts): string {
   <city>${esc(im.cidade ?? "")}</city>
   <neighborhood>${esc(im.bairro ?? "")}</neighborhood>
   <zipcode>${esc(im.cep ?? "")}</zipcode>
+  <complement>${cdata([im.unidade ? `Apto/Unidade ${im.unidade}` : "", im.quadra ? `Quadra ${im.quadra}` : "", im.lote ? `Lote ${im.lote}` : "", im.box ? `Box ${im.box}` : ""].filter(Boolean).join(" - ") || im.complemento || "")}</complement>
   <bedrooms>${im.dormitorios ?? ""}</bedrooms>
   <bathrooms>${im.banheiros ?? ""}</bathrooms>
   <garage_spaces>${im.vagas ?? ""}</garage_spaces>
@@ -363,6 +364,11 @@ export function buildImovelWebXML(opts: BuildOpts): string {
     <cidade>${esc(im.cidade ?? "")}</cidade>
     <estado>${esc(im.estado ?? "")}</estado>
     <cep>${esc(im.cep ?? "")}</cep>
+    <unidade>${esc(im.unidade ?? "")}</unidade>
+    <quadra>${esc(im.quadra ?? "")}</quadra>
+    <lote>${esc(im.lote ?? "")}</lote>
+    <box>${esc(im.box ?? "")}</box>
+    <complemento>${cdata(im.complemento ?? "")}</complemento>
   </endereco>
   <fotos>${pics}</fotos>
 </imovel>`;
