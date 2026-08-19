@@ -60,6 +60,7 @@ const SECTIONS: Section[] = [
     entries: [
       { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
       { to: "/seguranca", label: "Segurança", icon: Lock },
+      { to: "/integracoes", label: "Integrações e API", icon: Plug },
       { to: "/configuracoes", label: "Configurações", icon: Settings },
     ],
 

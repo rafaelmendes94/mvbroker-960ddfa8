@@ -31,6 +31,7 @@ import { Route as AuthenticatedEdificiosRouteImport } from './routes/_authentica
 import { Route as AuthenticatedFavoritosRouteImport } from './routes/_authenticated/favoritos'
 import { Route as AuthenticatedImoveisRouteImport } from './routes/_authenticated/imoveis'
 import { Route as AuthenticatedImportacoesRouteImport } from './routes/_authenticated/importacoes'
+import { Route as AuthenticatedIntegracoesRouteImport } from './routes/_authenticated/integracoes'
 import { Route as AuthenticatedLoteamentosRouteImport } from './routes/_authenticated/loteamentos'
 import { Route as AuthenticatedMeusCorretoresRouteImport } from './routes/_authenticated/meus-corretores'
 import { Route as AuthenticatedNotificacoesRouteImport } from './routes/_authenticated/notificacoes'
@@ -209,6 +210,12 @@ const AuthenticatedImportacoesRoute =
   AuthenticatedImportacoesRouteImport.update({
     id: '/importacoes',
     path: '/importacoes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedIntegracoesRoute =
+  AuthenticatedIntegracoesRouteImport.update({
+    id: '/integracoes',
+    path: '/integracoes',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedLoteamentosRoute =
@@ -606,6 +613,7 @@ export interface FileRoutesByFullPath {
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/imoveis': typeof AuthenticatedImoveisRouteWithChildren
   '/importacoes': typeof AuthenticatedImportacoesRouteWithChildren
+  '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/loteamentos': typeof AuthenticatedLoteamentosRoute
   '/meus-corretores': typeof AuthenticatedMeusCorretoresRoute
   '/notificacoes': typeof AuthenticatedNotificacoesRoute
@@ -691,6 +699,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/edificios': typeof AuthenticatedEdificiosRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
+  '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/loteamentos': typeof AuthenticatedLoteamentosRoute
   '/meus-corretores': typeof AuthenticatedMeusCorretoresRoute
   '/notificacoes': typeof AuthenticatedNotificacoesRoute
@@ -777,6 +786,7 @@ export interface FileRoutesById {
   '/_authenticated/favoritos': typeof AuthenticatedFavoritosRoute
   '/_authenticated/imoveis': typeof AuthenticatedImoveisRouteWithChildren
   '/_authenticated/importacoes': typeof AuthenticatedImportacoesRouteWithChildren
+  '/_authenticated/integracoes': typeof AuthenticatedIntegracoesRoute
   '/_authenticated/loteamentos': typeof AuthenticatedLoteamentosRoute
   '/_authenticated/meus-corretores': typeof AuthenticatedMeusCorretoresRoute
   '/_authenticated/notificacoes': typeof AuthenticatedNotificacoesRoute
@@ -867,6 +877,7 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/imoveis'
     | '/importacoes'
+    | '/integracoes'
     | '/loteamentos'
     | '/meus-corretores'
     | '/notificacoes'
@@ -952,6 +963,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/edificios'
     | '/favoritos'
+    | '/integracoes'
     | '/loteamentos'
     | '/meus-corretores'
     | '/notificacoes'
@@ -1037,6 +1049,7 @@ export interface FileRouteTypes {
     | '/_authenticated/favoritos'
     | '/_authenticated/imoveis'
     | '/_authenticated/importacoes'
+    | '/_authenticated/integracoes'
     | '/_authenticated/loteamentos'
     | '/_authenticated/meus-corretores'
     | '/_authenticated/notificacoes'
@@ -1286,6 +1299,13 @@ declare module '@tanstack/react-router' {
       path: '/importacoes'
       fullPath: '/importacoes'
       preLoaderRoute: typeof AuthenticatedImportacoesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/integracoes': {
+      id: '/_authenticated/integracoes'
+      path: '/integracoes'
+      fullPath: '/integracoes'
+      preLoaderRoute: typeof AuthenticatedIntegracoesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/loteamentos': {
@@ -1951,6 +1971,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFavoritosRoute: typeof AuthenticatedFavoritosRoute
   AuthenticatedImoveisRoute: typeof AuthenticatedImoveisRouteWithChildren
   AuthenticatedImportacoesRoute: typeof AuthenticatedImportacoesRouteWithChildren
+  AuthenticatedIntegracoesRoute: typeof AuthenticatedIntegracoesRoute
   AuthenticatedLoteamentosRoute: typeof AuthenticatedLoteamentosRoute
   AuthenticatedMeusCorretoresRoute: typeof AuthenticatedMeusCorretoresRoute
   AuthenticatedNotificacoesRoute: typeof AuthenticatedNotificacoesRoute
@@ -1984,6 +2005,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFavoritosRoute: AuthenticatedFavoritosRoute,
   AuthenticatedImoveisRoute: AuthenticatedImoveisRouteWithChildren,
   AuthenticatedImportacoesRoute: AuthenticatedImportacoesRouteWithChildren,
+  AuthenticatedIntegracoesRoute: AuthenticatedIntegracoesRoute,
   AuthenticatedLoteamentosRoute: AuthenticatedLoteamentosRoute,
   AuthenticatedMeusCorretoresRoute: AuthenticatedMeusCorretoresRoute,
   AuthenticatedNotificacoesRoute: AuthenticatedNotificacoesRoute,
