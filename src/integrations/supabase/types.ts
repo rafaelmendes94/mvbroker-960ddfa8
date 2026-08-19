@@ -885,6 +885,131 @@ export type Database = {
         }
         Relationships: []
       }
+      developments: {
+        Row: {
+          address: string | null
+          agency_id: string | null
+          amenities: string[]
+          city: string | null
+          complement: string | null
+          construction_company: string | null
+          construction_status: string | null
+          country: string
+          cover_image: string | null
+          created_at: string
+          created_by: string | null
+          delivery_date: string | null
+          description: string | null
+          developer: string | null
+          external_id: string | null
+          external_source: string | null
+          id: string
+          infrastructure: string[]
+          last_sync_at: string | null
+          latitude: number | null
+          legacy_id: string | null
+          legacy_table: string | null
+          longitude: number | null
+          material_url: string | null
+          name: string
+          neighborhood: string | null
+          number: string | null
+          slug: string | null
+          state: string | null
+          status: string
+          street: string | null
+          sync_status: string | null
+          total_units: number | null
+          type: Database["public"]["Enums"]["development_type"]
+          updated_at: string
+          zipcode: string | null
+        }
+        Insert: {
+          address?: string | null
+          agency_id?: string | null
+          amenities?: string[]
+          city?: string | null
+          complement?: string | null
+          construction_company?: string | null
+          construction_status?: string | null
+          country?: string
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_date?: string | null
+          description?: string | null
+          developer?: string | null
+          external_id?: string | null
+          external_source?: string | null
+          id?: string
+          infrastructure?: string[]
+          last_sync_at?: string | null
+          latitude?: number | null
+          legacy_id?: string | null
+          legacy_table?: string | null
+          longitude?: number | null
+          material_url?: string | null
+          name: string
+          neighborhood?: string | null
+          number?: string | null
+          slug?: string | null
+          state?: string | null
+          status?: string
+          street?: string | null
+          sync_status?: string | null
+          total_units?: number | null
+          type?: Database["public"]["Enums"]["development_type"]
+          updated_at?: string
+          zipcode?: string | null
+        }
+        Update: {
+          address?: string | null
+          agency_id?: string | null
+          amenities?: string[]
+          city?: string | null
+          complement?: string | null
+          construction_company?: string | null
+          construction_status?: string | null
+          country?: string
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_date?: string | null
+          description?: string | null
+          developer?: string | null
+          external_id?: string | null
+          external_source?: string | null
+          id?: string
+          infrastructure?: string[]
+          last_sync_at?: string | null
+          latitude?: number | null
+          legacy_id?: string | null
+          legacy_table?: string | null
+          longitude?: number | null
+          material_url?: string | null
+          name?: string
+          neighborhood?: string | null
+          number?: string | null
+          slug?: string | null
+          state?: string | null
+          status?: string
+          street?: string | null
+          sync_status?: string | null
+          total_units?: number | null
+          type?: Database["public"]["Enums"]["development_type"]
+          updated_at?: string
+          zipcode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developments_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       edificios: {
         Row: {
           ano_construcao: number | null
@@ -1926,6 +2051,149 @@ export type Database = {
         }
         Relationships: []
       }
+      offers: {
+        Row: {
+          accepts_financing: boolean
+          accepts_installments: boolean
+          accepts_property_exchange: boolean
+          accepts_vehicle: boolean
+          agency_id: string | null
+          annual_reinforcements: string | null
+          available_from: string | null
+          bonus: string | null
+          broker_id: string | null
+          commission_percentage: number | null
+          commission_value: number | null
+          condo_fee: number | null
+          created_at: string
+          created_by: string | null
+          down_payment: number | null
+          exclusive: boolean
+          external_id: string | null
+          external_source: string | null
+          id: string
+          incc: boolean
+          installments: number | null
+          internal_notes: string | null
+          legacy_imovel_id: string | null
+          monthly_correction: string | null
+          payment_conditions: string[]
+          previous_price: number | null
+          promotional_price: number | null
+          property_tax: number | null
+          public_notes: string | null
+          rent_price: number | null
+          sale_price: number | null
+          status: Database["public"]["Enums"]["offer_status"]
+          transaction_type: Database["public"]["Enums"]["offer_transaction_type"]
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          accepts_financing?: boolean
+          accepts_installments?: boolean
+          accepts_property_exchange?: boolean
+          accepts_vehicle?: boolean
+          agency_id?: string | null
+          annual_reinforcements?: string | null
+          available_from?: string | null
+          bonus?: string | null
+          broker_id?: string | null
+          commission_percentage?: number | null
+          commission_value?: number | null
+          condo_fee?: number | null
+          created_at?: string
+          created_by?: string | null
+          down_payment?: number | null
+          exclusive?: boolean
+          external_id?: string | null
+          external_source?: string | null
+          id?: string
+          incc?: boolean
+          installments?: number | null
+          internal_notes?: string | null
+          legacy_imovel_id?: string | null
+          monthly_correction?: string | null
+          payment_conditions?: string[]
+          previous_price?: number | null
+          promotional_price?: number | null
+          property_tax?: number | null
+          public_notes?: string | null
+          rent_price?: number | null
+          sale_price?: number | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          transaction_type?: Database["public"]["Enums"]["offer_transaction_type"]
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          accepts_financing?: boolean
+          accepts_installments?: boolean
+          accepts_property_exchange?: boolean
+          accepts_vehicle?: boolean
+          agency_id?: string | null
+          annual_reinforcements?: string | null
+          available_from?: string | null
+          bonus?: string | null
+          broker_id?: string | null
+          commission_percentage?: number | null
+          commission_value?: number | null
+          condo_fee?: number | null
+          created_at?: string
+          created_by?: string | null
+          down_payment?: number | null
+          exclusive?: boolean
+          external_id?: string | null
+          external_source?: string | null
+          id?: string
+          incc?: boolean
+          installments?: number | null
+          internal_notes?: string | null
+          legacy_imovel_id?: string | null
+          monthly_correction?: string | null
+          payment_conditions?: string[]
+          previous_price?: number | null
+          promotional_price?: number | null
+          property_tax?: number | null
+          public_notes?: string | null
+          rent_price?: number | null
+          sale_price?: number | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          transaction_type?: Database["public"]["Enums"]["offer_transaction_type"]
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "corretores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_legacy_imovel_id_fkey"
+            columns: ["legacy_imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pagamentos: {
         Row: {
           assinatura_id: string
@@ -2294,6 +2562,224 @@ export type Database = {
         }
         Relationships: []
       }
+      typologies: {
+        Row: {
+          agency_id: string | null
+          bathrooms: number | null
+          bedrooms: number | null
+          built_area: number | null
+          created_at: string
+          description: string | null
+          development_id: string
+          external_id: string | null
+          external_source: string | null
+          floorplan: string | null
+          id: string
+          land_area: number | null
+          name: string
+          parking_spaces: number | null
+          private_area: number | null
+          property_type: string | null
+          suites: number | null
+          total_area: number | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          built_area?: number | null
+          created_at?: string
+          description?: string | null
+          development_id: string
+          external_id?: string | null
+          external_source?: string | null
+          floorplan?: string | null
+          id?: string
+          land_area?: number | null
+          name: string
+          parking_spaces?: number | null
+          private_area?: number | null
+          property_type?: string | null
+          suites?: number | null
+          total_area?: number | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          built_area?: number | null
+          created_at?: string
+          description?: string | null
+          development_id?: string
+          external_id?: string | null
+          external_source?: string | null
+          floorplan?: string | null
+          id?: string
+          land_area?: number | null
+          name?: string
+          parking_spaces?: number | null
+          private_area?: number | null
+          property_type?: string | null
+          suites?: number | null
+          total_area?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "typologies_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "typologies_development_id_fkey"
+            columns: ["development_id"]
+            isOneToOne: false
+            referencedRelation: "developments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      units: {
+        Row: {
+          agency_id: string | null
+          bathrooms: number | null
+          bedrooms: number | null
+          block: string | null
+          box: string | null
+          built_area: number | null
+          created_at: string
+          created_by: string | null
+          decorated: boolean
+          delivery_date: string | null
+          development_id: string | null
+          external_id: string | null
+          external_source: string | null
+          floor: number | null
+          furnished: boolean
+          id: string
+          land_area: number | null
+          last_sync_at: string | null
+          legacy_imovel_id: string | null
+          lot: string | null
+          orientation: string | null
+          parking_spaces: number | null
+          private_area: number | null
+          solar_position: string | null
+          status: Database["public"]["Enums"]["unit_status"]
+          storage: boolean
+          suites: number | null
+          sync_status: string | null
+          total_area: number | null
+          tower: string | null
+          typology_id: string | null
+          unit_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          block?: string | null
+          box?: string | null
+          built_area?: number | null
+          created_at?: string
+          created_by?: string | null
+          decorated?: boolean
+          delivery_date?: string | null
+          development_id?: string | null
+          external_id?: string | null
+          external_source?: string | null
+          floor?: number | null
+          furnished?: boolean
+          id?: string
+          land_area?: number | null
+          last_sync_at?: string | null
+          legacy_imovel_id?: string | null
+          lot?: string | null
+          orientation?: string | null
+          parking_spaces?: number | null
+          private_area?: number | null
+          solar_position?: string | null
+          status?: Database["public"]["Enums"]["unit_status"]
+          storage?: boolean
+          suites?: number | null
+          sync_status?: string | null
+          total_area?: number | null
+          tower?: string | null
+          typology_id?: string | null
+          unit_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          block?: string | null
+          box?: string | null
+          built_area?: number | null
+          created_at?: string
+          created_by?: string | null
+          decorated?: boolean
+          delivery_date?: string | null
+          development_id?: string | null
+          external_id?: string | null
+          external_source?: string | null
+          floor?: number | null
+          furnished?: boolean
+          id?: string
+          land_area?: number | null
+          last_sync_at?: string | null
+          legacy_imovel_id?: string | null
+          lot?: string | null
+          orientation?: string | null
+          parking_spaces?: number | null
+          private_area?: number | null
+          solar_position?: string | null
+          status?: Database["public"]["Enums"]["unit_status"]
+          storage?: boolean
+          suites?: number | null
+          sync_status?: string | null
+          total_area?: number | null
+          tower?: string | null
+          typology_id?: string | null
+          unit_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "units_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "imobiliarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_development_id_fkey"
+            columns: ["development_id"]
+            isOneToOne: false
+            referencedRelation: "developments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_legacy_imovel_id_fkey"
+            columns: ["legacy_imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_typology_id_fkey"
+            columns: ["typology_id"]
+            isOneToOne: false
+            referencedRelation: "typologies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_custom_roles: {
         Row: {
           created_at: string
@@ -2626,6 +3112,12 @@ export type Database = {
         | "materiais"
         | "plantas"
         | "outros"
+      development_type:
+        | "edificio"
+        | "condominio"
+        | "loteamento"
+        | "empreendimento"
+        | "avulso"
       espelho_status: "indisponivel" | "disponivel" | "reservado" | "vendido"
       espelho_tipo: "edificio" | "condominio" | "loteamento"
       notification_categoria: "imoveis" | "xml" | "portais" | "sistema"
@@ -2639,7 +3131,10 @@ export type Database = {
         | "publicacao_aprovada"
         | "publicacao_rejeitada"
         | "sistema"
+      offer_status: "available" | "reserved" | "sold" | "rented" | "suspended"
+      offer_transaction_type: "sale" | "rent" | "sale_rent" | "season"
       status_obra: "lancamento" | "em_obras" | "pronto" | "entregue"
+      unit_status: "available" | "reserved" | "sold" | "rented" | "unavailable"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2787,6 +3282,13 @@ export const Constants = {
         "plantas",
         "outros",
       ],
+      development_type: [
+        "edificio",
+        "condominio",
+        "loteamento",
+        "empreendimento",
+        "avulso",
+      ],
       espelho_status: ["indisponivel", "disponivel", "reservado", "vendido"],
       espelho_tipo: ["edificio", "condominio", "loteamento"],
       notification_categoria: ["imoveis", "xml", "portais", "sistema"],
@@ -2801,7 +3303,10 @@ export const Constants = {
         "publicacao_rejeitada",
         "sistema",
       ],
+      offer_status: ["available", "reserved", "sold", "rented", "suspended"],
+      offer_transaction_type: ["sale", "rent", "sale_rent", "season"],
       status_obra: ["lancamento", "em_obras", "pronto", "entregue"],
+      unit_status: ["available", "reserved", "sold", "rented", "unavailable"],
     },
   },
 } as const
