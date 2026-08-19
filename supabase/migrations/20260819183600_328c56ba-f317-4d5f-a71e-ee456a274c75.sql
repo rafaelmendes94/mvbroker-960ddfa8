@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.tg_offers_price_history() FROM PUBLIC, anon, authenticated;
