@@ -1,8 +1,26 @@
 // Roteador interno da API v1. Um único ponto de dispatch usado tanto por
 // /api/v1/* (consumo interno) quanto por /api/public/v1/* (integrações externas).
 import { ApiError, JSON_HEADERS, fail, ok } from "./response";
-import { requireScope, resolvePrincipal } from "./auth.server";
+import { requireScope, resolvePrincipal, type Principal } from "./auth.server";
 import * as svc from "./services.server";
+import { buildOpenApiSpec } from "./openapi";
+
+// Rate limit simples por credencial (janela deslizante de 1 minuto, por instância).
+const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+
+function enforceRateLimit(principal: Principal) {
+  const key = principal.apiKeyId ?? principal.userId;
+  if (!key || principal.kind !== "integration") return;
+  const now = Date.now();
+  const bucket = rateBuckets.get(key);
+  if (!bucket || bucket.resetAt < now) {
+    rateBuckets.set(key, { count: 1, resetAt: now + 60_000 });
+    return;
+  }
+  bucket.count += 1;
+  if (bucket.count > 600) throw new ApiError("RATE_LIMITED", "Limite de requisições por minuto excedido");
+}
+
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
