@@ -212,6 +212,26 @@ export function buildVRSyncXML(opts: BuildOpts): string {
       const nomeCondo = im.condominio_nome || im.edificio_nome || null;
       const condoNomeXML = nomeCondo ? `<CondominiumName>${cdata(nomeCondo)}</CondominiumName>` : "";
 
+      // Identificação da unidade: apto / quadra / lote / box
+      const unidade = im.unidade ? String(im.unidade).trim() : "";
+      const quadra = im.quadra ? String(im.quadra).trim() : "";
+      const loteN = im.lote ? String(im.lote).trim() : "";
+      const boxN = im.box ? String(im.box).trim() : "";
+      const complementoPartes = [
+        unidade ? `Apto/Unidade ${unidade}` : "",
+        quadra ? `Quadra ${quadra}` : "",
+        loteN ? `Lote ${loteN}` : "",
+        boxN ? `Box ${boxN}` : "",
+      ].filter(Boolean);
+      const complementoTexto = complementoPartes.join(" - ") || (im.complemento ? String(im.complemento) : "");
+      const unidadeXML = [
+        unidade ? `<UnitNumber>${esc(unidade)}</UnitNumber>` : "",
+        quadra ? `<Block>${esc(quadra)}</Block>` : "",
+        loteN ? `<LotNumber>${esc(loteN)}</LotNumber>` : "",
+        boxN ? `<BoxNumber>${esc(boxN)}</BoxNumber>` : "",
+        complementoTexto ? `<Complement>${cdata(complementoTexto)}</Complement>` : "",
+      ].filter(Boolean).join("\n    ");
+
       return `<Listing>
   <ListingID>${esc(codigo)}</ListingID>
   <Title>${cdata(im.titulo || `${tipo} em ${im.bairro || im.cidade || ""}`)}</Title>
@@ -224,6 +244,7 @@ export function buildVRSyncXML(opts: BuildOpts): string {
     <PropertyTypeName>${cdata(mapTipoPT(im.tipo_imovel ?? im.tipo))}</PropertyTypeName>
     <Description>${cdata(im.descricao)}</Description>
     ${detalhes.join("\n    ")}
+    ${unidadeXML}
     ${preco}
     ${condo}
     ${iptu}
@@ -236,11 +257,16 @@ export function buildVRSyncXML(opts: BuildOpts): string {
     <Neighborhood>${esc(im.bairro || "")}</Neighborhood>
     <Address>${esc(im.logradouro || "")}</Address>
     <StreetNumber>${esc(im.numero || "")}</StreetNumber>
+    ${complementoTexto ? `<Complement>${cdata(complementoTexto)}</Complement>` : ""}
+    ${unidade ? `<UnitNumber>${esc(unidade)}</UnitNumber>` : ""}
+    ${quadra ? `<Block>${esc(quadra)}</Block>` : ""}
+    ${loteN ? `<LotNumber>${esc(loteN)}</LotNumber>` : ""}
     <PostalCode>${esc(cepValor)}</PostalCode>
     ${condoNomeXML}
     ${im.latitude != null ? `<Latitude>${im.latitude}</Latitude>` : ""}
     ${im.longitude != null ? `<Longitude>${im.longitude}</Longitude>` : ""}
   </Location>
+
   ${ownerXML}
   ${mediaXML}
 </Listing>`;
