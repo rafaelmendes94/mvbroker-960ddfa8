@@ -81,6 +81,7 @@ export const deleteApiKey = createServerFn({ method: "POST" })
 export const listWebhooks = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { data, error } = await (context.supabase as any)
       .from("webhooks")
       .select("id, name, url, events, active, last_delivery_at, failure_count, secret, agency_id, created_at")
