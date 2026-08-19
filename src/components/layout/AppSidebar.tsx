@@ -58,9 +58,9 @@ const SECTIONS: Section[] = [
   {
     section: "Sistema",
     entries: [
+      { to: "/integracoes", label: "API", icon: Plug },
       { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
       { to: "/seguranca", label: "Segurança", icon: Lock },
-      { to: "/integracoes", label: "Integrações e API", icon: Plug },
       { to: "/configuracoes", label: "Configurações", icon: Settings },
     ],
 
