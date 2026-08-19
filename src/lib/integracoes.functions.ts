@@ -61,6 +61,7 @@ export const setApiKeyActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string; active: boolean }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { error } = await (context.supabase as any).from("api_keys").update({ active: data.active }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -70,6 +71,7 @@ export const deleteApiKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { error } = await (context.supabase as any).from("api_keys").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
