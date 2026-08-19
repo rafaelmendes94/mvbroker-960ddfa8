@@ -192,6 +192,10 @@ export async function updateUnit(id: string, body: Record<string, unknown>, prin
   const payload = pick(body, UNIT_FIELDS);
   const { data, error } = await db().from("units").update(payload).eq("id", id).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("unit.updated", data, data.agency_id);
+  if (payload.status && payload.status !== current.status) {
+    await emitWebhook("unit.status_changed", { id: data.id, from: current.status, to: data.status }, data.agency_id);
+  }
   return data;
 }
 
