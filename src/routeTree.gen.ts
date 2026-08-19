@@ -93,6 +93,7 @@ import { Route as ApiPublicFeedFotosDotxmlRouteImport } from './routes/api/publi
 import { Route as ApiPublicFeedVistaMarDotxmlRouteImport } from './routes/api/public/feed/vista-mar[.]xml'
 import { Route as ApiPublicImgSplatRouteImport } from './routes/api/public/img/$'
 import { Route as ApiPublicImovelIdRouteImport } from './routes/api/public/imovel.$id'
+import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicFeedGeralIdRouteImport } from './routes/api/public/feed/geral.$id'
 import { Route as ApiPublicPortalPortalSlugRouteImport } from './routes/api/public/portal/$portal/$slug'
 
@@ -566,6 +567,11 @@ const ApiPublicImovelIdRoute = ApiPublicImovelIdRouteImport.update({
   path: '/api/public/imovel/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
+  id: '/api/public/v1/$',
+  path: '/api/public/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicFeedGeralIdRoute = ApiPublicFeedGeralIdRouteImport.update({
   id: '/api/public/feed/geral/$id',
   path: '/api/public/feed/geral/$id',
@@ -662,6 +668,7 @@ export interface FileRoutesByFullPath {
   '/api/public/feed/vista-mar.xml': typeof ApiPublicFeedVistaMarDotxmlRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
@@ -742,6 +749,7 @@ export interface FileRoutesByTo {
   '/api/public/feed/vista-mar.xml': typeof ApiPublicFeedVistaMarDotxmlRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
@@ -831,6 +839,7 @@ export interface FileRoutesById {
   '/api/public/feed/vista-mar.xml': typeof ApiPublicFeedVistaMarDotxmlRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
@@ -920,6 +929,7 @@ export interface FileRouteTypes {
     | '/api/public/feed/vista-mar.xml'
     | '/api/public/img/$'
     | '/api/public/imovel/$id'
+    | '/api/public/v1/$'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -1000,6 +1010,7 @@ export interface FileRouteTypes {
     | '/api/public/feed/vista-mar.xml'
     | '/api/public/img/$'
     | '/api/public/imovel/$id'
+    | '/api/public/v1/$'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   id:
@@ -1088,6 +1099,7 @@ export interface FileRouteTypes {
     | '/api/public/feed/vista-mar.xml'
     | '/api/public/img/$'
     | '/api/public/imovel/$id'
+    | '/api/public/v1/$'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   fileRoutesById: FileRoutesById
@@ -1115,6 +1127,7 @@ export interface RootRouteChildren {
   ApiPublicFeedVistaMarDotxmlRoute: typeof ApiPublicFeedVistaMarDotxmlRoute
   ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
   ApiPublicImovelIdRoute: typeof ApiPublicImovelIdRoute
+  ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   ApiPublicFeedGeralIdRoute: typeof ApiPublicFeedGeralIdRoute
   ApiPublicPortalPortalSlugRoute: typeof ApiPublicPortalPortalSlugRoute
 }
@@ -1709,6 +1722,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicImovelIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/$': {
+      id: '/api/public/v1/$'
+      path: '/api/public/v1/$'
+      fullPath: '/api/public/v1/$'
+      preLoaderRoute: typeof ApiPublicV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/feed/geral/$id': {
       id: '/api/public/feed/geral/$id'
       path: '/api/public/feed/geral/$id'
@@ -2013,6 +2033,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicFeedVistaMarDotxmlRoute: ApiPublicFeedVistaMarDotxmlRoute,
   ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,
   ApiPublicImovelIdRoute: ApiPublicImovelIdRoute,
+  ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   ApiPublicFeedGeralIdRoute: ApiPublicFeedGeralIdRoute,
   ApiPublicPortalPortalSlugRoute: ApiPublicPortalPortalSlugRoute,
 }
