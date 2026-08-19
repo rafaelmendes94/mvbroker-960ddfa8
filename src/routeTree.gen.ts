@@ -80,6 +80,7 @@ import { Route as AuthenticatedSegurancaAlertasRouteImport } from './routes/_aut
 import { Route as AuthenticatedSegurancaPermissoesRouteImport } from './routes/_authenticated/seguranca.permissoes'
 import { Route as AuthenticatedSegurancaSessoesRouteImport } from './routes/_authenticated/seguranca.sessoes'
 import { Route as ApiPublicImoveisListaRouteImport } from './routes/api/public/imoveis-lista'
+import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as AuthenticatedEmpreendimentosTipoIdRouteImport } from './routes/_authenticated/empreendimentos.$tipo.$id'
 import { Route as AuthenticatedImoveisIdEditarRouteImport } from './routes/_authenticated/imoveis.$id.editar'
 import { Route as AuthenticatedRegistrosIdEditarRouteImport } from './routes/_authenticated/registros.$id.editar'
@@ -92,6 +93,7 @@ import { Route as ApiPublicFeedFotosDotxmlRouteImport } from './routes/api/publi
 import { Route as ApiPublicFeedVistaMarDotxmlRouteImport } from './routes/api/public/feed/vista-mar[.]xml'
 import { Route as ApiPublicImgSplatRouteImport } from './routes/api/public/img/$'
 import { Route as ApiPublicImovelIdRouteImport } from './routes/api/public/imovel.$id'
+import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicFeedGeralIdRouteImport } from './routes/api/public/feed/geral.$id'
 import { Route as ApiPublicPortalPortalSlugRouteImport } from './routes/api/public/portal/$portal/$slug'
 
@@ -491,6 +493,11 @@ const ApiPublicImoveisListaRoute = ApiPublicImoveisListaRouteImport.update({
   path: '/api/public/imoveis-lista',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV1SplatRoute = ApiV1SplatRouteImport.update({
+  id: '/api/v1/$',
+  path: '/api/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedEmpreendimentosTipoIdRoute =
   AuthenticatedEmpreendimentosTipoIdRouteImport.update({
     id: '/empreendimentos/$tipo/$id',
@@ -558,6 +565,11 @@ const ApiPublicImgSplatRoute = ApiPublicImgSplatRouteImport.update({
 const ApiPublicImovelIdRoute = ApiPublicImovelIdRouteImport.update({
   id: '/api/public/imovel/$id',
   path: '/api/public/imovel/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
+  id: '/api/public/v1/$',
+  path: '/api/public/v1/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicFeedGeralIdRoute = ApiPublicFeedGeralIdRouteImport.update({
@@ -636,6 +648,7 @@ export interface FileRoutesByFullPath {
   '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/api/public/imoveis-lista': typeof ApiPublicImoveisListaRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis/': typeof AuthenticatedImoveisIndexRoute
   '/importacoes/': typeof AuthenticatedImportacoesIndexRoute
@@ -655,6 +668,7 @@ export interface FileRoutesByFullPath {
   '/api/public/feed/vista-mar.xml': typeof ApiPublicFeedVistaMarDotxmlRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
@@ -715,6 +729,7 @@ export interface FileRoutesByTo {
   '/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/api/public/imoveis-lista': typeof ApiPublicImoveisListaRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/carteiras': typeof AuthenticatedCarteirasIndexRoute
   '/imoveis': typeof AuthenticatedImoveisIndexRoute
   '/importacoes': typeof AuthenticatedImportacoesIndexRoute
@@ -734,6 +749,7 @@ export interface FileRoutesByTo {
   '/api/public/feed/vista-mar.xml': typeof ApiPublicFeedVistaMarDotxmlRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
@@ -803,6 +819,7 @@ export interface FileRoutesById {
   '/_authenticated/seguranca/permissoes': typeof AuthenticatedSegurancaPermissoesRoute
   '/_authenticated/seguranca/sessoes': typeof AuthenticatedSegurancaSessoesRoute
   '/api/public/imoveis-lista': typeof ApiPublicImoveisListaRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/_authenticated/carteiras/': typeof AuthenticatedCarteirasIndexRoute
   '/_authenticated/imoveis/': typeof AuthenticatedImoveisIndexRoute
   '/_authenticated/importacoes/': typeof AuthenticatedImportacoesIndexRoute
@@ -822,6 +839,7 @@ export interface FileRoutesById {
   '/api/public/feed/vista-mar.xml': typeof ApiPublicFeedVistaMarDotxmlRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/imovel/$id': typeof ApiPublicImovelIdRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/feed/geral/$id': typeof ApiPublicFeedGeralIdRoute
   '/api/public/portal/$portal/$slug': typeof ApiPublicPortalPortalSlugRoute
 }
@@ -891,6 +909,7 @@ export interface FileRouteTypes {
     | '/seguranca/permissoes'
     | '/seguranca/sessoes'
     | '/api/public/imoveis-lista'
+    | '/api/v1/$'
     | '/carteiras/'
     | '/imoveis/'
     | '/importacoes/'
@@ -910,6 +929,7 @@ export interface FileRouteTypes {
     | '/api/public/feed/vista-mar.xml'
     | '/api/public/img/$'
     | '/api/public/imovel/$id'
+    | '/api/public/v1/$'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -970,6 +990,7 @@ export interface FileRouteTypes {
     | '/seguranca/permissoes'
     | '/seguranca/sessoes'
     | '/api/public/imoveis-lista'
+    | '/api/v1/$'
     | '/carteiras'
     | '/imoveis'
     | '/importacoes'
@@ -989,6 +1010,7 @@ export interface FileRouteTypes {
     | '/api/public/feed/vista-mar.xml'
     | '/api/public/img/$'
     | '/api/public/imovel/$id'
+    | '/api/public/v1/$'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   id:
@@ -1057,6 +1079,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seguranca/permissoes'
     | '/_authenticated/seguranca/sessoes'
     | '/api/public/imoveis-lista'
+    | '/api/v1/$'
     | '/_authenticated/carteiras/'
     | '/_authenticated/imoveis/'
     | '/_authenticated/importacoes/'
@@ -1076,6 +1099,7 @@ export interface FileRouteTypes {
     | '/api/public/feed/vista-mar.xml'
     | '/api/public/img/$'
     | '/api/public/imovel/$id'
+    | '/api/public/v1/$'
     | '/api/public/feed/geral/$id'
     | '/api/public/portal/$portal/$slug'
   fileRoutesById: FileRoutesById
@@ -1093,6 +1117,7 @@ export interface RootRouteChildren {
   EmpreendimentoIdRoute: typeof EmpreendimentoIdRoute
   ImovelIdRoute: typeof ImovelIdRoute
   ApiPublicImoveisListaRoute: typeof ApiPublicImoveisListaRoute
+  ApiV1SplatRoute: typeof ApiV1SplatRoute
   ApiPublicEmpreendimentoIdRoute: typeof ApiPublicEmpreendimentoIdRoute
   ApiPublicFeedSlugRoute: typeof ApiPublicFeedSlugRoute
   ApiPublicFeedCasaCondominioDotxmlRoute: typeof ApiPublicFeedCasaCondominioDotxmlRoute
@@ -1102,6 +1127,7 @@ export interface RootRouteChildren {
   ApiPublicFeedVistaMarDotxmlRoute: typeof ApiPublicFeedVistaMarDotxmlRoute
   ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
   ApiPublicImovelIdRoute: typeof ApiPublicImovelIdRoute
+  ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   ApiPublicFeedGeralIdRoute: typeof ApiPublicFeedGeralIdRoute
   ApiPublicPortalPortalSlugRoute: typeof ApiPublicPortalPortalSlugRoute
 }
@@ -1605,6 +1631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicImoveisListaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v1/$': {
+      id: '/api/v1/$'
+      path: '/api/v1/$'
+      fullPath: '/api/v1/$'
+      preLoaderRoute: typeof ApiV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/empreendimentos/$tipo/$id': {
       id: '/_authenticated/empreendimentos/$tipo/$id'
       path: '/empreendimentos/$tipo/$id'
@@ -1687,6 +1720,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/imovel/$id'
       fullPath: '/api/public/imovel/$id'
       preLoaderRoute: typeof ApiPublicImovelIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/$': {
+      id: '/api/public/v1/$'
+      path: '/api/public/v1/$'
+      fullPath: '/api/public/v1/$'
+      preLoaderRoute: typeof ApiPublicV1SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/feed/geral/$id': {
@@ -1982,6 +2022,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentoIdRoute: EmpreendimentoIdRoute,
   ImovelIdRoute: ImovelIdRoute,
   ApiPublicImoveisListaRoute: ApiPublicImoveisListaRoute,
+  ApiV1SplatRoute: ApiV1SplatRoute,
   ApiPublicEmpreendimentoIdRoute: ApiPublicEmpreendimentoIdRoute,
   ApiPublicFeedSlugRoute: ApiPublicFeedSlugRoute,
   ApiPublicFeedCasaCondominioDotxmlRoute:
@@ -1992,6 +2033,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicFeedVistaMarDotxmlRoute: ApiPublicFeedVistaMarDotxmlRoute,
   ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,
   ApiPublicImovelIdRoute: ApiPublicImovelIdRoute,
+  ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   ApiPublicFeedGeralIdRoute: ApiPublicFeedGeralIdRoute,
   ApiPublicPortalPortalSlugRoute: ApiPublicPortalPortalSlugRoute,
 }
