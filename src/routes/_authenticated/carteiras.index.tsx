@@ -67,12 +67,13 @@ function FeedsXmlPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold">Feed Geral</h3>
+                      <h3 className="font-semibold">Feed Geral{geral.nome ? ` — ${geral.nome}` : ""}</h3>
                       <Badge variant="secondary">Automático</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Todos os imóveis do sistema. Automático — não precisa marcar nada.
+                      URL exclusiva {geral.escopo === "imobiliaria" ? "da sua imobiliária" : "da sua conta"}. Todos os imóveis do sistema, sem precisar marcar nada.
                     </p>
+
                   </div>
                 </div>
                 <code className="block rounded bg-background border px-3 py-2 text-[11px] font-mono break-all">{geralUrl}</code>

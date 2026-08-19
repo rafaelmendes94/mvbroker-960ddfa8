@@ -25,14 +25,25 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
             return new Response("Bad Request", { status: 400 });
           }
 
-          // Feed geral traz TODOS os imóveis do sistema liberados para exportação.
-          // O $id é mantido apenas como identificador único da URL (por usuário/imobiliária),
-          // mas o conteúdo é o mesmo catálogo completo para admins e clientes.
+          // Cada imobiliária/usuário tem sua própria URL de feed geral.
+          // Só respondemos se o id corresponder a uma imobiliária ou a um perfil real,
+          // evitando que URLs adivinhadas exponham o catálogo.
+          const [{ data: imob }, { data: perfil }] = await Promise.all([
+            supabase.from("imobiliarias").select("id, nome_fantasia, status").eq("id", id).maybeSingle(),
+            supabase.from("profiles").select("id, full_name").eq("id", id).maybeSingle(),
+          ]);
+          if (!imob && !perfil) return new Response("Feed not found", { status: 404 });
+          if (imob && imob.status && imob.status !== "ativa" && imob.status !== "ativo") {
+            return new Response("Feed inactive", { status: 410 });
+          }
+          const feedNome = imob?.nome_fantasia || perfil?.full_name || "Feed Geral";
+
           const { data: imovData, error: imErr } = await supabase
             .from("imoveis")
             .select(IMOVEL_PUBLIC_COLUMNS)
             .eq("arquivado", false)
             .eq("exportacao_liberada", true);
+
 
           if (imErr) {
             console.error("[feed/geral] DB error:", imErr.message);
@@ -81,7 +92,7 @@ export const Route = createFileRoute("/api/public/feed/geral/$id")({
 
           const xml = buildFeedXML({
             carteira: {
-              nome: "Feed Geral",
+              nome: feedNome,
               slug: `geral-${id}`,
               updated_at: new Date().toISOString(),
             },
