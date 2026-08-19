@@ -73,6 +73,7 @@ export function fail(code: ApiErrorCode, message: string, details?: unknown, ext
 export class ApiError extends Error {
   code: ApiErrorCode;
   details?: unknown;
+  headers?: Record<string, string>;
   constructor(code: ApiErrorCode, message: string, details?: unknown) {
     super(message);
     this.code = code;
