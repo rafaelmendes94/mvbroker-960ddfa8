@@ -237,6 +237,7 @@ export async function createOffer(unitId: string, body: Record<string, unknown>,
   payload.created_by = principal.userId;
   const { data, error } = await db().from("offers").insert(payload).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("offer.created", data, data.agency_id);
   return data;
 }
 
@@ -249,6 +250,14 @@ export async function updateOffer(id: string, body: Record<string, unknown>, pri
   delete payload.unit_id;
   const { data, error } = await db().from("offers").update(payload).eq("id", id).select("*").single();
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+  await emitWebhook("offer.updated", data, data.agency_id);
+  if (payload.sale_price !== undefined && Number(payload.sale_price) !== Number(current.sale_price)) {
+    await emitWebhook(
+      "offer.price_changed",
+      { id: data.id, unit_id: data.unit_id, from: current.sale_price, to: data.sale_price },
+      data.agency_id,
+    );
+  }
   return data;
 }
 
