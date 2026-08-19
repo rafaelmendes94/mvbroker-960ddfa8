@@ -96,13 +96,12 @@ export const createWebhook = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { randomBytes } = await import("crypto");
-    const { agencyId, isAdmin } = await resolveAgency(context.supabase, context.userId);
-    if (!isAdmin && !agencyId) throw new Error("Sem permissão para criar webhooks");
+    await requireAdmin(context.supabase, context.userId);
 
     const { data: row, error } = await (context.supabase as any)
       .from("webhooks")
       .insert({
-        agency_id: agencyId,
+        agency_id: null,
         name: data.name.trim(),
         url: data.url.trim(),
         events: data.events,
