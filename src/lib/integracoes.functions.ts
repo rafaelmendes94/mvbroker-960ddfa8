@@ -122,6 +122,7 @@ export const setWebhookActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string; active: boolean }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { error } = await (context.supabase as any).from("webhooks").update({ active: data.active }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -131,6 +132,7 @@ export const deleteWebhook = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { error } = await (context.supabase as any).from("webhooks").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -140,6 +142,7 @@ export const testWebhook = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     // Confirma que o usuário enxerga este webhook (RLS) antes de disparar.
     const { data: row } = await (context.supabase as any).from("webhooks").select("id").eq("id", data.id).maybeSingle();
     if (!row) throw new Error("Webhook não encontrado");
@@ -151,6 +154,7 @@ export const listWebhookDeliveries = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { webhook_id: string }) => input)
   .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
     const { data: rows, error } = await (context.supabase as any)
       .from("webhook_deliveries")
       .select("id, event, status, attempts, response_status, error, created_at")
