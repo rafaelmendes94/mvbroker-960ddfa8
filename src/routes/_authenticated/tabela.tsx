@@ -52,11 +52,7 @@ function TabelaPage() {
   }, []);
 
   if (rolesLoading) return null;
-  if (!isStaff) {
-    return (
-      <PageHeader title="Tabela" description="Acesso restrito a Super Admin e Secretaria." />
-    );
-  }
+
 
   const handleDownload = async (item: Item) => {
     const { data, error } = await supabase.storage
@@ -126,39 +122,45 @@ function TabelaPage() {
     <>
       <PageHeader
         title="Minha Tabela"
-        description="Envie quantas tabelas em PDF quiser. Todas ficam disponíveis para download pelos clientes."
+        description={
+          isStaff
+            ? "Envie quantas tabelas em PDF quiser. Todas ficam disponíveis para download pelos clientes."
+            : "Tabelas disponíveis para download."
+        }
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Upload className="h-5 w-5 text-primary" />
-            Enviar nova tabela
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-lg border border-dashed p-6 text-center space-y-3">
-            <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Cada envio é adicionado ao histórico e fica disponível para os clientes.
-            </p>
-            <input
-              ref={inputRef}
-              type="file"
-              accept="application/pdf"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleUpload(f);
-              }}
-            />
-            <Button onClick={() => inputRef.current?.click()} disabled={uploading} className="gap-2">
-              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-              {uploading ? "Enviando…" : "Selecionar PDF"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {isStaff && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Upload className="h-5 w-5 text-primary" />
+              Enviar nova tabela
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-lg border border-dashed p-6 text-center space-y-3">
+              <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                Cada envio é adicionado ao histórico e fica disponível para os clientes.
+              </p>
+              <input
+                ref={inputRef}
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleUpload(f);
+                }}
+              />
+              <Button onClick={() => inputRef.current?.click()} disabled={uploading} className="gap-2">
+                {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {uploading ? "Enviando…" : "Selecionar PDF"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="mt-6">
         <CardHeader>
@@ -188,9 +190,11 @@ function TabelaPage() {
                   <Button onClick={() => handleDownload(item)} variant="outline" size="sm" className="gap-2">
                     <Download className="h-4 w-4" /> Baixar
                   </Button>
-                  <Button onClick={() => handleDelete(item)} variant="destructive" size="sm" className="gap-2">
-                    <Trash2 className="h-4 w-4" /> Excluir
-                  </Button>
+                  {isStaff && (
+                    <Button onClick={() => handleDelete(item)} variant="destructive" size="sm" className="gap-2">
+                      <Trash2 className="h-4 w-4" /> Excluir
+                    </Button>
+                  )}
                 </div>
               </div>
             ))

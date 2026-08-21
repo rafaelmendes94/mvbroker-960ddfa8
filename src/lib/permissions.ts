@@ -31,12 +31,12 @@ export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/edificios": [],
   "/condominios": [],
   "/loteamentos": [],
-  "/biblioteca": ["super_admin", "secretaria"],
+  "/biblioteca": [], // Banco de imagens — todos autenticados
   
   "/usuarios": ["super_admin", "secretaria"],
   "/clientes": ["super_admin", "secretaria"],
   "/meus-corretores": ["super_admin", "imobiliaria"],
-  "/relatorios": ["super_admin"],
+  "/relatorios": [], // Relatórios — todos autenticados
   "/relatorios-admin": ["super_admin"],
   "/imoveis/exportacao": ["super_admin", "secretaria", "imobiliaria", "corretor_imobiliaria", "corretor_autonomo"],
   "/carteiras": ["super_admin", "secretaria", "imobiliaria", "corretor_imobiliaria", "corretor_autonomo"],
@@ -46,7 +46,7 @@ export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/configuracoes": ["super_admin"],
   "/integracoes": ["super_admin"],
   "/importacoes": ["super_admin", "secretaria"],
-  "/tabela": ["super_admin", "secretaria"],
+  "/tabela": [], // Tabela — todos autenticados (clientes só baixam)
   "/perfil": [],
 };
 
