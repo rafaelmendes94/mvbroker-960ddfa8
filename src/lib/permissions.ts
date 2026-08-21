@@ -46,7 +46,7 @@ export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/configuracoes": ["super_admin"],
   "/integracoes": ["super_admin"],
   "/importacoes": ["super_admin", "secretaria"],
-  "/tabela": ["super_admin", "secretaria"],
+  "/tabela": [], // Tabela — todos autenticados (clientes só baixam)
   "/perfil": [],
 };
 
