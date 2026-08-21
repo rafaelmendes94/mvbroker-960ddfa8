@@ -190,9 +190,11 @@ function TabelaPage() {
                   <Button onClick={() => handleDownload(item)} variant="outline" size="sm" className="gap-2">
                     <Download className="h-4 w-4" /> Baixar
                   </Button>
-                  <Button onClick={() => handleDelete(item)} variant="destructive" size="sm" className="gap-2">
-                    <Trash2 className="h-4 w-4" /> Excluir
-                  </Button>
+                  {isStaff && (
+                    <Button onClick={() => handleDelete(item)} variant="destructive" size="sm" className="gap-2">
+                      <Trash2 className="h-4 w-4" /> Excluir
+                    </Button>
+                  )}
                 </div>
               </div>
             ))
