@@ -21,6 +21,7 @@ import { AgenciamentosBI } from "@/components/relatorios/AgenciamentosBI";
 import { Database, Briefcase } from "lucide-react";
 import { generateReportPdf } from "@/utils/generateReportPdf";
 import { toast } from "sonner";
+import { useRoles } from "@/hooks/use-roles";
 
 const SEGMENT_COLORS: Record<string, string> = {
   "Luxo": "hsl(142, 71%, 45%)", "Alto Padrão": "hsl(142, 50%, 55%)",
@@ -199,6 +200,8 @@ function useRankings(filtered: RealSaleRecord[]) {
 export default function Reports() {
   const { sales, manualSales, allCities, allTypes, allSegments, allYears, loading, refetch } = useReportData();
   const [manualOpen, setManualOpen] = useState(false);
+  const { roles } = useRoles();
+  const isStaff = roles.includes("super_admin") || roles.includes("secretaria");
 
   const [activeTab, setActiveTab] = useState<TabType>("relatorio");
   const [filterCity, setFilterCity] = useState("Todas");
@@ -304,9 +307,11 @@ export default function Reports() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setManualOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background text-foreground text-sm font-medium hover:bg-muted transition-colors">
-              <Database className="w-4 h-4" /> Agenciamentos
-            </button>
+            {isStaff && (
+              <button onClick={() => setManualOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background text-foreground text-sm font-medium hover:bg-muted transition-colors">
+                <Database className="w-4 h-4" /> Agenciamentos
+              </button>
+            )}
             <button
               onClick={async () => {
                 try {
@@ -331,7 +336,7 @@ export default function Reports() {
             </button>
           </div>
         </div>
-        <ManualSalesDialog open={manualOpen} onOpenChange={setManualOpen} onChanged={refetch} />
+        {isStaff && <ManualSalesDialog open={manualOpen} onOpenChange={setManualOpen} onChanged={refetch} />}
 
         <div className="flex gap-1 bg-muted/50 p-0.5 rounded-lg w-fit">
           <button onClick={() => setActiveTab("relatorio")} className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === "relatorio" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
