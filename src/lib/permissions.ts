@@ -31,7 +31,7 @@ export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/edificios": [],
   "/condominios": [],
   "/loteamentos": [],
-  "/biblioteca": ["super_admin", "secretaria"],
+  "/biblioteca": [], // Banco de imagens — todos autenticados
   
   "/usuarios": ["super_admin", "secretaria"],
   "/clientes": ["super_admin", "secretaria"],
