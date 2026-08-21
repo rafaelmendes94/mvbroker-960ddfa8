@@ -52,11 +52,7 @@ function TabelaPage() {
   }, []);
 
   if (rolesLoading) return null;
-  if (!isStaff) {
-    return (
-      <PageHeader title="Tabela" description="Acesso restrito a Super Admin e Secretaria." />
-    );
-  }
+
 
   const handleDownload = async (item: Item) => {
     const { data, error } = await supabase.storage
