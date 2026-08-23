@@ -2385,7 +2385,7 @@ function PropertyCard({
 
         {/* Edit + Delete + Status */}
         <div className="flex items-center gap-2 pt-2 border-t border-border">
-          <XmlFeedsButton imovelId={property.id} />
+          {canManage && <XmlFeedsButton imovelId={property.id} />}
 
           {canManage && (
             <>
@@ -3015,7 +3015,7 @@ function PropertyRow({
 
         {/* ── COL 5: Ações (ícones) ── */}
         <div className="w-full md:w-[52px] flex-shrink-0 flex flex-row md:flex-col items-center justify-start gap-1.5 py-2 px-3 md:px-0" onClick={(e: any) => e.stopPropagation()}>
-          <XmlFeedsButton imovelId={property.id} />
+          {canManage && <XmlFeedsButton imovelId={property.id} />}
 
           {canManage && (
             <button
