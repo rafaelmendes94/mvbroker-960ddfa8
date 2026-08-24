@@ -104,7 +104,9 @@ export async function resolvePrincipal(request: Request): Promise<Principal> {
       role: "INTEGRATION",
       userId: null,
       agencyId: row.agency_id ?? null,
-      crossTenant: false, // nenhuma integração enxerga a base inteira por padrão
+      // Chave sem imobiliária vinculada é uma chave global (criada pelo super admin)
+      // e enxerga todo o acervo. Chaves com agency_id ficam restritas ao tenant.
+      crossTenant: !row.agency_id,
       scopes,
       environment: (row.environment as ApiEnvironment) ?? environment,
       apiKeyId: row.id,
