@@ -94,6 +94,34 @@ async function attachLegacyMedia(rows: any[], origin: string): Promise<any[]> {
     }
   }
 
+  // Instalações antigas podem ter os arquivos no bucket sem linhas em
+  // imovel_imagens. Nesse caso, descobre as fotos diretamente na pasta do imóvel.
+  const missingIds = legacyIds.filter((id) => !(mediaByImovel.get(id)?.length));
+  await Promise.all(
+    missingIds.map(async (imovelId) => {
+      const { data: files, error } = await db().storage
+        .from("imoveis")
+        .list(imovelId, { limit: 100, sortBy: { column: "name", order: "asc" } });
+      if (error) return;
+      const photos = (files ?? [])
+        .filter((file: any) => file.name && /\.(jpe?g|png|webp|avif)$/i.test(file.name))
+        .map((file: any, position: number) => {
+          const path = `${imovelId}/${file.name}`;
+          return {
+            id: `legacy-${imovelId}-${position}`,
+            public_id: null,
+            kind: "photo",
+            url: publicStorageUrl(origin, "imoveis", path),
+            title: null,
+            position,
+            is_cover: position === 0,
+            created_at: file.created_at ?? null,
+          };
+        });
+      if (photos.length) mediaByImovel.set(imovelId, photos);
+    }),
+  );
+
   return rows.map((row) => {
     if (row.unit_media?.length || !row.legacy_imovel_id) return row;
     return { ...row, unit_media: mediaByImovel.get(row.legacy_imovel_id) ?? [] };
