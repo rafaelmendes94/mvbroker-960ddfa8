@@ -92,14 +92,35 @@ export async function buildFeedResponse(opts: {
       candidatos = candidatos.filter((im: any) => set.has(im.id));
     }
 
+    // Busca as imagens em lotes E paginando: o PostgREST corta em 1000 linhas por
+    // requisição, o que fazia os últimos imóveis do feed saírem sem a tag <Media>.
     let imagens: any[] = [];
     if (candidatos.length) {
       const ids = candidatos.map((i: any) => i.id);
-      const { data: imgData } = await supabase
-        .from("imovel_imagens")
-        .select("imovel_id, url, storage_path, ordem, capa")
-        .in("imovel_id", ids);
-      imagens = imgData ?? [];
+      const CHUNK = 40;
+      const PAGE = 1000;
+      for (let i = 0; i < ids.length; i += CHUNK) {
+        const slice = ids.slice(i, i + CHUNK);
+        let offset = 0;
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { data: imgData, error: imgErr } = await supabase
+            .from("imovel_imagens")
+            .select("imovel_id, url, storage_path, ordem, capa")
+            .in("imovel_id", slice)
+            .order("imovel_id", { ascending: true })
+            .order("ordem", { ascending: true })
+            .range(offset, offset + PAGE - 1);
+          if (imgErr) {
+            console.error(`[${logTag}] imagens error:`, imgErr.message);
+            break;
+          }
+          const rows = imgData ?? [];
+          imagens = imagens.concat(rows);
+          if (rows.length < PAGE) break;
+          offset += PAGE;
+        }
+      }
     }
 
     const byImovel = new Map<string, any[]>();
