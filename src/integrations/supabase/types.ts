@@ -3755,6 +3755,7 @@ export type Database = {
         Args: { _carteira_id: string; _user_id: string }
         Returns: boolean
       }
+      sync_unit_from_imovel: { Args: { p_imovel_id: string }; Returns: string }
     }
     Enums: {
       app_role:
