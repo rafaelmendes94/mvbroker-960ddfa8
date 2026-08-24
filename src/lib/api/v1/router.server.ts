@@ -148,12 +148,12 @@ async function dispatch(
     if (sub === "media") {
       if (method !== "GET") notAllowed();
       requireScope(principal, "media:read");
-      return send(await catalog.listUnitMedia(id!, principal));
+      return send(await catalog.listUnitMedia(id!, principal, url.origin));
     }
     if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
     if (method === "GET") {
       requireScope(principal, "units:read");
-      return send(await catalog.getUnit(id!, principal));
+      return send(await catalog.getUnit(id!, principal, url.origin));
     }
     if (method === "PATCH" || method === "PUT") {
       requireScope(principal, "units:write");
