@@ -43,6 +43,63 @@ function outList(rows: any[], principal: Principal) {
   return rows.map((r) => applyFieldScope(r, principal.fieldScope));
 }
 
+function publicStorageUrl(origin: string, bucket: string, path: string): string {
+  const encoded = path.split("/").map(encodeURIComponent).join("/");
+  return `${origin}/api/public/img/${encodeURIComponent(bucket)}/${encoded}`;
+}
+
+/**
+ * A API nova usa unit_media, mas os imóveis já cadastrados guardam as fotos em
+ * imovel_imagens. Anexa essas fotos pelo legacy_imovel_id sem exigir migração
+ * manual e usa o proxy público, compatível com buckets privados/autohospedados.
+ */
+async function attachLegacyMedia(rows: any[], origin: string): Promise<any[]> {
+  const legacyIds = rows
+    .filter((row) => !(row.unit_media?.length) && row.legacy_imovel_id)
+    .map((row) => row.legacy_imovel_id as string);
+  if (!legacyIds.length) return rows;
+
+  const mediaByImovel = new Map<string, any[]>();
+  for (let i = 0; i < legacyIds.length; i += 40) {
+    const ids = legacyIds.slice(i, i + 40);
+    let offset = 0;
+    while (true) {
+      const { data, error } = await db()
+        .from("imovel_imagens")
+        .select("id, imovel_id, storage_path, url, ordem, capa, created_at")
+        .in("imovel_id", ids)
+        .order("imovel_id", { ascending: true })
+        .order("ordem", { ascending: true })
+        .range(offset, offset + 999);
+      if (error) throw new ApiError("INTERNAL_ERROR", error.message);
+      const batch = data ?? [];
+      for (const image of batch) {
+        const path = image.storage_path || image.url;
+        if (!path) continue;
+        const current = mediaByImovel.get(image.imovel_id) ?? [];
+        current.push({
+          id: image.id,
+          public_id: null,
+          kind: "photo",
+          url: /^https?:\/\//i.test(path) ? path : publicStorageUrl(origin, "imoveis", path),
+          title: null,
+          position: image.ordem ?? 0,
+          is_cover: image.capa ?? false,
+          created_at: image.created_at,
+        });
+        mediaByImovel.set(image.imovel_id, current);
+      }
+      if (batch.length < 1000) break;
+      offset += 1000;
+    }
+  }
+
+  return rows.map((row) => {
+    if (row.unit_media?.length || !row.legacy_imovel_id) return row;
+    return { ...row, unit_media: mediaByImovel.get(row.legacy_imovel_id) ?? [] };
+  });
+}
+
 // ---------------------------------------------------------
 // Visibilidade
 // ---------------------------------------------------------
@@ -296,7 +353,8 @@ export async function listUnits(url: URL, principal: Principal, opts: UnitScopeO
 
   const { data, error, count } = await query.range(from, to);
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
-  return { data: outList((data ?? []).map(serializeUnit), principal), meta: paginationMeta(page, perPage, count ?? 0) };
+  const rows = await attachLegacyMedia(data ?? [], url.origin);
+  return { data: outList(rows.map(serializeUnit), principal), meta: paginationMeta(page, perPage, count ?? 0) };
 }
 
 export async function getUnitRow(id: string, principal: Principal) {
@@ -307,11 +365,13 @@ export async function getUnitRow(id: string, principal: Principal) {
   return data;
 }
 
-export async function getUnit(id: string, principal: Principal) {
-  return out(serializeUnit(await getUnitRow(id, principal)), principal);
+export async function getUnit(id: string, principal: Principal, origin?: string) {
+  const row = await getUnitRow(id, principal);
+  const [withMedia] = origin ? await attachLegacyMedia([row], origin) : [row];
+  return out(serializeUnit(withMedia), principal);
 }
 
-export async function listUnitMedia(id: string, principal: Principal) {
+export async function listUnitMedia(id: string, principal: Principal, origin: string) {
   const unit = await getUnitRow(id, principal);
   const { data, error } = await db()
     .from("unit_media")
@@ -319,7 +379,9 @@ export async function listUnitMedia(id: string, principal: Principal) {
     .eq("unit_id", unit.id)
     .order("position", { ascending: true });
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
-  return (data ?? []).map(serializeMedia);
+  if (data?.length) return data.map(serializeMedia);
+  const [withMedia] = await attachLegacyMedia([{ ...unit, unit_media: [] }], origin);
+  return (withMedia.unit_media ?? []).map(serializeMedia);
 }
 
 async function recordHistory(unitId: string, changes: Record<string, { from: unknown; to: unknown }>, principal: Principal) {

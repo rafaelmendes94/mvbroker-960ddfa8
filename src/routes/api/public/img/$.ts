@@ -23,16 +23,16 @@ export const Route = createFileRoute("/api/public/img/$")({
           const { client } = getFeedSupabase();
           if (!client) return new Response("Unavailable", { status: 500 });
 
-          const { data, error } = await client.storage.from(bucket).createSignedUrl(path, 60 * 60);
-          if (error || !data?.signedUrl) return new Response("Not found", { status: 404 });
+          // Faz o download pelo cliente do backend, sem depender de uma URL
+          // assinada pública. Isso também funciona no storage autohospedado,
+          // onde a URL interna pode não ser acessível pelo servidor da aplicação.
+          const { data, error } = await client.storage.from(bucket).download(path);
+          if (error || !data) return new Response("Not found", { status: 404 });
 
-          const upstream = await fetch(data.signedUrl);
-          if (!upstream.ok || !upstream.body) return new Response("Not found", { status: 404 });
-
-          return new Response(upstream.body, {
+          return new Response(data.stream(), {
             status: 200,
             headers: {
-              "Content-Type": upstream.headers.get("content-type") ?? "image/jpeg",
+              "Content-Type": data.type || "image/jpeg",
               "Cache-Control": "public, max-age=86400, s-maxage=86400",
               "Access-Control-Allow-Origin": "*",
             },
