@@ -130,6 +130,33 @@ export async function buildFeedResponse(opts: {
       byImovel.set(img.imovel_id, arr);
     }
 
+    // Fallback: imóveis cujas fotos foram enviadas direto ao storage e não têm
+    // registro em imovel_imagens — lista os arquivos da pasta do imóvel.
+    const semFoto = candidatos.filter((im: any) => !(byImovel.get(im.id)?.length));
+    if (semFoto.length) {
+      await Promise.all(
+        semFoto.slice(0, 300).map(async (im: any) => {
+          try {
+            const { data: files } = await supabase.storage
+              .from("imoveis")
+              .list(im.id, { limit: 40, sortBy: { column: "name", order: "asc" } });
+            const fotos = (files ?? [])
+              .filter((f: any) => f.name && /\.(jpe?g|png|webp|avif)$/i.test(f.name))
+              .map((f: any, idx: number) => ({
+                imovel_id: im.id,
+                url: null,
+                storage_path: `${im.id}/${f.name}`,
+                ordem: idx,
+                capa: idx === 0,
+              }));
+            if (fotos.length) byImovel.set(im.id, fotos);
+          } catch {
+            /* ignora imóveis sem pasta no storage */
+          }
+        }),
+      );
+    }
+
     const imoveis = filters.fotos
       ? candidatos.filter((im: any) => (byImovel.get(im.id)?.length ?? 0) > 0)
       : candidatos;
