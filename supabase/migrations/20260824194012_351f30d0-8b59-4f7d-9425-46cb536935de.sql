@@ -1,0 +1,1 @@
+DELETE FROM public.api_keys WHERE name = 'diag' AND key_prefix = 'mvb_live_testdia';
