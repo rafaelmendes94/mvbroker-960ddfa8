@@ -92,14 +92,35 @@ export async function buildFeedResponse(opts: {
       candidatos = candidatos.filter((im: any) => set.has(im.id));
     }
 
+    // Busca as imagens em lotes E paginando: o PostgREST corta em 1000 linhas por
+    // requisição, o que fazia os últimos imóveis do feed saírem sem a tag <Media>.
     let imagens: any[] = [];
     if (candidatos.length) {
       const ids = candidatos.map((i: any) => i.id);
-      const { data: imgData } = await supabase
-        .from("imovel_imagens")
-        .select("imovel_id, url, storage_path, ordem, capa")
-        .in("imovel_id", ids);
-      imagens = imgData ?? [];
+      const CHUNK = 40;
+      const PAGE = 1000;
+      for (let i = 0; i < ids.length; i += CHUNK) {
+        const slice = ids.slice(i, i + CHUNK);
+        let offset = 0;
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { data: imgData, error: imgErr } = await supabase
+            .from("imovel_imagens")
+            .select("imovel_id, url, storage_path, ordem, capa")
+            .in("imovel_id", slice)
+            .order("imovel_id", { ascending: true })
+            .order("ordem", { ascending: true })
+            .range(offset, offset + PAGE - 1);
+          if (imgErr) {
+            console.error(`[${logTag}] imagens error:`, imgErr.message);
+            break;
+          }
+          const rows = imgData ?? [];
+          imagens = imagens.concat(rows);
+          if (rows.length < PAGE) break;
+          offset += PAGE;
+        }
+      }
     }
 
     const byImovel = new Map<string, any[]>();
@@ -107,6 +128,33 @@ export async function buildFeedResponse(opts: {
       const arr = byImovel.get(img.imovel_id) ?? [];
       arr.push(img);
       byImovel.set(img.imovel_id, arr);
+    }
+
+    // Fallback: imóveis cujas fotos foram enviadas direto ao storage e não têm
+    // registro em imovel_imagens — lista os arquivos da pasta do imóvel.
+    const semFoto = candidatos.filter((im: any) => !(byImovel.get(im.id)?.length));
+    if (semFoto.length) {
+      await Promise.all(
+        semFoto.slice(0, 300).map(async (im: any) => {
+          try {
+            const { data: files } = await supabase.storage
+              .from("imoveis")
+              .list(im.id, { limit: 40, sortBy: { column: "name", order: "asc" } });
+            const fotos = (files ?? [])
+              .filter((f: any) => f.name && /\.(jpe?g|png|webp|avif)$/i.test(f.name))
+              .map((f: any, idx: number) => ({
+                imovel_id: im.id,
+                url: null,
+                storage_path: `${im.id}/${f.name}`,
+                ordem: idx,
+                capa: idx === 0,
+              }));
+            if (fotos.length) byImovel.set(im.id, fotos);
+          } catch {
+            /* ignora imóveis sem pasta no storage */
+          }
+        }),
+      );
     }
 
     const imoveis = filters.fotos
