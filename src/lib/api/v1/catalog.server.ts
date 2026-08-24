@@ -51,13 +51,15 @@ function scopeUnits(query: any, principal: Principal) {
   if (principal.crossTenant) return query;
   const shared = INTEGRATION_VISIBLE_SHARING.join(",");
   if (principal.agencyId) {
-    return query.or(`agency_id.eq.${principal.agencyId},sharing_scope.in.(${shared})`);
+    // inclui o acervo compartilhado (agency_id nulo)
+    return query.or(`agency_id.eq.${principal.agencyId},agency_id.is.null,sharing_scope.in.(${shared})`);
   }
-  return query.in("sharing_scope", INTEGRATION_VISIBLE_SHARING);
+  return query.or(`agency_id.is.null,sharing_scope.in.(${shared})`);
 }
 
 function canSeeUnit(row: any, principal: Principal): boolean {
   if (principal.crossTenant) return true;
+  if (!row.agency_id) return true;
   if (principal.agencyId && row.agency_id === principal.agencyId) return true;
   return INTEGRATION_VISIBLE_SHARING.includes(row.sharing_scope);
 }
