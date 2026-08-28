@@ -45,8 +45,12 @@ function outList(rows: any[], principal: Principal) {
 
 function publicStorageUrl(origin: string, bucket: string, path: string): string {
   const encoded = path.split("/").map(encodeURIComponent).join("/");
-  return `${origin}/api/public/img/${encodeURIComponent(bucket)}/${encoded}`;
+  const url = `${origin}/api/public/img/${encodeURIComponent(bucket)}/${encoded}`;
+  // Fallback JPEG para integrações que não suportam webp/avif.
+  if (/\.(webp|avif|heic|heif)$/i.test(path)) return `${url}?format=jpg`;
+  return url;
 }
+
 
 export function publicRequestOrigin(request: Request): string {
   const url = new URL(request.url);
