@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 // Proxy público de imagens do Storage (buckets privados).
 // Usado nos feeds XML: /api/public/img/<bucket>/<path...>
 // Portais conseguem baixar a foto sem precisar de token.
+// Suporta ?format=jpg para converter webp/avif/heic em JPEG (integrações antigas).
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
@@ -35,6 +36,10 @@ const serveImage = async ({ request, params }: { request: Request; params: { _sp
       return textResponse("Not found", 404);
     }
 
+    const url = new URL(request.url);
+    const fmt = (url.searchParams.get("format") || "").toLowerCase();
+    const wantsJpeg = fmt === "jpg" || fmt === "jpeg";
+
     const { getFeedSupabase } = await import("@/lib/feed-supabase.server");
     const { client } = getFeedSupabase();
     if (!client) return textResponse("Unavailable", 500);
@@ -42,8 +47,32 @@ const serveImage = async ({ request, params }: { request: Request; params: { _sp
     const { data, error } = await client.storage.from(bucket).download(path);
     if (error || !data) return textResponse("Not found", 404);
 
+    const originalType = data.type || "image/jpeg";
+
+    if (wantsJpeg) {
+      const { isLessCompatible, convertToJpeg } = await import("@/lib/image-convert.server");
+      const bytes = await data.arrayBuffer();
+      let body: Uint8Array | null = null;
+      if (isLessCompatible(originalType, path)) {
+        body = await convertToJpeg(bytes, originalType, path, url.origin);
+      }
+      const outBytes = body ?? new Uint8Array(bytes);
+      const outType = body ? "image/jpeg" : originalType;
+      const outBlob = new Blob([outBytes as unknown as BlobPart], { type: outType });
+      return new Response(request.method === "HEAD" ? null : outBlob, {
+
+        status: 200,
+        headers: {
+          "Content-Type": outType,
+          "Content-Length": String(outBytes.byteLength),
+          "Cache-Control": "public, max-age=86400, s-maxage=86400",
+          ...CORS_HEADERS,
+        },
+      });
+    }
+
     const headers = {
-      "Content-Type": data.type || "image/jpeg",
+      "Content-Type": originalType,
       "Content-Length": String(data.size),
       "Cache-Control": "public, max-age=86400, s-maxage=86400",
       ...CORS_HEADERS,
