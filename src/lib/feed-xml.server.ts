@@ -137,9 +137,17 @@ function resolveUrl(f: ImagemRow, base?: string): string | null {
   if (f.url && f.url.startsWith("http")) return f.url;
   const path = f.storage_path || f.url;
   if (!path) return null;
-  if (base) return `${base.replace(/\/$/, "")}/${path}`;
+  if (base) {
+    const url = `${base.replace(/\/$/, "")}/${path}`;
+    // Integrações externas (portais) não lidam bem com webp/avif: pedimos JPEG ao proxy.
+    if (/\.(webp|avif|heic|heif)(\?|$)/i.test(url)) {
+      return url + (url.includes("?") ? "&" : "?") + "format=jpg";
+    }
+    return url;
+  }
   return null;
 }
+
 
 type BuildOpts = {
   carteira: { nome: string; slug: string; updated_at: string };
