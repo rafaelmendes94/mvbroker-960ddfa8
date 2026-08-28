@@ -1,9 +1,11 @@
 // Conversão server-side de imagens (webp/avif/heic -> jpeg) para integrações
 // externas que não suportam formatos modernos.
 // Roda em runtime edge/worker, então usa codecs WASM (jSquash) em vez de sharp.
+// Os binários ficam em public/wasm e são carregados por URL em runtime
+// (nunca importados do código-fonte, para não entrarem no bundle do servidor).
 
-import webpDecWasmUrl from "@jsquash/webp/codec/dec/webp_dec.wasm?url";
-import jpegEncWasmUrl from "@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm?url";
+const WEBP_DEC_WASM = "/wasm/webp_dec.wasm";
+const JPEG_ENC_WASM = "/wasm/mozjpeg_enc.wasm";
 
 const JPEG_QUALITY = 82;
 
@@ -17,15 +19,11 @@ export function isLessCompatible(contentType: string | null | undefined, path?: 
 
 /** Carrega os bytes do .wasm de forma portátil (node/worker/dev). */
 async function loadWasm(url: string, origin?: string): Promise<WebAssembly.Module> {
-  // 1) filesystem (Node / VPS)
+  // 1) filesystem (Node / VPS): arquivo estático em public/ ou no output
   try {
     const { readFile } = await import("node:fs/promises");
-    const local = url.replace(/^\/@fs/, "").split("?")[0];
-    const candidates = [
-      local,
-      local.replace(/^\//, ""),
-      `node_modules/@jsquash/${url.includes("webp") ? "webp/codec/dec/webp_dec.wasm" : "jpeg/codec/enc/mozjpeg_enc.wasm"}`,
-    ];
+    const name = url.replace(/^\//, "");
+    const candidates = [`public/${name}`, name, `.output/public/${name}`, `dist/${name}`];
     for (const candidate of candidates) {
       try {
         const bytes = await readFile(candidate);
@@ -37,12 +35,13 @@ async function loadWasm(url: string, origin?: string): Promise<WebAssembly.Modul
   } catch {
     /* sem fs (worker) */
   }
-  // 2) fetch same-origin (worker / build)
+  // 2) fetch same-origin (worker / edge)
   const abs = url.startsWith("http") ? url : `${(origin || "").replace(/\/$/, "")}${url}`;
   const res = await fetch(abs);
   if (!res.ok) throw new Error(`wasm fetch ${res.status}`);
   return await WebAssembly.compile(await res.arrayBuffer());
 }
+
 
 let webpReady: Promise<any> | null = null;
 let jpegReady: Promise<any> | null = null;
