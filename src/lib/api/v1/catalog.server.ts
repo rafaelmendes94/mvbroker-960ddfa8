@@ -48,6 +48,15 @@ function publicStorageUrl(origin: string, bucket: string, path: string): string 
   return `${origin}/api/public/img/${encodeURIComponent(bucket)}/${encoded}`;
 }
 
+export function publicRequestOrigin(request: Request): string {
+  const url = new URL(request.url);
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const host = forwardedHost || request.headers.get("host") || url.host;
+  const protocol = forwardedProto || url.protocol.replace(":", "");
+  return `${protocol}://${host}`.replace(/\/$/, "");
+}
+
 /**
  * A API nova usa unit_media, mas os imóveis já cadastrados guardam as fotos em
  * imovel_imagens. Anexa essas fotos pelo legacy_imovel_id sem exigir migração
@@ -337,7 +346,7 @@ function validateUnitPayload(payload: Record<string, unknown>) {
 
 export type UnitScopeOpts = { buildingId?: string; typologyId?: string; developerId?: string };
 
-export async function listUnits(url: URL, principal: Principal, opts: UnitScopeOpts = {}) {
+export async function listUnits(url: URL, principal: Principal, opts: UnitScopeOpts = {}, origin = url.origin) {
   const { page, perPage, from, to } = parsePagination(url);
   let query = db().from("units").select(UNIT_SELECT, { count: "exact" });
   query = scopeUnits(query, principal);
@@ -381,7 +390,7 @@ export async function listUnits(url: URL, principal: Principal, opts: UnitScopeO
 
   const { data, error, count } = await query.range(from, to);
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
-  const rows = await attachLegacyMedia(data ?? [], url.origin);
+  const rows = await attachLegacyMedia(data ?? [], origin);
   return { data: outList(rows.map(serializeUnit), principal), meta: paginationMeta(page, perPage, count ?? 0) };
 }
 

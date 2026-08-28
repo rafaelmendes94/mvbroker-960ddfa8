@@ -97,7 +97,12 @@ async function dispatch(
       if (method !== "GET") notAllowed();
       requireScope(principal, "units:read");
       const building = await catalog.getBuildingRow(id, principal);
-      const { data, meta } = await catalog.listUnits(url, principal, { buildingId: building.id });
+      const { data, meta } = await catalog.listUnits(
+        url,
+        principal,
+        { buildingId: building.id },
+        catalog.publicRequestOrigin(request),
+      );
       return send(data, meta);
     }
     if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
@@ -121,7 +126,12 @@ async function dispatch(
       if (method !== "GET") notAllowed();
       requireScope(principal, "units:read");
       const typology = await catalog.getTypologyRow(id, principal);
-      const { data, meta } = await catalog.listUnits(url, principal, { typologyId: typology.id });
+      const { data, meta } = await catalog.listUnits(
+        url,
+        principal,
+        { typologyId: typology.id },
+        catalog.publicRequestOrigin(request),
+      );
       return send(data, meta);
     }
     if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
@@ -135,7 +145,7 @@ async function dispatch(
     if (!id) {
       if (method === "GET") {
         requireScope(principal, "units:read");
-        const { data, meta } = await catalog.listUnits(url, principal);
+        const { data, meta } = await catalog.listUnits(url, principal, {}, catalog.publicRequestOrigin(request));
         return send(data, meta);
       }
       if (method === "POST") {
@@ -148,12 +158,12 @@ async function dispatch(
     if (sub === "media") {
       if (method !== "GET") notAllowed();
       requireScope(principal, "media:read");
-      return send(await catalog.listUnitMedia(id!, principal, url.origin));
+      return send(await catalog.listUnitMedia(id!, principal, catalog.publicRequestOrigin(request)));
     }
     if (sub) throw new ApiError("NOT_FOUND", "Rota não encontrada");
     if (method === "GET") {
       requireScope(principal, "units:read");
-      return send(await catalog.getUnit(id!, principal, url.origin));
+      return send(await catalog.getUnit(id!, principal, catalog.publicRequestOrigin(request)));
     }
     if (method === "PATCH" || method === "PUT") {
       requireScope(principal, "units:write");
