@@ -50,7 +50,7 @@ async function getWebpDecoder(origin?: string) {
   if (!webpReady) {
     webpReady = (async () => {
       const mod: any = await import("@jsquash/webp/decode");
-      await mod.init(await loadWasm(webpDecWasmUrl as unknown as string, origin));
+      await mod.init(await loadWasm(WEBP_DEC_WASM, origin));
       return mod.default ?? mod;
     })().catch((error) => {
       webpReady = null;
@@ -64,7 +64,7 @@ async function getJpegEncoder(origin?: string) {
   if (!jpegReady) {
     jpegReady = (async () => {
       const mod: any = await import("@jsquash/jpeg/encode");
-      await mod.init(await loadWasm(jpegEncWasmUrl as unknown as string, origin));
+      await mod.init(await loadWasm(JPEG_ENC_WASM, origin));
       return mod.default ?? mod;
     })().catch((error) => {
       jpegReady = null;
