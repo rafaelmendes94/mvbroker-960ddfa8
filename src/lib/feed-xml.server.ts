@@ -139,14 +139,16 @@ function resolveUrl(f: ImagemRow, base?: string): string | null {
   if (!path) return null;
   if (base) {
     const url = `${base.replace(/\/$/, "")}/${path}`;
-    // Integrações externas (portais) não lidam bem com webp/avif: pedimos JPEG ao proxy.
-    if (/\.(webp|avif|heic|heif)(\?|$)/i.test(url)) {
-      return url + (url.includes("?") ? "&" : "?") + "format=jpg";
+    // Portais rejeitam webp/avif mesmo com Content-Type jpeg: entregamos uma
+    // URL que termina em .jpg via rota de conversão.
+    if (/\.(webp|avif|heic|heif)$/i.test(url)) {
+      return url.replace("/api/public/img/", "/api/public/img-jpg/") + ".jpg";
     }
     return url;
   }
   return null;
 }
+
 
 
 type BuildOpts = {
