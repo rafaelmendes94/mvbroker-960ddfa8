@@ -346,7 +346,7 @@ function validateUnitPayload(payload: Record<string, unknown>) {
 
 export type UnitScopeOpts = { buildingId?: string; typologyId?: string; developerId?: string };
 
-export async function listUnits(url: URL, principal: Principal, opts: UnitScopeOpts = {}) {
+export async function listUnits(url: URL, principal: Principal, opts: UnitScopeOpts = {}, origin = url.origin) {
   const { page, perPage, from, to } = parsePagination(url);
   let query = db().from("units").select(UNIT_SELECT, { count: "exact" });
   query = scopeUnits(query, principal);
@@ -390,7 +390,7 @@ export async function listUnits(url: URL, principal: Principal, opts: UnitScopeO
 
   const { data, error, count } = await query.range(from, to);
   if (error) throw new ApiError("INTERNAL_ERROR", error.message);
-  const rows = await attachLegacyMedia(data ?? [], url.origin);
+  const rows = await attachLegacyMedia(data ?? [], origin);
   return { data: outList(rows.map(serializeUnit), principal), meta: paginationMeta(page, perPage, count ?? 0) };
 }
 
