@@ -54,7 +54,7 @@ const serveImage = async ({ request, params }: { request: Request; params: { _sp
       const bytes = await data.arrayBuffer();
       let body: Uint8Array | null = null;
       if (isLessCompatible(originalType, path)) {
-        body = await convertToJpeg(bytes, originalType, path);
+        body = await convertToJpeg(bytes, originalType, path, url.origin);
       }
       const outBytes = body ?? new Uint8Array(bytes);
       const outType = body ? "image/jpeg" : originalType;
