@@ -34,26 +34,21 @@ export const Route = createFileRoute("/api/public/portal/$portal/$slug")({
           .from("carteira_imoveis").select("imovel_id").eq("carteira_id", carteira.id);
         const imovelIds = (links ?? []).map((l) => l.imovel_id);
 
+        const { fetchImovelImagesByIds, groupImagesByImovel } = await import("@/lib/feed-images.server");
+
         let imoveis: any[] = [];
-        let imagens: any[] = [];
+        let byImovel = new Map<string, any[]>();
         if (imovelIds.length) {
           let q = supabaseAdmin.from("imoveis").select(IMOVEL_PUBLIC_COLUMNS).in("id", imovelIds).eq("arquivado", false);
           q = applyRegrasToQuery(q, (carteira.regra_filtros as any) ?? {});
           if (carteira.limite_imoveis) q = q.limit(carteira.limite_imoveis);
-          const [{ data: imovData }, { data: imgData }] = await Promise.all([
-            q,
-            supabaseAdmin.from("imovel_imagens").select("imovel_id, url, storage_path, ordem, capa").in("imovel_id", imovelIds),
-          ]);
+          const { data: imovData } = await q;
           imoveis = (imovData ?? []).filter((im: any) => ["disponivel", "reservado"].includes(im.status));
-          imagens = imgData ?? [];
-        }
-
-        const byImovel = new Map<string, any[]>();
-        for (const img of imagens) {
-          const arr = byImovel.get(img.imovel_id) ?? [];
-          arr.push(img); byImovel.set(img.imovel_id, arr);
+          const rows = await fetchImovelImagesByIds(supabaseAdmin, imoveis.map((i: any) => i.id), "feed/portal");
+          byImovel = groupImagesByImovel(rows) as unknown as Map<string, any[]>;
         }
         const enriched = imoveis.map((im) => ({ ...im, imagens: byImovel.get(im.id) ?? [] }));
+
 
         const xml = buildFeedXML({
           carteira: { nome: carteira.nome, slug: carteira.slug, updated_at: carteira.updated_at },
