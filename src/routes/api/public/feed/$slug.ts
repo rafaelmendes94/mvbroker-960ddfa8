@@ -37,28 +37,22 @@ export const Route = createFileRoute("/api/public/feed/$slug")({
             .from("carteira_imoveis").select("imovel_id").eq("carteira_id", carteira.id);
           const imovelIds = (links ?? []).map((l: any) => l.imovel_id);
 
+          const { fetchImovelImagesByIds, groupImagesByImovel } = await import("@/lib/feed-images.server");
+
           let imoveis: any[] = [];
-          let imagens: any[] = [];
+          let byImovel = new Map<string, any[]>();
           if (imovelIds.length) {
             let q = supabase.from("imoveis").select(IMOVEL_PUBLIC_COLUMNS).in("id", imovelIds).eq("arquivado", false);
             q = applyRegrasToQuery(q, (carteira.regra_filtros as any) ?? {});
             if (carteira.limite_imoveis) q = q.limit(carteira.limite_imoveis);
-            const [{ data: imovData }, { data: imgData }] = await Promise.all([
-              q,
-              supabase.from("imovel_imagens").select("imovel_id, url, storage_path, ordem, capa").in("imovel_id", imovelIds),
-            ]);
+            const { data: imovData } = await q;
             imoveis = (imovData ?? []).filter((im: any) =>
               ["disponivel", "reservado"].includes(im.status_imovel ?? im.status),
             );
-            imagens = imgData ?? [];
+            const rows = await fetchImovelImagesByIds(supabase, imoveis.map((i: any) => i.id), "feed/slug");
+            byImovel = groupImagesByImovel(rows) as unknown as Map<string, any[]>;
           }
 
-          const byImovel = new Map<string, any[]>();
-          for (const img of imagens) {
-            const arr = byImovel.get(img.imovel_id) ?? [];
-            arr.push(img);
-            byImovel.set(img.imovel_id, arr);
-          }
 
           const edifIds = Array.from(new Set(imoveis.map((i: any) => i.edificio_id).filter(Boolean)));
           const condIds = Array.from(new Set(imoveis.map((i: any) => i.condominio_id).filter(Boolean)));

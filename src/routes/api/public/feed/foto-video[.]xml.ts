@@ -39,22 +39,14 @@ export const Route = createFileRoute("/api/public/feed/foto-video.xml")({
             ["disponivel", "reservado"].includes(im.status_imovel ?? im.status),
           );
 
-          let imagens: any[] = [];
-          if (candidatos.length) {
-            const ids = candidatos.map((i: any) => i.id);
-            const { data: imgData } = await supabase
-              .from("imovel_imagens")
-              .select("imovel_id, url, storage_path, ordem, capa")
-              .in("imovel_id", ids);
-            imagens = imgData ?? [];
-          }
+          const { fetchImovelImagesByIds, groupImagesByImovel } = await import("@/lib/feed-images.server");
+          const rows = await fetchImovelImagesByIds(
+            supabase,
+            candidatos.map((i: any) => i.id),
+            "feed/foto-video",
+          );
+          const byImovel = groupImagesByImovel(rows) as unknown as Map<string, any[]>;
 
-          const byImovel = new Map<string, any[]>();
-          for (const img of imagens) {
-            const arr = byImovel.get(img.imovel_id) ?? [];
-            arr.push(img);
-            byImovel.set(img.imovel_id, arr);
-          }
 
           // Só entram imóveis com foto E vídeo
           const imoveis = candidatos.filter((im: any) => (byImovel.get(im.id)?.length ?? 0) > 0);

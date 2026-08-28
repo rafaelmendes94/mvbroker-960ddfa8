@@ -92,43 +92,11 @@ export async function buildFeedResponse(opts: {
       candidatos = candidatos.filter((im: any) => set.has(im.id));
     }
 
-    // Busca as imagens em lotes E paginando: o PostgREST corta em 1000 linhas por
-    // requisição, o que fazia os últimos imóveis do feed saírem sem a tag <Media>.
-    let imagens: any[] = [];
-    if (candidatos.length) {
-      const ids = candidatos.map((i: any) => i.id);
-      const CHUNK = 40;
-      const PAGE = 1000;
-      for (let i = 0; i < ids.length; i += CHUNK) {
-        const slice = ids.slice(i, i + CHUNK);
-        let offset = 0;
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-          const { data: imgData, error: imgErr } = await supabase
-            .from("imovel_imagens")
-            .select("imovel_id, url, storage_path, ordem, capa")
-            .in("imovel_id", slice)
-            .order("imovel_id", { ascending: true })
-            .order("ordem", { ascending: true })
-            .range(offset, offset + PAGE - 1);
-          if (imgErr) {
-            console.error(`[${logTag}] imagens error:`, imgErr.message);
-            break;
-          }
-          const rows = imgData ?? [];
-          imagens = imagens.concat(rows);
-          if (rows.length < PAGE) break;
-          offset += PAGE;
-        }
-      }
-    }
+    // Busca em lotes + paginada (PostgREST corta em 1000 linhas por request).
+    const { fetchImovelImagesByIds, groupImagesByImovel } = await import("@/lib/feed-images.server");
+    const imagens = await fetchImovelImagesByIds(supabase, candidatos.map((i: any) => i.id), logTag);
+    const byImovel = groupImagesByImovel(imagens) as unknown as Map<string, any[]>;
 
-    const byImovel = new Map<string, any[]>();
-    for (const img of imagens) {
-      const arr = byImovel.get(img.imovel_id) ?? [];
-      arr.push(img);
-      byImovel.set(img.imovel_id, arr);
-    }
 
     // Fallback: imóveis cujas fotos foram enviadas direto ao storage e não têm
     // registro em imovel_imagens — lista os arquivos da pasta do imóvel.
