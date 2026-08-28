@@ -58,7 +58,9 @@ const serveImage = async ({ request, params }: { request: Request; params: { _sp
       }
       const outBytes = body ?? new Uint8Array(bytes);
       const outType = body ? "image/jpeg" : originalType;
-      return new Response(request.method === "HEAD" ? null : outBytes, {
+      const outBlob = new Blob([outBytes as unknown as BlobPart], { type: outType });
+      return new Response(request.method === "HEAD" ? null : outBlob, {
+
         status: 200,
         headers: {
           "Content-Type": outType,
