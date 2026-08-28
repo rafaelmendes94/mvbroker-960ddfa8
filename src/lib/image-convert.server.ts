@@ -2,6 +2,9 @@
 // externas que não suportam formatos modernos.
 // Roda em runtime edge/worker, então usa codecs WASM (jSquash) em vez de sharp.
 
+import webpDecWasmUrl from "@jsquash/webp/codec/dec/webp_dec.wasm?url";
+import jpegEncWasmUrl from "@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm?url";
+
 const JPEG_QUALITY = 82;
 
 export const LESS_COMPATIBLE = /^image\/(webp|avif|heic|heif)$/i;
@@ -12,11 +15,70 @@ export function isLessCompatible(contentType: string | null | undefined, path?: 
   return false;
 }
 
-async function decodeToImageData(bytes: ArrayBuffer, contentType: string, path: string) {
+/** Carrega os bytes do .wasm de forma portátil (node/worker/dev). */
+async function loadWasm(url: string, origin?: string): Promise<WebAssembly.Module> {
+  // 1) filesystem (Node / VPS)
+  try {
+    const { readFile } = await import("node:fs/promises");
+    const local = url.replace(/^\/@fs/, "").split("?")[0];
+    const candidates = [
+      local,
+      local.replace(/^\//, ""),
+      `node_modules/@jsquash/${url.includes("webp") ? "webp/codec/dec/webp_dec.wasm" : "jpeg/codec/enc/mozjpeg_enc.wasm"}`,
+    ];
+    for (const candidate of candidates) {
+      try {
+        const bytes = await readFile(candidate);
+        return await WebAssembly.compile(bytes);
+      } catch {
+        /* tenta próximo */
+      }
+    }
+  } catch {
+    /* sem fs (worker) */
+  }
+  // 2) fetch same-origin (worker / build)
+  const abs = url.startsWith("http") ? url : `${(origin || "").replace(/\/$/, "")}${url}`;
+  const res = await fetch(abs);
+  if (!res.ok) throw new Error(`wasm fetch ${res.status}`);
+  return await WebAssembly.compile(await res.arrayBuffer());
+}
+
+let webpReady: Promise<any> | null = null;
+let jpegReady: Promise<any> | null = null;
+
+async function getWebpDecoder(origin?: string) {
+  if (!webpReady) {
+    webpReady = (async () => {
+      const mod: any = await import("@jsquash/webp/decode");
+      await mod.init(await loadWasm(webpDecWasmUrl as unknown as string, origin));
+      return mod.default ?? mod;
+    })().catch((error) => {
+      webpReady = null;
+      throw error;
+    });
+  }
+  return webpReady;
+}
+
+async function getJpegEncoder(origin?: string) {
+  if (!jpegReady) {
+    jpegReady = (async () => {
+      const mod: any = await import("@jsquash/jpeg/encode");
+      await mod.init(await loadWasm(jpegEncWasmUrl as unknown as string, origin));
+      return mod.default ?? mod;
+    })().catch((error) => {
+      jpegReady = null;
+      throw error;
+    });
+  }
+  return jpegReady;
+}
+
+async function decodeToImageData(bytes: ArrayBuffer, contentType: string, path: string, origin?: string) {
   const isWebp = /webp/i.test(contentType) || /\.webp$/i.test(path);
   if (isWebp) {
-    const mod = await import("@jsquash/webp/decode");
-    const decode = (mod as any).default ?? mod;
+    const decode = await getWebpDecoder(origin);
     return await decode(bytes);
   }
   // avif/heic: tenta o decoder nativo do runtime, se existir
@@ -34,18 +96,18 @@ async function decodeToImageData(bytes: ArrayBuffer, contentType: string, path: 
 
 /**
  * Converte bytes de imagem para JPEG. Retorna null se não for possível
- * (o chamador deve then servir a imagem original).
+ * (o chamador deve então servir a imagem original).
  */
 export async function convertToJpeg(
   bytes: ArrayBuffer,
   contentType: string,
   path: string,
+  origin?: string,
 ): Promise<Uint8Array | null> {
   try {
-    const imageData = await decodeToImageData(bytes, contentType, path);
+    const imageData = await decodeToImageData(bytes, contentType, path, origin);
     if (!imageData) return null;
-    const mod = await import("@jsquash/jpeg/encode");
-    const encode = (mod as any).default ?? mod;
+    const encode = await getJpegEncoder(origin);
     const out = await encode(imageData, { quality: JPEG_QUALITY });
     return new Uint8Array(out);
   } catch (error) {
