@@ -251,6 +251,7 @@ function PublicImovelPage() {
   const tipo = (im.tipo_imovel || "").toLowerCase();
   const isApto = /apart|apto|flat|studio|cobertura|sala/.test(tipo);
   const mapaPdfUrl = data?.mapaPdfUrl || null;
+  const pdfComercialUrl = data?.pdfComercialUrl || null;
   const mapQuery = im.latitude && im.longitude ? `${im.latitude},${im.longitude}` : endereco;
   const mapSrc = mapQuery ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed` : null;
 
@@ -334,7 +335,7 @@ function PublicImovelPage() {
               className="h-10 inline-flex items-center gap-2 rounded-xl bg-accent px-3.5 text-[13px] font-semibold text-accent-foreground transition-all duration-150 hover:brightness-95">
               <MessageCircle className="w-4 h-4" /> <span className="hidden sm:inline">WhatsApp</span>
             </a>
-            {canEdit && (
+            {logged && (
               <button onClick={() => toggleFav(id)}
                 className={`h-10 inline-flex items-center gap-2 rounded-xl border bg-card px-3.5 text-[13px] font-medium transition-all duration-150 hover:border-accent/45 ${isFav ? "text-accent border-accent/45" : ""}`}>
                 <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} /> <span className="hidden sm:inline">Salvar imóvel</span>
