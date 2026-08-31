@@ -1916,6 +1916,7 @@ export default function Properties() {
           if (!isUuid) return;
           const patch: Record<string, any> = {
             titulo: updated.title,
+            tipo_imovel: updated.type ?? null,
             preco: updated.price ?? null,
             preco_parcelado: updated.priceInstallment ?? null,
             area_total: updated.area ?? null,
