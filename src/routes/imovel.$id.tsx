@@ -298,7 +298,48 @@ function PublicImovelPage() {
     ["Aceita permuta", im.aceita_permuta ? "Sim" : null],
   ] as [string, any][]).filter(([, v]) => v != null && v !== "") as [string, string][];
 
+  const fotos: string[] = data?.images ?? [];
+
+  async function baixarFotosZip() {
+    if (!fotos.length || zipProgress !== null) return;
+    try {
+      setZipProgress(0);
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+      const base = (im.codigo_interno || im.titulo || "imovel").toString().replace(/[^\w\-]+/g, "_").slice(0, 60);
+      const folder = zip.folder(base) || zip;
+      let ok = 0;
+      for (let i = 0; i < fotos.length; i++) {
+        try {
+          const res = await fetch(fotos[i]);
+          if (!res.ok) throw new Error("fetch");
+          const blob = await res.blob();
+          const ext = (blob.type.split("/")[1] || "jpg").replace("jpeg", "jpg");
+          folder.file(`${base}_${String(i + 1).padStart(2, "0")}.${ext}`, blob);
+          ok++;
+        } catch {}
+        setZipProgress(i + 1);
+      }
+      if (!ok) { toast.error("Não foi possível baixar as fotos."); setZipProgress(null); return; }
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${base}_fotos.zip`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast.success(`${ok} foto(s) baixada(s).`);
+    } catch {
+      toast.error("Falha ao gerar o ZIP das fotos.");
+    } finally {
+      setZipProgress(null);
+    }
+  }
+
+  const zipSub = zipProgress !== null ? `Baixando ${zipProgress}/${fotos.length}...` : `${fotos.length} foto(s) em .zip`;
+
   const downloads = [
+    fotos.length ? { icon: Download, title: "Baixar fotos", sub: zipSub, onClick: baixarFotosZip } : null,
     pdfComercialUrl ? { icon: FileText, title: "PDF comercial", sub: "Abrir/baixar PDF", href: pdfComercialUrl } : null,
     primeiroVideo ? { icon: Video, title: "Vídeo", sub: "Assistir na página", onClick: () => videoRef.current?.scrollIntoView({ behavior: "smooth" }) } : null,
     tour360 ? { icon: Compass, title: "Tour 360°", sub: "Visita virtual", href: tour360 } : null,
