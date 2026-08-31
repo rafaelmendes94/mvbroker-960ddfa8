@@ -27,15 +27,9 @@ const SECTIONS: Section[] = [
       { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
       { to: "/tabela", label: "Tabela", icon: FileText },
       { to: "/biblioteca", label: "Banco de Imagens", icon: FolderArchive },
-      {
-        label: "Empreendimentos",
-        icon: Layers,
-        children: [
-          { to: "/condominios", label: "Condomínios", icon: Building },
-          { to: "/edificios", label: "Edifícios", icon: Building2 },
-          { to: "/loteamentos", label: "Loteamentos", icon: Layers },
-        ],
-      },
+      { to: "/condominios", label: "Condomínios", icon: Building },
+      { to: "/edificios", label: "Edifícios", icon: Building2 },
+      { to: "/loteamentos", label: "Loteamentos", icon: Layers },
     ],
   },
   {
