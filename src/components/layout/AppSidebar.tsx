@@ -1,20 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
 import {
   Building2, LayoutDashboard, Users, UserSquare2,
-  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Lock, Plug,
-  Tag, Sparkles, Upload, ChevronDown, Layers, FileText, Map as MapIcon,
+  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Lock, Plug,
+  Tag, Sparkles, Layers, FileText, Map as MapIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
 import { canAccess, primaryRole, ROLE_LABEL, type AppRole } from "@/lib/permissions";
 
 type LeafItem = { to: string; label: string; icon: typeof LayoutDashboard };
-type GroupItem = { label: string; icon: typeof LayoutDashboard; children: LeafItem[] };
-type NavEntry = LeafItem | GroupItem;
-type Section = { section: string; entries: NavEntry[] };
-
-const isGroup = (e: NavEntry): e is GroupItem => "children" in e;
+type Section = { section: string; entries: LeafItem[] };
 
 const SECTIONS: Section[] = [
   {
