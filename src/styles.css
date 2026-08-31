@@ -121,14 +121,14 @@
     color-mix(in oklab, var(--chart-2) 0%, transparent));
   --gradient-primary: linear-gradient(135deg, oklch(0.18 0.02 260), oklch(0.10 0.02 260));
 
-  /* Sidebar: chrome branco clean com accent emerald */
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.17 0.02 260);
+  /* Sidebar: chrome navy escuro com accent emerald */
+  --sidebar: oklch(0.13 0.02 260);
+  --sidebar-foreground: oklch(0.97 0 0);
   --sidebar-primary: oklch(0.72 0.17 162);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.968 0.006 247);
-  --sidebar-accent-foreground: oklch(0.17 0.02 260);
-  --sidebar-border: oklch(0.93 0.008 247);
+  --sidebar-accent: oklch(0.20 0.02 260);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.72 0.17 162);
 
   --shadow-card: 0 1px 2px 0 oklch(0 0 0 / 0.04), 0 4px 12px -4px oklch(0 0 0 / 0.05);
