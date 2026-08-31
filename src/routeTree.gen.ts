@@ -33,6 +33,7 @@ import { Route as AuthenticatedImoveisRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedImportacoesRouteImport } from './routes/_authenticated/importacoes'
 import { Route as AuthenticatedIntegracoesRouteImport } from './routes/_authenticated/integracoes'
 import { Route as AuthenticatedLoteamentosRouteImport } from './routes/_authenticated/loteamentos'
+import { Route as AuthenticatedMapaRouteImport } from './routes/_authenticated/mapa'
 import { Route as AuthenticatedMeusCorretoresRouteImport } from './routes/_authenticated/meus-corretores'
 import { Route as AuthenticatedNotificacoesRouteImport } from './routes/_authenticated/notificacoes'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
@@ -225,6 +226,11 @@ const AuthenticatedLoteamentosRoute =
     path: '/loteamentos',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedMapaRoute = AuthenticatedMapaRouteImport.update({
+  id: '/mapa',
+  path: '/mapa',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedMeusCorretoresRoute =
   AuthenticatedMeusCorretoresRouteImport.update({
     id: '/meus-corretores',
@@ -621,6 +627,7 @@ export interface FileRoutesByFullPath {
   '/importacoes': typeof AuthenticatedImportacoesRouteWithChildren
   '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/loteamentos': typeof AuthenticatedLoteamentosRoute
+  '/mapa': typeof AuthenticatedMapaRoute
   '/meus-corretores': typeof AuthenticatedMeusCorretoresRoute
   '/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
@@ -708,6 +715,7 @@ export interface FileRoutesByTo {
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/integracoes': typeof AuthenticatedIntegracoesRoute
   '/loteamentos': typeof AuthenticatedLoteamentosRoute
+  '/mapa': typeof AuthenticatedMapaRoute
   '/meus-corretores': typeof AuthenticatedMeusCorretoresRoute
   '/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
@@ -796,6 +804,7 @@ export interface FileRoutesById {
   '/_authenticated/importacoes': typeof AuthenticatedImportacoesRouteWithChildren
   '/_authenticated/integracoes': typeof AuthenticatedIntegracoesRoute
   '/_authenticated/loteamentos': typeof AuthenticatedLoteamentosRoute
+  '/_authenticated/mapa': typeof AuthenticatedMapaRoute
   '/_authenticated/meus-corretores': typeof AuthenticatedMeusCorretoresRoute
   '/_authenticated/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
@@ -888,6 +897,7 @@ export interface FileRouteTypes {
     | '/importacoes'
     | '/integracoes'
     | '/loteamentos'
+    | '/mapa'
     | '/meus-corretores'
     | '/notificacoes'
     | '/oportunidades'
@@ -975,6 +985,7 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/integracoes'
     | '/loteamentos'
+    | '/mapa'
     | '/meus-corretores'
     | '/notificacoes'
     | '/oportunidades'
@@ -1062,6 +1073,7 @@ export interface FileRouteTypes {
     | '/_authenticated/importacoes'
     | '/_authenticated/integracoes'
     | '/_authenticated/loteamentos'
+    | '/_authenticated/mapa'
     | '/_authenticated/meus-corretores'
     | '/_authenticated/notificacoes'
     | '/_authenticated/oportunidades'
@@ -1326,6 +1338,13 @@ declare module '@tanstack/react-router' {
       path: '/loteamentos'
       fullPath: '/loteamentos'
       preLoaderRoute: typeof AuthenticatedLoteamentosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/mapa': {
+      id: '/_authenticated/mapa'
+      path: '/mapa'
+      fullPath: '/mapa'
+      preLoaderRoute: typeof AuthenticatedMapaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/meus-corretores': {
@@ -1993,6 +2012,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedImportacoesRoute: typeof AuthenticatedImportacoesRouteWithChildren
   AuthenticatedIntegracoesRoute: typeof AuthenticatedIntegracoesRoute
   AuthenticatedLoteamentosRoute: typeof AuthenticatedLoteamentosRoute
+  AuthenticatedMapaRoute: typeof AuthenticatedMapaRoute
   AuthenticatedMeusCorretoresRoute: typeof AuthenticatedMeusCorretoresRoute
   AuthenticatedNotificacoesRoute: typeof AuthenticatedNotificacoesRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
@@ -2027,6 +2047,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedImportacoesRoute: AuthenticatedImportacoesRouteWithChildren,
   AuthenticatedIntegracoesRoute: AuthenticatedIntegracoesRoute,
   AuthenticatedLoteamentosRoute: AuthenticatedLoteamentosRoute,
+  AuthenticatedMapaRoute: AuthenticatedMapaRoute,
   AuthenticatedMeusCorretoresRoute: AuthenticatedMeusCorretoresRoute,
   AuthenticatedNotificacoesRoute: AuthenticatedNotificacoesRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,

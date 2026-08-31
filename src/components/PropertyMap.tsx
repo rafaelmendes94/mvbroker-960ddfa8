@@ -1,7 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Property, formatCurrency } from "@/data/mockData";
 import { useGoogleMapsLoader } from "@/hooks/useGoogleMapsLoader";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Loader2, LocateFixed, MapPin, BedDouble, Bath, Car, Ruler } from "lucide-react";
 
 interface PropertyMapProps {
   properties: Property[];
@@ -31,148 +33,234 @@ const typeConfig: Record<string, { emoji: string; color: string; label: string }
 
 const defaultCfg = { emoji: "📍", color: "#2563eb", label: "Outro" };
 
-function clearMarker(marker: any) {
-  if (!marker) return;
-  if ("map" in marker) {
-    marker.map = null;
-    return;
-  }
-  if (typeof marker.setMap === "function") {
-    marker.setMap(null);
-  }
+function cfgOf(type: string) {
+  return typeConfig[type] || defaultCfg;
 }
 
-function createFallbackMarker(maps: any, map: any, property: Property, shortPrice: string, color: string) {
+function distanceKm(aLat: number, aLng: number, bLat: number, bLng: number) {
+  const R = 6371;
+  const dLat = ((bLat - aLat) * Math.PI) / 180;
+  const dLng = ((bLng - aLng) * Math.PI) / 180;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
+function formatDistance(km: number) {
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  return `${km.toFixed(1).replace(".", ",")} km`;
+}
+
+function priceIcon(maps: any, color: string, price: number, selected: boolean) {
+  const label = formatShortPrice(price);
+  const w = selected ? 84 : 72;
+  const h = selected ? 40 : 34;
+  const boxH = selected ? 26 : 22;
+  const stroke = selected ? "#0f172a" : "#ffffff";
+  const strokeW = selected ? 2.5 : 1.5;
+  const font = selected ? 13 : 12;
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="72" height="34" viewBox="0 0 72 34" fill="none">
-      <rect x="2" y="2" width="68" height="22" rx="11" fill="${color}" />
-      <path d="M31 24H41L36 32L31 24Z" fill="${color}" />
-      <text x="36" y="17" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="white">${shortPrice}</text>
-    </svg>
-  `.trim();
-
-  return new maps.Marker({
-    position: { lat: property.lat, lng: property.lng },
-    map,
-    title: property.title,
-    icon: {
-      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-      scaledSize: new maps.Size(72, 34),
-      anchor: new maps.Point(36, 32),
-    },
-  });
+    <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" fill="none">
+      <rect x="2" y="2" width="${w - 4}" height="${boxH}" rx="${boxH / 2}" fill="${color}" stroke="${stroke}" stroke-width="${strokeW}" />
+      <path d="M${w / 2 - 5} ${boxH + 2}H${w / 2 + 5}L${w / 2} ${h}L${w / 2 - 5} ${boxH + 2}Z" fill="${color}" />
+      <text x="${w / 2}" y="${boxH / 2 + 6}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${font}" font-weight="700" fill="white">${label}</text>
+    </svg>`.trim();
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new maps.Size(w, h),
+    anchor: new maps.Point(w / 2, h),
+  };
 }
 
-function createMarker(maps: any, map: any, property: Property, cfg: { emoji: string; color: string }, shortPrice: string) {
-  return createFallbackMarker(maps, map, property, shortPrice, cfg.color);
+function popupHtml(property: Property, color: string) {
+  return `
+    <div style="width:135px;font-family:system-ui,-apple-system,sans-serif;">
+      <img src="${property.image}" alt="" style="width:100%;height:70px;object-fit:cover;border-radius:6px 6px 0 0;display:block;" />
+      <div style="padding:6px 2px 2px 2px;">
+        <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;">
+          <span style="font-size:9px;font-weight:700;color:#fff;background:${color};padding:1px 5px;border-radius:3px;text-transform:uppercase;">${property.type}</span>
+          <span style="font-size:9px;color:#94a3b8;">${property.status}</span>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:#0f172a;line-height:1.25;">${property.title}</div>
+        <div style="font-size:9px;color:#64748b;margin:2px 0;">📍 ${[property.neighborhood, property.city].filter(Boolean).join(" – ")}</div>
+        <div style="display:flex;gap:5px;font-size:9px;color:#64748b;margin-bottom:3px;">
+          ${property.bedrooms > 0 ? `<span>🛏 ${property.bedrooms}</span>` : ""}
+          ${property.bathrooms > 0 ? `<span>🚿 ${property.bathrooms}</span>` : ""}
+          ${property.parking > 0 ? `<span>🚗 ${property.parking}</span>` : ""}
+          ${property.area > 0 ? `<span>📐 ${property.area}m²</span>` : ""}
+        </div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:4px;">
+          <span style="font-size:12px;font-weight:800;color:${color};">${formatCurrency(property.price)}</span>
+          <span id="gmaps-detail-${property.id}" style="font-size:9px;color:${color};cursor:pointer;font-weight:700;text-decoration:underline;">Ver →</span>
+        </div>
+      </div>
+    </div>`;
 }
 
 export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const markersRef = useRef<Map<string, any>>(new Map());
   const infoWindowRef = useRef<any>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const selectedIdRef = useRef<string | null>(null);
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+
   const { ready, loading, error } = useGoogleMapsLoader();
 
-  useEffect(() => {
-    const maps = (window as any).google?.maps;
-    if (!ready || !mapRef.current || !maps) return;
-
-    let cancelled = false;
-
-    (async () => {
-      const MapCtor =
-        maps.Map ||
-        (typeof maps.importLibrary === "function"
-          ? (await maps.importLibrary("maps")).Map
-          : null);
-      if (!MapCtor || cancelled || !mapRef.current) return;
-
-      if (typeof maps.importLibrary === "function") {
-        await maps.importLibrary("marker").catch(() => null);
-      }
-
-      const valid = properties.filter(
+  const valid = useMemo(
+    () =>
+      properties.filter(
         (p) =>
           Number.isFinite(p.lat) && Number.isFinite(p.lng) &&
           Math.abs(p.lat) > 0.001 && Math.abs(p.lng) > 0.001 &&
           Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180,
-      );
+      ),
+    [properties],
+  );
 
-      const center = valid.length > 0
-        ? { lat: valid[0].lat, lng: valid[0].lng }
-        : { lat: -23.55, lng: -46.63 };
+  const reference = userLocation || mapCenter || (valid[0] ? { lat: valid[0].lat, lng: valid[0].lng } : null);
+
+  const sorted = useMemo(() => {
+    if (!reference) return valid;
+    return [...valid]
+      .map((p) => ({ p, d: distanceKm(reference.lat, reference.lng, p.lat, p.lng) }))
+      .sort((a, b) => a.d - b.d)
+      .map(({ p, d }) => ({ ...p, __d: d }) as Property & { __d: number });
+  }, [valid, reference?.lat, reference?.lng]);
+
+  const setMarkerIcon = (id: string, selected: boolean) => {
+    const maps = (window as any).google?.maps;
+    const marker = markersRef.current.get(id);
+    const prop = valid.find((p) => p.id === id);
+    if (!maps || !marker || !prop) return;
+    marker.setIcon(priceIcon(maps, cfgOf(prop.type).color, prop.price, selected));
+    marker.setZIndex(selected ? 999 : 1);
+  };
+
+  const scrollToCard = (id: string) => {
+    const el = listRef.current?.querySelector(`[data-property-id="${id}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+  };
+
+  const focusProperty = (property: Property, scroll = true) => {
+    const map = mapInstanceRef.current;
+    const marker = markersRef.current.get(property.id);
+    const prev = selectedIdRef.current;
+    if (prev && prev !== property.id) setMarkerIcon(prev, false);
+    selectedIdRef.current = property.id;
+    setSelectedId(property.id);
+    setMarkerIcon(property.id, true);
+
+    if (map) {
+      map.panTo({ lat: property.lat, lng: property.lng });
+      if (map.getZoom() < 15) map.setZoom(15);
+      if (marker && infoWindowRef.current) {
+        infoWindowRef.current.setContent(popupHtml(property, cfgOf(property.type).color));
+        infoWindowRef.current.open({ map, anchor: marker });
+        setTimeout(() => {
+          document
+            .getElementById(`gmaps-detail-${property.id}`)
+            ?.addEventListener("click", () => onSelectProperty?.(property), { once: true });
+        }, 100);
+      }
+    }
+    if (scroll) scrollToCard(property.id);
+  };
+
+  useEffect(() => {
+    const maps = (window as any).google?.maps;
+    if (!ready || !mapRef.current || !maps) return;
+    let cancelled = false;
+
+    (async () => {
+      const MapCtor =
+        maps.Map || (typeof maps.importLibrary === "function" ? (await maps.importLibrary("maps")).Map : null);
+      if (!MapCtor || cancelled || !mapRef.current) return;
+
+      const center = valid.length > 0 ? { lat: valid[0].lat, lng: valid[0].lng } : { lat: -26.9906, lng: -48.6348 };
 
       const map = new MapCtor(mapRef.current, {
         center,
-        zoom: 11,
+        zoom: 13,
         zoomControl: true,
-        streetViewControl: false,
         mapTypeControl: false,
+        streetViewControl: false,
         fullscreenControl: false,
+        gestureHandling: "greedy",
       });
       mapInstanceRef.current = map;
       infoWindowRef.current = new maps.InfoWindow();
 
-      markersRef.current.forEach(clearMarker);
-      markersRef.current = [];
-
-      valid.forEach((property) => {
-      const cfg = typeConfig[property.type] || defaultCfg;
-      const shortPrice = formatShortPrice(property.price);
-      const marker = createMarker(maps, map, property, cfg, shortPrice);
-
-      marker.addListener("click", () => {
-        const popupContent = `
-          <div style="width:270px;font-family:system-ui,-apple-system,sans-serif;padding:0;">
-            <img src="${property.image}" alt="${property.title}" style="width:100%;height:140px;object-fit:cover;border-radius:8px 8px 0 0;display:block;cursor:pointer;" />
-            <div style="padding:12px;">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                <span style="font-size:10px;font-weight:700;color:#fff;background:${cfg.color};padding:2px 8px;border-radius:4px;letter-spacing:0.5px;text-transform:uppercase;">${property.type}</span>
-                <span style="font-size:10px;font-weight:500;color:#94a3b8;">${property.status}</span>
-              </div>
-              <h3 style="font-size:14px;font-weight:700;margin:0 0 4px 0;color:#0f172a;line-height:1.3;">${property.title}</h3>
-              <p style="font-size:11px;color:#64748b;margin:0 0 4px 0;line-height:1.4;">📍 ${property.address}${property.neighborhood ? `, ${property.neighborhood}` : ""} – ${property.city}</p>
-              <div style="display:flex;gap:8px;margin-bottom:8px;font-size:10px;color:#64748b;">
-                ${property.bedrooms > 0 ? `<span>🛏 ${property.bedrooms}</span>` : ""}
-                ${property.bathrooms > 0 ? `<span>🚿 ${property.bathrooms}</span>` : ""}
-                ${property.parking > 0 ? `<span>🚗 ${property.parking}</span>` : ""}
-                <span>📐 ${property.area}m²</span>
-              </div>
-              <div style="display:flex;align-items:baseline;justify-content:space-between;">
-                <p style="font-size:18px;font-weight:800;color:${cfg.color};margin:0;">${formatCurrency(property.price)}</p>
-                <span id="gmaps-detail-${property.id}" style="font-size:10px;color:${cfg.color};cursor:pointer;font-weight:700;text-decoration:underline;">Ver detalhes →</span>
-              </div>
-            </div>
-          </div>`;
-
-        infoWindowRef.current?.setContent(popupContent);
-        infoWindowRef.current?.open({ map, anchor: marker });
-
-        setTimeout(() => {
-          const detailBtn = document.getElementById(`gmaps-detail-${property.id}`);
-          detailBtn?.addEventListener("click", () => onSelectProperty?.(property), { once: true });
-        }, 100);
+      map.addListener("idle", () => {
+        const c = map.getCenter();
+        if (c) setMapCenter({ lat: c.lat(), lng: c.lng() });
       });
 
-      markersRef.current.push(marker);
-    });
+      markersRef.current.forEach((m) => m.setMap(null));
+      markersRef.current = new Map();
+
+      valid.forEach((property) => {
+        const cfg = cfgOf(property.type);
+        const marker = new maps.Marker({
+          position: { lat: property.lat, lng: property.lng },
+          map,
+          title: property.title,
+          icon: priceIcon(maps, cfg.color, property.price, false),
+        });
+        marker.addListener("click", () => focusProperty(property));
+        markersRef.current.set(property.id, marker);
+      });
 
       if (valid.length > 1) {
         const bounds = new maps.LatLngBounds();
         valid.forEach((p) => bounds.extend({ lat: p.lat, lng: p.lng }));
         map.fitBounds(bounds, 40);
-      } else if (valid.length === 1) {
-        map.setZoom(15);
       }
     })();
 
     return () => {
       cancelled = true;
-      markersRef.current.forEach(clearMarker);
-      markersRef.current = [];
+      markersRef.current.forEach((m) => m.setMap(null));
+      markersRef.current = new Map();
     };
-  }, [ready, properties, onSelectProperty]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, valid]);
+
+  const handleNearby = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocalização não suportada neste dispositivo");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserLocation(loc);
+        const map = mapInstanceRef.current;
+        if (map) {
+          map.panTo(loc);
+          map.setZoom(14);
+        }
+        const nearest = valid
+          .map((p) => ({ p, d: distanceKm(loc.lat, loc.lng, p.lat, p.lng) }))
+          .sort((a, b) => a.d - b.d)[0];
+        if (nearest) toast.success(`Mais próximo: ${nearest.p.title} (${formatDistance(nearest.d)})`);
+        else toast.success("Localização encontrada");
+      },
+      () => {
+        setLocating(false);
+        toast.error("Não foi possível obter sua localização");
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
 
   if (loading) {
     return (
@@ -194,30 +282,131 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
   }
 
   const activeTypes = [...new Set(properties.map((p) => p.type))];
-  const mappedCount = properties.filter(
-    (p) =>
-      Number.isFinite(p.lat) && Number.isFinite(p.lng) &&
-      Math.abs(p.lat) > 0.001 && Math.abs(p.lng) > 0.001,
-  ).length;
+
+  const Card = ({ property }: { property: Property & { __d?: number } }) => {
+    const cfg = cfgOf(property.type);
+    const selected = selectedId === property.id;
+    return (
+      <button
+        type="button"
+        data-property-id={property.id}
+        onClick={() => focusProperty(property, false)}
+        className={`w-full text-left flex gap-2 p-2 rounded-xl border bg-card transition-all ${
+          selected
+            ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary"
+            : "border-border hover:border-primary/50 hover:shadow-sm"
+        }`}
+      >
+        <img
+          src={property.image}
+          alt={property.title}
+          loading="lazy"
+          className="w-24 sm:w-28 aspect-[4/3] rounded-lg object-cover flex-shrink-0"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span
+              className="text-[9px] font-bold uppercase text-white px-1.5 py-0.5 rounded"
+              style={{ backgroundColor: cfg.color }}
+            >
+              {property.type}
+            </span>
+            {typeof property.__d === "number" && (
+              <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                <MapPin className="h-3 w-3" />
+                {formatDistance(property.__d)}
+              </span>
+            )}
+          </div>
+          <p className="text-xs font-semibold truncate text-foreground">{property.title}</p>
+          <p className="text-[10px] text-muted-foreground truncate">
+            {[property.neighborhood, property.city].filter(Boolean).join(" – ")}
+          </p>
+          <div className="flex items-center gap-2 my-1 text-[10px] text-muted-foreground">
+            {property.bedrooms > 0 && (
+              <span className="flex items-center gap-0.5">
+                <BedDouble className="h-3 w-3" />
+                {property.bedrooms}
+              </span>
+            )}
+            {property.bathrooms > 0 && (
+              <span className="flex items-center gap-0.5">
+                <Bath className="h-3 w-3" />
+                {property.bathrooms}
+              </span>
+            )}
+            {property.parking > 0 && (
+              <span className="flex items-center gap-0.5">
+                <Car className="h-3 w-3" />
+                {property.parking}
+              </span>
+            )}
+            {property.area > 0 && (
+              <span className="flex items-center gap-0.5">
+                <Ruler className="h-3 w-3" />
+                {property.area}m²
+              </span>
+            )}
+          </div>
+          <p className="text-sm font-extrabold" style={{ color: cfg.color }}>
+            {formatCurrency(property.price)}
+          </p>
+        </div>
+      </button>
+    );
+  };
 
   return (
     <div className="space-y-3">
-      <div className="rounded-xl overflow-hidden relative border border-border shadow-sm h-[400px] sm:h-[600px]">
-        <div className="absolute top-4 left-4 z-10">
-          <div className="bg-card/95 backdrop-blur-sm rounded-lg shadow-lg px-3 py-2 border border-border flex items-center gap-2">
-            <span className="text-[11px] font-bold text-foreground">{mappedCount}</span>
-            <span className="text-[10px] text-muted-foreground">imóveis no mapa</span>
+      <div className="flex flex-col lg:flex-row gap-3 lg:h-[640px]">
+        <div className="relative rounded-xl overflow-hidden border border-border shadow-sm h-[380px] lg:h-full lg:flex-1">
+          <div className="absolute top-4 left-4 z-10">
+            <div className="bg-card/95 backdrop-blur-sm rounded-full shadow-lg px-3 py-1.5 border border-border flex items-center gap-1.5">
+              <span className="text-[11px] font-bold text-foreground">{properties.length}</span>
+              <span className="text-[10px] text-muted-foreground">imóveis</span>
+            </div>
           </div>
+          <div className="absolute top-4 right-4 z-10">
+            <Button size="sm" className="rounded-full shadow-lg" onClick={handleNearby} disabled={locating}>
+              {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
+              <span className="ml-1.5 text-xs">Imóveis próximos</span>
+            </Button>
+          </div>
+          <div ref={mapRef} style={{ height: "100%", width: "100%" }} />
         </div>
-        <div ref={mapRef} style={{ height: "100%", width: "100%" }} />
+
+        <aside className="hidden lg:flex lg:w-[380px] flex-col rounded-xl border border-border bg-muted/30 overflow-hidden">
+          <div className="p-3 border-b border-border">
+            <p className="text-sm font-semibold text-foreground">
+              {userLocation ? "Imóveis mais próximos de você" : "Imóveis próximos ao centro do mapa"}
+            </p>
+            <p className="text-[11px] text-muted-foreground">Toque em um imóvel para ver no mapa</p>
+          </div>
+          <div ref={listRef} className="flex-1 overflow-y-auto p-2 space-y-2">
+            {sorted.map((p) => (
+              <Card key={p.id} property={p as any} />
+            ))}
+          </div>
+        </aside>
+
+        <div className="lg:hidden -mx-1 px-1 overflow-x-auto snap-x snap-mandatory flex gap-2 pb-1">
+          {sorted.map((p) => (
+            <div key={p.id} className="snap-start flex-shrink-0 w-[290px]">
+              <Card property={p as any} />
+            </div>
+          ))}
+        </div>
       </div>
 
       {activeTypes.length > 0 && (
         <div className="flex flex-wrap gap-2 px-1">
           {activeTypes.map((type) => {
-            const cfg = typeConfig[type] || defaultCfg;
+            const cfg = cfgOf(type);
             return (
-              <div key={type} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-card border border-border text-xs font-medium">
+              <div
+                key={type}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-card border border-border text-xs font-medium"
+              >
                 <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: cfg.color }} />
                 <span>{cfg.emoji}</span>
                 <span className="text-foreground">{cfg.label}</span>
