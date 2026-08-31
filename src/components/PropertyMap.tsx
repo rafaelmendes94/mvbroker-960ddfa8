@@ -370,7 +370,7 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
               </span>
             )}
           </div>
-          <p className="text-sm font-extrabold" style={{ color: cfg.color }}>
+          <p className="text-sm font-extrabold text-primary">
             {formatCurrency(property.price)}
           </p>
         </div>
