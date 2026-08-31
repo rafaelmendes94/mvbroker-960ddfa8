@@ -288,17 +288,18 @@ function PublicImovelPage() {
   ] as [string, any][]).filter(([, v]) => v != null && v !== "") as [string, string][];
 
   const downloads = [
-    images.length ? { icon: Images, title: "Baixar todas as fotos", sub: `${images.length} imagens em PDF`, onClick: () => generatePhotoBookPdf(im, images) } : null,
+    pdfComercialUrl ? { icon: FileText, title: "PDF comercial", sub: "Abrir/baixar PDF", href: pdfComercialUrl } : null,
     primeiroVideo ? { icon: Video, title: "Vídeo", sub: "Assistir na página", onClick: () => videoRef.current?.scrollIntoView({ behavior: "smooth" }) } : null,
     tour360 ? { icon: Compass, title: "Tour 360°", sub: "Visita virtual", href: tour360 } : null,
-    im.link_material ? { icon: Layers, title: "Plantas", sub: "Material do imóvel", href: im.link_material } : null,
-    im.link_drive_fotos ? { icon: HardDrive, title: "Drive de fotos", sub: "Abrir pasta", href: im.link_drive_fotos } : null,
+    im.link_material ? { icon: Layers, title: "Material completo", sub: "Abrir material do imóvel", href: im.link_material } : null,
+    im.link_drive_fotos ? { icon: HardDrive, title: "Acessar Drive completo", sub: "Abrir pasta no Drive", href: im.link_drive_fotos } : null,
     mapaPdfUrl ? { icon: MapIcon, title: "Mapa / Implantação", sub: "PDF do condomínio", href: mapaPdfUrl } : null,
   ].filter(Boolean) as any[];
 
   const atalhos = [
-    images.length ? { icon: Images, label: "Fotos", title: "Gerar book de fotos em PDF", onClick: () => generatePhotoBookPdf(im, images) } : null,
-    im.link_drive_fotos ? { icon: HardDrive, label: "Drive", title: "Abrir drive de fotos", href: im.link_drive_fotos } : null,
+    pdfComercialUrl ? { icon: FileText, label: "PDF comercial", title: "Abrir PDF comercial", href: pdfComercialUrl } : null,
+    im.link_material ? { icon: Layers, label: "Material completo", title: "Abrir material completo", href: im.link_material } : null,
+    im.link_drive_fotos ? { icon: HardDrive, label: "Drive completo", title: "Acessar Drive completo", href: im.link_drive_fotos } : null,
     mapaPdfUrl ? { icon: MapIcon, label: "Mapa", title: "Mapa / implantação do condomínio", href: mapaPdfUrl } : null,
   ].filter(Boolean) as any[];
 
