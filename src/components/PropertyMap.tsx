@@ -315,21 +315,23 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         type="button"
         data-property-id={property.id}
         onClick={() => focusProperty(property, false)}
-        className={`w-full text-left flex gap-2 p-2 rounded-xl border bg-card transition-all ${
+        className={`w-full text-left group flex gap-3 p-3 rounded-2xl border bg-card transition-all duration-200 ${
           selected
-            ? "border-primary bg-primary/10 ring-1 ring-primary shadow-[var(--shadow-glow)]"
-            : "border-border hover:border-primary/60 hover:shadow-[var(--shadow-glow)]"
+            ? "border-accent bg-accent/[0.06] ring-1 ring-accent shadow-sm"
+            : "border-border hover:border-accent/40 hover:shadow-sm hover:-translate-y-0.5"
         }`}
       >
-        <img
-          src={property.image}
-          alt={property.title}
-          loading="lazy"
-          className="w-24 sm:w-28 aspect-[4/3] rounded-lg object-cover flex-shrink-0"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-[9px] font-bold uppercase bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
+        <div className="relative w-24 sm:w-28 aspect-[4/3] flex-shrink-0 overflow-hidden rounded-xl bg-muted">
+          <img
+            src={property.image}
+            alt={property.title}
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+        <div className="min-w-0 flex-1 flex flex-col">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase bg-accent/10 text-accent px-1.5 py-0.5 rounded-md">
               {property.type}
             </span>
 
@@ -340,37 +342,37 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
               </span>
             )}
           </div>
-          <p className="text-xs font-semibold truncate text-foreground">{property.title}</p>
-          <p className="text-[10px] text-muted-foreground truncate">
+          <p className="text-[13px] font-semibold truncate text-foreground leading-tight">{property.title}</p>
+          <p className="text-[11px] text-muted-foreground truncate mt-0.5">
             {[property.neighborhood, property.city].filter(Boolean).join(" – ")}
           </p>
-          <div className="flex items-center gap-2 my-1 text-[10px] text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-auto pt-1.5 text-[11px] text-muted-foreground">
             {property.bedrooms > 0 && (
-              <span className="flex items-center gap-0.5">
-                <BedDouble className="h-3 w-3" />
+              <span className="flex items-center gap-1">
+                <BedDouble className="h-3.5 w-3.5 text-foreground/70" />
                 {property.bedrooms}
               </span>
             )}
             {property.bathrooms > 0 && (
-              <span className="flex items-center gap-0.5">
-                <Bath className="h-3 w-3" />
+              <span className="flex items-center gap-1">
+                <Bath className="h-3.5 w-3.5 text-foreground/70" />
                 {property.bathrooms}
               </span>
             )}
             {property.parking > 0 && (
-              <span className="flex items-center gap-0.5">
-                <Car className="h-3 w-3" />
+              <span className="flex items-center gap-1">
+                <Car className="h-3.5 w-3.5 text-foreground/70" />
                 {property.parking}
               </span>
             )}
             {property.area > 0 && (
-              <span className="flex items-center gap-0.5">
-                <Ruler className="h-3 w-3" />
+              <span className="flex items-center gap-1">
+                <Ruler className="h-3.5 w-3.5 text-foreground/70" />
                 {property.area}m²
               </span>
             )}
           </div>
-          <p className="text-sm font-extrabold text-primary">
+          <p className="text-sm font-extrabold text-accent mt-1">
             {formatCurrency(property.price)}
           </p>
         </div>
@@ -379,9 +381,10 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
   };
 
   return (
-    <div className="map-scope space-y-3 text-foreground">
+    <div className="space-y-3">
       <div className="flex flex-col lg:flex-row gap-3 lg:h-[640px]">
-        <div className="relative rounded-2xl overflow-hidden border border-border shadow-[var(--shadow-glow)] h-[380px] lg:h-full lg:flex-1">
+        {/* Mapa mantém o tema escuro preto/verde */}
+        <div className="map-scope relative rounded-2xl overflow-hidden border border-border shadow-[var(--shadow-glow)] h-[380px] lg:h-full lg:flex-1">
           <div className="absolute top-4 left-4 z-10">
             <div className="bg-card/90 backdrop-blur rounded-full px-3 py-1.5 border border-primary/30 flex items-center gap-1.5">
               <span className="text-[11px] font-bold text-primary">{properties.length}</span>
@@ -398,23 +401,25 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
           <div ref={mapRef} style={{ height: "100%", width: "100%" }} />
         </div>
 
-        <aside className="hidden lg:flex lg:w-[380px] flex-col rounded-xl border border-border bg-muted/30 overflow-hidden">
-          <div className="p-3 border-b border-border">
+        {/* Lista lateral com tema claro/clean */}
+        <aside className="hidden lg:flex lg:w-[400px] flex-col rounded-2xl border border-border bg-background shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-border bg-card">
             <p className="text-sm font-semibold text-foreground">
               {userLocation ? "Imóveis mais próximos de você" : "Imóveis próximos ao centro do mapa"}
             </p>
-            <p className="text-[11px] text-muted-foreground">Toque em um imóvel para ver no mapa</p>
+            <p className="text-[12px] text-muted-foreground mt-0.5">Toque em um imóvel para ver no mapa</p>
           </div>
-          <div ref={listRef} className="flex-1 overflow-y-auto p-2 space-y-2">
+          <div ref={listRef} className="flex-1 overflow-y-auto p-3 space-y-3 bg-background">
             {sorted.map((p) => (
               <Card key={p.id} property={p as any} />
             ))}
           </div>
         </aside>
 
-        <div className="lg:hidden -mx-1 px-1 overflow-x-auto snap-x snap-mandatory flex gap-2 pb-1">
+        {/* Carrossel mobile também claro */}
+        <div className="lg:hidden -mx-1 px-1 overflow-x-auto snap-x snap-mandatory flex gap-3 pb-2">
           {sorted.map((p) => (
-            <div key={p.id} className="snap-start flex-shrink-0 w-[290px]">
+            <div key={p.id} className="snap-start flex-shrink-0 w-[300px]">
               <Card property={p as any} />
             </div>
           ))}
