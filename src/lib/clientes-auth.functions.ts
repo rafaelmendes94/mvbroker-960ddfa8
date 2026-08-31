@@ -103,6 +103,15 @@ export const criarAcessoCliente = createServerFn({ method: "POST" })
     await supabaseAdmin
       .from("user_roles")
       .upsert({ user_id: novoUserId, role }, { onConflict: "user_id,role" });
+    if (role === "imobiliaria") {
+      // remove o papel padrão criado pelo trigger de novo usuário
+      await supabaseAdmin
+        .from("user_roles")
+        .delete()
+        .eq("user_id", novoUserId)
+        .eq("role", "corretor_autonomo");
+    }
+
 
     return { user_id: novoUserId, senha, jaExistia };
   });
