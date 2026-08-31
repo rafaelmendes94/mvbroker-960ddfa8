@@ -90,7 +90,7 @@ function setMeta(attr: "name" | "property", key: string, content: string) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border bg-card p-5 md:p-6">
+    <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-6">
       <h2 className="text-lg font-semibold mb-4">{title}</h2>
       {children}
     </section>
@@ -407,7 +407,7 @@ function PublicImovelPage() {
         )}
 
         {/* Cabeçalho do imóvel */}
-        <section className="rounded-2xl border bg-card p-5 md:p-6 space-y-4">
+        <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-6 space-y-4">
           <nav className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <a href="/" className="hover:text-foreground inline-flex items-center gap-1"><Home className="w-3 h-3" /> Início</a>
             <span>›</span>
