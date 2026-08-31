@@ -61,6 +61,9 @@
   --background: oklch(0.984 0.003 247);
   --foreground: oklch(0.13 0.02 260);
 
+  /* Canvas de páginas públicas (#F8FAFC) */
+  --canvas: oklch(0.9842 0.0034 247.86);
+
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.13 0.02 260);
 
