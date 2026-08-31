@@ -70,19 +70,21 @@ function formatDistance(km: number) {
   return `${km.toFixed(1).replace(".", ",")} km`;
 }
 
-function priceIcon(maps: any, color: string, price: number, selected: boolean) {
+function priceIcon(maps: any, _color: string, price: number, selected: boolean) {
   const label = formatShortPrice(price);
-  const w = selected ? 84 : 72;
-  const h = selected ? 40 : 34;
-  const boxH = selected ? 26 : 22;
-  const stroke = selected ? "#0f172a" : "#ffffff";
+  const w = selected ? 90 : 72;
+  const h = selected ? 44 : 34;
+  const boxH = selected ? 28 : 22;
+  const fill = selected ? "#22c55e" : "#0f0f0f";
+  const stroke = selected ? "#ffffff" : "#22c55e";
   const strokeW = selected ? 2.5 : 1.5;
+  const textFill = selected ? "#0a0a0a" : "#22c55e";
   const font = selected ? 13 : 12;
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" fill="none">
-      <rect x="2" y="2" width="${w - 4}" height="${boxH}" rx="${boxH / 2}" fill="${color}" stroke="${stroke}" stroke-width="${strokeW}" />
-      <path d="M${w / 2 - 5} ${boxH + 2}H${w / 2 + 5}L${w / 2} ${h}L${w / 2 - 5} ${boxH + 2}Z" fill="${color}" />
-      <text x="${w / 2}" y="${boxH / 2 + 6}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${font}" font-weight="700" fill="white">${label}</text>
+      <rect x="2" y="2" width="${w - 4}" height="${boxH}" rx="${boxH / 2}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" />
+      <path d="M${w / 2 - 5} ${boxH + 2}H${w / 2 + 5}L${w / 2} ${h}L${w / 2 - 5} ${boxH + 2}Z" fill="${fill}" />
+      <text x="${w / 2}" y="${boxH / 2 + 6}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${font}" font-weight="700" fill="${textFill}">${label}</text>
     </svg>`.trim();
   return {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
@@ -93,28 +95,29 @@ function priceIcon(maps: any, color: string, price: number, selected: boolean) {
 
 function popupHtml(property: Property, color: string) {
   return `
-    <div style="width:135px;font-family:system-ui,-apple-system,sans-serif;">
-      <img src="${property.image}" alt="" style="width:100%;height:70px;object-fit:cover;border-radius:6px 6px 0 0;display:block;" />
-      <div style="padding:6px 2px 2px 2px;">
+    <div style="width:135px;font-family:system-ui,-apple-system,sans-serif;background:#0f0f0f;border:1px solid #22c55e33;border-radius:12px;overflow:hidden;">
+      <img src="${property.image}" alt="" style="width:100%;height:70px;object-fit:cover;display:block;" />
+      <div style="padding:6px 8px 8px 8px;">
         <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;">
-          <span style="font-size:9px;font-weight:700;color:#fff;background:${color};padding:1px 5px;border-radius:3px;text-transform:uppercase;">${property.type}</span>
-          <span style="font-size:9px;color:#94a3b8;">${property.status}</span>
+          <span style="font-size:9px;font-weight:700;color:#0a0a0a;background:${color};padding:1px 5px;border-radius:3px;text-transform:uppercase;">${property.type}</span>
+          <span style="font-size:9px;color:#9ca3af;">${property.status}</span>
         </div>
-        <div style="font-size:11px;font-weight:700;color:#0f172a;line-height:1.25;">${property.title}</div>
-        <div style="font-size:9px;color:#64748b;margin:2px 0;">📍 ${[property.neighborhood, property.city].filter(Boolean).join(" – ")}</div>
-        <div style="display:flex;gap:5px;font-size:9px;color:#64748b;margin-bottom:3px;">
+        <div style="font-size:11px;font-weight:700;color:#f5f5f5;line-height:1.25;">${property.title}</div>
+        <div style="font-size:9px;color:#9ca3af;margin:2px 0;">📍 ${[property.neighborhood, property.city].filter(Boolean).join(" – ")}</div>
+        <div style="display:flex;gap:5px;font-size:9px;color:#9ca3af;margin-bottom:3px;">
           ${property.bedrooms > 0 ? `<span>🛏 ${property.bedrooms}</span>` : ""}
           ${property.bathrooms > 0 ? `<span>🚿 ${property.bathrooms}</span>` : ""}
           ${property.parking > 0 ? `<span>🚗 ${property.parking}</span>` : ""}
           ${property.area > 0 ? `<span>📐 ${property.area}m²</span>` : ""}
         </div>
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:4px;">
-          <span style="font-size:12px;font-weight:800;color:${color};">${formatCurrency(property.price)}</span>
-          <span id="gmaps-detail-${property.id}" style="font-size:9px;color:${color};cursor:pointer;font-weight:700;text-decoration:underline;">Ver →</span>
+          <span style="font-size:12px;font-weight:800;color:#22c55e;">${formatCurrency(property.price)}</span>
+          <span id="gmaps-detail-${property.id}" style="font-size:9px;color:#22c55e;cursor:pointer;font-weight:700;text-decoration:underline;">Ver →</span>
         </div>
       </div>
     </div>`;
 }
+
 
 export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
