@@ -298,6 +298,14 @@ function ClientesPage() {
                         <div className="text-xs text-muted-foreground line-clamp-1">
                           {r.email ?? r.telefone ?? r.cnpj ?? r.creci ?? "—"}
                         </div>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {!r.assinatura && (
+                            <Badge variant="destructive" className="text-[10px]">Sem plano</Badge>
+                          )}
+                          {r.tipo === "corretor" && !r.user_id && (
+                            <Badge variant="outline" className="text-[10px]">Sem login</Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="gap-1">
@@ -305,7 +313,14 @@ function ClientesPage() {
                           {r.tipo === "imobiliaria" ? "Imobiliária" : "Corretor"}
                         </Badge>
                       </TableCell>
-                      <TableCell>{r.plano?.nome ?? <span className="text-muted-foreground">Sem plano</span>}</TableCell>
+                      <TableCell>
+                        {r.plano?.nome ?? (
+                          <Button size="sm" variant="outline" onClick={() => abrirTroca(r)}>
+                            Vincular plano
+                          </Button>
+                        )}
+                      </TableCell>
+
                       <TableCell>
                         {r.assinatura
                           ? <Badge variant="outline" className="capitalize">{r.assinatura.ciclo}</Badge>
