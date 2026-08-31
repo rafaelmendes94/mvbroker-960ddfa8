@@ -214,7 +214,10 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         streetViewControl: false,
         fullscreenControl: false,
         gestureHandling: "greedy",
+        backgroundColor: "#111111",
+        styles: DARK_MAP_STYLES,
       });
+
       mapInstanceRef.current = map;
       infoWindowRef.current = new maps.InfoWindow();
 
