@@ -2,16 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft, BedDouble, BedSingle, Ruler, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
-  Share2, Loader2, Images, HardDrive, Map as MapIcon, Expand, X, FileText,
-  Video, Compass, Layers, Download, Pencil, MessageCircle, Heart, Home,
+  Share2, Loader2, HardDrive, Map as MapIcon, Expand, X, FileText,
+  Video, Compass, Layers, Pencil, MessageCircle, Heart, Home,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getImovelPreview } from "@/lib/imovel-publico.functions";
-import { generatePhotoBookPdf } from "@/utils/generatePhotoBookPdf";
-import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useFavoritos } from "@/hooks/use-favoritos";
 import { trackPropertyView } from "@/lib/trackPropertyView";
 import { supabase } from "@/integrations/supabase/client";
+import { WRITE_IMOVEL_ROLES, type AppRole } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -105,12 +104,13 @@ function Chip({ children }: { children: React.ReactNode }) {
 
 function PublicImovelPage() {
   const { id } = Route.useParams();
-  const [data, setData] = useState<{ imovel: Imovel; images: string[]; mapaPdfUrl?: string | null } | null>(null);
+  const [data, setData] = useState<{ imovel: Imovel; images: string[]; mapaPdfUrl?: string | null; pdfComercialUrl?: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
+  const [logged, setLogged] = useState(false);
   const thumbsRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLDivElement>(null);
   const tracked = useRef(false);
@@ -139,7 +139,16 @@ function PublicImovelPage() {
   }, [id]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: s }) => setCanEdit(!!s.session)).catch(() => {});
+    let alive = true;
+    supabase.auth.getSession().then(async ({ data: s }) => {
+      const uid = s.session?.user?.id;
+      if (!uid) { if (alive) { setLogged(false); setCanEdit(false); } return; }
+      if (alive) setLogged(true);
+      const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+      const roles = (rows ?? []).map((r: any) => r.role as AppRole);
+      if (alive) setCanEdit(roles.some((r) => WRITE_IMOVEL_ROLES.includes(r)));
+    }).catch(() => {});
+    return () => { alive = false; };
   }, []);
 
   const im = data?.imovel;
@@ -240,6 +249,7 @@ function PublicImovelPage() {
   const tipo = (im.tipo_imovel || "").toLowerCase();
   const isApto = /apart|apto|flat|studio|cobertura|sala/.test(tipo);
   const mapaPdfUrl = data?.mapaPdfUrl || null;
+  const pdfComercialUrl = data?.pdfComercialUrl || null;
   const mapQuery = im.latitude && im.longitude ? `${im.latitude},${im.longitude}` : endereco;
   const mapSrc = mapQuery ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed` : null;
 
@@ -288,17 +298,18 @@ function PublicImovelPage() {
   ] as [string, any][]).filter(([, v]) => v != null && v !== "") as [string, string][];
 
   const downloads = [
-    images.length ? { icon: Images, title: "Baixar todas as fotos", sub: `${images.length} imagens em PDF`, onClick: () => generatePhotoBookPdf(im, images) } : null,
+    pdfComercialUrl ? { icon: FileText, title: "PDF comercial", sub: "Abrir/baixar PDF", href: pdfComercialUrl } : null,
     primeiroVideo ? { icon: Video, title: "Vídeo", sub: "Assistir na página", onClick: () => videoRef.current?.scrollIntoView({ behavior: "smooth" }) } : null,
     tour360 ? { icon: Compass, title: "Tour 360°", sub: "Visita virtual", href: tour360 } : null,
-    im.link_material ? { icon: Layers, title: "Plantas", sub: "Material do imóvel", href: im.link_material } : null,
-    im.link_drive_fotos ? { icon: HardDrive, title: "Drive de fotos", sub: "Abrir pasta", href: im.link_drive_fotos } : null,
+    im.link_material ? { icon: Layers, title: "Material completo", sub: "Abrir material do imóvel", href: im.link_material } : null,
+    im.link_drive_fotos ? { icon: HardDrive, title: "Acessar Drive completo", sub: "Abrir pasta no Drive", href: im.link_drive_fotos } : null,
     mapaPdfUrl ? { icon: MapIcon, title: "Mapa / Implantação", sub: "PDF do condomínio", href: mapaPdfUrl } : null,
   ].filter(Boolean) as any[];
 
   const atalhos = [
-    images.length ? { icon: Images, label: "Fotos", title: "Gerar book de fotos em PDF", onClick: () => generatePhotoBookPdf(im, images) } : null,
-    im.link_drive_fotos ? { icon: HardDrive, label: "Drive", title: "Abrir drive de fotos", href: im.link_drive_fotos } : null,
+    pdfComercialUrl ? { icon: FileText, label: "PDF comercial", title: "Abrir PDF comercial", href: pdfComercialUrl } : null,
+    im.link_material ? { icon: Layers, label: "Material completo", title: "Abrir material completo", href: im.link_material } : null,
+    im.link_drive_fotos ? { icon: HardDrive, label: "Drive completo", title: "Acessar Drive completo", href: im.link_drive_fotos } : null,
     mapaPdfUrl ? { icon: MapIcon, label: "Mapa", title: "Mapa / implantação do condomínio", href: mapaPdfUrl } : null,
   ].filter(Boolean) as any[];
 
@@ -322,7 +333,7 @@ function PublicImovelPage() {
               className="h-10 inline-flex items-center gap-2 rounded-xl bg-accent px-3.5 text-[13px] font-semibold text-accent-foreground transition-all duration-150 hover:brightness-95">
               <MessageCircle className="w-4 h-4" /> <span className="hidden sm:inline">WhatsApp</span>
             </a>
-            {canEdit && (
+            {logged && (
               <button onClick={() => toggleFav(id)}
                 className={`h-10 inline-flex items-center gap-2 rounded-xl border bg-card px-3.5 text-[13px] font-medium transition-all duration-150 hover:border-accent/45 ${isFav ? "text-accent border-accent/45" : ""}`}>
                 <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} /> <span className="hidden sm:inline">Salvar imóvel</span>
@@ -596,30 +607,11 @@ function PublicImovelPage() {
         <div className="rounded-2xl border bg-card shadow-sm p-3 md:p-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="text-xs md:text-sm text-muted-foreground">Código: <span className="font-medium text-foreground">{codigo}</span></div>
 
-          <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-2">
+          <div className="flex md:items-center gap-2">
             <button onClick={share}
-              className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted hover:-translate-y-px">
+              className="h-11 w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted hover:-translate-y-px">
               <Share2 className="w-4 h-4" /> Compartilhar
             </button>
-            {images.length > 0 && (
-              <button onClick={() => generatePhotoBookPdf(im, images)}
-                className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-accent/8 hover:-translate-y-px">
-                <Images className="w-4 h-4" /> Book de fotos
-              </button>
-            )}
-            <button onClick={() => generatePropertyPdf(im)}
-              className="h-11 col-span-2 md:col-auto inline-flex items-center justify-center gap-2 rounded-xl border border-accent/45 bg-card px-4 text-sm font-medium text-accent-deep transition-all duration-150 hover:bg-accent/8 hover:-translate-y-px">
-              <Download className="w-4 h-4 text-accent" /> Baixar detalhes
-            </button>
-            <a href={waHref} target="_blank" rel="noopener noreferrer"
-              className="col-span-2 md:col-auto inline-flex items-center justify-center gap-3 rounded-xl bg-accent px-6 h-[52px] text-accent-foreground shadow-[var(--shadow-accent)] transition-all duration-150 hover:brightness-95 hover:-translate-y-px">
-
-              <MessageCircle className="w-5 h-5 shrink-0" />
-              <span className="text-left leading-tight">
-                <span className="block text-sm font-semibold">Falar com corretor</span>
-                <span className="block text-[11px] opacity-80">Atendimento personalizado</span>
-              </span>
-            </a>
           </div>
         </div>
       </main>

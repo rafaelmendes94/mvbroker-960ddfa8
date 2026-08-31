@@ -18,7 +18,7 @@ const SECTIONS: Section[] = [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/oportunidades", label: "Oportunidades", icon: Sparkles },
       { to: "/imoveis", label: "Imóveis", icon: Home },
-      { to: "/mapa", label: "Mapa", icon: MapIcon },
+      
       { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
       { to: "/tabela", label: "Tabela", icon: FileText },
       { to: "/biblioteca", label: "Banco de Imagens", icon: FolderArchive },
