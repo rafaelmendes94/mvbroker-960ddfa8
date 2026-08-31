@@ -3,8 +3,8 @@ import { useState } from "react";
 import {
   Building2, LayoutDashboard, Users, UserSquare2,
   BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Lock, Plug,
-  Tag, Sparkles, Upload, ChevronDown, Layers, FileText,
-}  } from "lucide-react";
+  Tag, Sparkles, Upload, ChevronDown, Layers, FileText, Map as MapIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
 import { canAccess, primaryRole, ROLE_LABEL, type AppRole } from "@/lib/permissions";
