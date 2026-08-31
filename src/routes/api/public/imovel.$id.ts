@@ -95,7 +95,28 @@ export const Route = createFileRoute("/api/public/imovel/$id")({
             }
           } catch {}
 
-          return new Response(JSON.stringify({ imovel, images, mapaPdfUrl }), {
+          // PDF comercial do imóvel (assinado)
+          let pdfComercialUrl: string | null = null;
+          try {
+            const { data: extra } = await supabase
+              .from("imoveis")
+              .select("pdf_comercial_path")
+              .eq("id", id)
+              .maybeSingle();
+            const p = (extra as any)?.pdf_comercial_path || null;
+            if (p) {
+              if (String(p).startsWith("http")) {
+                pdfComercialUrl = p;
+              } else {
+                const { data: sp } = await supabase.storage
+                  .from("materiais")
+                  .createSignedUrl(p, 60 * 60 * 24);
+                pdfComercialUrl = sp?.signedUrl ?? null;
+              }
+            }
+          } catch {}
+
+          return new Response(JSON.stringify({ imovel, images, mapaPdfUrl, pdfComercialUrl }), {
             status: 200,
             headers: {
               "Content-Type": "application/json; charset=utf-8",
