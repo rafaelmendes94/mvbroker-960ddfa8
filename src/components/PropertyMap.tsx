@@ -379,21 +379,22 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
   };
 
   return (
-    <div className="space-y-3">
+    <div className="map-scope space-y-3 text-foreground">
       <div className="flex flex-col lg:flex-row gap-3 lg:h-[640px]">
-        <div className="relative rounded-xl overflow-hidden border border-border shadow-sm h-[380px] lg:h-full lg:flex-1">
+        <div className="relative rounded-2xl overflow-hidden border border-border shadow-[var(--shadow-glow)] h-[380px] lg:h-full lg:flex-1">
           <div className="absolute top-4 left-4 z-10">
-            <div className="bg-card/95 backdrop-blur-sm rounded-full shadow-lg px-3 py-1.5 border border-border flex items-center gap-1.5">
-              <span className="text-[11px] font-bold text-foreground">{properties.length}</span>
+            <div className="bg-card/90 backdrop-blur rounded-full px-3 py-1.5 border border-primary/30 flex items-center gap-1.5">
+              <span className="text-[11px] font-bold text-primary">{properties.length}</span>
               <span className="text-[10px] text-muted-foreground">imóveis</span>
             </div>
           </div>
           <div className="absolute top-4 right-4 z-10">
-            <Button size="sm" className="rounded-full shadow-lg" onClick={handleNearby} disabled={locating}>
-              {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
+            <Button size="sm" variant="default" className="rounded-full shadow-[var(--shadow-glow)]" onClick={handleNearby} disabled={locating}>
+              {locating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LocateFixed className="h-3.5 w-3.5" />}
               <span className="ml-1.5 text-xs">Imóveis próximos</span>
             </Button>
           </div>
+
           <div ref={mapRef} style={{ height: "100%", width: "100%" }} />
         </div>
 
