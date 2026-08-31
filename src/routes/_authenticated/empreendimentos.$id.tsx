@@ -1,8 +1,7 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { EspelhoSheet } from "@/components/empreendimentos/EspelhoSheet";
 import type { EmpreendimentoTipo } from "@/lib/espelho";
 
@@ -46,8 +45,7 @@ function Page() {
   }
   if (!resolved) {
     return (
-      <div className="p-6 space-y-3">
-        <Button asChild variant="ghost" size="sm"><Link to="/imoveis"><ChevronLeft className="h-4 w-4 mr-1" />Voltar</Link></Button>
+      <div className="p-6">
         <p className="text-sm text-muted-foreground">Empreendimento não encontrado.</p>
       </div>
     );
@@ -55,16 +53,14 @@ function Page() {
 
   if (resolved.tipo === "empreendimento") {
     return (
-      <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-4">
-        <Button asChild variant="ghost" size="sm"><Link to={resolved.voltar}><ChevronLeft className="h-4 w-4 mr-1" />Voltar</Link></Button>
+      <div className="p-4 sm:p-6 max-w-6xl mx-auto">
         <p className="text-sm text-muted-foreground">Empreendimentos genéricos não possuem espelho.</p>
       </div>
     );
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-4">
-      <Button asChild variant="ghost" size="sm"><Link to={resolved.voltar}><ChevronLeft className="h-4 w-4 mr-1" />Voltar</Link></Button>
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto">
       <EspelhoSheet tipo={resolved.tipo as EmpreendimentoTipo} empreendimentoId={id} />
     </div>
   );
