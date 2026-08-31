@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { criarAcessoCliente } from "@/lib/clientes-auth.functions";
+import { criarClienteCompleto, vincularPlanoCliente } from "@/lib/clientes-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/clientes")({
   head: () => ({ meta: [{ title: "Clientes — MV Broker" }] }),
@@ -156,52 +156,29 @@ function ClientesPage() {
     if (!form.plano_id) { toast.error("Selecione um plano"); return; }
     const plano = planos.find((p) => p.id === form.plano_id);
     if (!plano) return;
-    const valor = form.ciclo === "anual" ? (plano.preco_anual ?? plano.preco_mensal * 12) : plano.preco_mensal;
 
     setSaving(true);
     try {
-      // 1) Cria/recupera acesso (auth user + role)
       const _token = await getToken();
-      const acesso = await criarAcessoCliente({
+      // Operação única no servidor: acesso + cliente + assinatura (com rollback)
+      const res = await criarClienteCompleto({
         data: {
           _token,
-          email: form.email.trim(),
+          tipo: form.tipo,
           modo: form.modoAcesso,
           nome: form.nome.trim(),
-          tipo: form.tipo,
+          email: form.email.trim(),
+          telefone: form.telefone || null,
+          cnpj: form.cnpj || null,
+          razao_social: form.razao_social || null,
+          creci: form.creci || null,
+          plano_id: plano.id,
+          ciclo: form.ciclo,
           redirectTo: `${window.location.origin}/reset-password`,
         },
       });
 
-      // 2) Cria registro do cliente vinculando user_id
-      if (form.tipo === "imobiliaria") {
-        const { data: imob, error: e1 } = await supabase.from("imobiliarias").insert({
-          nome_fantasia: form.nome,
-          razao_social: form.razao_social || null,
-          cnpj: form.cnpj || null,
-          email: form.email || null,
-          telefone: form.telefone || null,
-          owner_id: acesso.user_id,
-        }).select("id").single();
-        if (e1 || !imob) throw e1 ?? new Error("Falha ao criar imobiliária");
-        const { error: e2 } = await supabase.from("assinaturas").insert({
-          plano_id: plano.id, imobiliaria_id: imob.id, ciclo: form.ciclo, valor, status: "ativa",
-        });
-        if (e2) throw e2;
-      } else {
-        const { error: e1 } = await supabase.from("corretores").insert({
-          nome: form.nome, email: form.email || null, telefone: form.telefone || null,
-          creci: form.creci || null, status: "ativo", imobiliaria_id: null,
-          user_id: acesso.user_id,
-        });
-        if (e1) throw e1;
-        const { error: e2 } = await supabase.from("assinaturas").insert({
-          plano_id: plano.id, usuario_id: acesso.user_id, ciclo: form.ciclo, valor, status: "ativa",
-        });
-        if (e2) throw e2;
-      }
-
-      if (acesso.jaExistia) {
+      if (res.jaExistia) {
         toast.message("Conta de acesso já existia — vinculada ao novo cliente.");
       } else if (form.modoAcesso === "convite") {
         toast.success(`Convite enviado para ${form.email}`);
@@ -209,11 +186,11 @@ function ClientesPage() {
 
       setOpenNew(false);
 
-      if (acesso.senha) {
-        setCred({ email: form.email.trim(), senha: acesso.senha });
+      if (res.senha) {
+        setCred({ email: form.email.trim(), senha: res.senha });
         setCredOpen(true);
       } else {
-        toast.success("Cliente cadastrado");
+        toast.success("Cliente cadastrado e plano vinculado");
       }
       load();
     } catch (err: any) {
@@ -223,6 +200,7 @@ function ClientesPage() {
     }
   }
 
+
   function abrirTroca(r: ClienteRow) {
     setTrocaRow(r);
     setTrocaPlanoId(r.assinatura?.plano_id ?? "");
@@ -231,28 +209,29 @@ function ClientesPage() {
   }
   async function salvarTroca() {
     if (!trocaRow || !trocaPlanoId) return;
-    const plano = planos.find((p) => p.id === trocaPlanoId);
-    if (!plano) return;
-    const valor = trocaCiclo === "anual" ? (plano.preco_anual ?? plano.preco_mensal * 12) : plano.preco_mensal;
-    const payload: any = { plano_id: plano.id, ciclo: trocaCiclo, valor };
-    let err;
-    if (trocaRow.assinatura) {
-      ({ error: err } = await supabase.from("assinaturas").update(payload).eq("id", trocaRow.assinatura.id));
-    } else {
-      const body = trocaRow.tipo === "imobiliaria"
-        ? { ...payload, imobiliaria_id: trocaRow.id, status: "ativa" }
-        : { ...payload, usuario_id: trocaRow.user_id, status: "ativa" };
-      if (trocaRow.tipo === "corretor" && !trocaRow.user_id) {
-        toast.error("Este corretor ainda não tem login vinculado.");
-        return;
-      }
-      ({ error: err } = await supabase.from("assinaturas").insert(body));
+    if (trocaRow.tipo === "corretor" && !trocaRow.user_id) {
+      toast.error("Este corretor ainda não tem login vinculado.");
+      return;
     }
-    if (err) { toast.error(err.message); return; }
-    toast.success("Plano atualizado");
-    setTrocaOpen(false);
-    load();
+    try {
+      const _token = await getToken();
+      const res = await vincularPlanoCliente({
+        data: {
+          _token,
+          tipo: trocaRow.tipo,
+          cliente_id: trocaRow.id,
+          plano_id: trocaPlanoId,
+          ciclo: trocaCiclo,
+        },
+      });
+      toast.success(res.criada ? "Plano vinculado ao cliente" : "Plano atualizado");
+      setTrocaOpen(false);
+      load();
+    } catch (err: any) {
+      toast.error(err.message ?? "Erro ao vincular plano");
+    }
   }
+
 
   async function toggleBloqueio(r: ClienteRow) {
     if (!r.assinatura) return;
@@ -319,6 +298,14 @@ function ClientesPage() {
                         <div className="text-xs text-muted-foreground line-clamp-1">
                           {r.email ?? r.telefone ?? r.cnpj ?? r.creci ?? "—"}
                         </div>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {!r.assinatura && (
+                            <Badge variant="destructive" className="text-[10px]">Sem plano</Badge>
+                          )}
+                          {r.tipo === "corretor" && !r.user_id && (
+                            <Badge variant="outline" className="text-[10px]">Sem login</Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="gap-1">
@@ -326,7 +313,14 @@ function ClientesPage() {
                           {r.tipo === "imobiliaria" ? "Imobiliária" : "Corretor"}
                         </Badge>
                       </TableCell>
-                      <TableCell>{r.plano?.nome ?? <span className="text-muted-foreground">Sem plano</span>}</TableCell>
+                      <TableCell>
+                        {r.plano?.nome ?? (
+                          <Button size="sm" variant="outline" onClick={() => abrirTroca(r)}>
+                            Vincular plano
+                          </Button>
+                        )}
+                      </TableCell>
+
                       <TableCell>
                         {r.assinatura
                           ? <Badge variant="outline" className="capitalize">{r.assinatura.ciclo}</Badge>
