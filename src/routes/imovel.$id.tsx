@@ -105,7 +105,7 @@ function Chip({ children }: { children: React.ReactNode }) {
 
 function PublicImovelPage() {
   const { id } = Route.useParams();
-  const [data, setData] = useState<{ imovel: Imovel; images: string[]; mapaPdfUrl?: string | null } | null>(null);
+  const [data, setData] = useState<{ imovel: Imovel; images: string[]; mapaPdfUrl?: string | null; pdfComercialUrl?: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
@@ -597,30 +597,11 @@ function PublicImovelPage() {
         <div className="rounded-2xl border bg-card shadow-sm p-3 md:p-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="text-xs md:text-sm text-muted-foreground">Código: <span className="font-medium text-foreground">{codigo}</span></div>
 
-          <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-2">
+          <div className="flex md:items-center gap-2">
             <button onClick={share}
-              className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted hover:-translate-y-px">
+              className="h-11 w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted hover:-translate-y-px">
               <Share2 className="w-4 h-4" /> Compartilhar
             </button>
-            {images.length > 0 && (
-              <button onClick={() => generatePhotoBookPdf(im, images)}
-                className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-accent/8 hover:-translate-y-px">
-                <Images className="w-4 h-4" /> Book de fotos
-              </button>
-            )}
-            <button onClick={() => generatePropertyPdf(im)}
-              className="h-11 col-span-2 md:col-auto inline-flex items-center justify-center gap-2 rounded-xl border border-accent/45 bg-card px-4 text-sm font-medium text-accent-deep transition-all duration-150 hover:bg-accent/8 hover:-translate-y-px">
-              <Download className="w-4 h-4 text-accent" /> Baixar detalhes
-            </button>
-            <a href={waHref} target="_blank" rel="noopener noreferrer"
-              className="col-span-2 md:col-auto inline-flex items-center justify-center gap-3 rounded-xl bg-accent px-6 h-[52px] text-accent-foreground shadow-[var(--shadow-accent)] transition-all duration-150 hover:brightness-95 hover:-translate-y-px">
-
-              <MessageCircle className="w-5 h-5 shrink-0" />
-              <span className="text-left leading-tight">
-                <span className="block text-sm font-semibold">Falar com corretor</span>
-                <span className="block text-[11px] opacity-80">Atendimento personalizado</span>
-              </span>
-            </a>
           </div>
         </div>
       </main>
