@@ -407,7 +407,7 @@ function PublicImovelPage() {
         )}
 
         {/* Cabeçalho do imóvel */}
-        <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-6 space-y-4">
+        <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-7 space-y-4">
           <nav className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <a href="/" className="hover:text-foreground inline-flex items-center gap-1"><Home className="w-3 h-3" /> Início</a>
             <span>›</span>
@@ -416,22 +416,28 @@ function PublicImovelPage() {
             {empreendimento && (<><span>›</span><span className="text-foreground">{empreendimento}</span></>)}
           </nav>
 
-          {im.status_imovel && <Badge variant="secondary">{im.status_imovel}</Badge>}
+          {im.status_imovel && (
+            <span className="inline-flex items-center rounded-full bg-accent/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-accent-deep">
+              {im.status_imovel}
+            </span>
+          )}
 
-          <h1 className="text-2xl md:text-3xl font-bold leading-tight">{im.titulo || "Imóvel"}</h1>
+          <h1 className="text-2xl md:text-[30px] font-semibold tracking-tight leading-tight">{im.titulo || "Imóvel"}</h1>
 
           {identBadges.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {identBadges.map((b) => (
-                <Badge key={b.label} variant="outline">{b.label}: {b.value}</Badge>
+                <span key={b.label} className="rounded-full border bg-card px-3 py-1 text-xs text-muted-foreground">
+                  <span className="text-foreground font-medium">{b.label}:</span> {b.value}
+                </span>
               ))}
             </div>
           )}
 
           <div>
-            <div className="text-3xl font-bold text-primary">{formatBRL(im.preco)}</div>
+            <div className="text-[26px] md:text-[30px] font-semibold tracking-tight text-accent">{formatBRL(im.preco)}</div>
             {im.preco_parcelado && <div className="text-sm text-muted-foreground">Parcelado: {im.preco_parcelado}</div>}
-            {im.bonus && <div className="text-sm text-emerald-600">Bônus: {im.bonus}</div>}
+            {im.bonus && <div className="text-sm text-accent-deep">Bônus: {im.bonus}</div>}
             {im.condicoes_pagamento && typeof im.condicoes_pagamento === "string" && (
               <div className="text-sm text-muted-foreground mt-1">{im.condicoes_pagamento}</div>
             )}
@@ -439,7 +445,7 @@ function PublicImovelPage() {
 
           {endereco && (
             <p className="text-muted-foreground flex items-start gap-1.5 text-sm">
-              <MapPin className="w-4 h-4 mt-0.5 shrink-0" /> {endereco}{im.cep ? ` — CEP ${im.cep}` : ""}
+              <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-accent" /> {endereco}{im.cep ? ` — CEP ${im.cep}` : ""}
             </p>
           )}
 
@@ -448,12 +454,12 @@ function PublicImovelPage() {
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className="flex flex-col items-center justify-center gap-2 rounded-xl border bg-canvas px-3 py-4 text-center"
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border bg-canvas px-3 py-4 text-center transition-colors duration-150 hover:border-accent/40"
                 >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10">
-                    <s.icon className="h-4.5 w-4.5 text-primary" />
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/10">
+                    <s.icon className="h-4 w-4 text-accent" />
                   </span>
-                  <span className="text-lg font-bold leading-none">{s.value}</span>
+                  <span className="text-lg font-semibold leading-none">{s.value}</span>
                   <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</span>
                 </div>
               ))}
