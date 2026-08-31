@@ -315,21 +315,23 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         type="button"
         data-property-id={property.id}
         onClick={() => focusProperty(property, false)}
-        className={`w-full text-left flex gap-2 p-2 rounded-xl border bg-card transition-all ${
+        className={`w-full text-left group flex gap-3 p-3 rounded-2xl border bg-card transition-all duration-200 ${
           selected
-            ? "border-primary bg-primary/10 ring-1 ring-primary shadow-[var(--shadow-glow)]"
-            : "border-border hover:border-primary/60 hover:shadow-[var(--shadow-glow)]"
+            ? "border-accent bg-accent/[0.06] ring-1 ring-accent shadow-sm"
+            : "border-border hover:border-accent/40 hover:shadow-sm hover:-translate-y-0.5"
         }`}
       >
-        <img
-          src={property.image}
-          alt={property.title}
-          loading="lazy"
-          className="w-24 sm:w-28 aspect-[4/3] rounded-lg object-cover flex-shrink-0"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-[9px] font-bold uppercase bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
+        <div className="relative w-24 sm:w-28 aspect-[4/3] flex-shrink-0 overflow-hidden rounded-xl bg-muted">
+          <img
+            src={property.image}
+            alt={property.title}
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+        <div className="min-w-0 flex-1 flex flex-col">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase bg-accent/10 text-accent px-1.5 py-0.5 rounded-md">
               {property.type}
             </span>
 
@@ -340,37 +342,37 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
               </span>
             )}
           </div>
-          <p className="text-xs font-semibold truncate text-foreground">{property.title}</p>
-          <p className="text-[10px] text-muted-foreground truncate">
+          <p className="text-[13px] font-semibold truncate text-foreground leading-tight">{property.title}</p>
+          <p className="text-[11px] text-muted-foreground truncate mt-0.5">
             {[property.neighborhood, property.city].filter(Boolean).join(" – ")}
           </p>
-          <div className="flex items-center gap-2 my-1 text-[10px] text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-auto pt-1.5 text-[11px] text-muted-foreground">
             {property.bedrooms > 0 && (
-              <span className="flex items-center gap-0.5">
-                <BedDouble className="h-3 w-3" />
+              <span className="flex items-center gap-1">
+                <BedDouble className="h-3.5 w-3.5 text-foreground/70" />
                 {property.bedrooms}
               </span>
             )}
             {property.bathrooms > 0 && (
-              <span className="flex items-center gap-0.5">
-                <Bath className="h-3 w-3" />
+              <span className="flex items-center gap-1">
+                <Bath className="h-3.5 w-3.5 text-foreground/70" />
                 {property.bathrooms}
               </span>
             )}
             {property.parking > 0 && (
-              <span className="flex items-center gap-0.5">
-                <Car className="h-3 w-3" />
+              <span className="flex items-center gap-1">
+                <Car className="h-3.5 w-3.5 text-foreground/70" />
                 {property.parking}
               </span>
             )}
             {property.area > 0 && (
-              <span className="flex items-center gap-0.5">
-                <Ruler className="h-3 w-3" />
+              <span className="flex items-center gap-1">
+                <Ruler className="h-3.5 w-3.5 text-foreground/70" />
                 {property.area}m²
               </span>
             )}
           </div>
-          <p className="text-sm font-extrabold text-primary">
+          <p className="text-sm font-extrabold text-accent mt-1">
             {formatCurrency(property.price)}
           </p>
         </div>
