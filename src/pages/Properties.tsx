@@ -466,14 +466,16 @@ export default function Properties() {
   const propertyIdFromUrl = searchParams.get("property");
   const [selectedProperty, setSelectedPropertyState] = useState<Property | null>(null);
 
+  // Abre a página completa do imóvel (sem modal)
   const setSelectedProperty = (p: Property | null) => {
-    setSelectedPropertyState(p);
     if (p) {
-      setSearchParams((prev: any) => { prev.set("property", p.id); return prev; }, { replace: true });
+      navigate(`/imovel/${p.id}`);
     } else {
+      setSelectedPropertyState(null);
       setSearchParams((prev: any) => { prev.delete("property"); return prev; }, { replace: true });
     }
   };
+
 
   const [viewingTerm, setViewingTerm] = useState<string | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
@@ -664,11 +666,12 @@ export default function Properties() {
     loadFavorites();
   }, []);
 
+  // Links antigos com ?property=<id> redirecionam para a página do imóvel
   useEffect(() => {
-    if (!propertyIdFromUrl || propertyList.length === 0) return;
-    const found = propertyList.find((p) => p.id === propertyIdFromUrl) || null;
-    setSelectedPropertyState(found);
-  }, [propertyIdFromUrl, propertyList]);
+    if (!propertyIdFromUrl) return;
+    navigate(`/imovel/${propertyIdFromUrl}`);
+  }, [propertyIdFromUrl]);
+
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
