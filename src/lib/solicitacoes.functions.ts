@@ -126,21 +126,58 @@ export const aprovarSolicitacao = createServerFn({ method: "POST" })
 
     const { data: plano } = await admin
       .from("planos")
-      .select("id, nome")
+      .select("id, nome, tipo")
       .eq("id", data.plano_id)
       .maybeSingle();
     if (!plano) throw new Error("Plano inválido.");
 
-    const { error: assErr } = await admin.from("assinaturas").insert({
+    const ehImobiliaria = sol.tipo === "imobiliaria";
+    const tipoEsperado = ehImobiliaria ? "imobiliaria" : "individual";
+    if (plano.tipo !== tipoEsperado) {
+      throw new Error(`Plano incompatível: selecione um plano do tipo "${tipoEsperado}".`);
+    }
+
+    let imobiliariaId: string | null = null;
+    if (ehImobiliaria) {
+      const { data: imob } = await admin
+        .from("imobiliarias")
+        .select("id")
+        .eq("owner_id", sol.user_id)
+        .limit(1)
+        .maybeSingle();
+      if (!imob) throw new Error("Imobiliária deste usuário não encontrada.");
+      imobiliariaId = imob.id;
+    }
+
+    const filtro = ehImobiliaria
+      ? { imobiliaria_id: imobiliariaId, usuario_id: null }
+      : { usuario_id: sol.user_id, imobiliaria_id: null };
+
+    const { data: existente } = await admin
+      .from("assinaturas")
+      .select("id")
+      .match(ehImobiliaria ? { imobiliaria_id: imobiliariaId! } : { usuario_id: sol.user_id })
+      .limit(1)
+      .maybeSingle();
+
+    const payload = {
+      ...filtro,
       plano_id: data.plano_id,
-      usuario_id: sol.user_id,
       ciclo: data.ciclo,
       valor: data.valor,
       status: "ativa",
       inicio_em: new Date().toISOString().slice(0, 10),
       proximo_vencimento: data.proximo_vencimento ?? null,
-    });
+    };
+
+    const { error: assErr } = existente
+      ? await admin.from("assinaturas").update(payload).eq("id", existente.id)
+      : await admin.from("assinaturas").insert(payload);
     if (assErr) throw new Error(assErr.message);
+
+    if (ehImobiliaria && imobiliariaId) {
+      await admin.from("imobiliarias").update({ status: "ativa" }).eq("id", imobiliariaId);
+    }
 
     const { error: updErr } = await admin
       .from("solicitacoes_cadastro")
