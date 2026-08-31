@@ -100,13 +100,9 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
               {s.section}
             </div>
             <ul className="space-y-0.5">
-              {s.entries.map((item) =>
-                isGroup(item) ? (
-                  <GroupNode key={item.label} item={item} pathname={pathname} onNavigate={onNavigate} />
-                ) : (
-                  <LeafNode key={item.to} item={item} pathname={pathname} onNavigate={onNavigate} />
-                )
-              )}
+              {s.entries.map((item) => (
+                <LeafNode key={item.to} item={item} pathname={pathname} onNavigate={onNavigate} />
+              ))}
             </ul>
           </div>
         ))}
