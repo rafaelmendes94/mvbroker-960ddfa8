@@ -104,8 +104,8 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             <Building2 className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <div className="font-extrabold tracking-tight text-base leading-tight text-white">MV BROKER</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-white/40 font-bold leading-tight truncate">
+            <div className="font-extrabold tracking-tight text-base leading-tight text-sidebar-foreground">MV BROKER</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/45 font-bold leading-tight truncate">
               {ROLE_LABEL[role]}
             </div>
           </div>
@@ -115,7 +115,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       <nav className="flex-1 overflow-y-auto px-3 pb-2 space-y-2">
         {sections.map((s) => (
           <div key={s.section}>
-            <div className="px-4 pt-3 pb-2 text-[10px] uppercase tracking-[0.18em] text-white/35 font-bold">
+            <div className="px-4 pt-3 pb-2 text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/45 font-bold">
               {s.section}
             </div>
             <ul className="space-y-0.5">
@@ -135,11 +135,11 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       {!["super_admin", "admin", "secretaria"].includes(role) && (
         <div className="p-4">
           <div className="rounded-2xl bg-accent/10 border border-accent/20 p-4">
-            <p className="text-[10px] uppercase tracking-wider font-bold text-white/50 mb-1">Plano Atual</p>
+            <p className="text-[10px] uppercase tracking-wider font-bold text-sidebar-foreground/55 mb-1">Plano Atual</p>
             <p className="text-sm font-extrabold text-accent">Premium Pro</p>
             <a
               href="#"
-              className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-white text-[#050914] text-[11px] font-extrabold tracking-wider uppercase py-2 hover:bg-white/90 transition-colors"
+              className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-accent text-accent-foreground text-[11px] font-extrabold tracking-wider uppercase py-2 hover:opacity-90 transition-colors"
             >
               <LifeBuoy className="h-3.5 w-3.5 mr-1.5" />
               Suporte
@@ -164,7 +164,7 @@ function LeafNode({ item, pathname, onNavigate, nested }: { item: LeafItem; path
           nested && "pl-10",
           active
             ? "bg-accent/10 text-accent font-semibold border-l-[3px] border-accent rounded-l-none"
-            : "text-white/60 hover:bg-white/5 hover:text-white",
+            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
         )}
       >
         <Icon className="h-4 w-4 shrink-0" />
@@ -186,8 +186,8 @@ function GroupNode({ item, pathname, onNavigate }: { item: GroupItem; pathname: 
         className={cn(
           "w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-all",
           hasActive
-            ? "text-white font-semibold"
-            : "text-white/60 hover:bg-white/5 hover:text-white",
+            ? "text-sidebar-foreground font-semibold"
+            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
         )}
       >
         <Icon className="h-4 w-4 shrink-0" />

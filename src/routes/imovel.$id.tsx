@@ -3,11 +3,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft, BedDouble, BedSingle, Ruler, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
   Share2, Loader2, Images, HardDrive, Map as MapIcon, Expand, X, FileText,
-  Video, Compass, Layers, Download, Pencil, MessageCircle, CalendarDays, Home,
+  Video, Compass, Layers, Download, Pencil, MessageCircle, Heart, Home,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getImovelPreview } from "@/lib/imovel-publico.functions";
 import { generatePhotoBookPdf } from "@/utils/generatePhotoBookPdf";
+import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
+import { useFavoritos } from "@/hooks/use-favoritos";
 import { trackPropertyView } from "@/lib/trackPropertyView";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -90,8 +92,8 @@ function setMeta(attr: "name" | "property", key: string, content: string) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-6">
-      <h2 className="text-lg font-semibold mb-4">{title}</h2>
+    <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-7">
+      <h2 className="text-[18px] font-semibold tracking-tight mb-4">{title}</h2>
       {children}
     </section>
   );
@@ -112,6 +114,8 @@ function PublicImovelPage() {
   const thumbsRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLDivElement>(null);
   const tracked = useRef(false);
+  const { has: hasFav, toggle: toggleFav } = useFavoritos();
+  const isFav = hasFav(id);
 
   useEffect(() => {
     let alive = true;
@@ -301,35 +305,40 @@ function PublicImovelPage() {
   const waHref = `https://wa.me/${WHATS}?text=${encodeURIComponent(shareText)}`;
 
   return (
-    <div className="min-h-screen bg-canvas text-foreground pb-20 md:pb-0">
+    <div className="min-h-screen bg-canvas text-foreground">
       {/* Header sticky */}
       <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
-          <button onClick={goBack} className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-14 flex items-center justify-between gap-2">
+          <button onClick={goBack} className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Voltar para Imóveis</span>
+            <span className="hidden sm:inline">Voltar para imóveis</span>
           </button>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={share} title="Compartilhar">
+            <button onClick={share}
+              className="h-10 inline-flex items-center gap-2 rounded-xl border bg-card px-3.5 text-[13px] font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted">
               <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Compartilhar</span>
-            </Button>
-            <Button size="sm" asChild>
-              <a href={waHref} target="_blank" rel="noopener noreferrer" title="WhatsApp">
-                <MessageCircle className="w-4 h-4" /> <span className="hidden sm:inline">WhatsApp</span>
-              </a>
-            </Button>
+            </button>
+            <a href={waHref} target="_blank" rel="noopener noreferrer"
+              className="h-10 inline-flex items-center gap-2 rounded-xl bg-accent px-3.5 text-[13px] font-semibold text-accent-foreground transition-all duration-150 hover:brightness-95">
+              <MessageCircle className="w-4 h-4" /> <span className="hidden sm:inline">WhatsApp</span>
+            </a>
             {canEdit && (
-              <Button variant="secondary" size="sm" asChild>
-                <a href={`/imoveis/${id}/editar`} title="Editar imóvel">
-                  <Pencil className="w-4 h-4" /> <span className="hidden sm:inline">Editar imóvel</span>
-                </a>
-              </Button>
+              <button onClick={() => toggleFav(id)}
+                className={`h-10 inline-flex items-center gap-2 rounded-xl border bg-card px-3.5 text-[13px] font-medium transition-all duration-150 hover:border-accent/45 ${isFav ? "text-accent border-accent/45" : ""}`}>
+                <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} /> <span className="hidden sm:inline">Salvar imóvel</span>
+              </button>
+            )}
+            {canEdit && (
+              <a href={`/imoveis/${id}/editar`} title="Editar imóvel"
+                className="h-10 inline-flex items-center gap-2 rounded-xl border bg-card px-3.5 text-[13px] font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted">
+                <Pencil className="w-4 h-4" /> <span className="hidden lg:inline">Editar</span>
+              </a>
             )}
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-[1400px] mx-auto px-4 md:px-8 py-6 md:py-8 space-y-5 md:space-y-6">
         {/* Galeria */}
         <div className="relative w-full aspect-[4/3] md:aspect-video bg-muted rounded-2xl overflow-hidden">
           {images.length ? (
@@ -375,7 +384,7 @@ function PublicImovelPage() {
             <div ref={thumbsRef} className="flex gap-2 overflow-x-auto scrollbar-none py-1">
               {images.map((src, i) => (
                 <button key={i} onClick={() => setIdx(i)}
-                  className={`shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 ${i === idx ? "border-primary" : "border-transparent"}`}>
+                  className={`shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 ${i === idx ? "border-accent" : "border-transparent"}`}>
                   <img src={src} className="w-full h-full object-cover" alt="" loading="lazy" />
                 </button>
               ))}
@@ -395,11 +404,11 @@ function PublicImovelPage() {
               const cls = "flex-1 min-w-24 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-3 py-2.5 text-sm hover:bg-muted transition-colors";
               return a.href ? (
                 <a key={i} href={a.href} target="_blank" rel="noopener noreferrer" title={a.title} className={cls}>
-                  <Icon className="w-4 h-4 text-primary" /> {a.label}
+                  <Icon className="w-4 h-4 text-accent" /> {a.label}
                 </a>
               ) : (
                 <button key={i} onClick={a.onClick} title={a.title} className={cls}>
-                  <Icon className="w-4 h-4 text-primary" /> {a.label}
+                  <Icon className="w-4 h-4 text-accent" /> {a.label}
                 </button>
               );
             })}
@@ -407,7 +416,7 @@ function PublicImovelPage() {
         )}
 
         {/* Cabeçalho do imóvel */}
-        <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-6 space-y-4">
+        <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-7 space-y-4">
           <nav className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <a href="/" className="hover:text-foreground inline-flex items-center gap-1"><Home className="w-3 h-3" /> Início</a>
             <span>›</span>
@@ -416,22 +425,28 @@ function PublicImovelPage() {
             {empreendimento && (<><span>›</span><span className="text-foreground">{empreendimento}</span></>)}
           </nav>
 
-          {im.status_imovel && <Badge variant="secondary">{im.status_imovel}</Badge>}
+          {im.status_imovel && (
+            <span className="inline-flex items-center rounded-full bg-accent/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-accent-deep">
+              {im.status_imovel}
+            </span>
+          )}
 
-          <h1 className="text-2xl md:text-3xl font-bold leading-tight">{im.titulo || "Imóvel"}</h1>
+          <h1 className="text-2xl md:text-[30px] font-semibold tracking-tight leading-tight">{im.titulo || "Imóvel"}</h1>
 
           {identBadges.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {identBadges.map((b) => (
-                <Badge key={b.label} variant="outline">{b.label}: {b.value}</Badge>
+                <span key={b.label} className="rounded-full border bg-card px-3 py-1 text-xs text-muted-foreground">
+                  <span className="text-foreground font-medium">{b.label}:</span> {b.value}
+                </span>
               ))}
             </div>
           )}
 
           <div>
-            <div className="text-3xl font-bold text-primary">{formatBRL(im.preco)}</div>
+            <div className="text-[26px] md:text-[30px] font-semibold tracking-tight text-accent">{formatBRL(im.preco)}</div>
             {im.preco_parcelado && <div className="text-sm text-muted-foreground">Parcelado: {im.preco_parcelado}</div>}
-            {im.bonus && <div className="text-sm text-emerald-600">Bônus: {im.bonus}</div>}
+            {im.bonus && <div className="text-sm text-accent-deep">Bônus: {im.bonus}</div>}
             {im.condicoes_pagamento && typeof im.condicoes_pagamento === "string" && (
               <div className="text-sm text-muted-foreground mt-1">{im.condicoes_pagamento}</div>
             )}
@@ -439,7 +454,7 @@ function PublicImovelPage() {
 
           {endereco && (
             <p className="text-muted-foreground flex items-start gap-1.5 text-sm">
-              <MapPin className="w-4 h-4 mt-0.5 shrink-0" /> {endereco}{im.cep ? ` — CEP ${im.cep}` : ""}
+              <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-accent" /> {endereco}{im.cep ? ` — CEP ${im.cep}` : ""}
             </p>
           )}
 
@@ -448,12 +463,12 @@ function PublicImovelPage() {
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className="flex flex-col items-center justify-center gap-2 rounded-xl border bg-canvas px-3 py-4 text-center"
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border bg-canvas px-3 py-4 text-center transition-colors duration-150 hover:border-accent/40"
                 >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10">
-                    <s.icon className="h-4.5 w-4.5 text-primary" />
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/10">
+                    <s.icon className="h-4 w-4 text-accent" />
                   </span>
-                  <span className="text-lg font-bold leading-none">{s.value}</span>
+                  <span className="text-lg font-semibold leading-none">{s.value}</span>
                   <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</span>
                 </div>
               ))}
@@ -469,14 +484,14 @@ function PublicImovelPage() {
                 const Icon = d.icon;
                 const inner = (
                   <>
-                    <span className="rounded-lg bg-primary/10 p-2"><Icon className="w-4 h-4 text-primary" /></span>
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/10"><Icon className="w-4 h-4 text-accent" /></span>
                     <span className="min-w-0">
                       <span className="block text-sm font-medium truncate">{d.title}</span>
                       <span className="block text-xs text-muted-foreground truncate">{d.sub}</span>
                     </span>
                   </>
                 );
-                const cls = "flex items-center gap-3 rounded-xl border bg-background p-3 text-left hover:bg-muted transition-colors";
+                const cls = "flex items-center gap-3 rounded-xl border bg-canvas p-3 text-left transition-all duration-150 hover:border-accent/45 hover:bg-accent/5 cursor-pointer";
                 return d.href ? (
                   <a key={i} href={d.href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>
                 ) : (
@@ -526,11 +541,11 @@ function PublicImovelPage() {
                 <p className="whitespace-pre-line text-muted-foreground leading-relaxed">{im.descricao}</p>
               )}
               {ficha.length > 0 && (
-                <dl className="divide-y rounded-xl border">
+                <dl className="divide-y rounded-xl border overflow-hidden bg-canvas/60 self-start w-full">
                   {ficha.map(([k, v]) => (
                     <div key={k} className="flex justify-between gap-4 px-4 py-2.5 text-sm">
                       <dt className="text-muted-foreground">{k}</dt>
-                      <dd className="font-medium text-right">{v}</dd>
+                      <dd className={`font-medium text-right ${k === "Status" ? "text-accent" : ""}`}>{v}</dd>
                     </div>
                   ))}
                 </dl>
@@ -571,43 +586,43 @@ function PublicImovelPage() {
               <iframe src={mapSrc} title="Mapa" className="absolute inset-0 w-full h-full" loading="lazy" />
             </div>
             <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`}
-              target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm text-primary underline">
+              target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm text-accent font-medium hover:underline">
               Ver no Google Maps
             </a>
           </Section>
         )}
 
-        {/* Barra de recursos (desktop) */}
-        <div className="hidden md:flex items-center justify-between gap-3 rounded-2xl border bg-card p-4">
-          <div className="text-sm text-muted-foreground">Código: {codigo}</div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={share}><Share2 className="w-4 h-4" /> Compartilhar</Button>
+        {/* Action bar */}
+        <div className="rounded-2xl border bg-card shadow-sm p-3 md:p-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="text-xs md:text-sm text-muted-foreground">Código: <span className="font-medium text-foreground">{codigo}</span></div>
+
+          <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-2">
+            <button onClick={share}
+              className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted hover:-translate-y-px">
+              <Share2 className="w-4 h-4" /> Compartilhar
+            </button>
             {images.length > 0 && (
-              <Button variant="outline" onClick={() => generatePhotoBookPdf(im, images)}>
-                <Download className="w-4 h-4" /> Book de fotos
-              </Button>
+              <button onClick={() => generatePhotoBookPdf(im, images)}
+                className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-accent/8 hover:-translate-y-px">
+                <Images className="w-4 h-4" /> Book de fotos
+              </button>
             )}
-            <Button asChild>
-              <a href={waHref} target="_blank" rel="noopener noreferrer"><MessageCircle className="w-4 h-4" /> Falar com corretor</a>
-            </Button>
+            <button onClick={() => generatePropertyPdf(im)}
+              className="h-11 col-span-2 md:col-auto inline-flex items-center justify-center gap-2 rounded-xl border border-accent/45 bg-card px-4 text-sm font-medium text-accent-deep transition-all duration-150 hover:bg-accent/8 hover:-translate-y-px">
+              <Download className="w-4 h-4 text-accent" /> Baixar detalhes
+            </button>
+            <a href={waHref} target="_blank" rel="noopener noreferrer"
+              className="col-span-2 md:col-auto inline-flex items-center justify-center gap-3 rounded-xl bg-accent px-6 h-[52px] text-accent-foreground shadow-[var(--shadow-accent)] transition-all duration-150 hover:brightness-95 hover:-translate-y-px">
+
+              <MessageCircle className="w-5 h-5 shrink-0" />
+              <span className="text-left leading-tight">
+                <span className="block text-sm font-semibold">Falar com corretor</span>
+                <span className="block text-[11px] opacity-80">Atendimento personalizado</span>
+              </span>
+            </a>
           </div>
         </div>
-
-        <div className="md:hidden text-xs text-muted-foreground">Código: {codigo}</div>
       </main>
-
-      {/* CTA fixa mobile */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-background/95 backdrop-blur p-3 flex gap-2">
-        <Button asChild className="flex-1">
-          <a href={waHref} target="_blank" rel="noopener noreferrer"><MessageCircle className="w-4 h-4" /> WhatsApp</a>
-        </Button>
-        <Button variant="outline" asChild className="flex-1">
-          <a href={`https://wa.me/${WHATS}?text=${encodeURIComponent(`Olá! Gostaria de agendar uma visita ao imóvel ${codigo}: ${shareUrl}`)}`}
-            target="_blank" rel="noopener noreferrer">
-            <CalendarDays className="w-4 h-4" /> Agendar visita
-          </a>
-        </Button>
-      </div>
 
       {/* Lightbox */}
       {lightbox && images.length > 0 && (
