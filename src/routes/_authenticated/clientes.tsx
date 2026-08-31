@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { criarAcessoCliente } from "@/lib/clientes-auth.functions";
+import { criarClienteCompleto, vincularPlanoCliente } from "@/lib/clientes-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/clientes")({
   head: () => ({ meta: [{ title: "Clientes — MV Broker" }] }),
