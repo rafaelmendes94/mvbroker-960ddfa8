@@ -541,11 +541,11 @@ function PublicImovelPage() {
                 <p className="whitespace-pre-line text-muted-foreground leading-relaxed">{im.descricao}</p>
               )}
               {ficha.length > 0 && (
-                <dl className="divide-y rounded-xl border">
+                <dl className="divide-y rounded-xl border overflow-hidden bg-canvas/60 self-start w-full">
                   {ficha.map(([k, v]) => (
                     <div key={k} className="flex justify-between gap-4 px-4 py-2.5 text-sm">
                       <dt className="text-muted-foreground">{k}</dt>
-                      <dd className="font-medium text-right">{v}</dd>
+                      <dd className={`font-medium text-right ${k === "Status" ? "text-accent" : ""}`}>{v}</dd>
                     </div>
                   ))}
                 </dl>
