@@ -3,11 +3,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft, BedDouble, BedSingle, Ruler, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
   Share2, Loader2, Images, HardDrive, Map as MapIcon, Expand, X, FileText,
-  Video, Compass, Layers, Download, Pencil, MessageCircle, CalendarDays, Home,
+  Video, Compass, Layers, Download, Pencil, MessageCircle, Heart, Home,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getImovelPreview } from "@/lib/imovel-publico.functions";
 import { generatePhotoBookPdf } from "@/utils/generatePhotoBookPdf";
+import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
+import { useFavoritos } from "@/hooks/use-favoritos";
 import { trackPropertyView } from "@/lib/trackPropertyView";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -90,8 +92,8 @@ function setMeta(attr: "name" | "property", key: string, content: string) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-6">
-      <h2 className="text-lg font-semibold mb-4">{title}</h2>
+    <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-7">
+      <h2 className="text-[18px] font-semibold tracking-tight mb-4">{title}</h2>
       {children}
     </section>
   );
@@ -112,6 +114,8 @@ function PublicImovelPage() {
   const thumbsRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLDivElement>(null);
   const tracked = useRef(false);
+  const { has: hasFav, toggle: toggleFav } = useFavoritos();
+  const isFav = hasFav(id);
 
   useEffect(() => {
     let alive = true;
@@ -380,7 +384,7 @@ function PublicImovelPage() {
             <div ref={thumbsRef} className="flex gap-2 overflow-x-auto scrollbar-none py-1">
               {images.map((src, i) => (
                 <button key={i} onClick={() => setIdx(i)}
-                  className={`shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 ${i === idx ? "border-primary" : "border-transparent"}`}>
+                  className={`shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 ${i === idx ? "border-accent" : "border-transparent"}`}>
                   <img src={src} className="w-full h-full object-cover" alt="" loading="lazy" />
                 </button>
               ))}
@@ -400,11 +404,11 @@ function PublicImovelPage() {
               const cls = "flex-1 min-w-24 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-3 py-2.5 text-sm hover:bg-muted transition-colors";
               return a.href ? (
                 <a key={i} href={a.href} target="_blank" rel="noopener noreferrer" title={a.title} className={cls}>
-                  <Icon className="w-4 h-4 text-primary" /> {a.label}
+                  <Icon className="w-4 h-4 text-accent" /> {a.label}
                 </a>
               ) : (
                 <button key={i} onClick={a.onClick} title={a.title} className={cls}>
-                  <Icon className="w-4 h-4 text-primary" /> {a.label}
+                  <Icon className="w-4 h-4 text-accent" /> {a.label}
                 </button>
               );
             })}
@@ -480,14 +484,14 @@ function PublicImovelPage() {
                 const Icon = d.icon;
                 const inner = (
                   <>
-                    <span className="rounded-lg bg-primary/10 p-2"><Icon className="w-4 h-4 text-primary" /></span>
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/10"><Icon className="w-4 h-4 text-accent" /></span>
                     <span className="min-w-0">
                       <span className="block text-sm font-medium truncate">{d.title}</span>
                       <span className="block text-xs text-muted-foreground truncate">{d.sub}</span>
                     </span>
                   </>
                 );
-                const cls = "flex items-center gap-3 rounded-xl border bg-background p-3 text-left hover:bg-muted transition-colors";
+                const cls = "flex items-center gap-3 rounded-xl border bg-canvas p-3 text-left transition-all duration-150 hover:border-accent/45 hover:bg-accent/5 cursor-pointer";
                 return d.href ? (
                   <a key={i} href={d.href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>
                 ) : (
@@ -582,7 +586,7 @@ function PublicImovelPage() {
               <iframe src={mapSrc} title="Mapa" className="absolute inset-0 w-full h-full" loading="lazy" />
             </div>
             <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`}
-              target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm text-primary underline">
+              target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm text-accent font-medium hover:underline">
               Ver no Google Maps
             </a>
           </Section>
