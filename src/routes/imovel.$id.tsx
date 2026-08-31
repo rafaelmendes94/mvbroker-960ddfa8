@@ -12,6 +12,7 @@ import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useFavoritos } from "@/hooks/use-favoritos";
 import { trackPropertyView } from "@/lib/trackPropertyView";
 import { supabase } from "@/integrations/supabase/client";
+import { WRITE_IMOVEL_ROLES, type AppRole } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -111,6 +112,7 @@ function PublicImovelPage() {
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
+  const [logged, setLogged] = useState(false);
   const thumbsRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLDivElement>(null);
   const tracked = useRef(false);
@@ -139,7 +141,16 @@ function PublicImovelPage() {
   }, [id]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: s }) => setCanEdit(!!s.session)).catch(() => {});
+    let alive = true;
+    supabase.auth.getSession().then(async ({ data: s }) => {
+      const uid = s.session?.user?.id;
+      if (!uid) { if (alive) { setLogged(false); setCanEdit(false); } return; }
+      if (alive) setLogged(true);
+      const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+      const roles = (rows ?? []).map((r: any) => r.role as AppRole);
+      if (alive) setCanEdit(roles.some((r) => WRITE_IMOVEL_ROLES.includes(r)));
+    }).catch(() => {});
+    return () => { alive = false; };
   }, []);
 
   const im = data?.imovel;
