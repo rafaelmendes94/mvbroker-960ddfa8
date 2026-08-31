@@ -288,8 +288,9 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
 
   if (loading) {
     return (
-      <div className="rounded-xl overflow-hidden relative border border-border shadow-sm h-[400px] sm:h-[600px] flex items-center justify-center bg-muted">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="map-scope rounded-2xl overflow-hidden relative border border-border h-[400px] sm:h-[600px] flex items-center justify-center bg-muted">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+
       </div>
     );
   }
