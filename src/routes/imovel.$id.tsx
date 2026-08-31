@@ -301,35 +301,40 @@ function PublicImovelPage() {
   const waHref = `https://wa.me/${WHATS}?text=${encodeURIComponent(shareText)}`;
 
   return (
-    <div className="min-h-screen bg-canvas text-foreground pb-20 md:pb-0">
+    <div className="min-h-screen bg-canvas text-foreground">
       {/* Header sticky */}
       <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
-          <button onClick={goBack} className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-14 flex items-center justify-between gap-2">
+          <button onClick={goBack} className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Voltar para Imóveis</span>
+            <span className="hidden sm:inline">Voltar para imóveis</span>
           </button>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={share} title="Compartilhar">
+            <button onClick={share}
+              className="h-10 inline-flex items-center gap-2 rounded-xl border bg-card px-3.5 text-[13px] font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted">
               <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Compartilhar</span>
-            </Button>
-            <Button size="sm" asChild>
-              <a href={waHref} target="_blank" rel="noopener noreferrer" title="WhatsApp">
-                <MessageCircle className="w-4 h-4" /> <span className="hidden sm:inline">WhatsApp</span>
-              </a>
-            </Button>
+            </button>
+            <a href={waHref} target="_blank" rel="noopener noreferrer"
+              className="h-10 inline-flex items-center gap-2 rounded-xl bg-accent px-3.5 text-[13px] font-semibold text-accent-foreground transition-all duration-150 hover:brightness-95">
+              <MessageCircle className="w-4 h-4" /> <span className="hidden sm:inline">WhatsApp</span>
+            </a>
             {canEdit && (
-              <Button variant="secondary" size="sm" asChild>
-                <a href={`/imoveis/${id}/editar`} title="Editar imóvel">
-                  <Pencil className="w-4 h-4" /> <span className="hidden sm:inline">Editar imóvel</span>
-                </a>
-              </Button>
+              <button onClick={() => toggleFav(id)}
+                className={`h-10 inline-flex items-center gap-2 rounded-xl border bg-card px-3.5 text-[13px] font-medium transition-all duration-150 hover:border-accent/45 ${isFav ? "text-accent border-accent/45" : ""}`}>
+                <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} /> <span className="hidden sm:inline">Salvar imóvel</span>
+              </button>
+            )}
+            {canEdit && (
+              <a href={`/imoveis/${id}/editar`} title="Editar imóvel"
+                className="h-10 inline-flex items-center gap-2 rounded-xl border bg-card px-3.5 text-[13px] font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted">
+                <Pencil className="w-4 h-4" /> <span className="hidden lg:inline">Editar</span>
+              </a>
             )}
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-[1400px] mx-auto px-4 md:px-8 py-6 md:py-8 space-y-5 md:space-y-6">
         {/* Galeria */}
         <div className="relative w-full aspect-[4/3] md:aspect-video bg-muted rounded-2xl overflow-hidden">
           {images.length ? (
