@@ -2,13 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft, BedDouble, BedSingle, Ruler, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
-  Share2, Loader2, Images, HardDrive, Map as MapIcon, Expand, X, FileText,
-  Video, Compass, Layers, Download, Pencil, MessageCircle, Heart, Home,
+  Share2, Loader2, HardDrive, Map as MapIcon, Expand, X, FileText,
+  Video, Compass, Layers, Pencil, MessageCircle, Heart, Home,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getImovelPreview } from "@/lib/imovel-publico.functions";
-import { generatePhotoBookPdf } from "@/utils/generatePhotoBookPdf";
-import { generatePropertyPdf } from "@/utils/generatePropertyPdf";
 import { useFavoritos } from "@/hooks/use-favoritos";
 import { trackPropertyView } from "@/lib/trackPropertyView";
 import { supabase } from "@/integrations/supabase/client";
