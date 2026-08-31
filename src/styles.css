@@ -203,3 +203,59 @@
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
 }
+
+/* Mapa: tema preto e verde (tokens escuros nativos, sem hardcode nos componentes) */
+.map-scope {
+  --background: hsl(0 0% 6%);
+  --card: hsl(0 0% 9%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(0 0% 9%);
+  --popover-foreground: hsl(0 0% 98%);
+  --muted: hsl(0 0% 13%);
+  --muted-foreground: hsl(0 0% 63%);
+  --border: hsl(0 0% 18%);
+  --input: hsl(0 0% 18%);
+  --foreground: hsl(0 0% 98%);
+  --primary: hsl(152 76% 45%);
+  --primary-foreground: hsl(0 0% 6%);
+  --accent: hsl(152 60% 30%);
+  --accent-foreground: hsl(0 0% 98%);
+  --ring: hsl(152 76% 45%);
+  --shadow-glow: 0 0 0 1px hsl(152 76% 45% / 0.35), 0 8px 30px -10px hsl(152 76% 45% / 0.45);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+}
+
+/* InfoWindow do Google Maps em dark */
+.map-scope .gm-style .gm-style-iw-c {
+  background: #0f0f0f;
+  border-radius: 12px;
+  border: 1px solid #22c55e33;
+  box-shadow: 0 8px 30px -10px hsl(152 76% 45% / 0.45);
+  padding: 0;
+}
+.map-scope .gm-style .gm-style-iw-d {
+  background: #0f0f0f;
+  overflow: hidden !important;
+}
+.map-scope .gm-style .gm-style-iw-tc::after {
+  background: #0f0f0f;
+}
+.map-scope .gm-style .gm-style-iw-c button span {
+  background-color: #9ca3af !important;
+}
+

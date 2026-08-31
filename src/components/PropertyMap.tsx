@@ -17,25 +17,43 @@ function formatShortPrice(price: number): string {
 }
 
 const typeConfig: Record<string, { emoji: string; color: string; label: string }> = {
-  Apartamento: { emoji: "🏢", color: "#2563eb", label: "Apartamento" },
-  Casa: { emoji: "🏠", color: "#059669", label: "Casa" },
-  Comercial: { emoji: "🏪", color: "#d97706", label: "Comercial" },
-  Terreno: { emoji: "🌳", color: "#7c3aed", label: "Terreno" },
-  Lote: { emoji: "📐", color: "#8b5cf6", label: "Lote" },
-  Cobertura: { emoji: "🏙️", color: "#0891b2", label: "Cobertura" },
-  Sobrado: { emoji: "🏡", color: "#16a34a", label: "Sobrado" },
-  Kitnet: { emoji: "🛏️", color: "#f59e0b", label: "Kitnet" },
-  Sala: { emoji: "💼", color: "#6366f1", label: "Sala" },
-  Loja: { emoji: "🛒", color: "#ea580c", label: "Loja" },
-  Galpão: { emoji: "🏭", color: "#78716c", label: "Galpão" },
-  Condomínio: { emoji: "🏘️", color: "#0d9488", label: "Condomínio" },
+  Apartamento: { emoji: "🏢", color: "#22c55e", label: "Apartamento" },
+  Casa: { emoji: "🏠", color: "#16a34a", label: "Casa" },
+  Comercial: { emoji: "🏪", color: "#4ade80", label: "Comercial" },
+  Terreno: { emoji: "🌳", color: "#86efac", label: "Terreno" },
+  Lote: { emoji: "📐", color: "#86efac", label: "Lote" },
+  Cobertura: { emoji: "🏙️", color: "#10b981", label: "Cobertura" },
+  Sobrado: { emoji: "🏡", color: "#6b7280", label: "Sobrado" },
+  Kitnet: { emoji: "🛏️", color: "#6b7280", label: "Kitnet" },
+  Sala: { emoji: "💼", color: "#6b7280", label: "Sala" },
+  Loja: { emoji: "🛒", color: "#6b7280", label: "Loja" },
+  Galpão: { emoji: "🏭", color: "#6b7280", label: "Galpão" },
+  Condomínio: { emoji: "🏘️", color: "#6b7280", label: "Condomínio" },
 };
 
-const defaultCfg = { emoji: "📍", color: "#2563eb", label: "Outro" };
+const defaultCfg = { emoji: "📍", color: "#6b7280", label: "Outro" };
+
+const DARK_MAP_STYLES: any[] = [
+  { elementType: "geometry", stylers: [{ color: "#111111" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#0b0b0b" }] },
+  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#12291d" }, { visibility: "on" }] },
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#111111" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#1c1c1c" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#2a2a2a" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0b0f0d" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3f5148" }] },
+  { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#2a2a2a" }] },
+];
 
 function cfgOf(type: string) {
   return typeConfig[type] || defaultCfg;
 }
+
 
 function distanceKm(aLat: number, aLng: number, bLat: number, bLng: number) {
   const R = 6371;
@@ -52,19 +70,21 @@ function formatDistance(km: number) {
   return `${km.toFixed(1).replace(".", ",")} km`;
 }
 
-function priceIcon(maps: any, color: string, price: number, selected: boolean) {
+function priceIcon(maps: any, _color: string, price: number, selected: boolean) {
   const label = formatShortPrice(price);
-  const w = selected ? 84 : 72;
-  const h = selected ? 40 : 34;
-  const boxH = selected ? 26 : 22;
-  const stroke = selected ? "#0f172a" : "#ffffff";
+  const w = selected ? 90 : 72;
+  const h = selected ? 44 : 34;
+  const boxH = selected ? 28 : 22;
+  const fill = selected ? "#22c55e" : "#0f0f0f";
+  const stroke = selected ? "#ffffff" : "#22c55e";
   const strokeW = selected ? 2.5 : 1.5;
+  const textFill = selected ? "#0a0a0a" : "#22c55e";
   const font = selected ? 13 : 12;
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" fill="none">
-      <rect x="2" y="2" width="${w - 4}" height="${boxH}" rx="${boxH / 2}" fill="${color}" stroke="${stroke}" stroke-width="${strokeW}" />
-      <path d="M${w / 2 - 5} ${boxH + 2}H${w / 2 + 5}L${w / 2} ${h}L${w / 2 - 5} ${boxH + 2}Z" fill="${color}" />
-      <text x="${w / 2}" y="${boxH / 2 + 6}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${font}" font-weight="700" fill="white">${label}</text>
+      <rect x="2" y="2" width="${w - 4}" height="${boxH}" rx="${boxH / 2}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" />
+      <path d="M${w / 2 - 5} ${boxH + 2}H${w / 2 + 5}L${w / 2} ${h}L${w / 2 - 5} ${boxH + 2}Z" fill="${fill}" />
+      <text x="${w / 2}" y="${boxH / 2 + 6}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${font}" font-weight="700" fill="${textFill}">${label}</text>
     </svg>`.trim();
   return {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
@@ -75,28 +95,29 @@ function priceIcon(maps: any, color: string, price: number, selected: boolean) {
 
 function popupHtml(property: Property, color: string) {
   return `
-    <div style="width:135px;font-family:system-ui,-apple-system,sans-serif;">
-      <img src="${property.image}" alt="" style="width:100%;height:70px;object-fit:cover;border-radius:6px 6px 0 0;display:block;" />
-      <div style="padding:6px 2px 2px 2px;">
+    <div style="width:135px;font-family:system-ui,-apple-system,sans-serif;background:#0f0f0f;border:1px solid #22c55e33;border-radius:12px;overflow:hidden;">
+      <img src="${property.image}" alt="" style="width:100%;height:70px;object-fit:cover;display:block;" />
+      <div style="padding:6px 8px 8px 8px;">
         <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;">
-          <span style="font-size:9px;font-weight:700;color:#fff;background:${color};padding:1px 5px;border-radius:3px;text-transform:uppercase;">${property.type}</span>
-          <span style="font-size:9px;color:#94a3b8;">${property.status}</span>
+          <span style="font-size:9px;font-weight:700;color:#0a0a0a;background:${color};padding:1px 5px;border-radius:3px;text-transform:uppercase;">${property.type}</span>
+          <span style="font-size:9px;color:#9ca3af;">${property.status}</span>
         </div>
-        <div style="font-size:11px;font-weight:700;color:#0f172a;line-height:1.25;">${property.title}</div>
-        <div style="font-size:9px;color:#64748b;margin:2px 0;">📍 ${[property.neighborhood, property.city].filter(Boolean).join(" – ")}</div>
-        <div style="display:flex;gap:5px;font-size:9px;color:#64748b;margin-bottom:3px;">
+        <div style="font-size:11px;font-weight:700;color:#f5f5f5;line-height:1.25;">${property.title}</div>
+        <div style="font-size:9px;color:#9ca3af;margin:2px 0;">📍 ${[property.neighborhood, property.city].filter(Boolean).join(" – ")}</div>
+        <div style="display:flex;gap:5px;font-size:9px;color:#9ca3af;margin-bottom:3px;">
           ${property.bedrooms > 0 ? `<span>🛏 ${property.bedrooms}</span>` : ""}
           ${property.bathrooms > 0 ? `<span>🚿 ${property.bathrooms}</span>` : ""}
           ${property.parking > 0 ? `<span>🚗 ${property.parking}</span>` : ""}
           ${property.area > 0 ? `<span>📐 ${property.area}m²</span>` : ""}
         </div>
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:4px;">
-          <span style="font-size:12px;font-weight:800;color:${color};">${formatCurrency(property.price)}</span>
-          <span id="gmaps-detail-${property.id}" style="font-size:9px;color:${color};cursor:pointer;font-weight:700;text-decoration:underline;">Ver →</span>
+          <span style="font-size:12px;font-weight:800;color:#22c55e;">${formatCurrency(property.price)}</span>
+          <span id="gmaps-detail-${property.id}" style="font-size:9px;color:#22c55e;cursor:pointer;font-weight:700;text-decoration:underline;">Ver →</span>
         </div>
       </div>
     </div>`;
 }
+
 
 export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -193,7 +214,10 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         streetViewControl: false,
         fullscreenControl: false,
         gestureHandling: "greedy",
+        backgroundColor: "#111111",
+        styles: DARK_MAP_STYLES,
       });
+
       mapInstanceRef.current = map;
       infoWindowRef.current = new maps.InfoWindow();
 
@@ -264,8 +288,9 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
 
   if (loading) {
     return (
-      <div className="rounded-xl overflow-hidden relative border border-border shadow-sm h-[400px] sm:h-[600px] flex items-center justify-center bg-muted">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="map-scope rounded-2xl overflow-hidden relative border border-border h-[400px] sm:h-[600px] flex items-center justify-center bg-muted">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+
       </div>
     );
   }
@@ -284,7 +309,6 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
   const activeTypes = [...new Set(properties.map((p) => p.type))];
 
   const Card = ({ property }: { property: Property & { __d?: number } }) => {
-    const cfg = cfgOf(property.type);
     const selected = selectedId === property.id;
     return (
       <button
@@ -293,8 +317,8 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         onClick={() => focusProperty(property, false)}
         className={`w-full text-left flex gap-2 p-2 rounded-xl border bg-card transition-all ${
           selected
-            ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary"
-            : "border-border hover:border-primary/50 hover:shadow-sm"
+            ? "border-primary bg-primary/10 ring-1 ring-primary shadow-[var(--shadow-glow)]"
+            : "border-border hover:border-primary/60 hover:shadow-[var(--shadow-glow)]"
         }`}
       >
         <img
@@ -305,12 +329,10 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 mb-1">
-            <span
-              className="text-[9px] font-bold uppercase text-white px-1.5 py-0.5 rounded"
-              style={{ backgroundColor: cfg.color }}
-            >
+            <span className="text-[9px] font-bold uppercase bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
               {property.type}
             </span>
+
             {typeof property.__d === "number" && (
               <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                 <MapPin className="h-3 w-3" />
@@ -348,7 +370,7 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
               </span>
             )}
           </div>
-          <p className="text-sm font-extrabold" style={{ color: cfg.color }}>
+          <p className="text-sm font-extrabold text-primary">
             {formatCurrency(property.price)}
           </p>
         </div>
@@ -357,21 +379,22 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
   };
 
   return (
-    <div className="space-y-3">
+    <div className="map-scope space-y-3 text-foreground">
       <div className="flex flex-col lg:flex-row gap-3 lg:h-[640px]">
-        <div className="relative rounded-xl overflow-hidden border border-border shadow-sm h-[380px] lg:h-full lg:flex-1">
+        <div className="relative rounded-2xl overflow-hidden border border-border shadow-[var(--shadow-glow)] h-[380px] lg:h-full lg:flex-1">
           <div className="absolute top-4 left-4 z-10">
-            <div className="bg-card/95 backdrop-blur-sm rounded-full shadow-lg px-3 py-1.5 border border-border flex items-center gap-1.5">
-              <span className="text-[11px] font-bold text-foreground">{properties.length}</span>
+            <div className="bg-card/90 backdrop-blur rounded-full px-3 py-1.5 border border-primary/30 flex items-center gap-1.5">
+              <span className="text-[11px] font-bold text-primary">{properties.length}</span>
               <span className="text-[10px] text-muted-foreground">imóveis</span>
             </div>
           </div>
           <div className="absolute top-4 right-4 z-10">
-            <Button size="sm" className="rounded-full shadow-lg" onClick={handleNearby} disabled={locating}>
-              {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
+            <Button size="sm" variant="default" className="rounded-full shadow-[var(--shadow-glow)]" onClick={handleNearby} disabled={locating}>
+              {locating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LocateFixed className="h-3.5 w-3.5" />}
               <span className="ml-1.5 text-xs">Imóveis próximos</span>
             </Button>
           </div>
+
           <div ref={mapRef} style={{ height: "100%", width: "100%" }} />
         </div>
 
