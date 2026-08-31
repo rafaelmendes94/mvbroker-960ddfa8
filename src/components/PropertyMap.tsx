@@ -17,25 +17,43 @@ function formatShortPrice(price: number): string {
 }
 
 const typeConfig: Record<string, { emoji: string; color: string; label: string }> = {
-  Apartamento: { emoji: "🏢", color: "#2563eb", label: "Apartamento" },
-  Casa: { emoji: "🏠", color: "#059669", label: "Casa" },
-  Comercial: { emoji: "🏪", color: "#d97706", label: "Comercial" },
-  Terreno: { emoji: "🌳", color: "#7c3aed", label: "Terreno" },
-  Lote: { emoji: "📐", color: "#8b5cf6", label: "Lote" },
-  Cobertura: { emoji: "🏙️", color: "#0891b2", label: "Cobertura" },
-  Sobrado: { emoji: "🏡", color: "#16a34a", label: "Sobrado" },
-  Kitnet: { emoji: "🛏️", color: "#f59e0b", label: "Kitnet" },
-  Sala: { emoji: "💼", color: "#6366f1", label: "Sala" },
-  Loja: { emoji: "🛒", color: "#ea580c", label: "Loja" },
-  Galpão: { emoji: "🏭", color: "#78716c", label: "Galpão" },
-  Condomínio: { emoji: "🏘️", color: "#0d9488", label: "Condomínio" },
+  Apartamento: { emoji: "🏢", color: "#22c55e", label: "Apartamento" },
+  Casa: { emoji: "🏠", color: "#16a34a", label: "Casa" },
+  Comercial: { emoji: "🏪", color: "#4ade80", label: "Comercial" },
+  Terreno: { emoji: "🌳", color: "#86efac", label: "Terreno" },
+  Lote: { emoji: "📐", color: "#86efac", label: "Lote" },
+  Cobertura: { emoji: "🏙️", color: "#10b981", label: "Cobertura" },
+  Sobrado: { emoji: "🏡", color: "#6b7280", label: "Sobrado" },
+  Kitnet: { emoji: "🛏️", color: "#6b7280", label: "Kitnet" },
+  Sala: { emoji: "💼", color: "#6b7280", label: "Sala" },
+  Loja: { emoji: "🛒", color: "#6b7280", label: "Loja" },
+  Galpão: { emoji: "🏭", color: "#6b7280", label: "Galpão" },
+  Condomínio: { emoji: "🏘️", color: "#6b7280", label: "Condomínio" },
 };
 
-const defaultCfg = { emoji: "📍", color: "#2563eb", label: "Outro" };
+const defaultCfg = { emoji: "📍", color: "#6b7280", label: "Outro" };
+
+const DARK_MAP_STYLES: any[] = [
+  { elementType: "geometry", stylers: [{ color: "#111111" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#0b0b0b" }] },
+  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#12291d" }, { visibility: "on" }] },
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#111111" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#1c1c1c" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#2a2a2a" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0b0f0d" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3f5148" }] },
+  { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#2a2a2a" }] },
+];
 
 function cfgOf(type: string) {
   return typeConfig[type] || defaultCfg;
 }
+
 
 function distanceKm(aLat: number, aLng: number, bLat: number, bLng: number) {
   const R = 6371;
