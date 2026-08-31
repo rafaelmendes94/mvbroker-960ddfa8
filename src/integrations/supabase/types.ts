@@ -3717,6 +3717,7 @@ export type Database = {
         Args: { p_imob: string }
         Returns: {
           limite: number
+          tem_plano_ativo: boolean
           usados: number
         }[]
       }
