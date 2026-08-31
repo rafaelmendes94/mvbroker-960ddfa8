@@ -583,12 +583,12 @@ function PublicImovelPage() {
 
           <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-2">
             <button onClick={share}
-              className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-primary/40 hover:bg-muted hover:-translate-y-px">
+              className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-muted hover:-translate-y-px">
               <Share2 className="w-4 h-4" /> Compartilhar
             </button>
             {images.length > 0 && (
               <button onClick={() => generatePhotoBookPdf(im, images)}
-                className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-primary/40 hover:bg-primary/5 hover:-translate-y-px">
+                className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-accent/45 hover:bg-accent/8 hover:-translate-y-px">
                 <Images className="w-4 h-4" /> Book de fotos
               </button>
             )}
