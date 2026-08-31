@@ -301,9 +301,9 @@ function PublicImovelPage() {
   const waHref = `https://wa.me/${WHATS}?text=${encodeURIComponent(shareText)}`;
 
   return (
-    <div className="min-h-screen bg-muted/30 text-foreground pb-20 md:pb-0">
+    <div className="min-h-screen bg-canvas text-foreground pb-20 md:pb-0">
       {/* Header sticky */}
-      <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
           <button onClick={goBack} className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-4 h-4" />
