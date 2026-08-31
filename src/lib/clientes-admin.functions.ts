@@ -254,10 +254,14 @@ export const vincularPlanoCliente = createServerFn({ method: "POST" })
     const admin = await getNodeSafeSupabaseAdmin();
     const { data: plano } = await admin
       .from("planos")
-      .select("id, preco_mensal, preco_anual")
+      .select("id, tipo, preco_mensal, preco_anual")
       .eq("id", data.plano_id)
       .maybeSingle();
     if (!plano) throw new Error("Plano não encontrado.");
+    const tipoEsperado = data.tipo === "imobiliaria" ? "imobiliaria" : "individual";
+    if (plano.tipo !== tipoEsperado) {
+      throw new Error(`Plano incompatível: selecione um plano do tipo "${tipoEsperado}".`);
+    }
     const valor =
       data.ciclo === "anual"
         ? Number(plano.preco_anual ?? Number(plano.preco_mensal) * 12)

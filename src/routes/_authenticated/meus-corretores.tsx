@@ -57,6 +57,7 @@ function MeusCorretoresPage() {
   const [rows, setRows] = useState<Corretor[]>([]);
   const [usados, setUsados] = useState(0);
   const [limite, setLimite] = useState<number | null>(null);
+  const [temPlanoAtivo, setTemPlanoAtivo] = useState(false);
 
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -74,6 +75,7 @@ function MeusCorretoresPage() {
       setRows(res.corretores as Corretor[]);
       setUsados(res.usados ?? 0);
       setLimite(res.limite ?? null);
+      setTemPlanoAtivo(Boolean((res as any).temPlanoAtivo));
     } catch (e: any) {
       setErro(e?.message ?? "Erro ao carregar corretores.");
     } finally {
@@ -84,7 +86,7 @@ function MeusCorretoresPage() {
   useEffect(() => { load(); }, [load]);
 
   const cheio = limite != null && usados >= limite;
-  const semPlano = limite == null;
+  const semPlano = !temPlanoAtivo;
 
   async function salvar() {
     if (!form.nome.trim() || !form.email.trim()) {
@@ -186,7 +188,8 @@ function MeusCorretoresPage() {
           <div>
             <p className="text-sm text-muted-foreground">Corretores ativos</p>
             <p className="text-xl font-bold">
-              {usados} {limite != null ? `de ${limite}` : "— sem plano ativo"}
+              {usados}{" "}
+              {!temPlanoAtivo ? "— sem plano ativo" : limite != null ? `de ${limite}` : "— ilimitado"}
             </p>
           </div>
           {cheio && (

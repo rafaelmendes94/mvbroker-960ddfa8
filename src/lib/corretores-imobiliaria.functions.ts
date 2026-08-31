@@ -86,6 +86,7 @@ export const listarMeusCorretores = createServerFn({ method: "POST" })
       corretores: corretores ?? [],
       usados: (row as any)?.usados ?? 0,
       limite: (row as any)?.limite ?? null,
+      temPlanoAtivo: Boolean((row as any)?.tem_plano_ativo),
     };
   });
 
@@ -109,10 +110,10 @@ export const criarCorretorImobiliaria = createServerFn({ method: "POST" })
       p_imob: imobiliariaId,
     });
     const row: any = Array.isArray(limite) ? limite[0] : limite;
-    if (row?.limite == null) {
+    if (!row?.tem_plano_ativo) {
       throw new Error("Nenhum plano ativo vinculado à imobiliária. Fale com o administrador.");
     }
-    if ((row?.usados ?? 0) >= row.limite) {
+    if (row.limite != null && (row?.usados ?? 0) >= row.limite) {
       throw new Error(
         `Limite do plano atingido (${row.usados}/${row.limite} corretores ativos).`,
       );
