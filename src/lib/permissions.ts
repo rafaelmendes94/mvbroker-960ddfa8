@@ -24,6 +24,7 @@ export const ROUTE_ACCESS: Record<string, AppRole[]> = {
   "/dashboard": [],
   "/oportunidades": [],
   "/imoveis": [], // visualização para todos autenticados
+  "/mapa": [], // mapa de imóveis — todos autenticados
   "/favoritos": [], // Favoritos — todos autenticados
   "/notificacoes": [], // Notificações — todos autenticados
   "/registros": ["super_admin", "secretaria", "imobiliaria", "corretor_imobiliaria", "corretor_autonomo"],
@@ -55,6 +56,7 @@ export const WRITE_IMOVEL_ROLES: AppRole[] = ["super_admin", "secretaria"];
 // Secretária vê apenas cadastros essenciais (imóveis, empreendimentos, tabela, imagens).
 const SECRETARIA_ALLOW = new Set<string>([
   "/imoveis",
+  "/mapa",
   "/edificios",
   "/condominios",
   "/loteamentos",
