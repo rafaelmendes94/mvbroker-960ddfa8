@@ -2309,7 +2309,19 @@ function PropertyCard({
 
 
         {/* Badges (sea/decorated) */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-end">
+        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-1">
+          <div className="flex gap-1 flex-wrap">
+            {property.exclusivityTerm === "Sim" && (
+              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-blue-600/90 text-white backdrop-blur-sm flex items-center gap-0.5">
+                <FileCheck className="w-2.5 h-2.5" /> Exclusividade
+              </span>
+            )}
+            {property.bonus ? (
+              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-red-600/90 text-white backdrop-blur-sm flex items-center gap-0.5">
+                🎁 Bônus {formatCurrency(property.bonus)}
+              </span>
+            ) : null}
+          </div>
           <div className="flex gap-1">
             {property.seaView && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/90 text-white backdrop-blur-sm flex items-center gap-0.5"><Waves className="w-2.5 h-2.5" /> Mar</span>}
             {property.decorated && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/90 text-white backdrop-blur-sm flex items-center gap-0.5"><Paintbrush className="w-2.5 h-2.5" /> Dec.</span>}
@@ -2828,7 +2840,11 @@ function PropertyRow({
 
           {/* Row 4: Tags */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            {property.exclusivityTermUrl && <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-bold whitespace-nowrap">📄 Exclusivo</span>}
+            {property.exclusivityTerm === "Sim" && <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-bold whitespace-nowrap">🔒 Exclusividade</span>}
+            {property.exclusivityTermUrl && <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-bold whitespace-nowrap">📄 Ex. Assinada</span>}
+            {property.bonus ? <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-500 font-bold whitespace-nowrap">🎁 Bônus {formatCurrency(property.bonus)}{property.bonusExpiry ? ` • val. ${new Date(property.bonusExpiry).toLocaleDateString("pt-BR")}` : ""}</span> : null}
+            {property.seaView && <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-bold whitespace-nowrap">🌊 Vista Mar</span>}
+            {property.decorated && <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 font-bold whitespace-nowrap">🎨 Decorado</span>}
           </div>
 
           {/* Row 5: Location */}

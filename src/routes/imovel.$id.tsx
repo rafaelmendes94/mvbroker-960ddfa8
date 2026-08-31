@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft, BedDouble, BedSingle, Ruler, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
-  Share2, Loader2, HardDrive, Map as MapIcon, Expand, X, FileText,
+  Share2, Loader2, HardDrive, Map as MapIcon, Expand, X, FileText, Download,
   Video, Compass, Layers, Pencil, MessageCircle, Heart, Home,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -110,6 +110,7 @@ function PublicImovelPage() {
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
+  const [zipProgress, setZipProgress] = useState<number | null>(null);
   const [logged, setLogged] = useState(false);
   const thumbsRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLDivElement>(null);
@@ -297,7 +298,48 @@ function PublicImovelPage() {
     ["Aceita permuta", im.aceita_permuta ? "Sim" : null],
   ] as [string, any][]).filter(([, v]) => v != null && v !== "") as [string, string][];
 
+  const fotos: string[] = data?.images ?? [];
+
+  async function baixarFotosZip() {
+    if (!fotos.length || zipProgress !== null) return;
+    try {
+      setZipProgress(0);
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+      const base = (im.codigo_interno || im.titulo || "imovel").toString().replace(/[^\w\-]+/g, "_").slice(0, 60);
+      const folder = zip.folder(base) || zip;
+      let ok = 0;
+      for (let i = 0; i < fotos.length; i++) {
+        try {
+          const res = await fetch(fotos[i]);
+          if (!res.ok) throw new Error("fetch");
+          const blob = await res.blob();
+          const ext = (blob.type.split("/")[1] || "jpg").replace("jpeg", "jpg");
+          folder.file(`${base}_${String(i + 1).padStart(2, "0")}.${ext}`, blob);
+          ok++;
+        } catch {}
+        setZipProgress(i + 1);
+      }
+      if (!ok) { toast.error("Não foi possível baixar as fotos."); setZipProgress(null); return; }
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${base}_fotos.zip`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast.success(`${ok} foto(s) baixada(s).`);
+    } catch {
+      toast.error("Falha ao gerar o ZIP das fotos.");
+    } finally {
+      setZipProgress(null);
+    }
+  }
+
+  const zipSub = zipProgress !== null ? `Baixando ${zipProgress}/${fotos.length}...` : `${fotos.length} foto(s) em .zip`;
+
   const downloads = [
+    fotos.length ? { icon: Download, title: "Baixar fotos", sub: zipSub, onClick: baixarFotosZip } : null,
     pdfComercialUrl ? { icon: FileText, title: "PDF comercial", sub: "Abrir/baixar PDF", href: pdfComercialUrl } : null,
     primeiroVideo ? { icon: Video, title: "Vídeo", sub: "Assistir na página", onClick: () => videoRef.current?.scrollIntoView({ behavior: "smooth" }) } : null,
     tour360 ? { icon: Compass, title: "Tour 360°", sub: "Visita virtual", href: tour360 } : null,
@@ -307,6 +349,7 @@ function PublicImovelPage() {
   ].filter(Boolean) as any[];
 
   const atalhos = [
+    fotos.length ? { icon: Download, label: "Baixar fotos", title: "Baixar todas as fotos em .zip", onClick: baixarFotosZip } : null,
     pdfComercialUrl ? { icon: FileText, label: "PDF comercial", title: "Abrir PDF comercial", href: pdfComercialUrl } : null,
     im.link_material ? { icon: Layers, label: "Material completo", title: "Abrir material completo", href: im.link_material } : null,
     im.link_drive_fotos ? { icon: HardDrive, label: "Drive completo", title: "Acessar Drive completo", href: im.link_drive_fotos } : null,
