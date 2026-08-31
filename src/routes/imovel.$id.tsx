@@ -592,14 +592,13 @@ function PublicImovelPage() {
                 <Images className="w-4 h-4" /> Book de fotos
               </button>
             )}
-            {images.length > 0 && (
-              <button onClick={() => generatePhotoBookPdf(im, images)}
-                className="h-11 col-span-2 md:col-auto inline-flex items-center justify-center gap-2 rounded-xl border border-primary/40 bg-card px-4 text-sm font-medium text-primary transition-all duration-150 hover:bg-primary/5 hover:-translate-y-px">
-                <Download className="w-4 h-4" /> Baixar detalhes
-              </button>
-            )}
+            <button onClick={() => generatePropertyPdf(im)}
+              className="h-11 col-span-2 md:col-auto inline-flex items-center justify-center gap-2 rounded-xl border border-accent/45 bg-card px-4 text-sm font-medium text-accent-deep transition-all duration-150 hover:bg-accent/8 hover:-translate-y-px">
+              <Download className="w-4 h-4 text-accent" /> Baixar detalhes
+            </button>
             <a href={waHref} target="_blank" rel="noopener noreferrer"
-              className="col-span-2 md:col-auto inline-flex items-center justify-center gap-3 rounded-xl bg-primary px-6 h-[52px] text-primary-foreground shadow-[var(--shadow-accent)] transition-all duration-150 hover:brightness-95 hover:-translate-y-px">
+              className="col-span-2 md:col-auto inline-flex items-center justify-center gap-3 rounded-xl bg-accent px-6 h-[52px] text-accent-foreground shadow-[var(--shadow-accent)] transition-all duration-150 hover:brightness-95 hover:-translate-y-px">
+
               <MessageCircle className="w-5 h-5 shrink-0" />
               <span className="text-left leading-tight">
                 <span className="block text-sm font-semibold">Falar com corretor</span>
