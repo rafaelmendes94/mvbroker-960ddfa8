@@ -1,20 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
 import {
   Building2, LayoutDashboard, Users, UserSquare2,
-  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Lock, Plug,
-  Tag, Sparkles, Upload, ChevronDown, Layers, FileText, Map as MapIcon,
+  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Lock, Plug,
+  Tag, Sparkles, Layers, FileText, Map as MapIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
 import { canAccess, primaryRole, ROLE_LABEL, type AppRole } from "@/lib/permissions";
 
 type LeafItem = { to: string; label: string; icon: typeof LayoutDashboard };
-type GroupItem = { label: string; icon: typeof LayoutDashboard; children: LeafItem[] };
-type NavEntry = LeafItem | GroupItem;
-type Section = { section: string; entries: NavEntry[] };
-
-const isGroup = (e: NavEntry): e is GroupItem => "children" in e;
+type Section = { section: string; entries: LeafItem[] };
 
 const SECTIONS: Section[] = [
   {
@@ -27,15 +22,9 @@ const SECTIONS: Section[] = [
       { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
       { to: "/tabela", label: "Tabela", icon: FileText },
       { to: "/biblioteca", label: "Banco de Imagens", icon: FolderArchive },
-      {
-        label: "Empreendimentos",
-        icon: Layers,
-        children: [
-          { to: "/condominios", label: "Condomínios", icon: Building },
-          { to: "/edificios", label: "Edifícios", icon: Building2 },
-          { to: "/loteamentos", label: "Loteamentos", icon: Layers },
-        ],
-      },
+      { to: "/condominios", label: "Condomínios", icon: Building },
+      { to: "/edificios", label: "Edifícios", icon: Building2 },
+      { to: "/loteamentos", label: "Loteamentos", icon: Layers },
     ],
   },
   {
@@ -77,15 +66,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const sections: Section[] = SECTIONS
     .map((s) => ({
       section: s.section,
-      entries: s.entries
-        .map((e) => {
-          if (isGroup(e)) {
-            const children = e.children.filter((c) => canAccess(c.to, effectiveRoles));
-            return children.length ? { ...e, children } : null;
-          }
-          return canAccess(e.to, effectiveRoles) ? e : null;
-        })
-        .filter(Boolean) as NavEntry[],
+      entries: s.entries.filter((e) => canAccess(e.to, effectiveRoles)),
     }))
     .filter((s) => s.entries.length > 0);
 
@@ -119,13 +100,9 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
               {s.section}
             </div>
             <ul className="space-y-0.5">
-              {s.entries.map((item) =>
-                isGroup(item) ? (
-                  <GroupNode key={item.label} item={item} pathname={pathname} onNavigate={onNavigate} />
-                ) : (
-                  <LeafNode key={item.to} item={item} pathname={pathname} onNavigate={onNavigate} />
-                )
-              )}
+              {s.entries.map((item) => (
+                <LeafNode key={item.to} item={item} pathname={pathname} onNavigate={onNavigate} />
+              ))}
             </ul>
           </div>
         ))}
@@ -174,33 +151,3 @@ function LeafNode({ item, pathname, onNavigate, nested }: { item: LeafItem; path
   );
 }
 
-function GroupNode({ item, pathname, onNavigate }: { item: GroupItem; pathname: string; onNavigate?: () => void }) {
-  const hasActive = item.children.some((c) => pathname === c.to || pathname.startsWith(c.to + "/"));
-  const [open, setOpen] = useState(hasActive);
-  const Icon = item.icon;
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className={cn(
-          "w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-all",
-          hasActive
-            ? "text-sidebar-foreground font-semibold"
-            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
-        )}
-      >
-        <Icon className="h-4 w-4 shrink-0" />
-        <span className="truncate flex-1 text-left">{item.label}</span>
-        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
-      </button>
-      {open && (
-        <ul className="mt-0.5 space-y-0.5">
-          {item.children.map((c) => (
-            <LeafNode key={c.to} item={c} pathname={pathname} onNavigate={onNavigate} nested />
-          ))}
-        </ul>
-      )}
-    </li>
-  );
-}
