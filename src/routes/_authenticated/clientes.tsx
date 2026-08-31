@@ -209,28 +209,29 @@ function ClientesPage() {
   }
   async function salvarTroca() {
     if (!trocaRow || !trocaPlanoId) return;
-    const plano = planos.find((p) => p.id === trocaPlanoId);
-    if (!plano) return;
-    const valor = trocaCiclo === "anual" ? (plano.preco_anual ?? plano.preco_mensal * 12) : plano.preco_mensal;
-    const payload: any = { plano_id: plano.id, ciclo: trocaCiclo, valor };
-    let err;
-    if (trocaRow.assinatura) {
-      ({ error: err } = await supabase.from("assinaturas").update(payload).eq("id", trocaRow.assinatura.id));
-    } else {
-      const body = trocaRow.tipo === "imobiliaria"
-        ? { ...payload, imobiliaria_id: trocaRow.id, status: "ativa" }
-        : { ...payload, usuario_id: trocaRow.user_id, status: "ativa" };
-      if (trocaRow.tipo === "corretor" && !trocaRow.user_id) {
-        toast.error("Este corretor ainda não tem login vinculado.");
-        return;
-      }
-      ({ error: err } = await supabase.from("assinaturas").insert(body));
+    if (trocaRow.tipo === "corretor" && !trocaRow.user_id) {
+      toast.error("Este corretor ainda não tem login vinculado.");
+      return;
     }
-    if (err) { toast.error(err.message); return; }
-    toast.success("Plano atualizado");
-    setTrocaOpen(false);
-    load();
+    try {
+      const _token = await getToken();
+      const res = await vincularPlanoCliente({
+        data: {
+          _token,
+          tipo: trocaRow.tipo,
+          cliente_id: trocaRow.id,
+          plano_id: trocaPlanoId,
+          ciclo: trocaCiclo,
+        },
+      });
+      toast.success(res.criada ? "Plano vinculado ao cliente" : "Plano atualizado");
+      setTrocaOpen(false);
+      load();
+    } catch (err: any) {
+      toast.error(err.message ?? "Erro ao vincular plano");
+    }
   }
+
 
   async function toggleBloqueio(r: ClienteRow) {
     if (!r.assinatura) return;
