@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/public/imovel/$id")({
 
           const { data: imovel, error } = await supabase
             .from("imoveis")
-            .select(IMOVEL_PUBLIC_COLUMNS + ", edificios(nome), condominios(nome), empreendimentos(nome)")
+            .select(IMOVEL_PUBLIC_COLUMNS + ", edificios(nome), condominios(nome, mapa_pdf_path, implantacao_pdf_path), empreendimentos(nome)")
             .eq("id", id)
             .or("arquivado.is.null,arquivado.eq.false")
             .maybeSingle();
@@ -82,7 +82,20 @@ export const Route = createFileRoute("/api/public/imovel/$id")({
             } as any);
           } catch {}
 
-          return new Response(JSON.stringify({ imovel, images }), {
+          // PDF de mapa/implantação do condomínio (assinado)
+          let mapaPdfUrl: string | null = null;
+          try {
+            const cond: any = (imovel as any)?.condominios;
+            const pdfPath = cond?.mapa_pdf_path || cond?.implantacao_pdf_path || null;
+            if (pdfPath) {
+              const { data: sp } = await supabase.storage
+                .from("estrutura-arquivos")
+                .createSignedUrl(pdfPath, 60 * 60 * 24);
+              mapaPdfUrl = sp?.signedUrl ?? null;
+            }
+          } catch {}
+
+          return new Response(JSON.stringify({ imovel, images, mapaPdfUrl }), {
             status: 200,
             headers: {
               "Content-Type": "application/json; charset=utf-8",
