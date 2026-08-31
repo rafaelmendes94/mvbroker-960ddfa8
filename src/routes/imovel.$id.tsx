@@ -257,10 +257,11 @@ function PublicImovelPage() {
   ].filter(Boolean) as { label: string; value: string }[];
 
   const stats = [
-    im.suites != null ? { icon: BedDouble, label: "Suítes", value: im.suites } : null,
-    im.banheiros != null ? { icon: Bath, label: "Banheiros", value: im.banheiros } : null,
-    im.vagas != null ? { icon: Car, label: "Vagas", value: im.vagas } : null,
-    im.area_privativa ? { icon: Maximize, label: "Área construída", value: `${im.area_privativa} m²` } : null,
+    im.dormitorios != null ? { icon: BedDouble, label: "Quartos", value: String(im.dormitorios) } : null,
+    im.suites != null ? { icon: BedSingle, label: "Suítes", value: String(im.suites) } : null,
+    im.banheiros != null ? { icon: Bath, label: "Banheiros", value: String(im.banheiros) } : null,
+    im.vagas != null ? { icon: Car, label: "Vagas", value: String(im.vagas) } : null,
+    im.area_privativa ? { icon: Ruler, label: "Área privativa", value: `${im.area_privativa} m²` } : null,
     im.area_total ? { icon: Maximize, label: "Área do terreno", value: `${im.area_total} m²` } : null,
   ].filter(Boolean) as { icon: any; label: string; value: any }[];
 
