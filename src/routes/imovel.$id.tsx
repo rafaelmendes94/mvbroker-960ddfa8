@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ArrowLeft, BedDouble, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
+  ArrowLeft, BedDouble, BedSingle, Ruler, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
   Share2, Loader2, Images, HardDrive, Map as MapIcon, Expand, X, FileText,
   Video, Compass, Layers, Download, Pencil, MessageCircle, CalendarDays, Home,
 } from "lucide-react";
@@ -90,7 +90,7 @@ function setMeta(attr: "name" | "property", key: string, content: string) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border bg-card p-5 md:p-6">
+    <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-6">
       <h2 className="text-lg font-semibold mb-4">{title}</h2>
       {children}
     </section>
@@ -257,10 +257,11 @@ function PublicImovelPage() {
   ].filter(Boolean) as { label: string; value: string }[];
 
   const stats = [
-    im.suites != null ? { icon: BedDouble, label: "Suítes", value: im.suites } : null,
-    im.banheiros != null ? { icon: Bath, label: "Banheiros", value: im.banheiros } : null,
-    im.vagas != null ? { icon: Car, label: "Vagas", value: im.vagas } : null,
-    im.area_privativa ? { icon: Maximize, label: "Área construída", value: `${im.area_privativa} m²` } : null,
+    im.dormitorios != null ? { icon: BedDouble, label: "Quartos", value: String(im.dormitorios) } : null,
+    im.suites != null ? { icon: BedSingle, label: "Suítes", value: String(im.suites) } : null,
+    im.banheiros != null ? { icon: Bath, label: "Banheiros", value: String(im.banheiros) } : null,
+    im.vagas != null ? { icon: Car, label: "Vagas", value: String(im.vagas) } : null,
+    im.area_privativa ? { icon: Ruler, label: "Área privativa", value: `${im.area_privativa} m²` } : null,
     im.area_total ? { icon: Maximize, label: "Área do terreno", value: `${im.area_total} m²` } : null,
   ].filter(Boolean) as { icon: any; label: string; value: any }[];
 
@@ -300,9 +301,9 @@ function PublicImovelPage() {
   const waHref = `https://wa.me/${WHATS}?text=${encodeURIComponent(shareText)}`;
 
   return (
-    <div className="min-h-screen bg-muted/30 text-foreground pb-20 md:pb-0">
+    <div className="min-h-screen bg-canvas text-foreground pb-20 md:pb-0">
       {/* Header sticky */}
-      <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
           <button onClick={goBack} className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-4 h-4" />
@@ -406,7 +407,7 @@ function PublicImovelPage() {
         )}
 
         {/* Cabeçalho do imóvel */}
-        <section className="rounded-2xl border bg-card p-5 md:p-6 space-y-4">
+        <section className="rounded-2xl border bg-card shadow-sm p-5 md:p-6 space-y-4">
           <nav className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <a href="/" className="hover:text-foreground inline-flex items-center gap-1"><Home className="w-3 h-3" /> Início</a>
             <span>›</span>
@@ -443,13 +444,17 @@ function PublicImovelPage() {
           )}
 
           {stats.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-2 border-t">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-5 border-t">
               {stats.map((s) => (
-                <div key={s.label} className="pt-3">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <s.icon className="w-3.5 h-3.5 text-primary" /> {s.label}
-                  </div>
-                  <div className="text-lg font-semibold">{s.value}</div>
+                <div
+                  key={s.label}
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border bg-canvas px-3 py-4 text-center"
+                >
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10">
+                    <s.icon className="h-4.5 w-4.5 text-primary" />
+                  </span>
+                  <span className="text-lg font-bold leading-none">{s.value}</span>
+                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</span>
                 </div>
               ))}
             </div>
