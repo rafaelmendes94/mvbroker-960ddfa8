@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft, BedDouble, BedSingle, Ruler, Bath, Car, Maximize, MapPin, ChevronLeft, ChevronRight,
-  Share2, Loader2, HardDrive, Map as MapIcon, Expand, X, FileText,
+  Share2, Loader2, HardDrive, Map as MapIcon, Expand, X, FileText, Download,
   Video, Compass, Layers, Pencil, MessageCircle, Heart, Home,
 } from "lucide-react";
 import { toast } from "sonner";
