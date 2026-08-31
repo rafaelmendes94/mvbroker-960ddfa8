@@ -577,37 +577,38 @@ function PublicImovelPage() {
           </Section>
         )}
 
-        {/* Barra de recursos (desktop) */}
-        <div className="hidden md:flex items-center justify-between gap-3 rounded-2xl border bg-card p-4">
-          <div className="text-sm text-muted-foreground">Código: {codigo}</div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={share}><Share2 className="w-4 h-4" /> Compartilhar</Button>
+        {/* Action bar */}
+        <div className="rounded-2xl border bg-card shadow-sm p-3 md:p-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="text-xs md:text-sm text-muted-foreground">Código: <span className="font-medium text-foreground">{codigo}</span></div>
+
+          <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-2">
+            <button onClick={share}
+              className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-primary/40 hover:bg-muted hover:-translate-y-px">
+              <Share2 className="w-4 h-4" /> Compartilhar
+            </button>
             {images.length > 0 && (
-              <Button variant="outline" onClick={() => generatePhotoBookPdf(im, images)}>
-                <Download className="w-4 h-4" /> Book de fotos
-              </Button>
+              <button onClick={() => generatePhotoBookPdf(im, images)}
+                className="h-11 inline-flex items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium transition-all duration-150 hover:border-primary/40 hover:bg-primary/5 hover:-translate-y-px">
+                <Images className="w-4 h-4" /> Book de fotos
+              </button>
             )}
-            <Button asChild>
-              <a href={waHref} target="_blank" rel="noopener noreferrer"><MessageCircle className="w-4 h-4" /> Falar com corretor</a>
-            </Button>
+            {images.length > 0 && (
+              <button onClick={() => generatePhotoBookPdf(im, images)}
+                className="h-11 col-span-2 md:col-auto inline-flex items-center justify-center gap-2 rounded-xl border border-primary/40 bg-card px-4 text-sm font-medium text-primary transition-all duration-150 hover:bg-primary/5 hover:-translate-y-px">
+                <Download className="w-4 h-4" /> Baixar detalhes
+              </button>
+            )}
+            <a href={waHref} target="_blank" rel="noopener noreferrer"
+              className="col-span-2 md:col-auto inline-flex items-center justify-center gap-3 rounded-xl bg-primary px-6 h-[52px] text-primary-foreground shadow-[var(--shadow-accent)] transition-all duration-150 hover:brightness-95 hover:-translate-y-px">
+              <MessageCircle className="w-5 h-5 shrink-0" />
+              <span className="text-left leading-tight">
+                <span className="block text-sm font-semibold">Falar com corretor</span>
+                <span className="block text-[11px] opacity-80">Atendimento personalizado</span>
+              </span>
+            </a>
           </div>
         </div>
-
-        <div className="md:hidden text-xs text-muted-foreground">Código: {codigo}</div>
       </main>
-
-      {/* CTA fixa mobile */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-background/95 backdrop-blur p-3 flex gap-2">
-        <Button asChild className="flex-1">
-          <a href={waHref} target="_blank" rel="noopener noreferrer"><MessageCircle className="w-4 h-4" /> WhatsApp</a>
-        </Button>
-        <Button variant="outline" asChild className="flex-1">
-          <a href={`https://wa.me/${WHATS}?text=${encodeURIComponent(`Olá! Gostaria de agendar uma visita ao imóvel ${codigo}: ${shareUrl}`)}`}
-            target="_blank" rel="noopener noreferrer">
-            <CalendarDays className="w-4 h-4" /> Agendar visita
-          </a>
-        </Button>
-      </div>
 
       {/* Lightbox */}
       {lightbox && images.length > 0 && (
