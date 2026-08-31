@@ -2828,7 +2828,11 @@ function PropertyRow({
 
           {/* Row 4: Tags */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            {property.exclusivityTermUrl && <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-bold whitespace-nowrap">📄 Exclusivo</span>}
+            {property.exclusivityTerm === "Sim" && <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-bold whitespace-nowrap">🔒 Exclusividade</span>}
+            {property.exclusivityTermUrl && <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-bold whitespace-nowrap">📄 Ex. Assinada</span>}
+            {property.bonus ? <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-500 font-bold whitespace-nowrap">🎁 Bônus {formatCurrency(property.bonus)}{property.bonusExpiry ? ` • val. ${new Date(property.bonusExpiry).toLocaleDateString("pt-BR")}` : ""}</span> : null}
+            {property.seaView && <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-bold whitespace-nowrap">🌊 Vista Mar</span>}
+            {property.decorated && <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 font-bold whitespace-nowrap">🎨 Decorado</span>}
           </div>
 
           {/* Row 5: Location */}
