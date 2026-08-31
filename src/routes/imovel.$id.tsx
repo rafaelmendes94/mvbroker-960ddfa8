@@ -444,13 +444,17 @@ function PublicImovelPage() {
           )}
 
           {stats.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-2 border-t">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-5 border-t">
               {stats.map((s) => (
-                <div key={s.label} className="pt-3">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <s.icon className="w-3.5 h-3.5 text-primary" /> {s.label}
-                  </div>
-                  <div className="text-lg font-semibold">{s.value}</div>
+                <div
+                  key={s.label}
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border bg-canvas px-3 py-4 text-center"
+                >
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10">
+                    <s.icon className="h-4.5 w-4.5 text-primary" />
+                  </span>
+                  <span className="text-lg font-bold leading-none">{s.value}</span>
+                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</span>
                 </div>
               ))}
             </div>
