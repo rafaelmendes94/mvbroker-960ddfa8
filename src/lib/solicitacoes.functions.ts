@@ -149,7 +149,7 @@ export const aprovarSolicitacao = createServerFn({ method: "POST" })
       imobiliariaId = imob.id;
     }
 
-    const filtro = ehImobiliaria
+    const filtro: { imobiliaria_id: string | null; usuario_id: string | null } = ehImobiliaria
       ? { imobiliaria_id: imobiliariaId, usuario_id: null }
       : { usuario_id: sol.user_id, imobiliaria_id: null };
 
