@@ -666,11 +666,12 @@ export default function Properties() {
     loadFavorites();
   }, []);
 
+  // Links antigos com ?property=<id> redirecionam para a página do imóvel
   useEffect(() => {
-    if (!propertyIdFromUrl || propertyList.length === 0) return;
-    const found = propertyList.find((p) => p.id === propertyIdFromUrl) || null;
-    setSelectedPropertyState(found);
-  }, [propertyIdFromUrl, propertyList]);
+    if (!propertyIdFromUrl) return;
+    navigate(`/imovel/${propertyIdFromUrl}`);
+  }, [propertyIdFromUrl]);
+
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
