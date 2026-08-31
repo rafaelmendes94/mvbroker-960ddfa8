@@ -66,15 +66,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const sections: Section[] = SECTIONS
     .map((s) => ({
       section: s.section,
-      entries: s.entries
-        .map((e) => {
-          if (isGroup(e)) {
-            const children = e.children.filter((c) => canAccess(c.to, effectiveRoles));
-            return children.length ? { ...e, children } : null;
-          }
-          return canAccess(e.to, effectiveRoles) ? e : null;
-        })
-        .filter(Boolean) as NavEntry[],
+      entries: s.entries.filter((e) => canAccess(e.to, effectiveRoles)),
     }))
     .filter((s) => s.entries.length > 0);
 
