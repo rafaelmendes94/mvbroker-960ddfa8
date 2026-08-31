@@ -110,6 +110,7 @@ function PublicImovelPage() {
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
+  const [zipProgress, setZipProgress] = useState<number | null>(null);
   const [logged, setLogged] = useState(false);
   const thumbsRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLDivElement>(null);
