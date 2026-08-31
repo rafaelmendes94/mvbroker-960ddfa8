@@ -309,7 +309,6 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
   const activeTypes = [...new Set(properties.map((p) => p.type))];
 
   const Card = ({ property }: { property: Property & { __d?: number } }) => {
-    const cfg = cfgOf(property.type);
     const selected = selectedId === property.id;
     return (
       <button
@@ -318,8 +317,8 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         onClick={() => focusProperty(property, false)}
         className={`w-full text-left flex gap-2 p-2 rounded-xl border bg-card transition-all ${
           selected
-            ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary"
-            : "border-border hover:border-primary/50 hover:shadow-sm"
+            ? "border-primary bg-primary/10 ring-1 ring-primary shadow-[var(--shadow-glow)]"
+            : "border-border hover:border-primary/60 hover:shadow-[var(--shadow-glow)]"
         }`}
       >
         <img
@@ -330,12 +329,10 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 mb-1">
-            <span
-              className="text-[9px] font-bold uppercase text-white px-1.5 py-0.5 rounded"
-              style={{ backgroundColor: cfg.color }}
-            >
+            <span className="text-[9px] font-bold uppercase bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
               {property.type}
             </span>
+
             {typeof property.__d === "number" && (
               <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                 <MapPin className="h-3 w-3" />
