@@ -349,6 +349,7 @@ function PublicImovelPage() {
   ].filter(Boolean) as any[];
 
   const atalhos = [
+    fotos.length ? { icon: Download, label: "Baixar fotos", title: "Baixar todas as fotos em .zip", onClick: baixarFotosZip } : null,
     pdfComercialUrl ? { icon: FileText, label: "PDF comercial", title: "Abrir PDF comercial", href: pdfComercialUrl } : null,
     im.link_material ? { icon: Layers, label: "Material completo", title: "Abrir material completo", href: im.link_material } : null,
     im.link_drive_fotos ? { icon: HardDrive, label: "Drive completo", title: "Acessar Drive completo", href: im.link_drive_fotos } : null,
