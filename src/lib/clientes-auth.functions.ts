@@ -61,11 +61,17 @@ export const criarAcessoCliente = createServerFn({ method: "POST" })
     const supabaseAdmin = await getNodeSafeSupabaseAdmin();
     const role = data.tipo === "imobiliaria" ? "imobiliaria" : "corretor_autonomo";
 
-    // Procura por email já existente
-    const { data: existing } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-    const found = existing?.users?.find(
-      (u) => (u.email ?? "").toLowerCase() === data.email.toLowerCase(),
-    );
+    // Procura por email já existente (varre todas as páginas)
+    const alvo = data.email.toLowerCase();
+    let found: { id: string } | undefined;
+    for (let page = 1; page <= 50; page++) {
+      const { data: existing } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+      const users = existing?.users ?? [];
+      const hit = users.find((u) => (u.email ?? "").toLowerCase() === alvo);
+      if (hit) { found = hit; break; }
+      if (users.length < 200) break;
+    }
+
 
     let novoUserId: string;
     let senha: string | undefined;
