@@ -4,7 +4,7 @@ import {
   Building2, LayoutDashboard, Users, UserSquare2,
   BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Search, Lock, Plug,
   Tag, Sparkles, Upload, ChevronDown, Layers, FileText,
-} from "lucide-react";
+}  } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoles } from "@/hooks/use-roles";
 import { canAccess, primaryRole, ROLE_LABEL, type AppRole } from "@/lib/permissions";
@@ -23,6 +23,7 @@ const SECTIONS: Section[] = [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/oportunidades", label: "Oportunidades", icon: Sparkles },
       { to: "/imoveis", label: "Imóveis", icon: Home },
+      { to: "/mapa", label: "Mapa", icon: MapIcon },
       { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
       { to: "/tabela", label: "Tabela", icon: FileText },
       { to: "/biblioteca", label: "Banco de Imagens", icon: FolderArchive },
