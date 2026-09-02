@@ -37,8 +37,9 @@ export function useAssinatura() {
     return () => { cancel = true; };
   }, [user, authLoading, rolesLoading, isAdmin]);
 
-  // bloqueado se: tem assinatura e status != ativa/trial OU não tem assinatura nenhuma
-  const bloqueado = !isAdmin && (!data || (data.status !== "ativa" && data.status !== "trial"));
+  // bloqueio é manual: só bloqueia quando o super admin marca a assinatura como "bloqueada"
+  const bloqueado = !isAdmin && data?.status === "bloqueada";
+
 
   return { assinatura: data, loading: loading || authLoading || rolesLoading, isAdmin, bloqueado };
 }
