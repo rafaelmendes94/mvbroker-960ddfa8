@@ -57,6 +57,7 @@ type Papel = { slug: string; nome: string; descricao: string | null; sistema: bo
 type UserRow = {
   id: string; email: string; full_name: string | null; avatar_url: string | null;
   created_at: string; last_sign_in_at: string | null; roles: string[];
+  bloqueado?: boolean; bloqueio_motivo?: string | null;
 };
 
 function initials(name?: string | null, email?: string) {
