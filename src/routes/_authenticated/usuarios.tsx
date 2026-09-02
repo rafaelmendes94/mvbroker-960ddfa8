@@ -170,7 +170,10 @@ function UsuariosTab() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium">{u.full_name || "—"}</div>
+                      <div className="font-medium flex items-center gap-2">
+                        {u.full_name || "—"}
+                        {u.bloqueado && <Badge variant="destructive">Bloqueado</Badge>}
+                      </div>
                       <div className="text-xs text-muted-foreground">{u.email}</div>
                     </div>
                   </div>
