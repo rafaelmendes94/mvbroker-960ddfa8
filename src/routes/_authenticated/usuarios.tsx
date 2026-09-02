@@ -254,6 +254,18 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
     } catch (e: any) { toast.error(e?.message ?? "Falha"); }
   }
 
+  async function aplicarBloqueio(bloquear: boolean, motivoTexto?: string) {
+    setSavingBloq(true);
+    try {
+      const _token = await getToken();
+      await definirBloqueio({ data: { user_id: user.id, bloqueado: bloquear, motivo: motivoTexto, _token } });
+      toast.success(bloquear ? "Acesso bloqueado" : "Acesso liberado");
+      setOpenBloq(false); setMotivo("");
+      onChanged();
+    } catch (e: any) { toast.error(e?.message ?? "Falha"); }
+    finally { setSavingBloq(false); }
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -263,6 +275,16 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setOpenSenha(true)}><KeyRound className="h-4 w-4 mr-2" /> Trocar senha</DropdownMenuItem>
           <DropdownMenuItem onClick={handleReset}><KeyRound className="h-4 w-4 mr-2" /> Resetar senha (auto)</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          {user.bloqueado ? (
+            <DropdownMenuItem onClick={() => aplicarBloqueio(false)}>
+              <Unlock className="h-4 w-4 mr-2" /> Liberar acesso
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem className="text-destructive" onClick={() => setOpenBloq(true)}>
+              <Lock className="h-4 w-4 mr-2" /> Bloquear acesso
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
             <Trash2 className="h-4 w-4 mr-2" /> Excluir
