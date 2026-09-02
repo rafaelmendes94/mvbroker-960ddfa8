@@ -235,12 +235,15 @@ function ClientesPage() {
 
   async function toggleBloqueio(r: ClienteRow) {
     if (!r.assinatura) return;
-    const novo = r.assinatura.status === "ativa" ? "bloqueada" : "ativa";
+    const estaBloqueada = r.assinatura.status === "bloqueada";
+    const novo = estaBloqueada ? "ativa" : "bloqueada";
+    if (!estaBloqueada && !confirm(`Bloquear o acesso de ${r.nome}? O cliente ficará sem acesso ao sistema até ser reativado.`)) return;
     const { error } = await supabase.from("assinaturas").update({ status: novo }).eq("id", r.assinatura.id);
     if (error) { toast.error(error.message); return; }
-    toast.success(novo === "ativa" ? "Assinatura reativada" : "Assinatura bloqueada");
+    toast.success(novo === "ativa" ? "Acesso liberado" : "Acesso bloqueado");
     load();
   }
+
 
   return (
     <>
@@ -328,9 +331,12 @@ function ClientesPage() {
                       </TableCell>
                       <TableCell>
                         {r.assinatura
-                          ? <Badge variant={r.assinatura.status === "ativa" ? "default" : "outline"}>{r.assinatura.status}</Badge>
+                          ? <Badge variant={r.assinatura.status === "bloqueada" ? "destructive" : r.assinatura.status === "ativa" ? "default" : "outline"}>
+                              {r.assinatura.status}
+                            </Badge>
                           : <span className="text-xs text-muted-foreground">—</span>}
                       </TableCell>
+
                       <TableCell>
                         {r.tipo === "imobiliaria"
                           ? <span className={reached ? "font-medium text-destructive" : ""}>
@@ -349,10 +355,16 @@ function ClientesPage() {
                           <Repeat className="h-4 w-4" />
                         </Button>
                         {r.assinatura && (
-                          <Button size="sm" variant="ghost" onClick={() => toggleBloqueio(r)}>
-                            {r.assinatura.status === "ativa" ? "Bloquear" : "Reativar"}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className={r.assinatura.status === "bloqueada" ? "" : "text-destructive"}
+                            onClick={() => toggleBloqueio(r)}
+                          >
+                            {r.assinatura.status === "bloqueada" ? "Reativar" : "Bloquear"}
                           </Button>
                         )}
+
                       </TableCell>
                     </TableRow>
                   );
