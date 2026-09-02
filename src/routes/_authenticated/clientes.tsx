@@ -331,9 +331,12 @@ function ClientesPage() {
                       </TableCell>
                       <TableCell>
                         {r.assinatura
-                          ? <Badge variant={r.assinatura.status === "ativa" ? "default" : "outline"}>{r.assinatura.status}</Badge>
+                          ? <Badge variant={r.assinatura.status === "bloqueada" ? "destructive" : r.assinatura.status === "ativa" ? "default" : "outline"}>
+                              {r.assinatura.status}
+                            </Badge>
                           : <span className="text-xs text-muted-foreground">—</span>}
                       </TableCell>
+
                       <TableCell>
                         {r.tipo === "imobiliaria"
                           ? <span className={reached ? "font-medium text-destructive" : ""}>
