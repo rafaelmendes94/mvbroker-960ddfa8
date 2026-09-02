@@ -28,7 +28,7 @@ import { MODULOS, type ModuloKey } from "@/lib/modulos";
 import {
   listarUsuariosAdmin, criarUsuarioAdmin, atualizarRolesUsuario,
   excluirUsuarioAdmin, resetarSenhaUsuario, definirSenhaUsuario,
-  listarPermissoesUsuario, salvarPermissoesUsuario,
+  listarPermissoesUsuario, salvarPermissoesUsuario, definirBloqueioUsuario,
 } from "@/lib/usuarios-admin.functions";
 import { listarPapeis } from "@/lib/papeis-admin.functions";
 import { supabase } from "@/integrations/supabase/client";
