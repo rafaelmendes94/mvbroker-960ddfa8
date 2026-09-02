@@ -292,6 +292,27 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <Dialog open={openBloq} onOpenChange={(v) => { setOpenBloq(v); if (!v) setMotivo(""); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bloquear acesso</DialogTitle>
+            <DialogDescription>
+              {user.email} continuará conseguindo entrar, mas verá o aviso de bloqueio e não terá acesso ao sistema.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Motivo (opcional)</Label>
+            <Input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ex.: pagamento pendente" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenBloq(false)}>Cancelar</Button>
+            <Button variant="destructive" onClick={() => aplicarBloqueio(true, motivo || undefined)} disabled={savingBloq}>
+              {savingBloq && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Bloquear
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={openSenha} onOpenChange={(v) => { setOpenSenha(v); if (!v) setNovaSenha(""); }}>
         <DialogContent>
           <DialogHeader>
