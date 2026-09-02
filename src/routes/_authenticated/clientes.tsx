@@ -355,10 +355,16 @@ function ClientesPage() {
                           <Repeat className="h-4 w-4" />
                         </Button>
                         {r.assinatura && (
-                          <Button size="sm" variant="ghost" onClick={() => toggleBloqueio(r)}>
-                            {r.assinatura.status === "ativa" ? "Bloquear" : "Reativar"}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className={r.assinatura.status === "bloqueada" ? "" : "text-destructive"}
+                            onClick={() => toggleBloqueio(r)}
+                          >
+                            {r.assinatura.status === "bloqueada" ? "Reativar" : "Bloquear"}
                           </Button>
                         )}
+
                       </TableCell>
                     </TableRow>
                   );
