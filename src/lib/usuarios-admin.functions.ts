@@ -137,10 +137,48 @@ export const listarUsuariosAdmin = createServerFn({ method: "POST" })
       cur.push(c.role_slug);
       byUser.set(c.user_id, cur);
     });
+    const { data: profs } = await admin
+      .from("profiles")
+      .select("id, bloqueado, bloqueio_motivo");
+    const blockByUser = new Map<string, { bloqueado: boolean; motivo: string | null }>();
+    (profs ?? []).forEach((p: any) => {
+      blockByUser.set(p.id, { bloqueado: !!p.bloqueado, motivo: p.bloqueio_motivo ?? null });
+    });
     return (rows ?? []).map((u: any) => ({
       ...u,
       roles: [...(u.roles ?? []), ...(byUser.get(u.id) ?? [])],
+      bloqueado: blockByUser.get(u.id)?.bloqueado ?? false,
+      bloqueio_motivo: blockByUser.get(u.id)?.motivo ?? null,
     }));
+  });
+
+// ===== Bloquear / desbloquear acesso =====
+const bloqueioSchema = tokenSchema.extend({
+  user_id: z.string().uuid(),
+  bloqueado: z.boolean(),
+  motivo: z.string().trim().max(500).optional(),
+});
+
+export const definirBloqueioUsuario = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => bloqueioSchema.parse(d))
+  .handler(async ({ data }) => {
+    const authContext = await getAuthedContext(data._token);
+    await assertAdmin(authContext);
+    if (data.user_id === authContext.userId) {
+      throw new Error("Você não pode bloquear o próprio acesso.");
+    }
+    const admin = await getSupabaseAdmin();
+    const { error } = await admin
+      .from("profiles")
+      .upsert({
+        id: data.user_id,
+        bloqueado: data.bloqueado,
+        bloqueio_motivo: data.bloqueado ? (data.motivo ?? null) : null,
+        bloqueado_em: data.bloqueado ? new Date().toISOString() : null,
+        bloqueado_por: data.bloqueado ? authContext.userId : null,
+      });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 // ===== Criar usuário =====
