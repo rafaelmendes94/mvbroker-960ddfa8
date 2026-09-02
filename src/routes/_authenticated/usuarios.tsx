@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Search, MoreHorizontal, Trash2, KeyRound, ShieldCheck, Loader2, Users as UsersIcon, Shield, UserPlus } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Trash2, KeyRound, ShieldCheck, Loader2, Users as UsersIcon, Shield, UserPlus, Lock, Unlock } from "lucide-react";
 import { SolicitacoesTab } from "@/components/usuarios/SolicitacoesTab";
 
 import { PageHeader } from "@/components/layout/PageHeader";
