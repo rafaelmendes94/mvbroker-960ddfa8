@@ -4,6 +4,8 @@ import { useAssinatura } from "@/hooks/use-assinatura";
 import { useMinhaSolicitacao } from "@/hooks/use-minha-solicitacao";
 import { RegularizacaoPanel } from "./RegularizacaoPanel";
 import { AprovacaoPendentePanel } from "./AprovacaoPendentePanel";
+import { useBloqueioUsuario } from "@/hooks/use-bloqueio-usuario";
+import { BloqueioUsuarioPanel } from "./BloqueioUsuarioPanel";
 
 // Rotas que sempre são liberadas (perfil, regularização)
 const ALWAYS_ALLOWED = ["/perfil", "/regularizacao", "/acesso-negado"];
