@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Search, MoreHorizontal, Trash2, KeyRound, ShieldCheck, Loader2, Users as UsersIcon, Shield, UserPlus } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Trash2, KeyRound, ShieldCheck, Loader2, Users as UsersIcon, Shield, UserPlus, Lock, Unlock } from "lucide-react";
 import { SolicitacoesTab } from "@/components/usuarios/SolicitacoesTab";
 
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -28,7 +28,7 @@ import { MODULOS, type ModuloKey } from "@/lib/modulos";
 import {
   listarUsuariosAdmin, criarUsuarioAdmin, atualizarRolesUsuario,
   excluirUsuarioAdmin, resetarSenhaUsuario, definirSenhaUsuario,
-  listarPermissoesUsuario, salvarPermissoesUsuario,
+  listarPermissoesUsuario, salvarPermissoesUsuario, definirBloqueioUsuario,
 } from "@/lib/usuarios-admin.functions";
 import { listarPapeis } from "@/lib/papeis-admin.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,6 +57,7 @@ type Papel = { slug: string; nome: string; descricao: string | null; sistema: bo
 type UserRow = {
   id: string; email: string; full_name: string | null; avatar_url: string | null;
   created_at: string; last_sign_in_at: string | null; roles: string[];
+  bloqueado?: boolean; bloqueio_motivo?: string | null;
 };
 
 function initials(name?: string | null, email?: string) {
@@ -169,7 +170,10 @@ function UsuariosTab() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium">{u.full_name || "—"}</div>
+                      <div className="font-medium flex items-center gap-2">
+                        {u.full_name || "—"}
+                        {u.bloqueado && <Badge variant="destructive">Bloqueado</Badge>}
+                      </div>
                       <div className="text-xs text-muted-foreground">{u.email}</div>
                     </div>
                   </div>
@@ -213,6 +217,10 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
   const reset = useServerFn(resetarSenhaUsuario);
   const definir = useServerFn(definirSenhaUsuario);
   const excluir = useServerFn(excluirUsuarioAdmin);
+  const definirBloqueio = useServerFn(definirBloqueioUsuario);
+  const [openBloq, setOpenBloq] = useState(false);
+  const [motivo, setMotivo] = useState("");
+  const [savingBloq, setSavingBloq] = useState(false);
   const [openSenha, setOpenSenha] = useState(false);
   const [novaSenha, setNovaSenha] = useState("");
   const [savingSenha, setSavingSenha] = useState(false);
@@ -246,6 +254,18 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
     } catch (e: any) { toast.error(e?.message ?? "Falha"); }
   }
 
+  async function aplicarBloqueio(bloquear: boolean, motivoTexto?: string) {
+    setSavingBloq(true);
+    try {
+      const _token = await getToken();
+      await definirBloqueio({ data: { user_id: user.id, bloqueado: bloquear, motivo: motivoTexto, _token } });
+      toast.success(bloquear ? "Acesso bloqueado" : "Acesso liberado");
+      setOpenBloq(false); setMotivo("");
+      onChanged();
+    } catch (e: any) { toast.error(e?.message ?? "Falha"); }
+    finally { setSavingBloq(false); }
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -256,11 +276,42 @@ function RowMenu({ user, onChanged }: { user: UserRow; onChanged: () => void }) 
           <DropdownMenuItem onClick={() => setOpenSenha(true)}><KeyRound className="h-4 w-4 mr-2" /> Trocar senha</DropdownMenuItem>
           <DropdownMenuItem onClick={handleReset}><KeyRound className="h-4 w-4 mr-2" /> Resetar senha (auto)</DropdownMenuItem>
           <DropdownMenuSeparator />
+          {user.bloqueado ? (
+            <DropdownMenuItem onClick={() => aplicarBloqueio(false)}>
+              <Unlock className="h-4 w-4 mr-2" /> Liberar acesso
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem className="text-destructive" onClick={() => setOpenBloq(true)}>
+              <Lock className="h-4 w-4 mr-2" /> Bloquear acesso
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator />
           <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
             <Trash2 className="h-4 w-4 mr-2" /> Excluir
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Dialog open={openBloq} onOpenChange={(v) => { setOpenBloq(v); if (!v) setMotivo(""); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bloquear acesso</DialogTitle>
+            <DialogDescription>
+              {user.email} continuará conseguindo entrar, mas verá o aviso de bloqueio e não terá acesso ao sistema.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Motivo (opcional)</Label>
+            <Input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ex.: pagamento pendente" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenBloq(false)}>Cancelar</Button>
+            <Button variant="destructive" onClick={() => aplicarBloqueio(true, motivo || undefined)} disabled={savingBloq}>
+              {savingBloq && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Bloquear
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={openSenha} onOpenChange={(v) => { setOpenSenha(v); if (!v) setNovaSenha(""); }}>
         <DialogContent>
