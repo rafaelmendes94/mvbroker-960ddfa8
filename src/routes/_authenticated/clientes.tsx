@@ -235,12 +235,15 @@ function ClientesPage() {
 
   async function toggleBloqueio(r: ClienteRow) {
     if (!r.assinatura) return;
-    const novo = r.assinatura.status === "ativa" ? "bloqueada" : "ativa";
+    const estaBloqueada = r.assinatura.status === "bloqueada";
+    const novo = estaBloqueada ? "ativa" : "bloqueada";
+    if (!estaBloqueada && !confirm(`Bloquear o acesso de ${r.nome}? O cliente ficará sem acesso ao sistema até ser reativado.`)) return;
     const { error } = await supabase.from("assinaturas").update({ status: novo }).eq("id", r.assinatura.id);
     if (error) { toast.error(error.message); return; }
-    toast.success(novo === "ativa" ? "Assinatura reativada" : "Assinatura bloqueada");
+    toast.success(novo === "ativa" ? "Acesso liberado" : "Acesso bloqueado");
     load();
   }
+
 
   return (
     <>
