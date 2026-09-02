@@ -2701,6 +2701,10 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bloqueado: boolean
+          bloqueado_em: string | null
+          bloqueado_por: string | null
+          bloqueio_motivo: string | null
           created_at: string
           full_name: string | null
           id: string
@@ -2708,6 +2712,10 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bloqueado?: boolean
+          bloqueado_em?: string | null
+          bloqueado_por?: string | null
+          bloqueio_motivo?: string | null
           created_at?: string
           full_name?: string | null
           id: string
@@ -2715,6 +2723,10 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bloqueado?: boolean
+          bloqueado_em?: string | null
+          bloqueado_por?: string | null
+          bloqueio_motivo?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
