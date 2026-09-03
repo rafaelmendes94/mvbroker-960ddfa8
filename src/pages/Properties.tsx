@@ -1895,11 +1895,13 @@ export default function Properties() {
         onClose={() => setImportOpen(false)}
       />
 
-      <MeuXmlDialog
-        open={meuXmlOpen}
-        onOpenChange={setMeuXmlOpen}
-        properties={propertyList as any}
-      />
+      {isAdmin && (
+        <MeuXmlDialog
+          open={meuXmlOpen}
+          onOpenChange={setMeuXmlOpen}
+          properties={propertyList as any}
+        />
+      )}
 
 
 
