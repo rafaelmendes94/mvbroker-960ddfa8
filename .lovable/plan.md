@@ -40,7 +40,7 @@ A deduplicação também roda **dentro do próprio arquivo**, para não importar
   - `normalizarLote` — normaliza/corrige um lote de ~40 linhas;
   - `resolverDuplicados` — recebe linha + candidatos e devolve o veredito;
   - `executarImportacao` — grava em lotes com `upsert` por `codigo_interno` e `update` por id nos casos resolvidos, registrando log.
-- **IA**: Lovable AI Gateway via `createLovableAiGatewayProvider` (`src/lib/ai-gateway.server.ts`) com saída estruturada (Zod), `google/gemini-3-flash-preview` como padrão por custo/velocidade; processamento em lotes com limite de concorrência e barra de progresso.
+- **IA**: modelos Gemini pelo Lovable AI Gateway via `createLovableAiGatewayProvider` (`src/lib/ai-gateway.server.ts`) com saída estruturada (Zod). `google/gemini-3-flash-preview` para mapeamento, normalização e status; `google/gemini-3-pro-preview` apenas nos casos duvidosos de duplicidade. Processamento em lotes com limite de concorrência e barra de progresso.
 - **Busca de candidatos**: função SQL `buscar_imoveis_similares(...)` usando `pg_trgm` (extensão + índices GIN em `titulo`, `logradouro`, `bairro`, `cidade`) para performance com 5 mil+ linhas.
 - **Migration**: extensão `pg_trgm`, índices, função de busca, e tabela `import_jobs` (arquivo, usuário, status, contadores, resultado JSON) com GRANTs e RLS restrita a super admin/secretaria, para permitir reabrir o relatório depois.
 - **Segurança**: todas as server functions com middleware de autenticação e checagem de papel administrativo; nada de gravação sem confirmação explícita do usuário.
