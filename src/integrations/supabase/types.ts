@@ -3842,8 +3842,6 @@ export type Database = {
         Args: { _carteira_id: string; _user_id: string }
         Returns: boolean
       }
-      show_limit: { Args: never; Returns: number }
-      show_trgm: { Args: { "": string }; Returns: string[] }
       sync_unit_from_imovel: { Args: { p_imovel_id: string }; Returns: string }
     }
     Enums: {
