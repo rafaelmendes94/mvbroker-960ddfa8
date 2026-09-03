@@ -42,7 +42,7 @@ export function ImportacoesModal({ open, onClose }: Props) {
           </TabsList>
 
           <TabsContent value="mv-broker" className="mt-4">
-            <MvBrokerImportPage />
+            <ModeloOficialImportPage />
           </TabsContent>
           <TabsContent value="imoveis" className="mt-4">
             <ImportPage
