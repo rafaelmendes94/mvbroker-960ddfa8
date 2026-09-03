@@ -11,6 +11,8 @@ Novo módulo de importação de imóveis por planilha que usa IA para mapear col
    - correção de digitação em título, bairro, logradouro e nome do empreendimento (padroniza capitalização, remove abreviações inconsistentes);
    - `outras_caracteristicas` vira lista; condições de pagamento (financiamento, entrada, prazos) concatenadas em um único campo;
    - `estado` padrão "RS" quando ausente; título de fallback quando vazio.
+   - **Status ativo/inativo**: a planilha pode trazer a coluna de situação (Ativo/Inativo, Sim/Não, 1/0, Disponível/Vendido). A IA interpreta e converte para o status do sistema (`disponivel`, `reservado`, `vendido`) e para o campo de arquivado. Na tela de importação existe um seletor de status padrão, aplicado às linhas em que a planilha não informa nada, com opção de forçar o mesmo status em todas as linhas.
+
 4. **Detecção de duplicados** — para cada linha, o sistema busca candidatos no banco e classifica:
    - **Idêntico** (código interno igual, ou endereço+unidade equivalentes) → atualiza automaticamente o imóvel existente;
    - **Provável duplicado** (semelhança alta por empreendimento+unidade ou endereço, com diferenças de digitação) → também atualiza automaticamente, e a linha entra no relatório marcada como "atualizado por semelhança";
@@ -38,7 +40,7 @@ A deduplicação também roda **dentro do próprio arquivo**, para não importar
   - `normalizarLote` — normaliza/corrige um lote de ~40 linhas;
   - `resolverDuplicados` — recebe linha + candidatos e devolve o veredito;
   - `executarImportacao` — grava em lotes com `upsert` por `codigo_interno` e `update` por id nos casos resolvidos, registrando log.
-- **IA**: Lovable AI Gateway via `createLovableAiGatewayProvider` (`src/lib/ai-gateway.server.ts`) com saída estruturada (Zod), `google/gemini-3-flash-preview` como padrão por custo/velocidade; processamento em lotes com limite de concorrência e barra de progresso.
+- **IA**: modelos Gemini pelo Lovable AI Gateway via `createLovableAiGatewayProvider` (`src/lib/ai-gateway.server.ts`) com saída estruturada (Zod). `google/gemini-3-flash-preview` para mapeamento, normalização e status; `google/gemini-3-pro-preview` apenas nos casos duvidosos de duplicidade. Processamento em lotes com limite de concorrência e barra de progresso.
 - **Busca de candidatos**: função SQL `buscar_imoveis_similares(...)` usando `pg_trgm` (extensão + índices GIN em `titulo`, `logradouro`, `bairro`, `cidade`) para performance com 5 mil+ linhas.
 - **Migration**: extensão `pg_trgm`, índices, função de busca, e tabela `import_jobs` (arquivo, usuário, status, contadores, resultado JSON) com GRANTs e RLS restrita a super admin/secretaria, para permitir reabrir o relatório depois.
 - **Segurança**: todas as server functions com middleware de autenticação e checagem de papel administrativo; nada de gravação sem confirmação explícita do usuário.
