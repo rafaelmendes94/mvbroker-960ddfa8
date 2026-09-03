@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileSpreadsheet, Home, Building, Building2 } from "lucide-react";
-import { MvBrokerImportPage } from "@/components/import/MvBrokerImport";
+import { ModeloOficialImportPage } from "@/components/import/ModeloOficialImport";
 import { ImportPage } from "@/components/import/ImportPage";
 import {
   IMOVEIS_FIELDS_UNIQUE,
@@ -42,7 +42,7 @@ export function ImportacoesModal({ open, onClose }: Props) {
           </TabsList>
 
           <TabsContent value="mv-broker" className="mt-4">
-            <MvBrokerImportPage />
+            <ModeloOficialImportPage />
           </TabsContent>
           <TabsContent value="imoveis" className="mt-4">
             <ImportPage
