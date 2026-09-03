@@ -70,7 +70,7 @@ export function ImportIaPage() {
         const out = await iaSugerirMapeamento({ data: { headers: p.headers, sample: p.rows.slice(0, 12) } });
         const m: Record<string, string> = {};
         for (const item of out.mapping || []) {
-          if (item.campo && item.confidence !== 0 && (item.confianca ?? 1) >= 0.5) {
+          if (item.campo && (item.confianca ?? 0) >= 0.5) {
             if (!Object.values(m).includes(item.coluna)) m[item.campo] = item.coluna;
           }
         }
