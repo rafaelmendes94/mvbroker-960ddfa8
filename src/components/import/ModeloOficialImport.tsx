@@ -133,7 +133,7 @@ export function ModeloOficialImportPage() {
         if (l.acao === "atualizar" && l.duplicadoDe) {
           const patch = { ...l.registro };
           delete patch.data_captacao; // nunca alterar a data original de inclusão
-          const { error } = await supabase.from("imoveis").update(patch).eq("id", l.duplicadoDe.id);
+          const { error } = await (supabase as any).from("imoveis").update(patch).eq("id", l.duplicadoDe.id);
           if (error) erros.push(`Linha ${l.row}: ${error.message}`);
           else atualizados++;
         } else {
