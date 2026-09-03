@@ -11,6 +11,8 @@ Novo módulo de importação de imóveis por planilha que usa IA para mapear col
    - correção de digitação em título, bairro, logradouro e nome do empreendimento (padroniza capitalização, remove abreviações inconsistentes);
    - `outras_caracteristicas` vira lista; condições de pagamento (financiamento, entrada, prazos) concatenadas em um único campo;
    - `estado` padrão "RS" quando ausente; título de fallback quando vazio.
+   - **Status ativo/inativo**: a planilha pode trazer a coluna de situação (Ativo/Inativo, Sim/Não, 1/0, Disponível/Vendido). A IA interpreta e converte para o status do sistema (`disponivel`, `reservado`, `vendido`) e para o campo de arquivado. Na tela de importação existe um seletor de status padrão, aplicado às linhas em que a planilha não informa nada, com opção de forçar o mesmo status em todas as linhas.
+
 4. **Detecção de duplicados** — para cada linha, o sistema busca candidatos no banco e classifica:
    - **Idêntico** (código interno igual, ou endereço+unidade equivalentes) → atualiza automaticamente o imóvel existente;
    - **Provável duplicado** (semelhança alta por empreendimento+unidade ou endereço, com diferenças de digitação) → também atualiza automaticamente, e a linha entra no relatório marcada como "atualizado por semelhança";
