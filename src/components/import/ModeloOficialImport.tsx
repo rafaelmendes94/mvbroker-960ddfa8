@@ -137,7 +137,7 @@ export function ModeloOficialImportPage() {
           if (error) erros.push(`Linha ${l.row}: ${error.message}`);
           else atualizados++;
         } else {
-          const { error } = await supabase.from("imoveis").insert(l.registro as any);
+          const { error } = await (supabase as any).from("imoveis").insert(l.registro);
           if (error) erros.push(`Linha ${l.row}: ${error.message}`);
           else inseridos++;
         }
