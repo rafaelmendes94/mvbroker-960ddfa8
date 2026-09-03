@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Building2, Building, Home, FileSpreadsheet, Rss } from "lucide-react";
+import { Building2, Building, Home, FileSpreadsheet, Rss, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/importacoes")({
@@ -7,6 +7,7 @@ export const Route = createFileRoute("/_authenticated/importacoes")({
 });
 
 const TABS = [
+  { to: "/importacoes/imoveis-ia", label: "Imóveis com IA", icon: Sparkles },
   { to: "/importacoes/mv-broker", label: "Modelo MV Broker", icon: FileSpreadsheet },
   { to: "/importacoes/vrsync", label: "Feed VRSync", icon: Rss },
   { to: "/importacoes/imoveis", label: "Imóveis (avançado)", icon: Home },
