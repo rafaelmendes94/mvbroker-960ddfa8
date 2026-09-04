@@ -646,6 +646,9 @@ export default function Properties() {
         driveFotosUrl: row.link_drive_fotos || "",
         fotosPdfUrl: row.pdf_comercial_path || "",
         views: 0,
+        arquivado: row.arquivado === true,
+        ativoSite: row.ativo_site !== false,
+        publicarXml: row.publicar_xml !== false,
         plataformaVenda: "",
         dataVenda: "",
         };
