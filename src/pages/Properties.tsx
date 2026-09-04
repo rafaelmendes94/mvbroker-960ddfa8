@@ -1601,11 +1601,39 @@ export default function Properties() {
 
         {/* Results count + Favorites button */}
         <div className="flex items-center gap-2 px-1">
+        {/* Filtros rápidos */}
+        <div className="flex flex-wrap items-center gap-2 px-1">
+          {([
+            { key: "todos", label: "Todos" },
+            { key: "com-fotos", label: "Com fotos" },
+            { key: "sem-fotos", label: "Sem fotos" },
+            { key: "pre-importacao", label: "Pré-importação" },
+            { key: "inativos", label: "Inativos/Arquivados" },
+            { key: "sem-xml", label: "Não publicar no XML" },
+          ] as { key: typeof filterView; label: string }[]).map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilterView(f.key)}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors whitespace-nowrap",
+                filterView === f.key
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-muted-foreground border-input hover:bg-muted"
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Results count + Favorites button */}
+        <div className="flex items-center gap-2 px-1">
           <span className="text-sm font-semibold text-muted-foreground">
             {sorted.length} imóvel(is)
             {sorted.length > ITEMS_PER_PAGE && ` • Página ${currentPage} de ${totalPages}`}
           </span>
           <button
+
             onClick={() => setShowFavoritesModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent text-sm font-semibold hover:bg-accent/20 transition-colors"
           >
