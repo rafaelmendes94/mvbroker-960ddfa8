@@ -1571,9 +1571,12 @@ export default function Properties() {
               { key: "price-asc", label: "Menor Valor" },
               { key: "name-asc", label: "A → Z Edifício" },
               { key: "name-desc", label: "Z → A Edifício" },
-              { key: "updated", label: "Últ. Atualizados" },
-              { key: "created", label: "Últ. Incluídos" },
+              { key: "created-desc", label: "Incluídos: mais recentes" },
+              { key: "created-asc", label: "Incluídos: mais antigos" },
+              { key: "updated-desc", label: "Editados: mais recentes" },
+              { key: "updated-asc", label: "Editados: mais antigos" },
             ] as { key: typeof sortBy; label: string }[]).map((s) => (
+
               <button
                 key={s.key}
                 onClick={() => setSortBy(s.key)}
