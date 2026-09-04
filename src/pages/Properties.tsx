@@ -1023,12 +1023,12 @@ export default function Properties() {
 
       return true;
     });
-  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive]);
+  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive, filterStatus]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy]);
+  }, [activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy, filterStatus]);
 
   const sorted = useMemo(() => {
     if (sortBy === "default") return filtered;
