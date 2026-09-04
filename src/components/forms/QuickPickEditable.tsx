@@ -52,7 +52,7 @@ export function QuickPickEditable({
       const cur = Array.isArray(value) ? value : [];
       onChange(cur.includes(opt) ? cur.filter((s) => s !== opt) : [...cur, opt]);
     } else {
-      onChange(opt);
+      onChange(String(value) === String(opt) ? "" : opt);
     }
   }
 
