@@ -458,7 +458,8 @@ export default function Properties() {
   const [filterStreet, setFilterStreet] = useState("");
   const [filterCode, setFilterCode] = useState("");
   const [filterParking, setFilterParking] = useState("");
-  const [sortBy, setSortBy] = useState<"default" | "price-asc" | "price-desc" | "name-asc" | "name-desc" | "updated" | "created">("default");
+  const [sortBy, setSortBy] = useState<"default" | "price-asc" | "price-desc" | "name-asc" | "name-desc" | "updated-desc" | "updated-asc" | "created-desc" | "created-asc">("default");
+  const [filterView, setFilterView] = useState<"todos" | "com-fotos" | "sem-fotos" | "pre-importacao" | "inativos" | "sem-xml">("todos");
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const ITEMS_PER_PAGE = 30;
@@ -523,8 +524,8 @@ export default function Properties() {
       const { data, error } = await supabase
         .from("imoveis")
         .select("*, edificios(nome), condominios(nome), empreendimentos(nome)")
-        .eq("arquivado", false)
         .order("created_at", { ascending: false });
+
 
       if (error) {
         toast.error("Erro ao carregar imóveis");
@@ -645,6 +646,9 @@ export default function Properties() {
         driveFotosUrl: row.link_drive_fotos || "",
         fotosPdfUrl: row.pdf_comercial_path || "",
         views: 0,
+        arquivado: row.arquivado === true,
+        ativoSite: row.ativo_site !== false,
+        publicarXml: row.publicar_xml !== false,
         plataformaVenda: "",
         dataVenda: "",
         };
@@ -967,6 +971,21 @@ export default function Properties() {
 
   const filtered = useMemo(() => {
     return propertyList.filter((p) => {
+      // Filtro rápido de visualização
+      const inativo = p.arquivado === true || p.ativoSite === false || p.status === "Suspenso";
+      if (filterView === "inativos") {
+        if (!inativo) return false;
+      } else if (filterView === "pre-importacao") {
+        if (p.status !== "Pré-importação") return false;
+      } else if (filterView === "sem-xml") {
+        if (p.publicarXml !== false) return false;
+      } else {
+        // Todos / com fotos / sem fotos: nunca mostram arquivados
+        if (p.arquivado === true) return false;
+        if (filterView === "com-fotos" && (p.images?.length ?? 0) === 0) return false;
+        if (filterView === "sem-fotos" && (p.images?.length ?? 0) > 0) return false;
+      }
+
       // Freshness filter
       if (filterFreshness !== "all") {
         const days = getDaysSinceUpdate(p);
@@ -978,7 +997,7 @@ export default function Properties() {
       // Filtro explícito de status (única forma de ver Pré-importação)
       if (filterStatus) {
         if (p.status !== filterStatus) return false;
-      } else {
+      } else if (filterView === "todos" || filterView === "com-fotos" || filterView === "sem-fotos") {
         // Pré-importação nunca aparece sem o filtro explícito
         if (p.status === "Pré-importação") return false;
         // Default: only show Disponível and Reservado unless showInactive or vendidos category
@@ -986,6 +1005,7 @@ export default function Properties() {
           if (p.status !== "Disponível" && p.status !== "Reservado") return false;
         }
       }
+
 
       // Category
       if (activeCategory === "apartamentos" && p.type !== "Apartamento") return false;
@@ -1023,26 +1043,30 @@ export default function Properties() {
 
       return true;
     });
-  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive, filterStatus]);
+  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive, filterStatus, filterView]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy, filterStatus]);
+  }, [activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy, filterStatus, filterView]);
 
   const sorted = useMemo(() => {
     if (sortBy === "default") return filtered;
+    const ts = (v?: string | null) => (v ? new Date(v).getTime() : 0);
     return [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "price-desc": return b.price - a.price;
         case "price-asc": return a.price - b.price;
         case "name-asc": return (a.empreendimento || a.title).localeCompare(b.empreendimento || b.title);
         case "name-desc": return (b.empreendimento || b.title).localeCompare(a.empreendimento || a.title);
-        case "updated": return new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime();
-        case "created": return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case "updated-desc": return ts(b.updatedAt || b.createdAt) - ts(a.updatedAt || a.createdAt);
+        case "updated-asc": return ts(a.updatedAt || a.createdAt) - ts(b.updatedAt || b.createdAt);
+        case "created-desc": return ts(b.createdAt) - ts(a.createdAt);
+        case "created-asc": return ts(a.createdAt) - ts(b.createdAt);
         default: return 0;
       }
     });
+
   }, [filtered, sortBy]);
 
   // Pagination
@@ -1547,9 +1571,12 @@ export default function Properties() {
               { key: "price-asc", label: "Menor Valor" },
               { key: "name-asc", label: "A → Z Edifício" },
               { key: "name-desc", label: "Z → A Edifício" },
-              { key: "updated", label: "Últ. Atualizados" },
-              { key: "created", label: "Últ. Incluídos" },
+              { key: "created-desc", label: "Incluídos: mais recentes" },
+              { key: "created-asc", label: "Incluídos: mais antigos" },
+              { key: "updated-desc", label: "Editados: mais recentes" },
+              { key: "updated-asc", label: "Editados: mais antigos" },
             ] as { key: typeof sortBy; label: string }[]).map((s) => (
+
               <button
                 key={s.key}
                 onClick={() => setSortBy(s.key)}
@@ -1572,6 +1599,31 @@ export default function Properties() {
           </button>
         </div>
 
+        {/* Filtros rápidos */}
+        <div className="flex flex-wrap items-center gap-2 px-1">
+          {([
+            { key: "todos", label: "Todos" },
+            { key: "com-fotos", label: "Com fotos" },
+            { key: "sem-fotos", label: "Sem fotos" },
+            { key: "pre-importacao", label: "Pré-importação" },
+            { key: "inativos", label: "Inativos/Arquivados" },
+            { key: "sem-xml", label: "Não publicar no XML" },
+          ] as { key: typeof filterView; label: string }[]).map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilterView(f.key)}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors whitespace-nowrap",
+                filterView === f.key
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-muted-foreground border-input hover:bg-muted"
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
         {/* Results count + Favorites button */}
         <div className="flex items-center gap-2 px-1">
           <span className="text-sm font-semibold text-muted-foreground">
@@ -1579,6 +1631,7 @@ export default function Properties() {
             {sorted.length > ITEMS_PER_PAGE && ` • Página ${currentPage} de ${totalPages}`}
           </span>
           <button
+
             onClick={() => setShowFavoritesModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent text-sm font-semibold hover:bg-accent/20 transition-colors"
           >
@@ -2279,31 +2332,39 @@ function PropertyCard({
       <div className="relative cursor-pointer" onClick={() => onSelect?.(property)}>
         <ImageCarousel images={property.images} alt={property.title} />
 
-        {/* Owner type badge */}
-        {property.ownerType && (() => {
-          const ownerColors: Record<string, string> = {
-            Construtora: "bg-green-700 text-white border-green-800",
-            Investidor: "bg-emerald-900 text-white border-emerald-950",
-            Particular: "bg-red-700 text-white border-red-800",
-            "Adm Comercial": "bg-purple-800 text-white border-purple-900",
-            Exclusividade: "bg-blue-900 text-white border-blue-950",
-          };
-          const ownerIcons: Record<string, typeof User> = {
-            Construtora: Building2,
-            Investidor: DollarSign,
-            Particular: User,
-            "Adm Comercial": ShieldCheck,
-            Exclusividade: FileCheck,
-          };
-
-          const OwnerIcon = ownerIcons[property.ownerType] || User;
-          return (
-            <span className={cn("absolute top-3 left-3 z-20 px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-lg border flex items-center gap-1.5", ownerColors[property.ownerType] || "bg-muted text-foreground border-border")}>
-              <OwnerIcon className="w-3.5 h-3.5" />
-              {property.ownerType}
+        {/* Tags no topo esquerdo: tipo de proprietário + exclusividade */}
+        <div className="absolute top-3 left-3 z-20 flex flex-col items-start gap-1.5 max-w-[65%]">
+          {property.exclusivityTerm === "Sim" && (
+            <span className="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-lg border border-emerald-700 bg-emerald-600 text-white flex items-center gap-1.5">
+              <FileCheck className="w-3.5 h-3.5" /> Exclusivo
             </span>
-          );
-        })()}
+          )}
+          {property.ownerType && (() => {
+            const ownerColors: Record<string, string> = {
+              Construtora: "bg-green-700 text-white border-green-800",
+              Investidor: "bg-emerald-900 text-white border-emerald-950",
+              Particular: "bg-white text-emerald-600 border-emerald-200",
+              "Adm Comercial": "bg-purple-800 text-white border-purple-900",
+              Exclusividade: "bg-blue-900 text-white border-blue-950",
+            };
+            const ownerIcons: Record<string, typeof User> = {
+              Construtora: Building2,
+              Investidor: DollarSign,
+              Particular: User,
+              "Adm Comercial": ShieldCheck,
+              Exclusividade: FileCheck,
+            };
+
+            const OwnerIcon = ownerIcons[property.ownerType] || User;
+            return (
+              <span className={cn("px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-lg border flex items-center gap-1.5", ownerColors[property.ownerType] || "bg-muted text-foreground border-border")}>
+                <OwnerIcon className="w-3.5 h-3.5" />
+                {property.ownerType}
+              </span>
+            );
+          })()}
+        </div>
+
 
         {/* Exclusivity badge */}
         {property.exclusivityTermUrl && (
@@ -2342,11 +2403,6 @@ function PropertyCard({
         {/* Badges (sea/decorated) */}
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-1">
           <div className="flex gap-1 flex-wrap">
-            {property.exclusivityTerm === "Sim" && (
-              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-blue-600/90 text-white backdrop-blur-sm flex items-center gap-0.5">
-                <FileCheck className="w-2.5 h-2.5" /> Exclusividade
-              </span>
-            )}
             {property.bonus ? (
               <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-red-600/90 text-white backdrop-blur-sm flex items-center gap-0.5">
                 🎁 Bônus {formatCurrency(property.bonus)}
@@ -2731,10 +2787,10 @@ function PropertyRow({
   const updateColor = daysSinceUpdate <= 30 ? "text-emerald-500" : daysSinceUpdate <= 60 ? "text-amber-500" : "text-destructive";
 
   const ownerTypeConfig: Record<string, { icon: typeof User; color: string; label: string }> = {
-    Construtora: { icon: Building2, color: "text-blue-400 bg-blue-500/10", label: "Construtora" },
-    Investidor: { icon: DollarSign, color: "text-amber-400 bg-amber-500/10", label: "Investidor" },
-    Particular: { icon: User, color: "text-emerald-400 bg-emerald-500/10", label: "Particular" },
-    "Adm Comercial": { icon: ShieldCheck, color: "text-purple-400 bg-purple-500/10", label: "Adm Comercial" },
+    Construtora: { icon: Building2, color: "text-white bg-blue-600", label: "Construtora" },
+    Investidor: { icon: DollarSign, color: "text-white bg-amber-600", label: "Investidor" },
+    Particular: { icon: User, color: "text-emerald-600 bg-white border border-emerald-200", label: "Particular" },
+    "Adm Comercial": { icon: ShieldCheck, color: "text-white bg-purple-600", label: "Adm Comercial" },
   };
 
   const ownerTypeInfo = property.ownerType ? ownerTypeConfig[property.ownerType] : null;
@@ -2749,11 +2805,19 @@ function PropertyRow({
         {/* ── COL 1: Foto com carrossel ── */}
         <div className="relative w-full md:w-[220px] h-[200px] md:h-auto flex-shrink-0">
           <RowCarousel images={property.images.length > 0 ? property.images : [property.image]} />
-          {ownerTypeInfo && (
-            <span className={cn("absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide shadow-sm", ownerTypeInfo.color)}>
-              {ownerTypeInfo.label}
-            </span>
-          )}
+          <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1 max-w-[70%]">
+            {property.exclusivityTerm === "Sim" && (
+              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide shadow-md bg-emerald-600 text-white">
+                Exclusivo
+              </span>
+            )}
+            {ownerTypeInfo && (
+              <span className={cn("px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide shadow-md", ownerTypeInfo.color)}>
+                {ownerTypeInfo.label}
+              </span>
+            )}
+          </div>
+
           {/* Route selector on photo */}
           <button
             onClick={(e) => { e.stopPropagation(); onToggleRoute?.(property.id); }}

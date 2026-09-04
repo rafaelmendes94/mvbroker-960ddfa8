@@ -63,6 +63,9 @@ export interface Property {
   driveFotosUrl?: string;
   fotosPdfUrl?: string;
   userId?: string;
+  arquivado?: boolean;
+  ativoSite?: boolean;
+  publicarXml?: boolean;
   brokerPhoto?: string;
   brokerWhatsapp?: string;
 }
