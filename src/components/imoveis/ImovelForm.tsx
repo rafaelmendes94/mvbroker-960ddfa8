@@ -46,6 +46,7 @@ const STATUS_OPTS: { slug: string; label: string; icon: typeof Home; color: stri
   { slug: "vendido",    label: "Vendido",   icon: CheckCircle2, color: "text-red-500",    bg: "bg-red-500/10",     border: "border-red-500/30" },
   { slug: "alugado",    label: "Alugado",   icon: Key,         color: "text-blue-500",    bg: "bg-blue-500/10",    border: "border-blue-500/30" },
   { slug: "suspenso",   label: "Suspenso",  icon: Ban,         color: "text-gray-500",    bg: "bg-gray-500/10",    border: "border-gray-500/30" },
+  { slug: "pre_importacao", label: "Pré-importação", icon: Clock, color: "text-violet-500", bg: "bg-violet-500/10", border: "border-violet-500/30" },
 ];
 
 const TIPOS_FALLBACK = ["Apartamento", "Casa", "Comercial", "Terreno", "Lote", "Condomínio"];

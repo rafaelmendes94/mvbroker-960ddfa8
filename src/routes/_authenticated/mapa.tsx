@@ -30,6 +30,7 @@ const STATUS_LABEL: Record<string, string> = {
   reservado: "Reservado",
   alugado: "Alugado",
   suspenso: "Suspenso",
+  pre_importacao: "Pré-importação",
 };
 
 function titleCase(v?: string | null) {

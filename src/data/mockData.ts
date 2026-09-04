@@ -6,7 +6,7 @@ export interface Property {
   neighborhood?: string;
   city: string;
   type: "Apartamento" | "Casa" | "Comercial" | "Terreno" | "Lote" | "Condomínio";
-  status: "Disponível" | "Vendido" | "Reservado" | "Alugado" | "Suspenso";
+  status: "Disponível" | "Vendido" | "Reservado" | "Alugado" | "Suspenso" | "Pré-importação";
   price: number;
   area: number;
   privateArea?: number;
