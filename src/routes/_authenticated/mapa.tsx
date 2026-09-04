@@ -56,6 +56,7 @@ function MapaPage() {
           "id, titulo, logradouro, numero, bairro, cidade, tipo_imovel, status_imovel, preco, area_privativa, area_total, dormitorios, banheiros, vagas, latitude, longitude",
         )
         .eq("arquivado", false)
+        .neq("status_imovel", "pre_importacao")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
         .limit(2000);
