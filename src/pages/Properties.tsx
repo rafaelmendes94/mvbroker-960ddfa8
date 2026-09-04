@@ -524,8 +524,8 @@ export default function Properties() {
       const { data, error } = await supabase
         .from("imoveis")
         .select("*, edificios(nome), condominios(nome), empreendimentos(nome)")
-        .eq("arquivado", false)
         .order("created_at", { ascending: false });
+
 
       if (error) {
         toast.error("Erro ao carregar imóveis");
