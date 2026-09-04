@@ -486,6 +486,7 @@ export default function Properties() {
   });
   const [filterFreshness, setFilterFreshness] = useState<"all" | "30" | "60" | "90">("all");
   const [showInactive, setShowInactive] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<"" | Property["status"]>("");
   const [showSoldThisMonth, setShowSoldThisMonth] = useState(false);
   const catScrollRef = useRef<HTMLDivElement>(null);
   const [categories, setCategories] = useState(getSavedCategoryOrder);
@@ -515,6 +516,7 @@ export default function Properties() {
       reservado: "Reservado",
       alugado: "Alugado",
       suspenso: "Suspenso",
+      pre_importacao: "Pré-importação",
     };
 
     const fetchProperties = async () => {
