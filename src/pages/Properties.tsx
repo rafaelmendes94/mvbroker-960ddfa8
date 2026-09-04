@@ -1871,6 +1871,13 @@ export default function Properties() {
                 </div>
               </div>
               <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Status</label>
+                <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)} className="w-full px-3 py-2.5 rounded-lg border border-input text-sm bg-background text-foreground">
+                  <option value="">Padrão</option>
+                  {allStatuses.map(s => <option key={s} value={s}>{statusLabels[s]}</option>)}
+                </select>
+              </div>
+              <div>
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Mostrar inativos</label>
                 <button
                   onClick={() => setShowInactive(!showInactive)}
