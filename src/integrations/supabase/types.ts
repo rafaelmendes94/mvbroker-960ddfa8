@@ -2112,6 +2112,54 @@ export type Database = {
           },
         ]
       }
+      import_jobs: {
+        Row: {
+          arquivo_nome: string | null
+          atualizados: number
+          created_at: string
+          criados: number
+          falhas: number
+          id: string
+          ignorados: number
+          resultado: Json
+          status: string
+          tipo: string
+          total_linhas: number
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          arquivo_nome?: string | null
+          atualizados?: number
+          created_at?: string
+          criados?: number
+          falhas?: number
+          id?: string
+          ignorados?: number
+          resultado?: Json
+          status?: string
+          tipo?: string
+          total_linhas?: number
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          arquivo_nome?: string | null
+          atualizados?: number
+          created_at?: string
+          criados?: number
+          falhas?: number
+          id?: string
+          ignorados?: number
+          resultado?: Json
+          status?: string
+          tipo?: string
+          total_linhas?: number
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       integration_settings: {
         Row: {
           key: string
@@ -3555,6 +3603,32 @@ export type Database = {
           id: string
           last_sign_in_at: string
           roles: string[]
+        }[]
+      }
+      buscar_imoveis_similares: {
+        Args: {
+          p_bairro?: string
+          p_cidade?: string
+          p_codigo?: string
+          p_limit?: number
+          p_logradouro?: string
+          p_numero?: string
+          p_titulo?: string
+          p_unidade?: string
+        }
+        Returns: {
+          bairro: string
+          cidade: string
+          codigo_interno: string
+          id: string
+          logradouro: string
+          lote: string
+          numero: string
+          preco: number
+          quadra: string
+          score: number
+          titulo: string
+          unidade: string
         }[]
       }
       contar_nao_lidas: { Args: never; Returns: number }
