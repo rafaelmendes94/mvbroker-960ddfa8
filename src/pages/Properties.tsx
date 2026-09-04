@@ -732,6 +732,7 @@ export default function Properties() {
     "Reservado": "reservado",
     "Alugado": "alugado",
     "Suspenso": "suspenso",
+    "Pré-importação": "pre_importacao",
   };
 
   const persistStatus = async (
@@ -974,9 +975,16 @@ export default function Properties() {
         if (filterFreshness === "90" && days <= 90) return false;
       }
 
-      // Default: only show Disponível and Reservado unless showInactive or vendidos category
-      if (activeCategory !== "vendidos" && !showInactive) {
-        if (p.status !== "Disponível" && p.status !== "Reservado") return false;
+      // Filtro explícito de status (única forma de ver Pré-importação)
+      if (filterStatus) {
+        if (p.status !== filterStatus) return false;
+      } else {
+        // Pré-importação nunca aparece sem o filtro explícito
+        if (p.status === "Pré-importação") return false;
+        // Default: only show Disponível and Reservado unless showInactive or vendidos category
+        if (activeCategory !== "vendidos" && !showInactive) {
+          if (p.status !== "Disponível" && p.status !== "Reservado") return false;
+        }
       }
 
       // Category
