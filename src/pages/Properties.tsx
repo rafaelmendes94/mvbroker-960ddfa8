@@ -2403,11 +2403,6 @@ function PropertyCard({
         {/* Badges (sea/decorated) */}
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-1">
           <div className="flex gap-1 flex-wrap">
-            {property.exclusivityTerm === "Sim" && (
-              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-blue-600/90 text-white backdrop-blur-sm flex items-center gap-0.5">
-                <FileCheck className="w-2.5 h-2.5" /> Exclusividade
-              </span>
-            )}
             {property.bonus ? (
               <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-red-600/90 text-white backdrop-blur-sm flex items-center gap-0.5">
                 🎁 Bônus {formatCurrency(property.bonus)}
