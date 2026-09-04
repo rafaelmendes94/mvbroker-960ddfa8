@@ -971,6 +971,21 @@ export default function Properties() {
 
   const filtered = useMemo(() => {
     return propertyList.filter((p) => {
+      // Filtro rápido de visualização
+      const inativo = p.arquivado === true || p.ativoSite === false || p.status === "Suspenso";
+      if (filterView === "inativos") {
+        if (!inativo) return false;
+      } else if (filterView === "pre-importacao") {
+        if (p.status !== "Pré-importação") return false;
+      } else if (filterView === "sem-xml") {
+        if (p.publicarXml !== false) return false;
+      } else {
+        // Todos / com fotos / sem fotos: nunca mostram arquivados
+        if (p.arquivado === true) return false;
+        if (filterView === "com-fotos" && (p.images?.length ?? 0) === 0) return false;
+        if (filterView === "sem-fotos" && (p.images?.length ?? 0) > 0) return false;
+      }
+
       // Freshness filter
       if (filterFreshness !== "all") {
         const days = getDaysSinceUpdate(p);
@@ -982,7 +997,7 @@ export default function Properties() {
       // Filtro explícito de status (única forma de ver Pré-importação)
       if (filterStatus) {
         if (p.status !== filterStatus) return false;
-      } else {
+      } else if (filterView === "todos" || filterView === "com-fotos" || filterView === "sem-fotos") {
         // Pré-importação nunca aparece sem o filtro explícito
         if (p.status === "Pré-importação") return false;
         // Default: only show Disponível and Reservado unless showInactive or vendidos category
@@ -990,6 +1005,7 @@ export default function Properties() {
           if (p.status !== "Disponível" && p.status !== "Reservado") return false;
         }
       }
+
 
       // Category
       if (activeCategory === "apartamentos" && p.type !== "Apartamento") return false;
