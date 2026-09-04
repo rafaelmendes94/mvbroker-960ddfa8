@@ -1599,8 +1599,6 @@ export default function Properties() {
           </button>
         </div>
 
-        {/* Results count + Favorites button */}
-        <div className="flex items-center gap-2 px-1">
         {/* Filtros rápidos */}
         <div className="flex flex-wrap items-center gap-2 px-1">
           {([
