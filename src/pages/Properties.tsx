@@ -1457,6 +1457,13 @@ export default function Properties() {
                     <option value="500000">500k</option><option value="800000">800k</option><option value="1000000">1M</option><option value="1500000">1,5M</option><option value="2000000">2M</option>
                   </select>
                 </div>
+                <div className="flex-1 min-w-[110px]">
+                  <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5 block whitespace-nowrap">Status</label>
+                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)} className="w-full px-2 py-1.5 rounded border border-input text-[11px] bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+                    <option value="">Padrão</option>
+                    {allStatuses.map(s => <option key={s} value={s}>{statusLabels[s]}</option>)}
+                  </select>
+                </div>
                 <div className="flex-1 min-w-[75px]">
                   <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5 block whitespace-nowrap">Inativos</label>
                   <button
