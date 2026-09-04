@@ -30,6 +30,7 @@ type Etapa = "arquivo" | "mapeamento" | "processando" | "revisao" | "resultado";
 
 const STATUS_OPCOES = [
   { value: "", label: "Não definir status" },
+  { value: "pre_importacao", label: "Pré-importação (revisar antes de ativar)" },
   { value: "disponivel", label: "Disponível (ativo)" },
   { value: "reservado", label: "Reservado" },
   { value: "vendido", label: "Vendido" },

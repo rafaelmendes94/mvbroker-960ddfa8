@@ -39,6 +39,7 @@ const statusColors: Record<string, string> = {
   "Reservado": "bg-primary/100 text-white",
   "Alugado": "bg-blue-500 text-white",
   "Suspenso": "bg-muted/400 text-white",
+  "Pré-importação": "bg-violet-500 text-white",
 };
 
 function StatusSelectWithConfirm({ currentStatus, onConfirm }: { currentStatus: string; onConfirm: (s: string) => void }) {
@@ -66,7 +67,7 @@ function StatusSelectWithConfirm({ currentStatus, onConfirm }: { currentStatus: 
           statusColors[currentStatus] || "bg-muted/400 text-white"
         )}
       >
-        {(["Disponível", "Vendido", "Reservado", "Alugado", "Suspenso"] as const).map(s => (
+        {(["Disponível", "Vendido", "Reservado", "Alugado", "Suspenso", "Pré-importação"] as const).map(s => (
           <option key={s} value={s} className="text-foreground bg-card">{s}</option>
         ))}
       </select>

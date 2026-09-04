@@ -375,9 +375,9 @@ function downloadXml(xml: string, portal: string) {
   URL.revokeObjectURL(url);
 }
 
-const allStatuses: Property["status"][] = ["Disponível", "Vendido", "Reservado", "Alugado", "Suspenso"];
+const allStatuses: Property["status"][] = ["Disponível", "Vendido", "Reservado", "Alugado", "Suspenso", "Pré-importação"];
 const statusLabels: Record<Property["status"], string> = {
-  Disponível: "Ativo", Vendido: "Vendido", Reservado: "Reservado", Alugado: "Alugado", Suspenso: "Suspenso",
+  Disponível: "Ativo", Vendido: "Vendido", Reservado: "Reservado", Alugado: "Alugado", Suspenso: "Suspenso", "Pré-importação": "Pré-importação",
 };
 const statusConfig: Record<Property["status"], { color: string; bg: string; border: string; icon: typeof Home }> = {
   Disponível: { color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30", icon: Home },
@@ -385,6 +385,7 @@ const statusConfig: Record<Property["status"], { color: string; bg: string; bord
   Reservado: { color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30", icon: Clock },
   Alugado: { color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/30", icon: Key },
   Suspenso: { color: "text-gray-400", bg: "bg-gray-500/10", border: "border-gray-500/30", icon: Ban },
+  "Pré-importação": { color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/30", icon: Clock },
 };
 
 type Category = "todos" | "apartamentos" | "casas" | "terrenos" | "lotes" | "condominios" | "decorados" | "vista-mar" | "permuta" | "vendidos";
@@ -485,6 +486,7 @@ export default function Properties() {
   });
   const [filterFreshness, setFilterFreshness] = useState<"all" | "30" | "60" | "90">("all");
   const [showInactive, setShowInactive] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<"" | Property["status"]>("");
   const [showSoldThisMonth, setShowSoldThisMonth] = useState(false);
   const catScrollRef = useRef<HTMLDivElement>(null);
   const [categories, setCategories] = useState(getSavedCategoryOrder);
@@ -514,6 +516,7 @@ export default function Properties() {
       reservado: "Reservado",
       alugado: "Alugado",
       suspenso: "Suspenso",
+      pre_importacao: "Pré-importação",
     };
 
     const fetchProperties = async () => {
@@ -729,6 +732,7 @@ export default function Properties() {
     "Reservado": "reservado",
     "Alugado": "alugado",
     "Suspenso": "suspenso",
+    "Pré-importação": "pre_importacao",
   };
 
   const persistStatus = async (
@@ -862,12 +866,12 @@ export default function Properties() {
     navigate(`/contratos?${params.toString()}`);
   };
 
-  const hasActiveFilters = filterCity || filterBedrooms || filterSuites || filterPriceMin || filterPriceMax || filterCondition || filterEmpreendimento || filterType || filterOwner || filterNeighborhood || filterStreet || filterCode || filterParking;
+  const hasActiveFilters = filterCity || filterBedrooms || filterSuites || filterPriceMin || filterPriceMax || filterCondition || filterEmpreendimento || filterType || filterOwner || filterNeighborhood || filterStreet || filterCode || filterParking || filterStatus;
 
   const clearFilters = () => {
     setFilterCity(""); setFilterBedrooms(""); setFilterSuites(""); setFilterPriceMin(""); setFilterPriceMax(""); setFilterCondition("");
     setFilterEmpreendimento(""); setFilterType(""); setFilterOwner(""); setFilterNeighborhood(""); setFilterStreet(""); setFilterCode(""); setFilterParking(""); setSearch("");
-    setShowInactive(false); setSortBy("default");
+    setShowInactive(false); setSortBy("default"); setFilterStatus("");
   };
 
   const handleQuickUpdate = (id: string) => {
@@ -971,9 +975,16 @@ export default function Properties() {
         if (filterFreshness === "90" && days <= 90) return false;
       }
 
-      // Default: only show Disponível and Reservado unless showInactive or vendidos category
-      if (activeCategory !== "vendidos" && !showInactive) {
-        if (p.status !== "Disponível" && p.status !== "Reservado") return false;
+      // Filtro explícito de status (única forma de ver Pré-importação)
+      if (filterStatus) {
+        if (p.status !== filterStatus) return false;
+      } else {
+        // Pré-importação nunca aparece sem o filtro explícito
+        if (p.status === "Pré-importação") return false;
+        // Default: only show Disponível and Reservado unless showInactive or vendidos category
+        if (activeCategory !== "vendidos" && !showInactive) {
+          if (p.status !== "Disponível" && p.status !== "Reservado") return false;
+        }
       }
 
       // Category
@@ -1012,12 +1023,12 @@ export default function Properties() {
 
       return true;
     });
-  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive]);
+  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive, filterStatus]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy]);
+  }, [activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy, filterStatus]);
 
   const sorted = useMemo(() => {
     if (sortBy === "default") return filtered;
@@ -1446,6 +1457,13 @@ export default function Properties() {
                     <option value="500000">500k</option><option value="800000">800k</option><option value="1000000">1M</option><option value="1500000">1,5M</option><option value="2000000">2M</option>
                   </select>
                 </div>
+                <div className="flex-1 min-w-[110px]">
+                  <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5 block whitespace-nowrap">Status</label>
+                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)} className="w-full px-2 py-1.5 rounded border border-input text-[11px] bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+                    <option value="">Padrão</option>
+                    {allStatuses.map(s => <option key={s} value={s}>{statusLabels[s]}</option>)}
+                  </select>
+                </div>
                 <div className="flex-1 min-w-[75px]">
                   <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5 block whitespace-nowrap">Inativos</label>
                   <button
@@ -1851,6 +1869,13 @@ export default function Properties() {
                     <option value="500000">500k</option><option value="800000">800k</option><option value="1000000">1M</option><option value="1500000">1,5M</option><option value="2000000">2M</option>
                   </select>
                 </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Status</label>
+                <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)} className="w-full px-3 py-2.5 rounded-lg border border-input text-sm bg-background text-foreground">
+                  <option value="">Padrão</option>
+                  {allStatuses.map(s => <option key={s} value={s}>{statusLabels[s]}</option>)}
+                </select>
               </div>
               <div>
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Mostrar inativos</label>
