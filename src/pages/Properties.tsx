@@ -2787,10 +2787,10 @@ function PropertyRow({
   const updateColor = daysSinceUpdate <= 30 ? "text-emerald-500" : daysSinceUpdate <= 60 ? "text-amber-500" : "text-destructive";
 
   const ownerTypeConfig: Record<string, { icon: typeof User; color: string; label: string }> = {
-    Construtora: { icon: Building2, color: "text-blue-400 bg-blue-500/10", label: "Construtora" },
-    Investidor: { icon: DollarSign, color: "text-amber-400 bg-amber-500/10", label: "Investidor" },
-    Particular: { icon: User, color: "text-emerald-400 bg-emerald-500/10", label: "Particular" },
-    "Adm Comercial": { icon: ShieldCheck, color: "text-purple-400 bg-purple-500/10", label: "Adm Comercial" },
+    Construtora: { icon: Building2, color: "text-white bg-blue-600", label: "Construtora" },
+    Investidor: { icon: DollarSign, color: "text-white bg-amber-600", label: "Investidor" },
+    Particular: { icon: User, color: "text-emerald-600 bg-white border border-emerald-200", label: "Particular" },
+    "Adm Comercial": { icon: ShieldCheck, color: "text-white bg-purple-600", label: "Adm Comercial" },
   };
 
   const ownerTypeInfo = property.ownerType ? ownerTypeConfig[property.ownerType] : null;
@@ -2805,11 +2805,19 @@ function PropertyRow({
         {/* ── COL 1: Foto com carrossel ── */}
         <div className="relative w-full md:w-[220px] h-[200px] md:h-auto flex-shrink-0">
           <RowCarousel images={property.images.length > 0 ? property.images : [property.image]} />
-          {ownerTypeInfo && (
-            <span className={cn("absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide shadow-sm", ownerTypeInfo.color)}>
-              {ownerTypeInfo.label}
-            </span>
-          )}
+          <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1 max-w-[70%]">
+            {property.exclusivityTerm === "Sim" && (
+              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide shadow-md bg-emerald-600 text-white">
+                Exclusivo
+              </span>
+            )}
+            {ownerTypeInfo && (
+              <span className={cn("px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide shadow-md", ownerTypeInfo.color)}>
+                {ownerTypeInfo.label}
+              </span>
+            )}
+          </div>
+
           {/* Route selector on photo */}
           <button
             onClick={(e) => { e.stopPropagation(); onToggleRoute?.(property.id); }}
