@@ -1043,26 +1043,30 @@ export default function Properties() {
 
       return true;
     });
-  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive, filterStatus]);
+  }, [propertyList, activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, filterMine, user, showInactive, filterStatus, filterView]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy, filterStatus]);
+  }, [activeCategory, search, filterCity, filterBedrooms, filterSuites, filterPriceMin, filterPriceMax, filterCondition, filterFreshness, filterEmpreendimento, filterType, filterOwner, filterNeighborhood, filterStreet, filterCode, filterParking, showInactive, sortBy, filterStatus, filterView]);
 
   const sorted = useMemo(() => {
     if (sortBy === "default") return filtered;
+    const ts = (v?: string | null) => (v ? new Date(v).getTime() : 0);
     return [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "price-desc": return b.price - a.price;
         case "price-asc": return a.price - b.price;
         case "name-asc": return (a.empreendimento || a.title).localeCompare(b.empreendimento || b.title);
         case "name-desc": return (b.empreendimento || b.title).localeCompare(a.empreendimento || a.title);
-        case "updated": return new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime();
-        case "created": return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case "updated-desc": return ts(b.updatedAt || b.createdAt) - ts(a.updatedAt || a.createdAt);
+        case "updated-asc": return ts(a.updatedAt || a.createdAt) - ts(b.updatedAt || b.createdAt);
+        case "created-desc": return ts(b.createdAt) - ts(a.createdAt);
+        case "created-asc": return ts(a.createdAt) - ts(b.createdAt);
         default: return 0;
       }
     });
+
   }, [filtered, sortBy]);
 
   // Pagination
