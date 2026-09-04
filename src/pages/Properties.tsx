@@ -458,7 +458,8 @@ export default function Properties() {
   const [filterStreet, setFilterStreet] = useState("");
   const [filterCode, setFilterCode] = useState("");
   const [filterParking, setFilterParking] = useState("");
-  const [sortBy, setSortBy] = useState<"default" | "price-asc" | "price-desc" | "name-asc" | "name-desc" | "updated" | "created">("default");
+  const [sortBy, setSortBy] = useState<"default" | "price-asc" | "price-desc" | "name-asc" | "name-desc" | "updated-desc" | "updated-asc" | "created-desc" | "created-asc">("default");
+  const [filterView, setFilterView] = useState<"todos" | "com-fotos" | "sem-fotos" | "pre-importacao" | "inativos" | "sem-xml">("todos");
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const ITEMS_PER_PAGE = 30;
