@@ -44,13 +44,14 @@ export function ColumnMapper({ fields, headers, mapping, onChange }: Props) {
                   <select
                     value={used}
                     onChange={(e) => set(f.key, e.target.value)}
-                    className="text-xs border rounded px-2 py-1 bg-background min-w-[140px] max-w-[200px]"
+                    className="text-xs border rounded px-2 py-1 bg-background min-w-[180px] max-w-[260px]"
                   >
                     <option value="">— ignorar —</option>
                     {headers.map((h) => (
-                      <option key={h} value={h}>{h}</option>
+                      <option key={h} value={h}>{headerOptionLabel(h)}</option>
                     ))}
                   </select>
+
                 </div>
               );
             })}
