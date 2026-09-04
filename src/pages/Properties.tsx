@@ -2334,12 +2334,12 @@ function PropertyCard({
 
         {/* Tags no topo esquerdo: tipo de proprietário + exclusividade */}
         <div className="absolute top-3 left-3 z-20 flex flex-col items-start gap-1.5 max-w-[65%]">
-          {property.exclusivityTerm === "Sim" && (
+          {(property.exclusivityTerm === "Sim" || property.ownerType === "Exclusividade") && (
             <span className="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-lg border border-emerald-700 bg-emerald-600 text-white flex items-center gap-1.5">
               <FileCheck className="w-3.5 h-3.5" /> Exclusivo
             </span>
           )}
-          {property.ownerType && (() => {
+          {property.ownerType && property.ownerType !== "Exclusividade" && (() => {
             const ownerColors: Record<string, string> = {
               Construtora: "bg-green-700 text-white border-green-800",
               Investidor: "bg-emerald-900 text-white border-emerald-950",
@@ -2793,7 +2793,8 @@ function PropertyRow({
     "Adm Comercial": { icon: ShieldCheck, color: "text-white bg-purple-600", label: "Adm Comercial" },
   };
 
-  const ownerTypeInfo = property.ownerType ? ownerTypeConfig[property.ownerType] : null;
+  const isExclusivo = property.exclusivityTerm === "Sim" || property.ownerType === "Exclusividade";
+  const ownerTypeInfo = property.ownerType && property.ownerType !== "Exclusividade" ? ownerTypeConfig[property.ownerType] : null;
   const unitParts = formatUnitParts(property);
 
   return (
@@ -2806,7 +2807,7 @@ function PropertyRow({
         <div className="relative w-full md:w-[220px] h-[200px] md:h-auto flex-shrink-0">
           <RowCarousel images={property.images.length > 0 ? property.images : [property.image]} />
           <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1 max-w-[70%]">
-            {property.exclusivityTerm === "Sim" && (
+            {isExclusivo && (
               <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide shadow-md bg-emerald-600 text-white">
                 Exclusivo
               </span>
