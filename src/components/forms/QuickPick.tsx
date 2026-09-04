@@ -30,7 +30,7 @@ export function QuickPick({
             <button
               key={String(opt)}
               type="button"
-              onClick={() => onChange(opt)}
+              onClick={() => onChange(active ? "" : opt)}
               className={cn(
                 "px-3 py-1.5 rounded-md text-xs font-medium border transition-colors",
                 active
