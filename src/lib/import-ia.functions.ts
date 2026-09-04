@@ -244,10 +244,10 @@ export const executarImportacaoIa = createServerFn({ method: "POST" })
 
     for (let i = 0; i < criar.length; i += 50) {
       const batch = criar.slice(i, i + 50);
-      const { error, data: ins } = await supabase.from("imoveis").insert(batch).select("id");
+      const { error, data: ins } = await supabase.from("imoveis").insert(batch as any).select("id");
       if (error) {
         for (let j = 0; j < batch.length; j++) {
-          const { error: e1 } = await supabase.from("imoveis").insert(batch[j]).select("id").maybeSingle();
+          const { error: e1 } = await supabase.from("imoveis").insert(batch[j] as any).select("id").maybeSingle();
           if (e1) {
             falhas++;
             erros.push({ i: i + j, message: e1.message });
@@ -261,7 +261,7 @@ export const executarImportacaoIa = createServerFn({ method: "POST" })
         falhas++;
         continue;
       }
-      const { error } = await supabase.from("imoveis").update(a.dados).eq("id", a.id);
+      const { error } = await supabase.from("imoveis").update(a.dados as any).eq("id", a.id);
       if (error) {
         falhas++;
         erros.push({ i: -1, message: error.message });
