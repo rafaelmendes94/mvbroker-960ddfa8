@@ -2332,31 +2332,39 @@ function PropertyCard({
       <div className="relative cursor-pointer" onClick={() => onSelect?.(property)}>
         <ImageCarousel images={property.images} alt={property.title} />
 
-        {/* Owner type badge */}
-        {property.ownerType && (() => {
-          const ownerColors: Record<string, string> = {
-            Construtora: "bg-green-700 text-white border-green-800",
-            Investidor: "bg-emerald-900 text-white border-emerald-950",
-            Particular: "bg-red-700 text-white border-red-800",
-            "Adm Comercial": "bg-purple-800 text-white border-purple-900",
-            Exclusividade: "bg-blue-900 text-white border-blue-950",
-          };
-          const ownerIcons: Record<string, typeof User> = {
-            Construtora: Building2,
-            Investidor: DollarSign,
-            Particular: User,
-            "Adm Comercial": ShieldCheck,
-            Exclusividade: FileCheck,
-          };
-
-          const OwnerIcon = ownerIcons[property.ownerType] || User;
-          return (
-            <span className={cn("absolute top-3 left-3 z-20 px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-lg border flex items-center gap-1.5", ownerColors[property.ownerType] || "bg-muted text-foreground border-border")}>
-              <OwnerIcon className="w-3.5 h-3.5" />
-              {property.ownerType}
+        {/* Tags no topo esquerdo: tipo de proprietário + exclusividade */}
+        <div className="absolute top-3 left-3 z-20 flex flex-col items-start gap-1.5 max-w-[65%]">
+          {property.exclusivityTerm === "Sim" && (
+            <span className="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-lg border border-emerald-700 bg-emerald-600 text-white flex items-center gap-1.5">
+              <FileCheck className="w-3.5 h-3.5" /> Exclusivo
             </span>
-          );
-        })()}
+          )}
+          {property.ownerType && (() => {
+            const ownerColors: Record<string, string> = {
+              Construtora: "bg-green-700 text-white border-green-800",
+              Investidor: "bg-emerald-900 text-white border-emerald-950",
+              Particular: "bg-white text-emerald-600 border-emerald-200",
+              "Adm Comercial": "bg-purple-800 text-white border-purple-900",
+              Exclusividade: "bg-blue-900 text-white border-blue-950",
+            };
+            const ownerIcons: Record<string, typeof User> = {
+              Construtora: Building2,
+              Investidor: DollarSign,
+              Particular: User,
+              "Adm Comercial": ShieldCheck,
+              Exclusividade: FileCheck,
+            };
+
+            const OwnerIcon = ownerIcons[property.ownerType] || User;
+            return (
+              <span className={cn("px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-lg border flex items-center gap-1.5", ownerColors[property.ownerType] || "bg-muted text-foreground border-border")}>
+                <OwnerIcon className="w-3.5 h-3.5" />
+                {property.ownerType}
+              </span>
+            );
+          })()}
+        </div>
+
 
         {/* Exclusivity badge */}
         {property.exclusivityTermUrl && (
