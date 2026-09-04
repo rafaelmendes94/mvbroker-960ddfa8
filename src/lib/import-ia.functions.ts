@@ -158,15 +158,15 @@ export const buscarDuplicados = createServerFn({ method: "POST" })
       const partes = await Promise.all(
         slice.map(async (l) => {
           const { data: cands } = await context.supabase.rpc("buscar_imoveis_similares", {
-            p_codigo: l.codigo_interno || null,
-            p_cidade: l.cidade || null,
-            p_logradouro: l.logradouro || null,
-            p_numero: l.numero || null,
-            p_unidade: l.unidade || null,
-            p_bairro: l.bairro || null,
-            p_titulo: l.titulo || null,
+            p_codigo: l.codigo_interno || undefined,
+            p_cidade: l.cidade || undefined,
+            p_logradouro: l.logradouro || undefined,
+            p_numero: l.numero || undefined,
+            p_unidade: l.unidade || undefined,
+            p_bairro: l.bairro || undefined,
+            p_titulo: l.titulo || undefined,
             p_limit: 3,
-          });
+          } as any);
           const candidatos = (cands || []) as any[];
           const top = candidatos[0] || null;
           const codigoExato =
