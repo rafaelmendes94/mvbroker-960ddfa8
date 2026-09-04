@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Building2, LayoutDashboard, Users, UserSquare2,
-  BarChart3, Download, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Lock, Plug,
+  BarChart3, Download, Upload, Settings, LifeBuoy, Building, Briefcase, ShieldCheck, FolderArchive, Home, Lock, Plug,
   Tag, Sparkles, Layers, FileText, Map as MapIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,6 +40,7 @@ const SECTIONS: Section[] = [
   {
     section: "Distribuição",
     entries: [
+      { to: "/importacoes", label: "Importações", icon: Upload },
       { to: "/imoveis/exportacao", label: "Exportação de Imóveis", icon: Download },
       { to: "/carteiras", label: "Feeds XML", icon: Briefcase },
       { to: "/portais", label: "Portais", icon: Briefcase },

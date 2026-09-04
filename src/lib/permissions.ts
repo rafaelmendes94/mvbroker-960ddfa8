@@ -63,6 +63,7 @@ const SECRETARIA_ALLOW = new Set<string>([
   "/biblioteca",
   "/tabela",
   "/carteiras",
+  "/importacoes",
   "/imoveis/exportacao",
   "/perfil",
   "/notificacoes",

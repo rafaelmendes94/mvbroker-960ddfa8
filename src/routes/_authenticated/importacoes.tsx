@@ -1,9 +1,14 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { Building2, Building, Home, FileSpreadsheet, Rss, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { RoleGate } from "@/components/RoleGate";
 
 export const Route = createFileRoute("/_authenticated/importacoes")({
-  component: ImportacoesLayout,
+  component: () => (
+    <RoleGate allow={["super_admin", "secretaria"]}>
+      <ImportacoesLayout />
+    </RoleGate>
+  ),
 });
 
 const TABS = [
