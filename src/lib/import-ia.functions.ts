@@ -317,8 +317,9 @@ export const executarImportacaoIa = createServerFn({ method: "POST" })
       atualizados,
       ignorados,
       falhas,
-      resultado: { erros: erros.slice(0, 200) },
+      resultado: { erros: erros.slice(0, 200), recodificados },
     });
 
-    return { criados, atualizados, ignorados, falhas, erros };
+    return { criados, atualizados, ignorados, falhas, recodificados, erros };
   });
+
