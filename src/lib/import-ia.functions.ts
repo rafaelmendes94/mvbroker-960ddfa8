@@ -213,7 +213,7 @@ Retorne APENAS JSON {"decisoes":[{"i":<numero>,"veredito":"mesmo_imovel"|"difere
 // ---------------------------------------------------------------- execução
 
 const Acao = z.object({
-  tipo: z.enum(["criar", "atualizar", "ignorar"]),
+  tipo: z.enum(["criar", "rascunho", "atualizar", "ignorar"]),
   id: z.string().optional().nullable(),
   dados: z.record(z.string(), z.any()),
 });
