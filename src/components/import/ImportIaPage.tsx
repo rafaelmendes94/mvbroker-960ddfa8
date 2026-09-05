@@ -323,11 +323,32 @@ export function ImportIaPage() {
 
   return (
     <div className="space-y-6">
+      {etapa !== "arquivo" && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/40 px-4 py-2.5 text-sm">
+          <span className="text-muted-foreground">
+            Importação em andamento{fileName ? <> — <strong className="text-foreground">{fileName}</strong></> : null}
+          </span>
+          <button
+            onClick={() => resetImportIa()}
+            className="flex items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-xs"
+          >
+            <RotateCcw className="h-3.5 w-3.5" /> Começar de novo
+          </button>
+        </div>
+      )}
+
+      {st.linhasPerdidas && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+          A planilha era grande demais para ser guardada ao trocar de aba. Envie o arquivo novamente para continuar.
+        </div>
+      )}
+
       {erro && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {erro}
         </div>
       )}
+
 
       {etapa === "arquivo" && (
         <div className="space-y-4">
