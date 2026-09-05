@@ -62,10 +62,12 @@ export function ImportIaPage() {
         toast.error("Arquivo sem linhas.");
         return;
       }
+      resetImportIa();
       setParsed(p);
       setFileName(f.name);
       setMapping({});
       setEtapa("mapeamento");
+
       // Sugestão de mapeamento por IA (assíncrona, com fallback silencioso)
       setProgresso("Analisando colunas com IA...");
       try {
