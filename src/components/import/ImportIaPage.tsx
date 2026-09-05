@@ -232,8 +232,12 @@ export function ImportIaPage() {
       }
       const dupByI = new Map(dups.map((d: any) => [d.i, d]));
 
-      // 7) IA decide os duvidosos
-      const duvidosos = linhas.filter((l) => dupByI.get(l.idx)?.status === "duvidoso" && dupByI.get(l.idx)?.candidatos?.[0]);
+      // 7) IA decide os duvidosos e também os de código repetido
+      const duvidosos = linhas.filter((l) => {
+        const d = dupByI.get(l.idx);
+        return (d?.status === "duvidoso" || d?.status === "exato") && d?.candidatos?.[0];
+      });
+
       const decididos = new Map<number, { veredito: string; motivo?: string }>();
       for (let k = 0; k < duvidosos.length; k += 30) {
         setProgresso(`IA analisando possíveis duplicados ${k + 1}–${Math.min(k + 30, duvidosos.length)}...`);
