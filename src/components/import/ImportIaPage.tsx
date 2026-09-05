@@ -433,6 +433,9 @@ export function ImportIaPage() {
             <span className="rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-3 py-1 text-xs font-medium">
               <CheckCircle2 className="inline h-3 w-3 mr-1" />{contadores.criar} novos
             </span>
+            <span className="rounded-full bg-violet-500/10 text-violet-700 dark:text-violet-400 px-3 py-1 text-xs font-medium">
+              {contadores.rascunho} rascunhos
+            </span>
             <span className="rounded-full bg-sky-500/10 text-sky-700 dark:text-sky-400 px-3 py-1 text-xs font-medium">{contadores.atualizar} atualizações</span>
             <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">{contadores.ignorar} ignorados</span>
             {contadores.pendente > 0 && (
