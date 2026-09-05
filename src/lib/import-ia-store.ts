@@ -6,7 +6,7 @@ export type Etapa = "arquivo" | "mapeamento" | "processando" | "revisao" | "resu
 export type ReviewItem = {
   i: number;
   dados: Record<string, any>;
-  decisao: "criar" | "atualizar" | "ignorar";
+  decisao: "criar" | "rascunho" | "atualizar" | "ignorar";
   pendente: boolean;
   alvoId?: string;
   alvoTitulo?: string;
