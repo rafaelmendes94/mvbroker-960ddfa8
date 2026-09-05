@@ -1,12 +1,20 @@
-import { useMemo, useState } from "react";
-import { Sparkles, Loader2, CheckCircle2, AlertTriangle, ArrowLeft, ArrowRight } from "lucide-react";
+import { useMemo } from "react";
+import { Sparkles, Loader2, CheckCircle2, AlertTriangle, ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { FileDropzone } from "./FileDropzone";
 import { PreviewTable } from "./PreviewTable";
 import { ColumnMapper } from "./ColumnMapper";
 import { ImportReport } from "./ImportReport";
-import { parseFile, coerceValue, type ParsedFile } from "@/lib/import-runner";
+import { parseFile, coerceValue } from "@/lib/import-runner";
 import { IMOVEIS_FIELDS_UNIQUE } from "@/lib/import-schemas";
+import {
+  useImportIaState,
+  setImportIa,
+  resetImportIa,
+  getImportIaState,
+  type ReviewItem,
+  type Etapa,
+} from "@/lib/import-ia-store";
 import {
   iaSugerirMapeamento,
   iaNormalizarLote,
@@ -15,18 +23,6 @@ import {
   iaResolverDuplicados,
   executarImportacaoIa,
 } from "@/lib/import-ia.functions";
-
-type ReviewItem = {
-  i: number;
-  dados: Record<string, any>;
-  decisao: "criar" | "atualizar" | "ignorar";
-  pendente: boolean;
-  alvoId?: string;
-  alvoTitulo?: string;
-  motivo?: string;
-};
-
-type Etapa = "arquivo" | "mapeamento" | "processando" | "revisao" | "resultado";
 
 const STATUS_OPCOES = [
   { value: "", label: "Não definir status" },
@@ -40,17 +36,22 @@ const STATUS_OPCOES = [
 const FK_KEYS = ["empreendimento_nome", "condominio_nome", "edificio_nome", "imobiliaria_nome"];
 
 export function ImportIaPage() {
-  const [etapa, setEtapa] = useState<Etapa>("arquivo");
-  const [parsed, setParsed] = useState<ParsedFile | null>(null);
-  const [fileName, setFileName] = useState("");
-  const [mapping, setMapping] = useState<Record<string, string>>({});
-  const [statusPadrao, setStatusPadrao] = useState("disponivel");
-  const [forcarStatus, setForcarStatus] = useState(false);
-  const [progresso, setProgresso] = useState("");
-  const [pct, setPct] = useState(0);
-  const [itens, setItens] = useState<ReviewItem[]>([]);
-  const [resultado, setResultado] = useState<any>(null);
-  const [erro, setErro] = useState("");
+  const st = useImportIaState();
+  const { etapa, parsed, fileName, mapping, statusPadrao, forcarStatus, progresso, pct, itens, resultado, erro } = st;
+
+  const setEtapa = (v: Etapa) => setImportIa({ etapa: v });
+  const setParsed = (v: any) => setImportIa({ parsed: v });
+  const setFileName = (v: string) => setImportIa({ fileName: v });
+  const setMapping = (v: Record<string, string>) => setImportIa({ mapping: v });
+  const setStatusPadrao = (v: string) => setImportIa({ statusPadrao: v });
+  const setForcarStatus = (v: boolean) => setImportIa({ forcarStatus: v });
+  const setProgresso = (v: string) => setImportIa({ progresso: v });
+  const setPct = (v: number) => setImportIa({ pct: v });
+  const setItens = (v: ReviewItem[] | ((prev: ReviewItem[]) => ReviewItem[])) =>
+    setImportIa((s) => ({ itens: typeof v === "function" ? v(s.itens) : v }));
+  const setResultado = (v: any) => setImportIa({ resultado: v });
+  const setErro = (v: string) => setImportIa({ erro: v });
+
 
   const sample = useMemo(() => parsed?.rows.slice(0, 12) ?? [], [parsed]);
 
@@ -61,10 +62,12 @@ export function ImportIaPage() {
         toast.error("Arquivo sem linhas.");
         return;
       }
+      resetImportIa();
       setParsed(p);
       setFileName(f.name);
       setMapping({});
       setEtapa("mapeamento");
+
       // Sugestão de mapeamento por IA (assíncrona, com fallback silencioso)
       setProgresso("Analisando colunas com IA...");
       try {
@@ -320,11 +323,32 @@ export function ImportIaPage() {
 
   return (
     <div className="space-y-6">
+      {etapa !== "arquivo" && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/40 px-4 py-2.5 text-sm">
+          <span className="text-muted-foreground">
+            Importação em andamento{fileName ? <> — <strong className="text-foreground">{fileName}</strong></> : null}
+          </span>
+          <button
+            onClick={() => resetImportIa()}
+            className="flex items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-xs"
+          >
+            <RotateCcw className="h-3.5 w-3.5" /> Começar de novo
+          </button>
+        </div>
+      )}
+
+      {st.linhasPerdidas && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+          A planilha era grande demais para ser guardada ao trocar de aba. Envie o arquivo novamente para continuar.
+        </div>
+      )}
+
       {erro && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {erro}
         </div>
       )}
+
 
       {etapa === "arquivo" && (
         <div className="space-y-4">
@@ -498,7 +522,7 @@ export function ImportIaPage() {
             {resultado.criados} criados · {resultado.atualizados} atualizados · {resultado.ignorados} ignorados
           </div>
           <button
-            onClick={() => { setEtapa("arquivo"); setParsed(null); setItens([]); setResultado(null); }}
+            onClick={() => resetImportIa()}
             className="text-sm border rounded-md px-4 py-2"
           >
             Nova importação
