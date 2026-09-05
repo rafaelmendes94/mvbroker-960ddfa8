@@ -213,7 +213,7 @@ Retorne APENAS JSON {"decisoes":[{"i":<numero>,"veredito":"mesmo_imovel"|"difere
 // ---------------------------------------------------------------- execução
 
 const Acao = z.object({
-  tipo: z.enum(["criar", "atualizar", "ignorar"]),
+  tipo: z.enum(["criar", "rascunho", "atualizar", "ignorar"]),
   id: z.string().optional().nullable(),
   dados: z.record(z.string(), z.any()),
 });
@@ -238,7 +238,9 @@ export const executarImportacaoIa = createServerFn({ method: "POST" })
     let falhas = 0;
     const erros: Array<{ i: number; message: string }> = [];
 
-    const criarRaw = data.acoes.filter((a) => a.tipo === "criar").map((a) => a.dados);
+    const criarRaw = data.acoes
+      .filter((a) => a.tipo === "criar" || a.tipo === "rascunho")
+      .map((a) => (a.tipo === "rascunho" ? { ...a.dados, status_imovel: "pre_importacao", arquivado: false } : a.dados));
     const atualizar = data.acoes.filter((a) => a.tipo === "atualizar");
     ignorados = data.acoes.filter((a) => a.tipo === "ignorar").length;
     let recodificados = 0;
