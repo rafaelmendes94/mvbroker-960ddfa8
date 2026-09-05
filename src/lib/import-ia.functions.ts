@@ -238,12 +238,47 @@ export const executarImportacaoIa = createServerFn({ method: "POST" })
     let falhas = 0;
     const erros: Array<{ i: number; message: string }> = [];
 
-    const criar = data.acoes.filter((a) => a.tipo === "criar").map((a) => a.dados);
+    const criarRaw = data.acoes.filter((a) => a.tipo === "criar").map((a) => a.dados);
     const atualizar = data.acoes.filter((a) => a.tipo === "atualizar");
     ignorados = data.acoes.filter((a) => a.tipo === "ignorar").length;
 
-    for (let i = 0; i < criar.length; i += 50) {
-      const batch = criar.slice(i, i + 50);
+    // dedupe dentro do próprio arquivo por codigo_interno (mantém a última ocorrência)
+    const porCodigo = new Map<string, any>();
+    const semCodigo: any[] = [];
+    for (const d of criarRaw) {
+      const cod = String((d as any).codigo_interno ?? "").trim();
+      if (cod) {
+        if (porCodigo.has(cod)) ignorados++;
+        porCodigo.set(cod, d);
+      } else semCodigo.push(d);
+    }
+    const comCodigo = [...porCodigo.values()];
+
+    // com código: upsert por codigo_interno (atualiza se já existir no banco)
+    for (let i = 0; i < comCodigo.length; i += 50) {
+      const batch = comCodigo.slice(i, i + 50);
+      const { error, data: ups } = await supabase
+        .from("imoveis")
+        .upsert(batch as any, { onConflict: "codigo_interno" })
+        .select("id");
+      if (error) {
+        for (let j = 0; j < batch.length; j++) {
+          const { error: e1 } = await supabase
+            .from("imoveis")
+            .upsert(batch[j] as any, { onConflict: "codigo_interno" })
+            .select("id")
+            .maybeSingle();
+          if (e1) {
+            falhas++;
+            erros.push({ i: i + j, message: e1.message });
+          } else criados++;
+        }
+      } else criados += ups?.length || batch.length;
+    }
+
+    // sem código: insert normal
+    for (let i = 0; i < semCodigo.length; i += 50) {
+      const batch = semCodigo.slice(i, i + 50);
       const { error, data: ins } = await supabase.from("imoveis").insert(batch as any).select("id");
       if (error) {
         for (let j = 0; j < batch.length; j++) {
@@ -255,6 +290,7 @@ export const executarImportacaoIa = createServerFn({ method: "POST" })
         }
       } else criados += ins?.length || batch.length;
     }
+
 
     for (const a of atualizar) {
       if (!a.id) {
