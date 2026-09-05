@@ -261,8 +261,14 @@ export function ImportIaPage() {
       const itens: ReviewItem[] = linhas.map((l) => {
         const d = dupByI.get(l.idx);
         const cand = d?.candidatos?.[0];
-        if (d?.status === "exato" && cand)
-          return { i: l.idx, dados: l.dados, decisao: "atualizar", pendente: false, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: "Mesmo código interno" };
+        if (d?.status === "exato" && cand) {
+          const dec = decididos.get(l.idx);
+          if (dec?.veredito === "diferente")
+            return { i: l.idx, dados: l.dados, decisao: "criar", pendente: false, motivo: `Código repetido, imóvel diferente — novo código será gerado (IA: ${dec.motivo || "diferente"})` };
+          if (dec?.veredito === "incerto")
+            return { i: l.idx, dados: l.dados, decisao: "ignorar", pendente: true, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: dec?.motivo || "Mesmo código, mas IA em dúvida — decida manualmente" };
+          return { i: l.idx, dados: l.dados, decisao: "atualizar", pendente: false, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: `Mesmo código interno${dec?.motivo ? ` (IA: ${dec.motivo})` : ""}` };
+        }
         if (d?.status === "alto" && cand)
           return { i: l.idx, dados: l.dados, decisao: "atualizar", pendente: false, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: "Semelhança alta" };
         if (d?.status === "duvidoso" && cand) {
@@ -273,6 +279,7 @@ export function ImportIaPage() {
             return { i: l.idx, dados: l.dados, decisao: "criar", pendente: false, motivo: `IA: ${dec.motivo || "imóvel diferente"}` };
           return { i: l.idx, dados: l.dados, decisao: "ignorar", pendente: true, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: dec?.motivo || "IA em dúvida — decida manualmente" };
         }
+
         return { i: l.idx, dados: l.dados, decisao: "criar", pendente: false };
       });
 
