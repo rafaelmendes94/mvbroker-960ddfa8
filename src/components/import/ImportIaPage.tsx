@@ -465,37 +465,44 @@ export function ImportIaPage() {
                       </div>
                     </td>
                     <td className="px-2 py-1.5">
-                      {x.pendente ? (
-                        <select
-                          value={x.decisao}
-                          onChange={(e) =>
-                            setItens((prev) =>
-                              prev.map((p) =>
-                                p.i === x.i
-                                  ? { ...p, decisao: e.target.value as any, pendente: false }
-                                  : p,
-                              ),
-                            )
-                          }
-                          className="border rounded px-2 py-1 bg-background"
-                        >
-                          <option value="ignorar">Ignorar</option>
-                          <option value="criar">Criar novo</option>
-                          <option value="atualizar">Atualizar existente</option>
-                        </select>
-                      ) : (
-                        <span
-                          className={
-                            x.decisao === "criar"
-                              ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                              : x.decisao === "atualizar"
-                                ? "text-sky-600 dark:text-sky-400 font-medium"
-                                : "text-muted-foreground"
-                          }
-                        >
-                          {x.decisao === "criar" ? "Criar" : x.decisao === "atualizar" ? "Atualizar" : "Ignorar"}
-                        </span>
-                      )}
+                      <select
+                        value={x.decisao}
+                        onChange={(e) =>
+                          setItens((prev) =>
+                            prev.map((p) =>
+                              p.i === x.i
+                                ? { ...p, decisao: e.target.value as ReviewItem["decisao"], pendente: false }
+                                : p,
+                            ),
+                          )
+                        }
+                        className="border rounded px-2 py-1 bg-background"
+                      >
+                        {x.pendente ? (
+                          <>
+                            <option value="ignorar">Ignorar</option>
+                            <option value="criar">Criar</option>
+                            <option value="rascunho">Rascunho</option>
+                            <option value="atualizar">Atualizar</option>
+                          </>
+                        ) : x.decisao === "criar" || x.decisao === "rascunho" ? (
+                          <>
+                            <option value="criar">Criar</option>
+                            <option value="rascunho">Rascunho</option>
+                          </>
+                        ) : x.decisao === "atualizar" ? (
+                          <>
+                            <option value="atualizar">Atualizar</option>
+                            <option value="ignorar">Ignorar</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="ignorar">Ignorar</option>
+                            <option value="criar">Criar</option>
+                            <option value="rascunho">Rascunho</option>
+                          </>
+                        )}
+                      </select>
                     </td>
                     <td className="px-2 py-1.5 text-muted-foreground max-w-[260px]">
                       {x.motivo}
