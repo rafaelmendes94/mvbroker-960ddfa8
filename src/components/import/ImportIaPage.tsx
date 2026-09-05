@@ -522,7 +522,7 @@ export function ImportIaPage() {
             {resultado.criados} criados · {resultado.atualizados} atualizados · {resultado.ignorados} ignorados
           </div>
           <button
-            onClick={() => { setEtapa("arquivo"); setParsed(null); setItens([]); setResultado(null); }}
+            onClick={() => resetImportIa()}
             className="text-sm border rounded-md px-4 py-2"
           >
             Nova importação
