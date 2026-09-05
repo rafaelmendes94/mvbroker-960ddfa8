@@ -324,7 +324,7 @@ export function ImportIaPage() {
   }
 
   const contadores = useMemo(() => {
-    const c = { criar: 0, atualizar: 0, ignorar: 0, pendente: 0 };
+    const c = { criar: 0, rascunho: 0, atualizar: 0, ignorar: 0, pendente: 0 };
     for (const x of itens) {
       if (x.pendente) c.pendente++;
       else c[x.decisao]++;
