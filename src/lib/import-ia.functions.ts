@@ -241,44 +241,46 @@ export const executarImportacaoIa = createServerFn({ method: "POST" })
     const criarRaw = data.acoes.filter((a) => a.tipo === "criar").map((a) => a.dados);
     const atualizar = data.acoes.filter((a) => a.tipo === "atualizar");
     ignorados = data.acoes.filter((a) => a.tipo === "ignorar").length;
+    let recodificados = 0;
 
-    // dedupe dentro do próprio arquivo por codigo_interno (mantém a última ocorrência)
-    const porCodigo = new Map<string, any>();
-    const semCodigo: any[] = [];
-    for (const d of criarRaw) {
-      const cod = String((d as any).codigo_interno ?? "").trim();
-      if (cod) {
-        if (porCodigo.has(cod)) ignorados++;
-        porCodigo.set(cod, d);
-      } else semCodigo.push(d);
-    }
-    const comCodigo = [...porCodigo.values()];
-
-    // com código: upsert por codigo_interno (atualiza se já existir no banco)
-    for (let i = 0; i < comCodigo.length; i += 50) {
-      const batch = comCodigo.slice(i, i + 50);
-      const { error, data: ups } = await supabase
+    // Códigos já usados no banco (para não colidir) — só os que aparecem no arquivo
+    const codigosArquivo = criarRaw
+      .map((d) => String((d as any).codigo_interno ?? "").trim())
+      .filter(Boolean);
+    const usados = new Set<string>();
+    for (let i = 0; i < codigosArquivo.length; i += 200) {
+      const fatia = codigosArquivo.slice(i, i + 200);
+      const { data: exist } = await supabase
         .from("imoveis")
-        .upsert(batch as any, { onConflict: "codigo_interno" })
-        .select("id");
-      if (error) {
-        for (let j = 0; j < batch.length; j++) {
-          const { error: e1 } = await supabase
-            .from("imoveis")
-            .upsert(batch[j] as any, { onConflict: "codigo_interno" })
-            .select("id")
-            .maybeSingle();
-          if (e1) {
-            falhas++;
-            erros.push({ i: i + j, message: e1.message });
-          } else criados++;
-        }
-      } else criados += ups?.length || batch.length;
+        .select("codigo_interno")
+        .or(fatia.map((c) => `codigo_interno.ilike.${c.replace(/[,()]/g, "")}%`).join(","));
+      for (const r of exist || []) {
+        const c = (r as any).codigo_interno;
+        if (c) usados.add(String(c).toLowerCase());
+      }
     }
 
-    // sem código: insert normal
-    for (let i = 0; i < semCodigo.length; i += 50) {
-      const batch = semCodigo.slice(i, i + 50);
+    function codigoLivre(base: string) {
+      if (!usados.has(base.toLowerCase())) {
+        usados.add(base.toLowerCase());
+        return base;
+      }
+      let n = 2;
+      while (usados.has(`${base}-${n}`.toLowerCase())) n++;
+      const novo = `${base}-${n}`;
+      usados.add(novo.toLowerCase());
+      recodificados++;
+      return novo;
+    }
+
+    // Toda linha marcada como "criar" vira um imóvel novo, com código livre
+    const criar: any[] = criarRaw.map((d) => {
+      const cod = String((d as any).codigo_interno ?? "").trim();
+      return cod ? { ...(d as any), codigo_interno: codigoLivre(cod) } : d;
+    });
+
+    for (let i = 0; i < criar.length; i += 50) {
+      const batch = criar.slice(i, i + 50);
       const { error, data: ins } = await supabase.from("imoveis").insert(batch as any).select("id");
       if (error) {
         for (let j = 0; j < batch.length; j++) {
@@ -290,6 +292,7 @@ export const executarImportacaoIa = createServerFn({ method: "POST" })
         }
       } else criados += ins?.length || batch.length;
     }
+
 
 
     for (const a of atualizar) {
@@ -314,8 +317,9 @@ export const executarImportacaoIa = createServerFn({ method: "POST" })
       atualizados,
       ignorados,
       falhas,
-      resultado: { erros: erros.slice(0, 200) },
+      resultado: { erros: erros.slice(0, 200), recodificados },
     });
 
-    return { criados, atualizados, ignorados, falhas, erros };
+    return { criados, atualizados, ignorados, falhas, recodificados, erros };
   });
+

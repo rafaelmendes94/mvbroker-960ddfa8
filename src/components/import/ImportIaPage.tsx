@@ -232,8 +232,12 @@ export function ImportIaPage() {
       }
       const dupByI = new Map(dups.map((d: any) => [d.i, d]));
 
-      // 7) IA decide os duvidosos
-      const duvidosos = linhas.filter((l) => dupByI.get(l.idx)?.status === "duvidoso" && dupByI.get(l.idx)?.candidatos?.[0]);
+      // 7) IA decide os duvidosos e também os de código repetido
+      const duvidosos = linhas.filter((l) => {
+        const d = dupByI.get(l.idx);
+        return (d?.status === "duvidoso" || d?.status === "exato") && d?.candidatos?.[0];
+      });
+
       const decididos = new Map<number, { veredito: string; motivo?: string }>();
       for (let k = 0; k < duvidosos.length; k += 30) {
         setProgresso(`IA analisando possíveis duplicados ${k + 1}–${Math.min(k + 30, duvidosos.length)}...`);
@@ -257,8 +261,14 @@ export function ImportIaPage() {
       const itens: ReviewItem[] = linhas.map((l) => {
         const d = dupByI.get(l.idx);
         const cand = d?.candidatos?.[0];
-        if (d?.status === "exato" && cand)
-          return { i: l.idx, dados: l.dados, decisao: "atualizar", pendente: false, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: "Mesmo código interno" };
+        if (d?.status === "exato" && cand) {
+          const dec = decididos.get(l.idx);
+          if (dec?.veredito === "diferente")
+            return { i: l.idx, dados: l.dados, decisao: "criar", pendente: false, motivo: `Código repetido, imóvel diferente — novo código será gerado (IA: ${dec.motivo || "diferente"})` };
+          if (dec?.veredito === "incerto")
+            return { i: l.idx, dados: l.dados, decisao: "ignorar", pendente: true, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: dec?.motivo || "Mesmo código, mas IA em dúvida — decida manualmente" };
+          return { i: l.idx, dados: l.dados, decisao: "atualizar", pendente: false, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: `Mesmo código interno${dec?.motivo ? ` (IA: ${dec.motivo})` : ""}` };
+        }
         if (d?.status === "alto" && cand)
           return { i: l.idx, dados: l.dados, decisao: "atualizar", pendente: false, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: "Semelhança alta" };
         if (d?.status === "duvidoso" && cand) {
@@ -269,6 +279,7 @@ export function ImportIaPage() {
             return { i: l.idx, dados: l.dados, decisao: "criar", pendente: false, motivo: `IA: ${dec.motivo || "imóvel diferente"}` };
           return { i: l.idx, dados: l.dados, decisao: "ignorar", pendente: true, alvoId: cand.id, alvoTitulo: cand.titulo, motivo: dec?.motivo || "IA em dúvida — decida manualmente" };
         }
+
         return { i: l.idx, dados: l.dados, decisao: "criar", pendente: false };
       });
 
